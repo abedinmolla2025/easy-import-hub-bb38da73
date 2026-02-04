@@ -11,6 +11,18 @@ interface SplashScreenPreviewProps {
   appName?: string;
   duration: number;
   fadeOutDuration: number;
+  // Optional seasonal message
+  message?: {
+    text: string;
+    textArabic?: string;
+    textBengali?: string;
+  };
+  // Custom colors from template
+  colors?: {
+    primary: string;
+    secondary: string;
+    accent?: string;
+  };
 }
 
 const DEVICE_SIZES = {
@@ -80,8 +92,26 @@ const CrescentMoonPreview = () => (
   </motion.div>
 );
 
-// Fallback splash content
-function FallbackSplashContent({ logoUrl, appName }: { logoUrl?: string; appName?: string }) {
+// Fallback splash content with message support
+function FallbackSplashContent({ 
+  logoUrl, 
+  appName, 
+  message,
+  colors 
+}: { 
+  logoUrl?: string; 
+  appName?: string;
+  message?: {
+    text: string;
+    textArabic?: string;
+    textBengali?: string;
+  };
+  colors?: {
+    primary: string;
+    secondary: string;
+    accent?: string;
+  };
+}) {
   return (
     <>
       <IslamicPatternPreview />
@@ -137,11 +167,64 @@ function FallbackSplashContent({ logoUrl, appName }: { logoUrl?: string; appName
           <p className="text-xs text-emerald-200/70">Islamic Companion</p>
         </motion.div>
 
+        {/* Seasonal Message - Beautiful Typography */}
+        {message && (
+          <motion.div
+            className="text-center mt-3"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, type: "spring", stiffness: 150 }}
+          >
+            {/* Arabic text */}
+            {message.textArabic && (
+              <motion.p
+                className="text-sm font-arabic text-amber-200/90 mb-1"
+                style={{ textShadow: '0 0 10px rgba(251, 191, 36, 0.3)' }}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                {message.textArabic}
+              </motion.p>
+            )}
+            
+            {/* Main message with gradient */}
+            <motion.h2
+              className="text-sm font-bold tracking-wide"
+              style={{
+                background: colors?.accent 
+                  ? `linear-gradient(135deg, ${colors.secondary}, ${colors.accent})`
+                  : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              {message.text}
+            </motion.h2>
+
+            {/* Bengali text */}
+            {message.textBengali && (
+              <motion.p
+                className="text-xs text-white/80 mt-0.5"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                {message.textBengali}
+              </motion.p>
+            )}
+          </motion.div>
+        )}
+
         <motion.div
           className="flex items-center gap-1 mt-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: message ? 0.9 : 0.5 }}
         >
           {[0, 0.2, 0.4].map((delay, i) => (
             <motion.div
@@ -157,7 +240,7 @@ function FallbackSplashContent({ logoUrl, appName }: { logoUrl?: string; appName
   );
 }
 
-export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fadeOutDuration }: SplashScreenPreviewProps) {
+export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fadeOutDuration, message, colors }: SplashScreenPreviewProps) {
   const [device, setDevice] = useState<keyof typeof DEVICE_SIZES>('mobile');
   const [isPlaying, setIsPlaying] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
@@ -228,14 +311,16 @@ export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fad
         <motion.div
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
           style={{
-            background: "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
+            background: colors 
+              ? `linear-gradient(180deg, ${colors.primary} 0%, ${colors.secondary} 100%)`
+              : "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
           }}
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           {useFallback ? (
-            <FallbackSplashContent logoUrl={logoUrl} appName={appName} />
+            <FallbackSplashContent logoUrl={logoUrl} appName={appName} message={message} colors={colors} />
           ) : (
             <div className="w-full max-w-md px-8">
               <Lottie animationData={animationData} loop={true} />
@@ -313,13 +398,15 @@ export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fad
                 <div
                   className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden"
                   style={{
-                    background: "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
+                    background: colors 
+                      ? `linear-gradient(180deg, ${colors.primary} 0%, ${colors.secondary} 100%)`
+                      : "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
                     opacity: fadeOut ? 0 : 1,
                     transition: `opacity ${fadeOutDuration}ms ease-out`,
                   }}
                 >
                   {useFallback ? (
-                    <FallbackSplashContent logoUrl={logoUrl} appName={appName} />
+                    <FallbackSplashContent logoUrl={logoUrl} appName={appName} message={message} colors={colors} />
                   ) : (
                     <div className="w-full max-w-[80%] px-4">
                       <Lottie animationData={animationData} loop={true} />
@@ -333,7 +420,9 @@ export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fad
                 <div
                   className="absolute inset-0 flex items-center justify-center overflow-hidden"
                   style={{
-                    background: "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
+                    background: colors 
+                      ? `linear-gradient(180deg, ${colors.primary} 0%, ${colors.secondary} 100%)`
+                      : "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
                   }}
                 >
                   {loading ? (
@@ -342,7 +431,7 @@ export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fad
                       <p className="text-xs text-white/70">লোড হচ্ছে...</p>
                     </div>
                   ) : (
-                    <FallbackSplashContent logoUrl={logoUrl} appName={appName} />
+                    <FallbackSplashContent logoUrl={logoUrl} appName={appName} message={message} colors={colors} />
                   )}
                   
                   {/* Play overlay */}

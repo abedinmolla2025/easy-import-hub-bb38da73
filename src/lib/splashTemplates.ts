@@ -10,7 +10,16 @@ export interface SplashTemplate {
   colors: {
     primary: string;
     secondary: string;
+    accent?: string;
   };
+  // Optional seasonal message - beautifully animated
+  message?: {
+    text: string;
+    textArabic?: string;
+    textBengali?: string;
+  };
+  // Visual style preset
+  style?: 'elegant' | 'festive' | 'minimal' | 'royal' | 'spiritual';
 }
 
 // Real working Lottie animation URLs from LottieFiles CDN
@@ -25,9 +34,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets2.lottiefiles.com/packages/lf20_kxsd2ytq.json',
     duration: 3500,
     fadeOutDuration: 800,
+    style: 'royal',
     colors: {
       primary: '#0c1929',
       secondary: '#d4af37',
+      accent: '#fef3c7',
+    },
+    message: {
+      text: 'Assalamu Alaikum',
+      textArabic: 'السَّلَامُ عَلَيْكُمْ',
+      textBengali: 'আসসালামু আলাইকুম',
     },
   },
   {
@@ -38,9 +54,11 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_M9p23l.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'spiritual',
     colors: {
       primary: '#1a1a2e',
       secondary: '#eab308',
+      accent: '#fef9c3',
     },
   },
   {
@@ -51,9 +69,11 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets3.lottiefiles.com/packages/lf20_xlmz9xwm.json',
     duration: 4500,
     fadeOutDuration: 600,
+    style: 'elegant',
     colors: {
       primary: '#0f172a',
       secondary: '#fbbf24',
+      accent: '#fef3c7',
     },
   },
   {
@@ -64,9 +84,11 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets1.lottiefiles.com/packages/lf20_OT15QW.json',
     duration: 3500,
     fadeOutDuration: 600,
+    style: 'minimal',
     colors: {
       primary: '#0ea5e9',
       secondary: '#22d3ee',
+      accent: '#cffafe',
     },
   },
   {
@@ -77,9 +99,11 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets6.lottiefiles.com/packages/lf20_szviypza.json',
     duration: 4000,
     fadeOutDuration: 500,
+    style: 'elegant',
     colors: {
       primary: '#0f172a',
       secondary: '#cbd5e1',
+      accent: '#f1f5f9',
     },
   },
 
@@ -92,9 +116,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets5.lottiefiles.com/packages/lf20_puciaact.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'festive',
     colors: {
       primary: '#1a1a2e',
       secondary: '#f59e0b',
+      accent: '#fef3c7',
+    },
+    message: {
+      text: 'Ramadan Mubarak',
+      textArabic: 'رَمَضَان مُبَارَك',
+      textBengali: 'রমজান মোবারক',
     },
   },
   {
@@ -105,9 +136,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets4.lottiefiles.com/packages/lf20_1pxqjqps.json',
     duration: 4000,
     fadeOutDuration: 600,
+    style: 'elegant',
     colors: {
       primary: '#0f172a',
       secondary: '#fbbf24',
+      accent: '#fef9c3',
+    },
+    message: {
+      text: 'Ramadan Kareem',
+      textArabic: 'رَمَضَان كَرِيم',
+      textBengali: 'রমজান কারীম',
     },
   },
   {
@@ -118,9 +156,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets7.lottiefiles.com/packages/lf20_kyu7xb1v.json',
     duration: 3500,
     fadeOutDuration: 600,
+    style: 'spiritual',
     colors: {
       primary: '#0c1929',
       secondary: '#10b981',
+      accent: '#d1fae5',
+    },
+    message: {
+      text: 'Ramadan Mubarak',
+      textArabic: 'رَمَضَان مُبَارَك',
+      textBengali: 'রমজান মোবারক',
     },
   },
   {
@@ -131,9 +176,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets8.lottiefiles.com/packages/lf20_xlmz9xwm.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'royal',
     colors: {
       primary: '#7c2d12',
       secondary: '#fb923c',
+      accent: '#fed7aa',
+    },
+    message: {
+      text: 'Iftar Time',
+      textArabic: 'وَقْت الإِفْطَار',
+      textBengali: 'ইফতারের সময়',
     },
   },
   {
@@ -144,9 +196,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets2.lottiefiles.com/packages/lf20_4jlpjx3r.json',
     duration: 4500,
     fadeOutDuration: 800,
+    style: 'spiritual',
     colors: {
       primary: '#1e3a5f',
       secondary: '#22d3ee',
+      accent: '#cffafe',
+    },
+    message: {
+      text: 'Read Quran',
+      textArabic: 'اقْرَأ القُرْآن',
+      textBengali: 'কুরআন পড়ুন',
     },
   },
   {
@@ -157,9 +216,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets10.lottiefiles.com/packages/lf20_M9p23l.json',
     duration: 3500,
     fadeOutDuration: 600,
+    style: 'spiritual',
     colors: {
       primary: '#312e81',
       secondary: '#a78bfa',
+      accent: '#ede9fe',
+    },
+    message: {
+      text: 'Make Dua',
+      textArabic: 'ادْعُوا رَبَّكُم',
+      textBengali: 'দোয়া করুন',
     },
   },
   {
@@ -170,9 +236,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_kyu7xb1v.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'minimal',
     colors: {
       primary: '#1e1b4b',
       secondary: '#c4b5fd',
+      accent: '#ede9fe',
+    },
+    message: {
+      text: 'Suhoor Time',
+      textArabic: 'وَقْت السُّحُور',
+      textBengali: 'সেহরির সময়',
     },
   },
   {
@@ -183,9 +256,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json',
     duration: 4000,
     fadeOutDuration: 600,
+    style: 'spiritual',
     colors: {
       primary: '#0f172a',
       secondary: '#38bdf8',
+      accent: '#bae6fd',
+    },
+    message: {
+      text: 'Taraweeh Prayer',
+      textArabic: 'صَلَاة التَّرَاوِيح',
+      textBengali: 'তারাবীহ নামাজ',
     },
   },
 
@@ -198,9 +278,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'festive',
     colors: {
       primary: '#10b981',
       secondary: '#fbbf24',
+      accent: '#fef3c7',
+    },
+    message: {
+      text: 'Eid Mubarak',
+      textArabic: 'عِيد مُبَارَك',
+      textBengali: 'ঈদ মোবারক',
     },
   },
   {
@@ -211,9 +298,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets7.lottiefiles.com/packages/lf20_4jlpjx3r.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'royal',
     colors: {
       primary: '#8b5cf6',
       secondary: '#fcd34d',
+      accent: '#fef9c3',
+    },
+    message: {
+      text: 'Eid Mubarak',
+      textArabic: 'عِيد مُبَارَك',
+      textBengali: 'ঈদ মোবারক',
     },
   },
   {
@@ -224,9 +318,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets5.lottiefiles.com/packages/lf20_puciaact.json',
     duration: 4000,
     fadeOutDuration: 600,
+    style: 'elegant',
     colors: {
       primary: '#1e3a5f',
       secondary: '#f59e0b',
+      accent: '#fef3c7',
+    },
+    message: {
+      text: 'Eid ul-Fitr Mubarak',
+      textArabic: 'عِيد الفِطْر مُبَارَك',
+      textBengali: 'ঈদুল ফিতর মোবারক',
     },
   },
   {
@@ -237,9 +338,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets2.lottiefiles.com/packages/lf20_kxsd2ytq.json',
     duration: 3500,
     fadeOutDuration: 600,
+    style: 'spiritual',
     colors: {
       primary: '#0c1929',
       secondary: '#22c55e',
+      accent: '#bbf7d0',
+    },
+    message: {
+      text: 'Eid Prayer',
+      textArabic: 'صَلَاة العِيد',
+      textBengali: 'ঈদের নামাজ',
     },
   },
   {
@@ -250,9 +358,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets4.lottiefiles.com/packages/lf20_1pxqjqps.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'festive',
     colors: {
       primary: '#4c1d95',
       secondary: '#a78bfa',
+      accent: '#ede9fe',
+    },
+    message: {
+      text: 'Happy Eid',
+      textArabic: 'عِيد سَعِيد',
+      textBengali: 'শুভ ঈদ',
     },
   },
   {
@@ -263,9 +378,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets1.lottiefiles.com/packages/lf20_xlmz9xwm.json',
     duration: 4500,
     fadeOutDuration: 800,
+    style: 'festive',
     colors: {
       primary: '#0f172a',
       secondary: '#ec4899',
+      accent: '#fbcfe8',
+    },
+    message: {
+      text: 'Celebrate Eid',
+      textArabic: 'احْتَفِلُوا بِالعِيد',
+      textBengali: 'ঈদ উদযাপন করুন',
     },
   },
 
@@ -278,9 +400,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets6.lottiefiles.com/packages/lf20_szviypza.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'spiritual',
     colors: {
       primary: '#166534',
       secondary: '#22c55e',
+      accent: '#bbf7d0',
+    },
+    message: {
+      text: 'Eid ul-Adha Mubarak',
+      textArabic: 'عِيد الأَضْحَى مُبَارَك',
+      textBengali: 'ঈদুল আযহা মোবারক',
     },
   },
   {
@@ -291,9 +420,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_M9p23l.json',
     duration: 4500,
     fadeOutDuration: 800,
+    style: 'royal',
     colors: {
       primary: '#1c1917',
       secondary: '#d4af37',
+      accent: '#fef3c7',
+    },
+    message: {
+      text: 'Hajj Mubarak',
+      textArabic: 'حَجّ مُبَارَك',
+      textBengali: 'হজ্জ মোবারক',
     },
   },
   {
@@ -304,9 +440,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets8.lottiefiles.com/packages/lf20_xlmz9xwm.json',
     duration: 4000,
     fadeOutDuration: 600,
+    style: 'spiritual',
     colors: {
       primary: '#312e81',
       secondary: '#818cf8',
+      accent: '#c7d2fe',
+    },
+    message: {
+      text: 'Allahu Akbar',
+      textArabic: 'اللَّهُ أَكْبَر',
+      textBengali: 'আল্লাহু আকবার',
     },
   },
   {
@@ -317,9 +460,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets10.lottiefiles.com/packages/lf20_1pxqjqps.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'elegant',
     colors: {
       primary: '#1e1b4b',
       secondary: '#fbbf24',
+      accent: '#fef3c7',
+    },
+    message: {
+      text: 'Blessed Eid',
+      textArabic: 'عِيد مُبَارَك',
+      textBengali: 'মোবারক ঈদ',
     },
   },
   {
@@ -330,9 +480,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'festive',
     colors: {
       primary: '#be123c',
       secondary: '#fb7185',
+      accent: '#fecdd3',
+    },
+    message: {
+      text: 'Eid Gifts',
+      textArabic: 'هَدَايَا العِيد',
+      textBengali: 'ঈদের উপহার',
     },
   },
   {
@@ -343,9 +500,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets7.lottiefiles.com/packages/lf20_4jlpjx3r.json',
     duration: 4500,
     fadeOutDuration: 800,
+    style: 'festive',
     colors: {
       primary: '#0ea5e9',
       secondary: '#f472b6',
+      accent: '#fbcfe8',
+    },
+    message: {
+      text: 'Eid Joy',
+      textArabic: 'فَرْحَة العِيد',
+      textBengali: 'ঈদের আনন্দ',
     },
   },
 
@@ -358,9 +522,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets10.lottiefiles.com/packages/lf20_xlmz9xwm.json',
     duration: 3000,
     fadeOutDuration: 500,
+    style: 'minimal',
     colors: {
       primary: '#475569',
       secondary: '#94a3b8',
+      accent: '#e2e8f0',
+    },
+    message: {
+      text: 'Muharram',
+      textArabic: 'مُحَرَّم',
+      textBengali: 'মুহাররম',
     },
   },
   {
@@ -371,9 +542,16 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets6.lottiefiles.com/packages/lf20_szviypza.json',
     duration: 4000,
     fadeOutDuration: 600,
+    style: 'elegant',
     colors: {
       primary: '#1e293b',
       secondary: '#94a3b8',
+      accent: '#cbd5e1',
+    },
+    message: {
+      text: 'Happy Islamic New Year',
+      textArabic: 'سَنَة هِجْرِيَّة سَعِيدَة',
+      textBengali: 'শুভ হিজরি নববর্ষ',
     },
   },
 
@@ -386,9 +564,11 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets8.lottiefiles.com/packages/lf20_kyu7xb1v.json',
     duration: 3500,
     fadeOutDuration: 600,
+    style: 'minimal',
     colors: {
       primary: '#1e293b',
       secondary: '#64748b',
+      accent: '#94a3b8',
     },
   },
   {
@@ -399,9 +579,11 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets1.lottiefiles.com/packages/lf20_tll0j4bb.json',
     duration: 4000,
     fadeOutDuration: 700,
+    style: 'elegant',
     colors: {
       primary: '#059669',
       secondary: '#fbbf24',
+      accent: '#fef3c7',
     },
   },
   {
@@ -412,9 +594,11 @@ export const SPLASH_TEMPLATES: SplashTemplate[] = [
     lottieUrl: 'https://assets5.lottiefiles.com/packages/lf20_puciaact.json',
     duration: 4000,
     fadeOutDuration: 600,
+    style: 'elegant',
     colors: {
       primary: '#0f172a',
       secondary: '#6366f1',
+      accent: '#a5b4fc',
     },
   },
 ];

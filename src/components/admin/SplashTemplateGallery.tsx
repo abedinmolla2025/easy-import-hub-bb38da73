@@ -109,6 +109,8 @@ export function SplashTemplateGallery({ onSelectTemplate }: SplashTemplateGaller
                 appName={branding?.appName}
                 duration={previewTemplate.duration}
                 fadeOutDuration={previewTemplate.fadeOutDuration}
+                message={previewTemplate.message}
+                colors={previewTemplate.colors}
               />
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
@@ -146,29 +148,45 @@ export function SplashTemplateGallery({ onSelectTemplate }: SplashTemplateGaller
    return (
      <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
        <CardContent className="p-0">
-         {/* Preview Area with Gradient */}
-         <div
-           className="h-40 relative flex items-center justify-center"
-           style={{
-             background: `linear-gradient(135deg, ${template.colors.primary} 0%, ${template.colors.secondary} 100%)`,
-           }}
-         >
-           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
-           <div className="relative z-10 text-white text-center space-y-2">
-             <Sparkles className="h-12 w-12 mx-auto opacity-80" />
-             <p className="text-sm font-medium">{template.name}</p>
-           </div>
-           
-           {/* Preview Button Overlay */}
-           <Button
-             variant="secondary"
-             size="sm"
-             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-             onClick={onPreview}
-           >
-             Preview
-           </Button>
-         </div>
+        {/* Preview Area with Gradient */}
+          <div
+            className="h-40 relative flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${template.colors.primary} 0%, ${template.colors.secondary} 100%)`,
+            }}
+          >
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+            <div className="relative z-10 text-white text-center space-y-1 px-3">
+              {/* Show message if available */}
+              {template.message ? (
+                <>
+                  {template.message.textArabic && (
+                    <p className="text-sm font-arabic opacity-90">{template.message.textArabic}</p>
+                  )}
+                  <p className="text-base font-bold tracking-wide">{template.message.text}</p>
+                  {template.message.textBengali && (
+                    <p className="text-xs opacity-80">{template.message.textBengali}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-10 w-10 mx-auto opacity-80" />
+                  <p className="text-sm font-medium">{template.name}</p>
+                </>
+              )}
+            </div>
+            
+            {/* Preview Button Overlay */}
+            <Button
+              variant="secondary"
+              size="sm"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={onPreview}
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              Preview
+            </Button>
+          </div>
  
          {/* Info Section */}
          <div className="p-4 space-y-3">
