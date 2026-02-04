@@ -253,6 +253,102 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_passcode_history: {
+        Row: {
+          created_at: string
+          id: string
+          passcode_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          passcode_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          passcode_hash?: string
+        }
+        Relationships: []
+      }
+      admin_passcode_reset_tokens: {
+        Row: {
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          ip: string | null
+          used: boolean
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip?: string | null
+          used?: boolean
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip?: string | null
+          used?: boolean
+        }
+        Relationships: []
+      }
+      admin_security_config: {
+        Row: {
+          admin_email: string
+          created_at: string
+          id: number
+          passcode_hash: string | null
+          require_fingerprint: boolean
+          updated_at: string
+        }
+        Insert: {
+          admin_email?: string
+          created_at?: string
+          id?: number
+          passcode_hash?: string | null
+          require_fingerprint?: boolean
+          updated_at?: string
+        }
+        Update: {
+          admin_email?: string
+          created_at?: string
+          id?: number
+          passcode_hash?: string | null
+          require_fingerprint?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_unlock_attempts: {
+        Row: {
+          created_at: string
+          device_fingerprint: string | null
+          id: string
+          ip: string | null
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          device_fingerprint?: string | null
+          id?: string
+          ip?: string | null
+          success?: boolean
+        }
+        Update: {
+          created_at?: string
+          device_fingerprint?: string | null
+          id?: string
+          ip?: string | null
+          success?: boolean
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           description: string | null
@@ -573,6 +669,23 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_recent_admin_passcode: {
+        Args: { _limit?: number; _passcode: string }
+        Returns: boolean
+      }
+      set_admin_passcode: { Args: { new_passcode: string }; Returns: boolean }
+      update_admin_passcode: {
+        Args: { new_passcode: string }
+        Returns: boolean
+      }
+      verify_admin_passcode: {
+        Args: { _device_fingerprint: string; _passcode: string }
+        Returns: {
+          locked_until: string
+          ok: boolean
+          reason: string
+        }[]
+      }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "editor" | "user"
