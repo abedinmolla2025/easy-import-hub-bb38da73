@@ -96,11 +96,13 @@ const MosqueSilhouette = () => (
 
 export function SplashScreen(props: { 
   lottieUrl?: string; 
+  logoUrl?: string;
+  appName?: string;
   duration?: number;
   fadeOutDuration?: number;
   onComplete: () => void;
 }) {
-  const { lottieUrl, duration = 3500, fadeOutDuration = 800, onComplete } = props;
+  const { lottieUrl, logoUrl, appName = "NOOR", duration = 3500, fadeOutDuration = 800, onComplete } = props;
   const [animationData, setAnimationData] = useState<any>(null);
   const [visible, setVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
@@ -215,18 +217,24 @@ export function SplashScreen(props: {
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, delay: 0.6 }}
             >
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-xl shadow-emerald-500/30">
-                <motion.div
-                  animate={{
-                    boxShadow: [
-                      "0 0 20px rgba(16, 185, 129, 0.3)",
-                      "0 0 40px rgba(16, 185, 129, 0.5)",
-                      "0 0 20px rgba(16, 185, 129, 0.3)",
-                    ],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-full h-full rounded-2xl flex items-center justify-center"
-                >
+              <motion.div
+                animate={{
+                  boxShadow: [
+                    "0 0 20px rgba(16, 185, 129, 0.3)",
+                    "0 0 40px rgba(16, 185, 129, 0.5)",
+                    "0 0 20px rgba(16, 185, 129, 0.3)",
+                  ],
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-xl shadow-emerald-500/30 overflow-hidden"
+              >
+                {logoUrl ? (
+                  <img 
+                    src={logoUrl} 
+                    alt={appName}
+                    className="w-20 h-20 sm:w-28 sm:h-28 object-contain"
+                  />
+                ) : (
                   <svg viewBox="0 0 100 100" className="w-16 h-16 sm:w-20 sm:h-20 text-white">
                     {/* Mosque icon */}
                     <ellipse cx="50" cy="35" rx="20" ry="15" fill="currentColor" />
@@ -239,8 +247,8 @@ export function SplashScreen(props: {
                     <rect x="75" y="17" width="4" height="8" fill="currentColor" />
                     <rect x="45" y="55" width="10" height="20" rx="5" fill="#0d2818" />
                   </svg>
-                </motion.div>
-              </div>
+                )}
+              </motion.div>
             </motion.div>
 
             {/* App name */}
@@ -250,7 +258,7 @@ export function SplashScreen(props: {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
-              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-wider">NOOR</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-wider">{appName}</h1>
               <p className="mt-2 text-sm sm:text-base text-emerald-200/70">Islamic Companion</p>
             </motion.div>
 

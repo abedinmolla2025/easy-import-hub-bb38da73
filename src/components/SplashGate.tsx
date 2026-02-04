@@ -4,6 +4,8 @@ import { SplashScreen } from "@/components/SplashScreen";
 
 type SplashConfig = {
   lottieUrl?: string;
+  logoUrl?: string;
+  appName?: string;
   duration: number;
   fadeOutDuration: number;
   enabled: boolean;
@@ -51,9 +53,12 @@ export function SplashGate(props: { children: React.ReactNode }) {
         }
 
         // Use custom lottie if provided, otherwise use beautiful fallback
+        // Also pass logoUrl and appName so splash screen updates when logo changes
         setConfig({
           enabled: true,
           lottieUrl: brandingValue?.lottieSplashUrl || undefined,
+          logoUrl: brandingValue?.logoUrl || undefined,
+          appName: brandingValue?.appName || undefined,
           duration: brandingValue?.splashDuration || DEFAULT_SPLASH_CONFIG.duration,
           fadeOutDuration: brandingValue?.splashFadeOut || DEFAULT_SPLASH_CONFIG.fadeOutDuration,
         });
@@ -83,6 +88,8 @@ export function SplashGate(props: { children: React.ReactNode }) {
     <>
       <SplashScreen
         lottieUrl={configLoaded ? config.lottieUrl : undefined}
+        logoUrl={config.logoUrl}
+        appName={config.appName}
         duration={config.duration}
         fadeOutDuration={config.fadeOutDuration}
         onComplete={() => setDone(true)}
