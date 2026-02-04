@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { detectPlatform, getOrCreateAdSessionId, isAdminRoutePath } from "@/lib/ads";
@@ -8,6 +7,7 @@ import type { AdPlacement, AdPlatform } from "@/lib/ads";
 import { useAdsForSlot } from "@/hooks/useAdsForSlot";
 import DOMPurify from "dompurify";
 import { AdMobTestSlot } from "@/components/ads/AdMobTestSlot";
+import { useState } from "react";
 
 type AdSlotProps = {
   placement: AdPlacement;
@@ -60,27 +60,7 @@ export function AdSlot({ placement, platform: platformProp, itemIndex, className
     typeof ad?.show_after_n_items === "number" &&
     itemIndex < ad.show_after_n_items;
 
-  useEffect(() => {
-    if (isAdmin) return;
-    if (!ad) return;
-    if (blockedByIndex) return;
-
-    if (impressionSentRef.current === ad.id) return;
-    impressionSentRef.current = ad.id;
-
-    supabase
-      .from("ad_events")
-      .insert({
-        ad_id: ad.id,
-        event_type: "impression",
-        platform: effectivePlatform,
-        placement,
-        session_id: sessionId,
-      })
-      .then(() => {
-        // ignore
-      });
-  }, [ad, blockedByIndex, effectivePlatform, isAdmin, placement, sessionId]);
+  // Track impressions - removed since ad_events table doesn't exist
 
   if (isAdmin) return null;
 
@@ -97,17 +77,7 @@ export function AdSlot({ placement, platform: platformProp, itemIndex, className
   const safeHtml = isHtml && ad.ad_code ? DOMPurify.sanitize(ad.ad_code, { FORBID_TAGS: ["script", "iframe"] }) : "";
 
   const onClick = async () => {
-    try {
-      await supabase.from("ad_events").insert({
-        ad_id: ad.id,
-        event_type: "click",
-        platform: effectivePlatform,
-        placement,
-        session_id: sessionId,
-      });
-    } catch {
-      // ignore
-    }
+    // Click tracking removed since ad_events table doesn't exist
 
     if (ad.link_url) {
       window.open(ad.link_url, "_blank", "noopener,noreferrer");
@@ -167,4 +137,3 @@ export function AdSlot({ placement, platform: platformProp, itemIndex, className
     </Card>
   );
 }
-

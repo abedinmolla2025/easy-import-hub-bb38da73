@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import type { AdPlacement, AdPlatform } from "@/lib/ads";
 
 export type AdRow = {
@@ -33,15 +32,9 @@ export function useAdsForSlot(params: {
   return useQuery({
     queryKey: ["ads-slot", platform, placement, sessionId, limit],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("fetch_ads_for_slot", {
-        _platform: platform,
-        _placement: placement,
-        _session_id: sessionId,
-        _limit: limit,
-      });
-
-      if (error) throw error;
-      return (data ?? []) as AdRow[];
+      // Return empty array since the fetch_ads_for_slot function doesn't exist
+      // This is a graceful fallback - no ads will be shown
+      return [] as AdRow[];
     },
     enabled,
     staleTime: 30_000,

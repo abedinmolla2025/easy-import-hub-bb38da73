@@ -6,19 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Bell, MapPin, Clock, Loader2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
-const DEVICE_ID_KEY = "noor_device_id";
-
-function getOrCreateDeviceId(): string {
-  const existing = localStorage.getItem(DEVICE_ID_KEY);
-  if (existing) return existing;
-  const next = crypto.randomUUID();
-  localStorage.setItem(DEVICE_ID_KEY, next);
-  return next;
-}
+const PREFERENCES_STORAGE_KEY = "noor_prayer_notification_preferences";
 
 const CALCULATION_METHODS = [
   { value: "MWL", label: "Muslim World League" },
@@ -31,7 +22,6 @@ const CALCULATION_METHODS = [
 ];
 
 type PrayerPreference = {
-  id?: string;
   latitude: number;
   longitude: number;
   timezone: string;
@@ -47,56 +37,41 @@ type PrayerPreference = {
   enabled: boolean;
 };
 
+const defaultPreferences: PrayerPreference = {
+  latitude: 0,
+  longitude: 0,
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  calculation_method: "MWL",
+  enabled_prayers: {
+    fajr: true,
+    dhuhr: true,
+    asr: true,
+    maghrib: true,
+    isha: true,
+  },
+  notification_offset: 0,
+  enabled: true,
+};
+
 export function PrayerNotificationSettings() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [preferences, setPreferences] = useState<PrayerPreference>({
-    latitude: 0,
-    longitude: 0,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    calculation_method: "MWL",
-    enabled_prayers: {
-      fajr: true,
-      dhuhr: true,
-      asr: true,
-      maghrib: true,
-      isha: true,
-    },
-    notification_offset: 0,
-    enabled: true,
-  });
+  const [preferences, setPreferences] = useState<PrayerPreference>(defaultPreferences);
 
   useEffect(() => {
     loadPreferences();
   }, []);
 
-  const loadPreferences = async () => {
+  const loadPreferences = () => {
     setLoading(true);
     try {
-      const deviceId = getOrCreateDeviceId();
-      const { data, error } = await supabase
-        .from("user_notification_preferences")
-        .select("*")
-        .eq("device_id", deviceId)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        setPreferences({
-          id: data.id,
-          latitude: Number(data.latitude),
-          longitude: Number(data.longitude),
-          timezone: data.timezone,
-          calculation_method: data.calculation_method,
-          enabled_prayers: data.enabled_prayers as any,
-          notification_offset: data.notification_offset,
-          enabled: data.enabled,
-        });
+      const stored = localStorage.getItem(PREFERENCES_STORAGE_KEY);
+      if (stored) {
+        setPreferences(JSON.parse(stored));
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to load preferences", error);
     } finally {
       setLoading(false);
@@ -126,45 +101,10 @@ export function PrayerNotificationSettings() {
     );
   };
 
-  const savePreferences = async () => {
+  const savePreferences = () => {
     setSaving(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      const deviceId = getOrCreateDeviceId();
-
-      const payload = {
-        user_id: user?.id || null,
-        device_id: deviceId,
-        latitude: preferences.latitude,
-        longitude: preferences.longitude,
-        timezone: preferences.timezone,
-        calculation_method: preferences.calculation_method,
-        enabled_prayers: preferences.enabled_prayers,
-        notification_offset: preferences.notification_offset,
-        enabled: preferences.enabled,
-      };
-
-      if (preferences.id) {
-        const { error } = await supabase
-          .from("user_notification_preferences")
-          .update(payload)
-          .eq("id", preferences.id);
-
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from("user_notification_preferences")
-          .insert(payload)
-          .select()
-          .single();
-
-        if (error) throw error;
-        setPreferences({ ...preferences, id: data.id });
-      }
-
+      localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
       toast({ title: "Preferences saved successfully" });
     } catch (error: any) {
       toast({

@@ -65,9 +65,9 @@ interface AdminContentDuaRow {
   content_hi: string | null;
   content_ur: string | null;
   content_pronunciation: string | null;
-  content_pronunciation_en: string | null;
-  content_pronunciation_hi: string | null;
-  content_pronunciation_ur: string | null;
+  content_pronunciation_en?: string | null;
+  content_pronunciation_hi?: string | null;
+  content_pronunciation_ur?: string | null;
   category: string | null;
 }
 
@@ -104,7 +104,7 @@ const DuaPage = () => {
         return;
       }
 
-      const mapped: Dua[] = (data as AdminContentDuaRow[]).map((row) => ({
+      const mapped: Dua[] = (data as unknown as AdminContentDuaRow[]).map((row) => ({
         id: row.id,
         arabic: row.content_arabic || "",
         bengaliTransliteration: row.content_pronunciation || undefined,

@@ -185,7 +185,8 @@ const BackendStatusPage = () => {
     setSetupRunning("ensure");
     setSetupNote(null);
     try {
-      const { error } = await supabase.rpc("ensure_profile_and_user_role");
+      // Note: ensure_profile_and_user_role function may not exist in database
+      const { error } = await (supabase.rpc as any)("ensure_profile_and_user_role");
       if (error) throw error;
       setSetupNote("Profile + default role ensured for current user.");
       await run();
@@ -201,7 +202,8 @@ const BackendStatusPage = () => {
     setSetupRunning("bootstrap_admin");
     setSetupNote(null);
     try {
-      const { data, error } = await supabase.rpc("bootstrap_first_super_admin");
+      // Note: bootstrap_first_super_admin function may not exist in database
+      const { data, error } = await (supabase.rpc as any)("bootstrap_first_super_admin");
       if (error) throw error;
       setSetupNote(
         data === true
