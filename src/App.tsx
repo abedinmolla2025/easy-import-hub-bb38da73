@@ -43,6 +43,8 @@ import AdminSeoPage from "./pages/admin/AdminSeo";
 import AdminPageBuilder from "./pages/admin/AdminPageBuilder";
 import AdminQuiz from "./pages/admin/AdminQuiz";
 import AdminSplashScreens from "./pages/admin/AdminSplashScreens";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminFinance from "./pages/admin/AdminFinance";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AdminLayout } from "./components/admin/AdminLayout";
@@ -146,7 +148,7 @@ const AppRoutes = () => (
       path="/admin/reports"
       element={
         <AdminLayout>
-          <AdminAnalytics />
+          <AdminReports />
         </AdminLayout>
       }
     />
@@ -154,7 +156,7 @@ const AppRoutes = () => (
       path="/admin/finance"
       element={
         <AdminLayout>
-          <AdminMonetization />
+          <AdminFinance />
         </AdminLayout>
       }
     />
