@@ -1,511 +1,472 @@
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAppSettings } from "@/hooks/useAppSettings";
-import {
-  Palette,
-  Globe,
-  Settings2,
-  LayoutGrid,
-  Image,
-  Loader2,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEffect, useRef, useState, ChangeEvent } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import BackendHealthWidget from '@/components/BackendHealthWidget';
+import { BrandingSeoImageManager } from '@/components/admin/BrandingSeoImageManager';
+import { BrandingSeoLivePreview } from '@/components/admin/BrandingSeoLivePreview';
+import { AppNameEditor } from '@/components/admin/AppNameEditor';
+import { Loader2 } from 'lucide-react';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Branding Tab
-───────────────────────────────────────────────────────────────────────────── */
-function BrandingTab() {
-  const { data, loading, saving, save } = useAppSettings("branding");
-  const [form, setForm] = useState(data ?? {});
+interface AppSettingRow {
+  id: string;
+  setting_key: string;
+  setting_value: any;
+}
 
-  // Sync when data loads
-  if (!loading && data && Object.keys(form).length === 0 && Object.keys(data).length > 0) {
-    setForm(data);
-  }
+const BRANDING_KEY = 'branding';
+const THEME_KEY = 'theme';
+const SEO_KEY = 'seo';
+const SYSTEM_KEY = 'system';
+const MODULES_KEY = 'modules';
 
-  if (loading) return <SettingsSkeleton />;
+export default function AdminSettings() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleChange = (key: string, value: string | number) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const { data: settings } = useQuery<AppSettingRow[]>({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('app_settings').select('*');
+      if (error) throw error;
+      return data as AppSettingRow[];
+    },
+  });
+
+  const getValue = (key: string) =>
+    settings?.find((s) => s.setting_key === key)?.setting_value ?? {};
+
+  const [branding, setBranding] = useState(() => getValue(BRANDING_KEY));
+  const [theme, setTheme] = useState(() => getValue(THEME_KEY));
+  const [seo, setSeo] = useState(() => getValue(SEO_KEY));
+  const [system, setSystem] = useState(() => ({
+    maintenanceMode: false,
+    showAds: false,
+    forceUpdate: false,
+    ...(getValue(SYSTEM_KEY) || {}),
+  }));
+  const [modules, setModules] = useState(() => ({
+    prayerTimes: true,
+    quran: true,
+    duas: true,
+    hadith: true,
+    calendar: true,
+    quiz: true,
+    ...(getValue(MODULES_KEY) || {}),
+  }));
+
+  // Hydrate local form state after async settings load (only once)
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (!settings || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    setBranding(getValue(BRANDING_KEY));
+    setTheme(getValue(THEME_KEY));
+    setSeo(getValue(SEO_KEY));
+    setSystem((prev) => ({
+      ...prev,
+      ...(getValue(SYSTEM_KEY) || {}),
+    }));
+    setModules((prev) => ({
+      ...prev,
+      ...(getValue(MODULES_KEY) || {}),
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
+  const updateSettingMutation = useMutation({
+    mutationFn: async ({
+      key,
+      value,
+    }: {
+      key: string;
+      value: any;
+    }) => {
+      const { error } = await supabase
+        .from('app_settings')
+        .upsert(
+          { setting_key: key, setting_value: value },
+          {
+            onConflict: 'setting_key',
+          },
+        );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+      toast({ title: 'Settings updated' });
+    },
+    onError: (e: any) => {
+      toast({
+        title: 'Save failed',
+        description: e?.message ?? 'Could not save settings',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleSimpleChange = (
+    updater: (value: any) => void,
+    field: string,
+  ) =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      updater((prev: any) => ({ ...prev, [field]: e.target.value }));
+    };
+
+  const handleSwitchChange = (
+    updater: (value: any) => void,
+    field: string,
+  ) =>
+    (checked: boolean) => {
+      updater((prev: any) => ({ ...prev, [field]: checked }));
+    };
+
+  const handleModulesToggle = (field: keyof typeof modules) => (checked: boolean) => {
+    setModules((prev) => ({ ...prev, [field]: checked }));
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Image className="h-5 w-5" /> Branding
-        </CardTitle>
-        <CardDescription>অ্যাপের নাম, লোগো এবং ব্র্যান্ডিং কনফিগার করুন</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="appName">App Name</Label>
-            <Input
-              id="appName"
-              value={form.appName ?? ""}
-              onChange={(e) => handleChange("appName", e.target.value)}
-              placeholder="NOOR"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tagline">Tagline</Label>
-            <Input
-              id="tagline"
-              value={form.tagline ?? ""}
-              onChange={(e) => handleChange("tagline", e.target.value)}
-              placeholder="Your Islamic Companion"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="logoUrl">Logo URL</Label>
-            <Input
-              id="logoUrl"
-              value={form.logoUrl ?? ""}
-              onChange={(e) => handleChange("logoUrl", e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="iconUrl">Icon URL</Label>
-            <Input
-              id="iconUrl"
-              value={form.iconUrl ?? ""}
-              onChange={(e) => handleChange("iconUrl", e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="faviconUrl">Favicon URL</Label>
-            <Input
-              id="faviconUrl"
-              value={form.faviconUrl ?? ""}
-              onChange={(e) => handleChange("faviconUrl", e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
-        </div>
-
-        <div className="border-t pt-4">
-          <h4 className="mb-3 text-sm font-medium">App Name Typography</h4>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="fontFamily">Font Family</Label>
-              <Input
-                id="fontFamily"
-                value={form.fontFamily ?? ""}
-                onChange={(e) => handleChange("fontFamily", e.target.value)}
-                placeholder="Inter, system-ui"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fontSize">Font Size</Label>
-              <Input
-                id="fontSize"
-                type="number"
-                value={form.fontSize ?? ""}
-                onChange={(e) => handleChange("fontSize", Number(e.target.value))}
-                placeholder="24"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fontWeight">Font Weight</Label>
-              <Input
-                id="fontWeight"
-                value={form.fontWeight ?? ""}
-                onChange={(e) => handleChange("fontWeight", e.target.value)}
-                placeholder="700"
-              />
-            </div>
-          </div>
-        </div>
-
-        <Button onClick={() => save(form)} disabled={saving} className="mt-4">
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          সেভ করুন
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Theme Tab
-───────────────────────────────────────────────────────────────────────────── */
-function ThemeTab() {
-  const { data, loading, saving, save } = useAppSettings("theme");
-  const [form, setForm] = useState(data ?? {});
-
-  if (!loading && data && Object.keys(form).length === 0 && Object.keys(data).length > 0) {
-    setForm(data);
-  }
-
-  if (loading) return <SettingsSkeleton />;
-
-  const handleChange = (key: string, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const handleSave = (key: string, value: any) => {
+    updateSettingMutation.mutate({ key, value });
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Palette className="h-5 w-5" /> Theme
-        </CardTitle>
-        <CardDescription>অ্যাপের কালার এবং থিম কনফিগার করুন</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="primaryColor">Primary Color (HSL)</Label>
-            <Input
-              id="primaryColor"
-              value={form.primaryColor ?? ""}
-              onChange={(e) => handleChange("primaryColor", e.target.value)}
-              placeholder="158 64% 35%"
-            />
-            <p className="text-xs text-muted-foreground">Format: H S% L%</p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="secondaryColor">Secondary Color (HSL)</Label>
-            <Input
-              id="secondaryColor"
-              value={form.secondaryColor ?? ""}
-              onChange={(e) => handleChange("secondaryColor", e.target.value)}
-              placeholder="210 40% 96%"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="accentColor">Accent Color (HSL)</Label>
-            <Input
-              id="accentColor"
-              value={form.accentColor ?? ""}
-              onChange={(e) => handleChange("accentColor", e.target.value)}
-              placeholder="45 93% 47%"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="borderRadius">Border Radius</Label>
-            <Input
-              id="borderRadius"
-              value={form.borderRadius ?? ""}
-              onChange={(e) => handleChange("borderRadius", e.target.value)}
-              placeholder="0.5rem"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="fontFamily">Font Family</Label>
-            <Input
-              id="fontFamily"
-              value={form.fontFamily ?? ""}
-              onChange={(e) => handleChange("fontFamily", e.target.value)}
-              placeholder="Inter, sans-serif"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="defaultMode">Default Mode</Label>
-            <select
-              id="defaultMode"
-              value={form.defaultMode ?? "light"}
-              onChange={(e) => handleChange("defaultMode", e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
-          </div>
-        </div>
-
-        <Button onClick={() => save(form)} disabled={saving} className="mt-4">
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          সেভ করুন
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   SEO Tab
-───────────────────────────────────────────────────────────────────────────── */
-function SeoTab() {
-  const { data, loading, saving, save } = useAppSettings("seo");
-  const [form, setForm] = useState(data ?? {});
-
-  if (!loading && data && Object.keys(form).length === 0 && Object.keys(data).length > 0) {
-    setForm(data);
-  }
-
-  if (loading) return <SettingsSkeleton />;
-
-  const handleChange = (key: string, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Globe className="h-5 w-5" /> SEO
-        </CardTitle>
-        <CardDescription>সার্চ ইঞ্জিন অপ্টিমাইজেশন সেটিংস</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="title">Site Title</Label>
-          <Input
-            id="title"
-            value={form.title ?? ""}
-            onChange={(e) => handleChange("title", e.target.value)}
-            placeholder="NOOR - Islamic App"
-          />
-          <p className="text-xs text-muted-foreground">60 characters max recommended</p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="description">Meta Description</Label>
-          <textarea
-            id="description"
-            value={form.description ?? ""}
-            onChange={(e) => handleChange("description", e.target.value)}
-            placeholder="Your Islamic companion for prayer times, Quran, duas..."
-            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground"
-          />
-          <p className="text-xs text-muted-foreground">160 characters max recommended</p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="shareImageUrl">Share Image URL (OG Image)</Label>
-          <Input
-            id="shareImageUrl"
-            value={form.shareImageUrl ?? ""}
-            onChange={(e) => handleChange("shareImageUrl", e.target.value)}
-            placeholder="https://..."
-          />
-          <p className="text-xs text-muted-foreground">Recommended: 1200x630 pixels</p>
-        </div>
-
-        <Button onClick={() => save(form)} disabled={saving} className="mt-4">
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          সেভ করুন
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   System Tab
-───────────────────────────────────────────────────────────────────────────── */
-function SystemTab() {
-  const { data, loading, saving, save } = useAppSettings("system");
-  const [form, setForm] = useState(data ?? {});
-
-  if (!loading && data && Object.keys(form).length === 0 && Object.keys(data).length > 0) {
-    setForm(data);
-  }
-
-  if (loading) return <SettingsSkeleton />;
-
-  const handleToggle = (key: string, value: boolean) => {
-    const updated = { ...form, [key]: value };
-    setForm(updated);
-    save(updated);
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Settings2 className="h-5 w-5" /> System
-        </CardTitle>
-        <CardDescription>সিস্টেম এবং অ্যাপ সেটিংস</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Maintenance Mode</Label>
-            <p className="text-sm text-muted-foreground">অ্যাপকে মেইনটেন্যান্স মোডে রাখুন</p>
-          </div>
-          <Switch
-            checked={form.maintenanceMode ?? false}
-            onCheckedChange={(v) => handleToggle("maintenanceMode", v)}
-            disabled={saving}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Show Ads</Label>
-            <p className="text-sm text-muted-foreground">অ্যাপে বিজ্ঞাপন দেখান</p>
-          </div>
-          <Switch
-            checked={form.showAds ?? false}
-            onCheckedChange={(v) => handleToggle("showAds", v)}
-            disabled={saving}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Force Update</Label>
-            <p className="text-sm text-muted-foreground">ইউজারদের আপডেট করতে বাধ্য করুন</p>
-          </div>
-          <Switch
-            checked={form.forceUpdate ?? false}
-            onCheckedChange={(v) => handleToggle("forceUpdate", v)}
-            disabled={saving}
-          />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Modules Tab
-───────────────────────────────────────────────────────────────────────────── */
-function ModulesTab() {
-  const { data, loading, saving, save } = useAppSettings("modules");
-  const [form, setForm] = useState(data ?? {});
-
-  if (!loading && data && Object.keys(form).length === 0 && Object.keys(data).length > 0) {
-    setForm(data);
-  }
-
-  if (loading) return <SettingsSkeleton />;
-
-  const handleToggle = (key: string, value: boolean) => {
-    const updated = { ...form, [key]: value };
-    setForm(updated);
-    save(updated);
-  };
-
-  const modules = [
-    { key: "prayerTimes", label: "Prayer Times", description: "নামাজের সময়সূচী মডিউল" },
-    { key: "quran", label: "Quran", description: "কুরআন রিডার মডিউল" },
-    { key: "duas", label: "Duas", description: "দোয়া সংগ্রহ মডিউল" },
-    { key: "hadith", label: "Hadith", description: "হাদিস মডিউল" },
-    { key: "calendar", label: "Islamic Calendar", description: "ইসলামিক ক্যালেন্ডার" },
-    { key: "quiz", label: "Quiz", description: "ইসলামিক কুইজ মডিউল" },
-  ];
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <LayoutGrid className="h-5 w-5" /> Modules
-        </CardTitle>
-        <CardDescription>অ্যাপের বিভিন্ন মডিউল চালু/বন্ধ করুন</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {modules.map((mod) => (
-          <div key={mod.key} className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>{mod.label}</Label>
-              <p className="text-sm text-muted-foreground">{mod.description}</p>
-            </div>
-            <Switch
-              checked={(form as any)[mod.key] ?? true}
-              onCheckedChange={(v) => handleToggle(mod.key, v)}
-              disabled={saving}
-            />
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Skeleton
-───────────────────────────────────────────────────────────────────────────── */
-function SettingsSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="h-6 w-32" />
-        <Skeleton className="h-4 w-48" />
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-3/4" />
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Main Component
-───────────────────────────────────────────────────────────────────────────── */
-const AdminSettings = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">অ্যাপ্লিকেশনের সকল সেটিংস কনফিগার করুন</p>
+        <h1 className="text-3xl font-bold">Global App Settings</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage branding, theme, SEO and system behavior for the entire app.
+        </p>
       </div>
 
-      <Tabs defaultValue="branding" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 gap-2 sm:grid-cols-5">
-          <TabsTrigger value="branding" className="gap-1.5">
-            <Image className="h-4 w-4" />
-            <span className="hidden sm:inline">Branding</span>
-          </TabsTrigger>
-          <TabsTrigger value="theme" className="gap-1.5">
-            <Palette className="h-4 w-4" />
-            <span className="hidden sm:inline">Theme</span>
-          </TabsTrigger>
-          <TabsTrigger value="seo" className="gap-1.5">
-            <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">SEO</span>
-          </TabsTrigger>
-          <TabsTrigger value="system" className="gap-1.5">
-            <Settings2 className="h-4 w-4" />
-            <span className="hidden sm:inline">System</span>
-          </TabsTrigger>
-          <TabsTrigger value="modules" className="gap-1.5">
-            <LayoutGrid className="h-4 w-4" />
-            <span className="hidden sm:inline">Modules</span>
-          </TabsTrigger>
+      <Tabs defaultValue="branding">
+        <TabsList className="mb-4 flex flex-wrap gap-2">
+          <TabsTrigger value="branding">Branding</TabsTrigger>
+          <TabsTrigger value="theme">Theme</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
+          <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="modules">Modules</TabsTrigger>
+          <TabsTrigger value="health">Health</TabsTrigger>
         </TabsList>
 
         <TabsContent value="branding">
-          <BrandingTab />
+          <div className="space-y-6">
+            <AppNameEditor branding={branding} onChange={setBranding} />
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Logo & Images</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <BrandingSeoImageManager
+                    branding={branding}
+                    setBranding={setBranding}
+                    seo={seo}
+                    setSeo={setSeo}
+                    onAutoSaveSetting={(key, value) => {
+                      updateSettingMutation.mutate({ key, value });
+                    }}
+                  />
+                  <BrandingSeoLivePreview branding={branding} seo={seo} />
+                </div>
+
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={() => handleSave(BRANDING_KEY, branding)}
+                    disabled={updateSettingMutation.isPending}
+                  >
+                    {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save branding
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
+
         <TabsContent value="theme">
-          <ThemeTab />
+          <Card>
+            <CardHeader>
+              <CardTitle>Theme</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Colors are HSL values (e.g. <code>158 64% 35%</code>) that map directly to the
+                Tailwind design tokens like <code>--primary</code>.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="primaryColor">Primary color (HSL)</Label>
+                  <Input
+                    id="primaryColor"
+                    value={theme.primaryColor || ''}
+                    onChange={handleSimpleChange(setTheme, 'primaryColor')}
+                    placeholder="158 64% 35%"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondaryColor">Secondary color (HSL)</Label>
+                  <Input
+                    id="secondaryColor"
+                    value={theme.secondaryColor || ''}
+                    onChange={handleSimpleChange(setTheme, 'secondaryColor')}
+                    placeholder="210 40% 96.1%"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="accentColor">Accent color (HSL)</Label>
+                  <Input
+                    id="accentColor"
+                    value={theme.accentColor || ''}
+                    onChange={handleSimpleChange(setTheme, 'accentColor')}
+                    placeholder="45 93% 58%"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="borderRadius">Border radius (e.g. 1rem)</Label>
+                  <Input
+                    id="borderRadius"
+                    value={theme.borderRadius || ''}
+                    onChange={handleSimpleChange(setTheme, 'borderRadius')}
+                    placeholder="1rem"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Default mode</Label>
+                    <p className="text-sm text-muted-foreground">Light or dark on first load</p>
+                  </div>
+                  <Switch
+                    checked={theme.defaultMode === 'dark'}
+                    onCheckedChange={(checked) =>
+                      setTheme((prev: any) => ({
+                        ...prev,
+                        defaultMode: checked ? 'dark' : 'light',
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => handleSave(THEME_KEY, theme)}
+                  disabled={updateSettingMutation.isPending}
+                >
+                  {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save theme
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
+
         <TabsContent value="seo">
-          <SeoTab />
+          <Card>
+            <CardHeader>
+              <CardTitle>SEO</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="seoTitle">Default title</Label>
+                  <Input
+                    id="seoTitle"
+                    value={seo.title || ''}
+                    onChange={handleSimpleChange(setSeo, 'title')}
+                    placeholder="NOOR - Prayer Times, Quran & More"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="seoDescription">Meta description</Label>
+                  <Input
+                    id="seoDescription"
+                    value={seo.description || ''}
+                    onChange={handleSimpleChange(setSeo, 'description')}
+                    placeholder="Stay connected with your daily prayers..."
+                  />
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Share image (OG), logo, icon, and favicon uploads are managed in the Branding tab → Image Manager.
+              </p>
+
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => handleSave(SEO_KEY, seo)}
+                  disabled={updateSettingMutation.isPending}
+                >
+                  {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save SEO
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
+
         <TabsContent value="system">
-          <SystemTab />
+          <Card>
+            <CardHeader>
+              <CardTitle>System</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Maintenance Mode</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Show a maintenance banner for all users (frontend only)
+                  </p>
+                </div>
+                <Switch
+                  checked={system.maintenanceMode}
+                  onCheckedChange={handleSwitchChange(setSystem, 'maintenanceMode')}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Show Ads</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Toggle ad placements across the app
+                  </p>
+                </div>
+                <Switch
+                  checked={system.showAds}
+                  onCheckedChange={handleSwitchChange(setSystem, 'showAds')}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Force Update</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Signal clients that a hard refresh / app update is required
+                  </p>
+                </div>
+                <Switch
+                  checked={system.forceUpdate}
+                  onCheckedChange={handleSwitchChange(setSystem, 'forceUpdate')}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => handleSave(SYSTEM_KEY, system)}
+                  disabled={updateSettingMutation.isPending}
+                >
+                  {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save system
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
+
         <TabsContent value="modules">
-          <ModulesTab />
+          <Card>
+            <CardHeader>
+              <CardTitle>Module Toggles</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Enable or disable major app modules. Disabled modules will be hidden from navigation
+                and home screen entry points.
+              </p>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Prayer Times</Label>
+                    <p className="text-sm text-muted-foreground">Prayer times & Athan</p>
+                  </div>
+                  <Switch
+                    checked={modules.prayerTimes}
+                    onCheckedChange={handleModulesToggle('prayerTimes')}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Quran</Label>
+                    <p className="text-sm text-muted-foreground">Quran reader & audio</p>
+                  </div>
+                  <Switch
+                    checked={modules.quran}
+                    onCheckedChange={handleModulesToggle('quran')}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Duas</Label>
+                    <p className="text-sm text-muted-foreground">Daily & category based duas</p>
+                  </div>
+                  <Switch
+                    checked={modules.duas}
+                    onCheckedChange={handleModulesToggle('duas')}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Hadith</Label>
+                    <p className="text-sm text-muted-foreground">Bukhari & other collections</p>
+                  </div>
+                  <Switch
+                    checked={modules.hadith}
+                    onCheckedChange={handleModulesToggle('hadith')}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Calendar</Label>
+                    <p className="text-sm text-muted-foreground">Islamic calendar</p>
+                  </div>
+                  <Switch
+                    checked={modules.calendar}
+                    onCheckedChange={handleModulesToggle('calendar')}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Daily Quiz</Label>
+                    <p className="text-sm text-muted-foreground">Daily quiz module</p>
+                  </div>
+                  <Switch
+                    checked={modules.quiz}
+                    onCheckedChange={handleModulesToggle('quiz')}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => handleSave(MODULES_KEY, modules)}
+                  disabled={updateSettingMutation.isPending}
+                >
+                  {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save modules
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="health">
+          <BackendHealthWidget />
         </TabsContent>
       </Tabs>
     </div>
   );
-};
-
-export default AdminSettings;
+}
