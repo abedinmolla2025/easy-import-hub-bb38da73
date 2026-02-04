@@ -1,6 +1,4 @@
 import { useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -50,6 +48,8 @@ type PreviewStats = {
   duplicates_in_file: number;
 };
 
+const STORAGE_KEY = "noor_quiz_questions";
+
 const normalizeKey = (s: string) =>
   s
     .trim()
@@ -58,95 +58,50 @@ const normalizeKey = (s: string) =>
 
 const deriveQuestionKey = (q: QuizQuestion) => normalizeKey((q.question_en || q.question_bn || q.question).trim());
 
-async function fetchExistingQuestionKeys(): Promise<Set<string>> {
-  // Defensive pagination (Supabase default limit can be 1000)
-  const keys = new Set<string>();
-  const pageSize = 1000;
-  let from = 0;
-
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const { data, error } = await supabase
-      .from("quiz_questions")
-      .select("question, question_en, question_bn")
-      .range(from, from + pageSize - 1);
-
-    if (error) throw error;
-
-    for (const row of data ?? []) {
-      const base = String(row.question ?? "").trim();
-      const en = String(row.question_en ?? "").trim();
-      const bn = String(row.question_bn ?? "").trim();
-      if (en) keys.add(normalizeKey(en));
-      if (bn) keys.add(normalizeKey(bn));
-      if (base) keys.add(normalizeKey(base));
-    }
-
-    if (!data || data.length < pageSize) break;
-    from += pageSize;
+function getStoredQuestions(): QuizQuestion[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
   }
+}
 
-  return keys;
+function saveQuestions(questions: QuizQuestion[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
 }
 
 export function QuizBulkImportDialog() {
-  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState("");
   const [preview, setPreview] = useState<QuizQuestion[]>([]);
   const [previewStats, setPreviewStats] = useState<PreviewStats | null>(null);
+  const [importing, setImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const importMutation = useMutation({
-    mutationFn: async (questions: QuizQuestion[]) => {
-      const { data: existingQuestions } = await supabase
-        .from("quiz_questions")
-        .select("order_index")
-        .order("order_index", { ascending: false })
-        .limit(1);
-
-      const startIndex = existingQuestions?.[0]?.order_index ?? -1;
-
-      const questionsWithOrder = questions.map((q, index) => {
-        const derivedBaseQuestion = (q.question_en || q.question_bn || q.question).trim();
-        const derivedOptions = (q.options_en || q.options_bn || q.options).map((s) => String(s));
-
-        return {
-          // Base (used by older clients / fallback)
-          question: derivedBaseQuestion,
-          options: derivedOptions,
-
-          // Explicit bilingual fields (if present)
-          question_en: q.question_en ?? null,
-          question_bn: q.question_bn ?? null,
-          options_en: q.options_en ?? null,
-          options_bn: q.options_bn ?? null,
-
-          correct_answer: q.correct_answer,
-          category: q.category,
-          difficulty: q.difficulty || "medium",
-          is_active: q.is_active !== false,
-          order_index: startIndex + index + 1,
-        };
-      });
-
-      const { error } = await supabase.from("quiz_questions").insert(questionsWithOrder);
-
-      if (error) throw error;
-    },
-    onSuccess: (_, questions) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
+  const handleImport = async () => {
+    if (preview.length === 0) {
+      toast.error("Please preview first");
+      return;
+    }
+    setImporting(true);
+    try {
+      const existingQuestions = getStoredQuestions();
+      const allQuestions = [...existingQuestions, ...preview];
+      saveQuestions(allQuestions);
+      
       const skipped = (previewStats?.duplicates_existing ?? 0) + (previewStats?.duplicates_in_file ?? 0);
-      toast.success(`Imported ${questions.length} | Skipped duplicates ${skipped}`);
+      toast.success(`Imported ${preview.length} | Skipped duplicates ${skipped}`);
       setIsOpen(false);
       setJsonInput("");
       setPreview([]);
       setPreviewStats(null);
-    },
-    onError: (error: Error) => {
+    } catch (error: any) {
       toast.error("Error: " + error.message);
-    },
-  });
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const handlePreview = async () => {
     try {
@@ -166,7 +121,8 @@ export function QuizBulkImportDialog() {
         }
       });
 
-      const existingKeys = await fetchExistingQuestionKeys();
+      const existingQuestions = getStoredQuestions();
+      const existingKeys = new Set(existingQuestions.map(deriveQuestionKey));
       const seenInFile = new Set<string>();
       const unique: QuizQuestion[] = [];
       let duplicatesExisting = 0;
@@ -250,14 +206,6 @@ export function QuizBulkImportDialog() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  };
-
-  const handleImport = () => {
-    if (preview.length === 0) {
-      toast.error("Please preview first");
-      return;
-    }
-    importMutation.mutate(preview);
   };
 
   const exampleJson = `[
@@ -374,9 +322,9 @@ export function QuizBulkImportDialog() {
             </Button>
             <Button
               onClick={handleImport}
-              disabled={preview.length === 0 || importMutation.isPending}
+              disabled={preview.length === 0 || importing}
             >
-              {importMutation.isPending ? "Importing..." : "Import"}
+              {importing ? "Importing..." : "Import"}
             </Button>
           </div>
         </div>

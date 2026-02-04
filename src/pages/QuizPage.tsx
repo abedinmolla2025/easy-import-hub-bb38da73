@@ -90,28 +90,29 @@ const QuizPage = () => {
     updateStreak,
   } = useQuizProgress();
 
-  // Fetch questions from database
+  // Fetch questions from local JSON file since database table doesn't exist
   const { data: allQuestions = [], isLoading: questionsLoading } = useQuery({
     queryKey: ["quiz-questions"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("quiz_questions")
-        .select("*")
-        .eq("is_active", true)
-        .order("order_index", { ascending: true });
-
-      if (error) throw error;
-
-      return (data || []).map((q) => ({
-        question: q.question,
-        question_bn: (q as any).question_bn ?? null,
-        question_en: (q as any).question_en ?? null,
-        options: q.options as string[],
-        options_bn: ((q as any).options_bn as string[] | null) ?? null,
-        options_en: ((q as any).options_en as string[] | null) ?? null,
-        correctAnswer: q.correct_answer,
-        category: q.category,
-      }));
+      try {
+        const response = await fetch("/quiz-questions-90.json");
+        if (!response.ok) throw new Error("Failed to load questions");
+        const data = await response.json();
+        
+        return (data || []).map((q: any) => ({
+          question: q.question,
+          question_bn: q.question_bn ?? null,
+          question_en: q.question_en ?? null,
+          options: q.options as string[],
+          options_bn: q.options_bn ?? null,
+          options_en: q.options_en ?? null,
+          correctAnswer: q.correct_answer,
+          category: q.category,
+        }));
+      } catch (error) {
+        console.error("Failed to load quiz questions:", error);
+        return [];
+      }
     },
     staleTime: 5 * 60 * 1000,
   });

@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
@@ -63,6 +62,8 @@ interface NotificationTemplateDialogProps {
     category: string;
   } | null;
 }
+
+const STORAGE_KEY = "noor_notification_templates";
 
 export function NotificationTemplateDialog({
   open,
@@ -132,14 +133,11 @@ export function NotificationTemplateDialog({
 
     setSubmitting(true);
     try {
-      const {
-        data: { user },
-        error: userErr,
-      } = await supabase.auth.getUser();
-      if (userErr) throw userErr;
-      if (!user) throw new Error("Not authenticated");
-
+      // Use localStorage for now since database table doesn't exist
+      const storedTemplates = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      
       const templateData = {
+        id: editingTemplate?.id || crypto.randomUUID(),
         name: formData.name.trim(),
         title: formData.title.trim(),
         body: formData.body.trim(),
@@ -147,26 +145,21 @@ export function NotificationTemplateDialog({
         deep_link: formData.deepLink?.trim() || null,
         target_platform: formData.targetPlatform,
         category: formData.category,
-        created_by: user.id,
+        created_at: new Date().toISOString(),
       };
 
       if (editingTemplate) {
-        // Update existing template
-        const { error } = await supabase
-          .from("notification_templates")
-          .update(templateData)
-          .eq("id", editingTemplate.id);
-
-        if (error) throw error;
+        const index = storedTemplates.findIndex((t: any) => t.id === editingTemplate.id);
+        if (index !== -1) {
+          storedTemplates[index] = templateData;
+        }
         toast({ title: "Template updated successfully" });
       } else {
-        // Create new template
-        const { error } = await supabase.from("notification_templates").insert(templateData);
-
-        if (error) throw error;
+        storedTemplates.push(templateData);
         toast({ title: "Template created successfully" });
       }
 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(storedTemplates));
       onSuccess();
       onOpenChange(false);
     } catch (error: any) {

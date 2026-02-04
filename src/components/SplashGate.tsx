@@ -25,38 +25,7 @@ export function SplashGate(props: { children: React.ReactNode }) {
 
     const fetchActiveSplash = async () => {
       try {
-        const now = new Date().toISOString();
-        const platform =
-          typeof window !== "undefined" && (window as any).Capacitor
-            ? "app"
-            : "web";
-        const platforms = platform === "web" ? ["web", "both"] : ["app", "both"];
-
-        const { data: splashData } = await supabase
-          .from("admin_splash_screens")
-          .select("*")
-          .eq("is_active", true)
-          .lte("start_date", now)
-          .gte("end_date", now)
-          .in("platform", platforms)
-          .order("priority", { ascending: false })
-          .order("start_date", { ascending: false })
-          .limit(1)
-          .single();
-
-        if (cancelled) return;
-
-        if (splashData) {
-          setConfig({
-            lottieUrl: splashData.lottie_url,
-            duration: splashData.duration ?? 3000,
-            fadeOutDuration: splashData.fade_out_duration ?? 500,
-          });
-          setLoadingConfig(false);
-          return;
-        }
-
-        // Fallback to branding settings
+        // Try to get branding settings from app_settings table
         const { data: brandingData } = await supabase
           .from("app_settings")
           .select("setting_value")
