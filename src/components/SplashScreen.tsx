@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Lottie from "lottie-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 // Islamic geometric pattern SVG component
 const IslamicPattern = () => (
@@ -21,29 +21,32 @@ const IslamicPattern = () => (
 );
 
 // Animated stars component
-const AnimatedStars = () => (
-  <div className="absolute inset-0 overflow-hidden">
-    {[...Array(20)].map((_, i) => (
-      <motion.div
-        key={i}
-        className="absolute w-1 h-1 bg-amber-300 rounded-full"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 60}%`,
-        }}
-        animate={{
-          opacity: [0.2, 1, 0.2],
-          scale: [0.8, 1.2, 0.8],
-        }}
-        transition={{
-          duration: 2 + Math.random() * 2,
-          repeat: Infinity,
-          delay: Math.random() * 2,
-        }}
-      />
-    ))}
-  </div>
-);
+function AnimatedStars() {
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 20 }, () => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 60}%`,
+        duration: 2 + Math.random() * 2,
+        delay: Math.random() * 2,
+      })),
+    []
+  );
+
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {stars.map((s, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-amber-300 rounded-full"
+          style={{ left: s.left, top: s.top }}
+          animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
+          transition={{ duration: s.duration, repeat: Infinity, delay: s.delay }}
+        />
+      ))}
+    </div>
+  );
+}
 
 // Crescent moon component
 const CrescentMoon = () => (
@@ -102,38 +105,46 @@ export function SplashScreen(props: {
   const [visible, setVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const [timerStarted, setTimerStarted] = useState(false);
 
-  // Start the main timer only once
+  // Keep latest onComplete without re-starting timers
+  const onCompleteRef = useRef(onComplete);
   useEffect(() => {
-    if (timerStarted) return;
-    
-    let cancelled = false;
-    setTimerStarted(true);
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
-    const hideTimer = setTimeout(() => {
+  // Start timer (StrictMode-safe: effect runs twice but first timer is cleaned up)
+  useEffect(() => {
+    let cancelled = false;
+    let doneTimer: number | undefined;
+
+    const fadeTimer = window.setTimeout(() => {
       if (cancelled) return;
       setFadeOut(true);
-      
-      setTimeout(() => {
+
+      doneTimer = window.setTimeout(() => {
         if (cancelled) return;
         setVisible(false);
-        onComplete();
+        onCompleteRef.current();
       }, fadeOutDuration);
     }, duration);
 
     return () => {
       cancelled = true;
-      clearTimeout(hideTimer);
+      window.clearTimeout(fadeTimer);
+      if (doneTimer) window.clearTimeout(doneTimer);
     };
-  }, [timerStarted, duration, fadeOutDuration, onComplete]);
+  }, [duration, fadeOutDuration]);
 
   // Load lottie animation separately (optional)
   useEffect(() => {
+    setAnimationData(null);
+
     if (!lottieUrl) {
       setLoadError(true);
       return;
     }
+
+    setLoadError(false);
 
     let cancelled = false;
 
@@ -158,123 +169,117 @@ export function SplashScreen(props: {
   if (!visible) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
-        style={{
-          background: 'linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)',
-        }}
-        initial={{ opacity: 1 }}
-        animate={{ opacity: fadeOut ? 0 : 1 }}
-        transition={{ duration: fadeOutDuration / 1000 }}
-      >
-        {/* Background elements */}
-        <IslamicPattern />
-        <AnimatedStars />
-        <CrescentMoon />
-        <MosqueSilhouette />
+    <motion.div
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
+      style={{
+        background: "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
+      }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: fadeOut ? 0 : 1 }}
+      transition={{ duration: fadeOutDuration / 1000 }}
+    >
+      {/* Background elements */}
+      <IslamicPattern />
+      <AnimatedStars />
+      <CrescentMoon />
+      <MosqueSilhouette />
 
-        {/* Main content */}
-        <div className="relative z-10 flex flex-col items-center justify-center px-8">
-          {/* Lottie animation or fallback */}
-          {animationData && !loadError ? (
-            <div className="w-full max-w-xs sm:max-w-sm">
-              <Lottie animationData={animationData} loop={true} />
-            </div>
-          ) : (
-            <motion.div
-              className="flex flex-col items-center gap-6"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col items-center justify-center px-8">
+        {/* Lottie animation or fallback */}
+        {animationData && !loadError ? (
+          <div className="w-full max-w-xs sm:max-w-sm">
+            <Lottie animationData={animationData} loop={true} />
+          </div>
+        ) : (
+          <motion.div
+            className="flex flex-col items-center gap-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            {/* Bismillah */}
+            <motion.p
+              className="text-2xl sm:text-3xl text-amber-200/90 font-arabic"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
             >
-              {/* Bismillah */}
-              <motion.p
-                className="text-2xl sm:text-3xl text-amber-200/90 font-arabic"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-              </motion.p>
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </motion.p>
 
-              {/* App logo/icon */}
-              <motion.div
-                className="relative"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, delay: 0.6 }}
-              >
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-xl shadow-emerald-500/30">
-                  <motion.div
-                    animate={{ 
-                      boxShadow: [
-                        '0 0 20px rgba(16, 185, 129, 0.3)',
-                        '0 0 40px rgba(16, 185, 129, 0.5)',
-                        '0 0 20px rgba(16, 185, 129, 0.3)',
-                      ]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-full h-full rounded-2xl flex items-center justify-center"
-                  >
-                    <svg viewBox="0 0 100 100" className="w-16 h-16 sm:w-20 sm:h-20 text-white">
-                      {/* Mosque icon */}
-                      <ellipse cx="50" cy="35" rx="20" ry="15" fill="currentColor" />
-                      <rect x="30" y="45" width="40" height="30" fill="currentColor" />
-                      <rect x="20" y="25" width="6" height="50" fill="currentColor" />
-                      <rect x="74" y="25" width="6" height="50" fill="currentColor" />
-                      <ellipse cx="23" cy="25" rx="4" ry="6" fill="currentColor" />
-                      <ellipse cx="77" cy="25" rx="4" ry="6" fill="currentColor" />
-                      <rect x="21" y="17" width="4" height="8" fill="currentColor" />
-                      <rect x="75" y="17" width="4" height="8" fill="currentColor" />
-                      <rect x="45" y="55" width="10" height="20" rx="5" fill="#0d2818" />
-                    </svg>
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              {/* App name */}
-              <motion.div
-                className="text-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-              >
-                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-wider">
-                  NOOR
-                </h1>
-                <p className="mt-2 text-sm sm:text-base text-emerald-200/70">
-                  Islamic Companion
-                </p>
-              </motion.div>
-
-              {/* Loading indicator */}
-              <motion.div
-                className="flex items-center gap-2 mt-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-              >
+            {/* App logo/icon */}
+            <motion.div
+              className="relative"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, delay: 0.6 }}
+            >
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-xl shadow-emerald-500/30">
                 <motion.div
-                  className="w-2 h-2 bg-amber-400 rounded-full"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1, repeat: Infinity, delay: 0 }}
-                />
-                <motion.div
-                  className="w-2 h-2 bg-amber-400 rounded-full"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
-                />
-                <motion.div
-                  className="w-2 h-2 bg-amber-400 rounded-full"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
-                />
-              </motion.div>
+                  animate={{
+                    boxShadow: [
+                      "0 0 20px rgba(16, 185, 129, 0.3)",
+                      "0 0 40px rgba(16, 185, 129, 0.5)",
+                      "0 0 20px rgba(16, 185, 129, 0.3)",
+                    ],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-full h-full rounded-2xl flex items-center justify-center"
+                >
+                  <svg viewBox="0 0 100 100" className="w-16 h-16 sm:w-20 sm:h-20 text-white">
+                    {/* Mosque icon */}
+                    <ellipse cx="50" cy="35" rx="20" ry="15" fill="currentColor" />
+                    <rect x="30" y="45" width="40" height="30" fill="currentColor" />
+                    <rect x="20" y="25" width="6" height="50" fill="currentColor" />
+                    <rect x="74" y="25" width="6" height="50" fill="currentColor" />
+                    <ellipse cx="23" cy="25" rx="4" ry="6" fill="currentColor" />
+                    <ellipse cx="77" cy="25" rx="4" ry="6" fill="currentColor" />
+                    <rect x="21" y="17" width="4" height="8" fill="currentColor" />
+                    <rect x="75" y="17" width="4" height="8" fill="currentColor" />
+                    <rect x="45" y="55" width="10" height="20" rx="5" fill="#0d2818" />
+                  </svg>
+                </motion.div>
+              </div>
             </motion.div>
-          )}
-        </div>
-      </motion.div>
-    </AnimatePresence>
+
+            {/* App name */}
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-wider">NOOR</h1>
+              <p className="mt-2 text-sm sm:text-base text-emerald-200/70">Islamic Companion</p>
+            </motion.div>
+
+            {/* Loading indicator */}
+            <motion.div
+              className="flex items-center gap-2 mt-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              <motion.div
+                className="w-2 h-2 bg-amber-400 rounded-full"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0 }}
+              />
+              <motion.div
+                className="w-2 h-2 bg-amber-400 rounded-full"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+              />
+              <motion.div
+                className="w-2 h-2 bg-amber-400 rounded-full"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
   );
 }
