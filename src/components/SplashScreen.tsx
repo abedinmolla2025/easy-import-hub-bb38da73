@@ -100,9 +100,33 @@ export function SplashScreen(props: {
   appName?: string;
   duration?: number;
   fadeOutDuration?: number;
+  // Optional seasonal message
+  message?: {
+    text: string;
+    textArabic?: string;
+    textBengali?: string;
+  };
+  // Visual style preset
+  style?: 'elegant' | 'festive' | 'minimal' | 'royal' | 'spiritual';
+  // Custom colors from template
+  colors?: {
+    primary: string;
+    secondary: string;
+    accent?: string;
+  };
   onComplete: () => void;
 }) {
-  const { lottieUrl, logoUrl, appName = "NOOR", duration = 3500, fadeOutDuration = 800, onComplete } = props;
+  const { 
+    lottieUrl, 
+    logoUrl, 
+    appName = "NOOR", 
+    duration = 3500, 
+    fadeOutDuration = 800, 
+    message,
+    style = 'elegant',
+    colors,
+    onComplete 
+  } = props;
   const [animationData, setAnimationData] = useState<any>(null);
   const [visible, setVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
@@ -170,12 +194,15 @@ export function SplashScreen(props: {
 
   if (!visible) return null;
 
+  // Generate gradient based on colors or default
+  const bgGradient = colors 
+    ? `linear-gradient(180deg, ${colors.primary} 0%, ${colors.secondary} 100%)`
+    : "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)";
+
   return (
     <motion.div
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
-      style={{
-        background: "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)",
-      }}
+      style={{ background: bgGradient }}
       initial={{ opacity: 1 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
       transition={{ duration: fadeOutDuration / 1000 }}
@@ -262,12 +289,68 @@ export function SplashScreen(props: {
               <p className="mt-2 text-sm sm:text-base text-emerald-200/70">Islamic Companion</p>
             </motion.div>
 
+            {/* Seasonal Message - Beautiful Typography */}
+            {message && (
+              <motion.div
+                className="text-center mt-4"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.0, type: "spring", stiffness: 150 }}
+              >
+                {/* Arabic text with elegant styling */}
+                {message.textArabic && (
+                  <motion.p
+                    className="text-2xl sm:text-3xl font-arabic text-amber-200/90 mb-2"
+                    style={{
+                      textShadow: '0 0 20px rgba(251, 191, 36, 0.3)',
+                    }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.1 }}
+                  >
+                    {message.textArabic}
+                  </motion.p>
+                )}
+                
+                {/* Main message with gradient text */}
+                <motion.h2
+                  className="text-xl sm:text-2xl font-bold tracking-wide"
+                  style={{
+                    background: colors?.accent 
+                      ? `linear-gradient(135deg, ${colors.secondary}, ${colors.accent})`
+                      : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    textShadow: 'none',
+                  }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 }}
+                >
+                  {message.text}
+                </motion.h2>
+
+                {/* Bengali text */}
+                {message.textBengali && (
+                  <motion.p
+                    className="text-lg sm:text-xl text-white/80 mt-1"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.3 }}
+                  >
+                    {message.textBengali}
+                  </motion.p>
+                )}
+              </motion.div>
+            )}
+
             {/* Loading indicator */}
             <motion.div
               className="flex items-center gap-2 mt-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
+              transition={{ delay: message ? 1.4 : 1 }}
             >
               <motion.div
                 className="w-2 h-2 bg-amber-400 rounded-full"
