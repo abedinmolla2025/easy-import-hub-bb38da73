@@ -77,25 +77,12 @@ export function SplashGate(props: { children: React.ReactNode }) {
   // Already finished showing splash
   if (done) return <>{children}</>;
 
-  // While we are fetching config, show the splash (with loading state)
-  if (!configLoaded) {
-    return (
-      <SplashScreen
-        duration={DEFAULT_SPLASH_CONFIG.duration}
-        fadeOutDuration={DEFAULT_SPLASH_CONFIG.fadeOutDuration}
-        onComplete={() => setDone(true)}
-      />
-    );
-  }
-
-  // Splash is disabled
-  if (!config.enabled) return <>{children}</>;
-
-  // Show configured splash screen
+  // Show splash screen - same component handles both loading and display states
+  // The SplashScreen component will show for the full duration once rendered
   return (
     <>
       <SplashScreen
-        lottieUrl={config.lottieUrl}
+        lottieUrl={configLoaded ? config.lottieUrl : undefined}
         duration={config.duration}
         fadeOutDuration={config.fadeOutDuration}
         onComplete={() => setDone(true)}

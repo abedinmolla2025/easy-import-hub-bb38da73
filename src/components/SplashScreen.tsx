@@ -102,50 +102,58 @@ export function SplashScreen(props: {
   const [visible, setVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
 
+  // Start the main timer only once
   useEffect(() => {
+    if (timerStarted) return;
+    
     let cancelled = false;
+    setTimerStarted(true);
 
-    const startTimer = () => {
+    const hideTimer = setTimeout(() => {
+      if (cancelled) return;
+      setFadeOut(true);
+      
       setTimeout(() => {
         if (cancelled) return;
-        setFadeOut(true);
-        setTimeout(() => {
-          if (cancelled) return;
-          setVisible(false);
-          onComplete();
-        }, fadeOutDuration);
-      }, duration);
-    };
+        setVisible(false);
+        onComplete();
+      }, fadeOutDuration);
+    }, duration);
 
-    if (lottieUrl) {
-      fetch(lottieUrl)
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to load lottie');
-          return res.json();
-        })
-        .then((data) => {
-          if (cancelled) return;
-          setAnimationData(data);
-          startTimer();
-        })
-        .catch((err) => {
-          console.warn('[SplashScreen] Failed to load lottie, using fallback:', err);
-          if (!cancelled) {
-            setLoadError(true);
-            startTimer();
-          }
-        });
-    } else {
-      // No lottie URL - use beautiful fallback
+    return () => {
+      cancelled = true;
+      clearTimeout(hideTimer);
+    };
+  }, [timerStarted, duration, fadeOutDuration, onComplete]);
+
+  // Load lottie animation separately (optional)
+  useEffect(() => {
+    if (!lottieUrl) {
       setLoadError(true);
-      startTimer();
+      return;
     }
+
+    let cancelled = false;
+
+    fetch(lottieUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load lottie');
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setAnimationData(data);
+      })
+      .catch((err) => {
+        console.warn('[SplashScreen] Failed to load lottie, using fallback:', err);
+        if (!cancelled) setLoadError(true);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [lottieUrl, duration, fadeOutDuration, onComplete]);
+  }, [lottieUrl]);
 
   if (!visible) return null;
 
