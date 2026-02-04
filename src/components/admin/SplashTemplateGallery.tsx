@@ -1,104 +1,130 @@
- import { useState } from 'react';
- import { Card, CardContent } from '@/components/ui/card';
- import { Button } from '@/components/ui/button';
- import { Badge } from '@/components/ui/badge';
- import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
- import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
- import { SPLASH_TEMPLATES, TEMPLATE_CATEGORIES, SplashTemplate } from '@/lib/splashTemplates';
- import { Sparkles, Clock, Zap } from 'lucide-react';
- import { SplashScreenPreview } from './SplashScreenPreview';
- 
- interface SplashTemplateGalleryProps {
-   onSelectTemplate: (template: SplashTemplate) => void;
- }
- 
- export function SplashTemplateGallery({ onSelectTemplate }: SplashTemplateGalleryProps) {
-   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-   const [previewTemplate, setPreviewTemplate] = useState<SplashTemplate | null>(null);
- 
-   const filteredTemplates =
-     selectedCategory === 'all'
-       ? SPLASH_TEMPLATES
-       : SPLASH_TEMPLATES.filter((t) => t.category === selectedCategory);
- 
-   return (
-     <Dialog>
-       <DialogTrigger asChild>
-         <Button variant="outline" className="gap-2">
-           <Sparkles className="h-4 w-4" />
-           Browse Templates
-         </Button>
-       </DialogTrigger>
-       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-         <DialogHeader>
-           <DialogTitle className="text-2xl">Splash Screen Templates</DialogTitle>
-           <p className="text-sm text-muted-foreground">
-             Pre-designed splash screens for Islamic occasions and events
-           </p>
-         </DialogHeader>
- 
-         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
-             {TEMPLATE_CATEGORIES.map((cat) => (
-               <TabsTrigger key={cat.value} value={cat.value} className="text-xs sm:text-sm px-2">
-                 {cat.label}
-               </TabsTrigger>
-             ))}
-           </TabsList>
- 
-           <TabsContent value={selectedCategory} className="mt-6">
-             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-               {filteredTemplates.map((template) => (
-                 <TemplateCard
-                   key={template.id}
-                   template={template}
-                   onSelect={() => onSelectTemplate(template)}
-                   onPreview={() => setPreviewTemplate(template)}
-                 />
-               ))}
-             </div>
- 
-             {filteredTemplates.length === 0 && (
-               <div className="text-center py-12">
-                 <p className="text-muted-foreground">No templates in this category yet</p>
-               </div>
-             )}
-           </TabsContent>
-         </Tabs>
- 
-         {/* Preview Modal */}
-         {previewTemplate && (
-           <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
-             <DialogContent className="max-w-4xl">
-               <DialogHeader>
-                 <DialogTitle>{previewTemplate.name}</DialogTitle>
-                 <p className="text-sm text-muted-foreground">{previewTemplate.description}</p>
-               </DialogHeader>
-               <SplashScreenPreview
-                 lottieUrl={previewTemplate.lottieUrl}
-                 duration={previewTemplate.duration}
-                 fadeOutDuration={previewTemplate.fadeOutDuration}
-               />
-               <div className="flex justify-end gap-2">
-                 <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
-                   Close
-                 </Button>
-                 <Button
-                   onClick={() => {
-                     onSelectTemplate(previewTemplate);
-                     setPreviewTemplate(null);
-                   }}
-                 >
-                   Use This Template
-                 </Button>
-               </div>
-             </DialogContent>
-           </Dialog>
-         )}
-       </DialogContent>
-     </Dialog>
-   );
- }
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { SPLASH_TEMPLATES, TEMPLATE_CATEGORIES, SplashTemplate } from '@/lib/splashTemplates';
+import { Sparkles, Clock, Zap, Eye } from 'lucide-react';
+import { SplashScreenPreview } from './SplashScreenPreview';
+
+interface SplashTemplateGalleryProps {
+  onSelectTemplate: (template: SplashTemplate) => void;
+}
+
+type BrandingSettings = {
+  appName?: string;
+  logoUrl?: string;
+};
+
+export function SplashTemplateGallery({ onSelectTemplate }: SplashTemplateGalleryProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [previewTemplate, setPreviewTemplate] = useState<SplashTemplate | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Fetch branding settings for logo and app name
+  const { data: branding } = useQuery({
+    queryKey: ["app-settings", "branding"],
+    queryFn: async (): Promise<BrandingSettings> => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("setting_value")
+        .eq("setting_key", "branding")
+        .maybeSingle();
+
+      if (error) throw error;
+      return (data?.setting_value as BrandingSettings) ?? {};
+    },
+  });
+
+  const filteredTemplates =
+    selectedCategory === 'all'
+      ? SPLASH_TEMPLATES
+      : SPLASH_TEMPLATES.filter((t) => t.category === selectedCategory);
+
+  const handleSelectTemplate = (template: SplashTemplate) => {
+    onSelectTemplate(template);
+    setDialogOpen(false);
+    setPreviewTemplate(null);
+  };
+
+  return (
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="gap-2">
+          <Sparkles className="h-4 w-4" />
+          Browse Templates
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl">Splash Screen Templates</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Pre-designed splash screens for Islamic occasions and events
+          </p>
+        </DialogHeader>
+
+        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
+            {TEMPLATE_CATEGORIES.map((cat) => (
+              <TabsTrigger key={cat.value} value={cat.value} className="text-xs sm:text-sm px-2">
+                {cat.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <TabsContent value={selectedCategory} className="mt-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredTemplates.map((template) => (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  onSelect={() => handleSelectTemplate(template)}
+                  onPreview={() => setPreviewTemplate(template)}
+                />
+              ))}
+            </div>
+
+            {filteredTemplates.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No templates in this category yet</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Preview Modal */}
+        {previewTemplate && (
+          <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{previewTemplate.name}</DialogTitle>
+                <p className="text-sm text-muted-foreground">{previewTemplate.description}</p>
+              </DialogHeader>
+              <SplashScreenPreview
+                lottieUrl={previewTemplate.lottieUrl}
+                logoUrl={branding?.logoUrl}
+                appName={branding?.appName}
+                duration={previewTemplate.duration}
+                fadeOutDuration={previewTemplate.fadeOutDuration}
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
+                  বন্ধ করুন
+                </Button>
+                <Button onClick={() => handleSelectTemplate(previewTemplate)}>
+                  এই Template ব্যবহার করুন
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
  
  function TemplateCard({
    template,
