@@ -2,6 +2,18 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SplashScreen } from "@/components/SplashScreen";
 
+type SplashMessage = {
+  text?: string;
+  textArabic?: string;
+  textBengali?: string;
+};
+
+type SplashColors = {
+  primary?: string;
+  secondary?: string;
+  accent?: string;
+};
+
 type SplashConfig = {
   lottieUrl?: string;
   logoUrl?: string;
@@ -9,6 +21,9 @@ type SplashConfig = {
   duration: number;
   fadeOutDuration: number;
   enabled: boolean;
+  message?: SplashMessage;
+  colors?: SplashColors;
+  style?: 'elegant' | 'festive' | 'minimal' | 'royal' | 'spiritual';
 };
 
 // Default splash configuration - always show beautiful Islamic splash
@@ -53,7 +68,7 @@ export function SplashGate(props: { children: React.ReactNode }) {
         }
 
         // Use custom lottie if provided, otherwise use beautiful fallback
-        // Also pass logoUrl and appName so splash screen updates when logo changes
+        // Also pass logoUrl, appName, message, and colors from settings
         setConfig({
           enabled: true,
           lottieUrl: brandingValue?.lottieSplashUrl || undefined,
@@ -61,6 +76,9 @@ export function SplashGate(props: { children: React.ReactNode }) {
           appName: brandingValue?.appName || undefined,
           duration: brandingValue?.splashDuration || DEFAULT_SPLASH_CONFIG.duration,
           fadeOutDuration: brandingValue?.splashFadeOut || DEFAULT_SPLASH_CONFIG.fadeOutDuration,
+          message: brandingValue?.splashMessage || undefined,
+          colors: brandingValue?.splashColors || undefined,
+          style: brandingValue?.splashStyle || undefined,
         });
       } catch {
         // On error, still show default splash
@@ -92,6 +110,9 @@ export function SplashGate(props: { children: React.ReactNode }) {
         appName={config.appName}
         duration={config.duration}
         fadeOutDuration={config.fadeOutDuration}
+        message={config.message}
+        colors={config.colors}
+        style={config.style}
         onComplete={() => setDone(true)}
       />
       {done && children}
