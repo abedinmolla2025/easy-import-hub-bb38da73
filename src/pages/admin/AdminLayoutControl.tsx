@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/integrations/supabase/client";
 import { History, RotateCcw } from "lucide-react";
 import type { LayoutPlatform } from "@/lib/layout";
 import { detectLayoutPlatform } from "@/lib/layout";
-import { useLayoutSettings } from "@/hooks/useLayoutSettings";
 import { LayoutSectionRow } from "@/components/admin/layout/LayoutSectionRow";
 import type { UiSection } from "@/components/admin/layout/types";
 
@@ -75,43 +73,60 @@ export default function AdminLayoutControl() {
   const [platform, setPlatform] = useState<LayoutPlatform>("web");
   const [items, setItems] = useState<UiSection[]>(() => toUiSections([]));
   const [busy, setBusy] = useState(false);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [initialized, setInitialized] = useState(false);
 
-  const layoutSettingsQuery = useLayoutSettings(LAYOUT_KEY, platform);
-
+  // Detect platform once on mount
   useEffect(() => {
     detectLayoutPlatform().then(setPlatform).catch(() => setPlatform("web"));
   }, []);
 
+  // Load from localStorage when platform changes
   useEffect(() => {
-    const rows = layoutSettingsQuery.data ?? [];
-    setItems(toUiSections(rows as any[]));
-  }, [layoutSettingsQuery.data, platform]);
+    const storageKey = `layout_settings_${LAYOUT_KEY}_${platform}`;
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setItems(toUiSections(parsed));
+          setInitialized(true);
+        } else {
+          setItems(toUiSections([]));
+          setInitialized(false);
+        }
+      } catch {
+        setItems(toUiSections([]));
+        setInitialized(false);
+      }
+    } else {
+      // No saved data, use defaults
+      setItems(toUiSections([]));
+      setInitialized(false);
+    }
 
-  const isInitialized = (layoutSettingsQuery.data?.length ?? 0) > 0;
-
-  const versionsQueryKey = useMemo(() => ["layout-versions", LAYOUT_KEY, platform], [platform]);
-
-  const loadVersions = async () => {
-    // Since admin_layout_settings_versions table doesn't exist, return empty array
-    // This is a graceful fallback
-    return [];
-  };
-
-  const [versions, setVersions] = useState<any[]>([]);
-
-  useEffect(() => {
-    loadVersions().then(setVersions).catch(() => setVersions([]));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [platform, isInitialized]);
+    const versionsKey = `layout_versions_${LAYOUT_KEY}_${platform}`;
+    const savedVersions = localStorage.getItem(versionsKey);
+    if (savedVersions) {
+      try {
+        setVersions(JSON.parse(savedVersions));
+      } catch {
+        setVersions([]);
+      }
+    } else {
+      setVersions([]);
+    }
+  }, [platform]);
 
   const persist = async (nextItems: UiSection[], { snapshot }: { snapshot: boolean }) => {
     setBusy(true);
     try {
       const normalized = nextItems.map((s, i) => ({ ...s, order_index: i }));
 
-      // Since admin_layout_settings table doesn't exist, save to localStorage as fallback
+      // Save to localStorage
       const storageKey = `layout_settings_${LAYOUT_KEY}_${platform}`;
       localStorage.setItem(storageKey, JSON.stringify(normalized));
+      setInitialized(true);
 
       if (snapshot) {
         // Save version snapshot to localStorage
@@ -146,8 +161,7 @@ export default function AdminLayoutControl() {
     await persist(defaults, { snapshot: true });
   };
 
-  const handleSyncFromPageBuilder = async () => {
-    // Sync from Page Builder - currently no-op since table doesn't exist
+  const handleSyncFromPageBuilder = () => {
     toast.info("Page Builder sync will be available when database tables are set up");
   };
 
@@ -166,30 +180,6 @@ export default function AdminLayoutControl() {
     setItems(restored);
     await persist(restored, { snapshot: true });
   };
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const storageKey = `layout_settings_${LAYOUT_KEY}_${platform}`;
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setItems(toUiSections(parsed));
-      } catch {
-        // ignore
-      }
-    }
-
-    const versionsKey = `layout_versions_${LAYOUT_KEY}_${platform}`;
-    const savedVersions = localStorage.getItem(versionsKey);
-    if (savedVersions) {
-      try {
-        setVersions(JSON.parse(savedVersions));
-      } catch {
-        // ignore
-      }
-    }
-  }, [platform]);
 
   return (
     <div className="space-y-4">
@@ -225,7 +215,7 @@ export default function AdminLayoutControl() {
         </div>
       </div>
 
-      {!isInitialized && items.length === 0 && (
+      {!initialized && items.length === 0 && (
         <Card className="p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
