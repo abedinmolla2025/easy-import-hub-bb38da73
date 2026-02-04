@@ -14,16 +14,568 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_ads: {
+        Row: {
+          ad_code: string
+          ad_type: string
+          created_at: string
+          end_at: string | null
+          frequency: number | null
+          id: string
+          platform: string
+          priority: number
+          start_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          zone: string
+        }
+        Insert: {
+          ad_code: string
+          ad_type: string
+          created_at?: string
+          end_at?: string | null
+          frequency?: number | null
+          id?: string
+          platform?: string
+          priority?: number
+          start_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          zone: string
+        }
+        Update: {
+          ad_code?: string
+          ad_type?: string
+          created_at?: string
+          end_at?: string | null
+          frequency?: number | null
+          id?: string
+          platform?: string
+          priority?: number
+          start_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          zone?: string
+        }
+        Relationships: []
+      }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_content: {
+        Row: {
+          approval_required: boolean
+          approved_at: string | null
+          approved_by: string | null
+          audio_url: string | null
+          category: string | null
+          content: string | null
+          content_arabic: string | null
+          content_en: string | null
+          content_hi: string | null
+          content_pronunciation: string | null
+          content_type: string
+          content_ur: string | null
+          created_at: string | null
+          created_by: string | null
+          current_version_id: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          metadata: Json | null
+          order_index: number | null
+          pdf_url: string | null
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+          title: string
+          title_arabic: string | null
+          title_en: string | null
+          title_hi: string | null
+          title_ur: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approval_required?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          audio_url?: string | null
+          category?: string | null
+          content?: string | null
+          content_arabic?: string | null
+          content_en?: string | null
+          content_hi?: string | null
+          content_pronunciation?: string | null
+          content_type: string
+          content_ur?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_version_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          metadata?: Json | null
+          order_index?: number | null
+          pdf_url?: string | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          title: string
+          title_arabic?: string | null
+          title_en?: string | null
+          title_hi?: string | null
+          title_ur?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approval_required?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          audio_url?: string | null
+          category?: string | null
+          content?: string | null
+          content_arabic?: string | null
+          content_en?: string | null
+          content_hi?: string | null
+          content_pronunciation?: string | null
+          content_type?: string
+          content_ur?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_version_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          metadata?: Json | null
+          order_index?: number | null
+          pdf_url?: string | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          title?: string
+          title_arabic?: string | null
+          title_en?: string | null
+          title_hi?: string | null
+          title_ur?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_content_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_content_current_version_id_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "content_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_notifications: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          message: string
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string | null
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          target_user_ids: string[] | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          message: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user_ids?: string[] | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          message?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user_ids?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      content_approvals: {
+        Row: {
+          approved_by: string | null
+          content_id: string
+          created_at: string
+          id: string
+          reason: string | null
+          requested_by: string
+          status: string
+          updated_at: string
+          version_id: string | null
+        }
+        Insert: {
+          approved_by?: string | null
+          content_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          requested_by: string
+          status: string
+          updated_at?: string
+          version_id?: string | null
+        }
+        Update: {
+          approved_by?: string | null
+          content_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          requested_by?: string
+          status?: string
+          updated_at?: string
+          version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_approvals_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_approvals_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "admin_content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_approvals_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_approvals_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "content_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_review_comments: {
+        Row: {
+          actor_id: string
+          comment: string
+          content_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          actor_id: string
+          comment: string
+          content_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          actor_id?: string
+          comment?: string
+          content_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_review_comments_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "admin_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_versions: {
+        Row: {
+          change_summary: string | null
+          content: string | null
+          content_arabic: string | null
+          content_id: string
+          created_at: string
+          created_by: string
+          id: string
+          metadata: Json | null
+          title: string
+          title_arabic: string | null
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content?: string | null
+          content_arabic?: string | null
+          content_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          metadata?: Json | null
+          title: string
+          title_arabic?: string | null
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          content?: string | null
+          content_arabic?: string | null
+          content_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          metadata?: Json | null
+          title?: string
+          title_arabic?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_versions_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "admin_content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      role_capabilities: {
+        Row: {
+          allowed: boolean
+          capability: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          allowed?: boolean
+          capability: string
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          allowed?: boolean
+          capability?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_activity: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_mfa_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_mfa_enabled: boolean
+          method: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_mfa_enabled?: boolean
+          method?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_mfa_enabled?: boolean
+          method?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "super_admin" | "admin" | "editor" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +702,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["super_admin", "admin", "editor", "user"],
+    },
   },
 } as const
