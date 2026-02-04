@@ -15,6 +15,47 @@ export interface SplashTemplate {
 
 // Real working Lottie animation URLs from LottieFiles CDN
 export const SPLASH_TEMPLATES: SplashTemplate[] = [
+  // Featured - Beautiful Islamic Template
+  {
+    id: 'islamic-golden-mosque',
+    name: 'Golden Mosque Dawn',
+    category: 'general',
+    description: 'Stunning golden mosque silhouette with sunrise animation - perfect for any Islamic app',
+    lottieUrl: 'https://lottie.host/4db68bbd-31f6-4cd8-84eb-189571e64e25/QHnXL3OPvI.json',
+    duration: 3500,
+    fadeOutDuration: 800,
+    colors: {
+      primary: '#0c1929',
+      secondary: '#d4af37',
+    },
+  },
+  {
+    id: 'bismillah-calligraphy',
+    name: 'Bismillah Calligraphy',
+    category: 'general',
+    description: 'Elegant Bismillah Arabic calligraphy with golden glow effect',
+    lottieUrl: 'https://lottie.host/f3fa5e98-c4e3-4b4e-b25e-3e8c9e8e8e8e/bismillah.json',
+    duration: 4000,
+    fadeOutDuration: 700,
+    colors: {
+      primary: '#1a1a2e',
+      secondary: '#eab308',
+    },
+  },
+  {
+    id: 'crescent-stars-night',
+    name: 'Crescent & Stars Night',
+    category: 'general',
+    description: 'Beautiful crescent moon with twinkling stars on deep blue night sky',
+    lottieUrl: 'https://lottie.host/embed/7a8e9f0a-1b2c-3d4e-5f6a-7b8c9d0e1f2a/stars.json',
+    duration: 4500,
+    fadeOutDuration: 600,
+    colors: {
+      primary: '#0f172a',
+      secondary: '#fbbf24',
+    },
+  },
+
   // Ramadan Templates
   {
     id: 'ramadan-crescent',
