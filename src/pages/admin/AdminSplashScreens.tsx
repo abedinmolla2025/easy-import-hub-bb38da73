@@ -15,6 +15,9 @@ import {
   Sparkles,
   Settings,
   Smartphone,
+  MessageSquare,
+  Palette,
+  Type,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SplashScreensManager } from "@/components/admin/SplashScreensManager";
@@ -24,6 +27,18 @@ import { CapacitorSplashViewer } from "@/components/admin/CapacitorSplashViewer"
 import { CapacitorIconsViewer } from "@/components/admin/CapacitorIconsViewer";
 import type { SplashTemplate } from "@/lib/splashTemplates";
 
+type SplashMessage = {
+  text?: string;
+  textArabic?: string;
+  textBengali?: string;
+};
+
+type SplashColors = {
+  primary?: string;
+  secondary?: string;
+  accent?: string;
+};
+
 type BrandingSettings = {
   appName?: string;
   logoUrl?: string;
@@ -31,6 +46,12 @@ type BrandingSettings = {
   splashEnabled?: boolean;
   splashDuration?: number;
   splashFadeOut?: number;
+  // Custom splash message
+  splashMessage?: SplashMessage;
+  // Custom splash colors
+  splashColors?: SplashColors;
+  // Custom splash style
+  splashStyle?: 'elegant' | 'festive' | 'minimal' | 'royal' | 'spiritual';
 };
 
 function useBrandingSettings() {
@@ -302,10 +323,331 @@ const AdminSplashScreens = () => {
           <CapacitorIconsViewer icons={mockIcons} />
         </TabsContent>
 
-        <TabsContent value="settings" className="mt-6">
+        <TabsContent value="settings" className="mt-6 space-y-6">
+          {/* Message Customization Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Splash Screen Settings</CardTitle>
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                <CardTitle>Splash Message</CardTitle>
+              </div>
+              <CardDescription>
+                Customize the message shown on splash screen (e.g., Eid Mubarak, Ramadan Kareem)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Type className="h-4 w-4" />
+                    English Message
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Eid Mubarak"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={mergedBranding.splashMessage?.text ?? ''}
+                    onChange={(e) =>
+                      handleBrandingUpdate((prev) => ({
+                        ...prev,
+                        splashMessage: {
+                          ...prev.splashMessage,
+                          text: e.target.value || undefined,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <span className="font-arabic text-base">ع</span>
+                    Arabic Message
+                  </label>
+                  <input
+                    type="text"
+                    dir="rtl"
+                    placeholder="مثال: عيد مبارك"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-arabic"
+                    value={mergedBranding.splashMessage?.textArabic ?? ''}
+                    onChange={(e) =>
+                      handleBrandingUpdate((prev) => ({
+                        ...prev,
+                        splashMessage: {
+                          ...prev.splashMessage,
+                          textArabic: e.target.value || undefined,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <span className="text-base">বাং</span>
+                    Bengali Message
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="যেমন: ঈদ মোবারক"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={mergedBranding.splashMessage?.textBengali ?? ''}
+                    onChange={(e) =>
+                      handleBrandingUpdate((prev) => ({
+                        ...prev,
+                        splashMessage: {
+                          ...prev.splashMessage,
+                          textBengali: e.target.value || undefined,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Message Preview */}
+              {(mergedBranding.splashMessage?.text || mergedBranding.splashMessage?.textArabic || mergedBranding.splashMessage?.textBengali) && (
+                <div className="rounded-lg border bg-gradient-to-br from-slate-900 to-emerald-900 p-6 text-center">
+                  <p className="text-xs text-white/50 mb-2">Message Preview</p>
+                  {mergedBranding.splashMessage?.textArabic && (
+                    <p className="text-lg font-arabic text-amber-200/90 mb-1">
+                      {mergedBranding.splashMessage.textArabic}
+                    </p>
+                  )}
+                  {mergedBranding.splashMessage?.text && (
+                    <p className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                      {mergedBranding.splashMessage.text}
+                    </p>
+                  )}
+                  {mergedBranding.splashMessage?.textBengali && (
+                    <p className="text-base text-white/80 mt-1">
+                      {mergedBranding.splashMessage.textBengali}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Quick Presets */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Quick Presets</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { text: 'Eid Mubarak', textArabic: 'عِيد مُبَارَك', textBengali: 'ঈদ মোবারক' },
+                    { text: 'Ramadan Mubarak', textArabic: 'رَمَضَان مُبَارَك', textBengali: 'রমজান মোবারক' },
+                    { text: 'Ramadan Kareem', textArabic: 'رَمَضَان كَرِيم', textBengali: 'রমজান কারীম' },
+                    { text: 'Jumma Mubarak', textArabic: 'جُمْعَة مُبَارَكَة', textBengali: 'জুমআ মোবারক' },
+                    { text: 'Assalamu Alaikum', textArabic: 'السَّلَامُ عَلَيْكُمْ', textBengali: 'আসসালামু আলাইকুম' },
+                  ].map((preset) => (
+                    <Button
+                      key={preset.text}
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashMessage: preset,
+                        }))
+                      }
+                    >
+                      {preset.text}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      handleBrandingUpdate((prev) => ({
+                        ...prev,
+                        splashMessage: undefined,
+                      }))
+                    }
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Color Customization Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Palette className="h-5 w-5 text-primary" />
+                <CardTitle>Splash Colors</CardTitle>
+              </div>
+              <CardDescription>
+                Customize the background gradient colors
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Primary Color</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      className="h-10 w-14 rounded-md border border-input cursor-pointer"
+                      value={mergedBranding.splashColors?.primary ?? '#0a1628'}
+                      onChange={(e) =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashColors: {
+                            ...prev.splashColors,
+                            primary: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                    <input
+                      type="text"
+                      className="flex h-10 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+                      value={mergedBranding.splashColors?.primary ?? '#0a1628'}
+                      onChange={(e) =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashColors: {
+                            ...prev.splashColors,
+                            primary: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Secondary Color</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      className="h-10 w-14 rounded-md border border-input cursor-pointer"
+                      value={mergedBranding.splashColors?.secondary ?? '#134e29'}
+                      onChange={(e) =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashColors: {
+                            ...prev.splashColors,
+                            secondary: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                    <input
+                      type="text"
+                      className="flex h-10 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+                      value={mergedBranding.splashColors?.secondary ?? '#134e29'}
+                      onChange={(e) =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashColors: {
+                            ...prev.splashColors,
+                            secondary: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Accent Color</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      className="h-10 w-14 rounded-md border border-input cursor-pointer"
+                      value={mergedBranding.splashColors?.accent ?? '#fbbf24'}
+                      onChange={(e) =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashColors: {
+                            ...prev.splashColors,
+                            accent: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                    <input
+                      type="text"
+                      className="flex h-10 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+                      value={mergedBranding.splashColors?.accent ?? '#fbbf24'}
+                      onChange={(e) =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashColors: {
+                            ...prev.splashColors,
+                            accent: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Color Preview */}
+              <div
+                className="h-24 rounded-lg flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${mergedBranding.splashColors?.primary ?? '#0a1628'} 0%, ${mergedBranding.splashColors?.secondary ?? '#134e29'} 100%)`,
+                }}
+              >
+                <span
+                  className="text-lg font-bold"
+                  style={{ color: mergedBranding.splashColors?.accent ?? '#fbbf24' }}
+                >
+                  Color Preview
+                </span>
+              </div>
+
+              {/* Color Presets */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Color Presets</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { name: 'Islamic Green', primary: '#0a1628', secondary: '#134e29', accent: '#fbbf24' },
+                    { name: 'Royal Gold', primary: '#1c1917', secondary: '#78350f', accent: '#d4af37' },
+                    { name: 'Night Sky', primary: '#0f172a', secondary: '#1e1b4b', accent: '#a78bfa' },
+                    { name: 'Sunset', primary: '#7c2d12', secondary: '#c2410c', accent: '#fef3c7' },
+                    { name: 'Ocean', primary: '#0c4a6e', secondary: '#075985', accent: '#38bdf8' },
+                  ].map((preset) => (
+                    <Button
+                      key={preset.name}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() =>
+                        handleBrandingUpdate((prev) => ({
+                          ...prev,
+                          splashColors: {
+                            primary: preset.primary,
+                            secondary: preset.secondary,
+                            accent: preset.accent,
+                          },
+                        }))
+                      }
+                    >
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{
+                          background: `linear-gradient(135deg, ${preset.primary}, ${preset.secondary})`,
+                        }}
+                      />
+                      {preset.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Timing Settings Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Settings className="h-5 w-5 text-primary" />
+                <CardTitle>Timing Settings</CardTitle>
+              </div>
               <CardDescription>
                 Configure global splash screen behavior
               </CardDescription>

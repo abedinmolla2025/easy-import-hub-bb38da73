@@ -14,7 +14,7 @@ export interface SplashTemplate {
   };
   // Optional seasonal message - beautifully animated
   message?: {
-    text: string;
+    text?: string;
     textArabic?: string;
     textBengali?: string;
   };

@@ -102,7 +102,7 @@ export function SplashScreen(props: {
   fadeOutDuration?: number;
   // Optional seasonal message
   message?: {
-    text: string;
+    text?: string;
     textArabic?: string;
     textBengali?: string;
   };
@@ -110,8 +110,8 @@ export function SplashScreen(props: {
   style?: 'elegant' | 'festive' | 'minimal' | 'royal' | 'spiritual';
   // Custom colors from template
   colors?: {
-    primary: string;
-    secondary: string;
+    primary?: string;
+    secondary?: string;
     accent?: string;
   };
   onComplete: () => void;
@@ -195,7 +195,7 @@ export function SplashScreen(props: {
   if (!visible) return null;
 
   // Generate gradient based on colors or default
-  const bgGradient = colors 
+  const bgGradient = colors?.primary && colors?.secondary
     ? `linear-gradient(180deg, ${colors.primary} 0%, ${colors.secondary} 100%)`
     : "linear-gradient(180deg, #0a1628 0%, #0d2818 50%, #134e29 100%)";
 

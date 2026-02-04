@@ -13,14 +13,14 @@ interface SplashScreenPreviewProps {
   fadeOutDuration: number;
   // Optional seasonal message
   message?: {
-    text: string;
+    text?: string;
     textArabic?: string;
     textBengali?: string;
   };
   // Custom colors from template
   colors?: {
-    primary: string;
-    secondary: string;
+    primary?: string;
+    secondary?: string;
     accent?: string;
   };
 }
@@ -102,13 +102,13 @@ function FallbackSplashContent({
   logoUrl?: string; 
   appName?: string;
   message?: {
-    text: string;
+    text?: string;
     textArabic?: string;
     textBengali?: string;
   };
   colors?: {
-    primary: string;
-    secondary: string;
+    primary?: string;
+    secondary?: string;
     accent?: string;
   };
 }) {
