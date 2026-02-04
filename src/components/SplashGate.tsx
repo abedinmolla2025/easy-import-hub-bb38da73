@@ -3,9 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { SplashScreen } from "@/components/SplashScreen";
 
 type SplashConfig = {
-  lottieUrl: string;
+  lottieUrl?: string;
   duration: number;
   fadeOutDuration: number;
+  enabled: boolean;
+};
+
+// Default splash configuration - always show beautiful Islamic splash
+const DEFAULT_SPLASH_CONFIG: SplashConfig = {
+  enabled: true,
+  duration: 3500,
+  fadeOutDuration: 800,
 };
 
 /**
@@ -17,8 +25,8 @@ export function SplashGate(props: { children: React.ReactNode }) {
   const { children } = props;
 
   const [done, setDone] = useState(false);
-  const [config, setConfig] = useState<SplashConfig | null>(null);
-  const [loadingConfig, setLoadingConfig] = useState(true);
+  const [config, setConfig] = useState<SplashConfig>(DEFAULT_SPLASH_CONFIG);
+  const [configLoaded, setConfigLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,27 +38,32 @@ export function SplashGate(props: { children: React.ReactNode }) {
           .from("app_settings")
           .select("setting_value")
           .eq("setting_key", "branding")
-          .single();
+          .maybeSingle();
 
         if (cancelled) return;
 
         const brandingValue = brandingData?.setting_value as any;
-        if (brandingValue?.lottieSplashUrl && brandingValue?.splashEnabled !== false) {
-          setConfig({
-            lottieUrl: brandingValue.lottieSplashUrl,
-            duration: brandingValue.splashDuration || 3000,
-            fadeOutDuration: brandingValue.splashFadeOutDuration || 500,
-          });
-          setLoadingConfig(false);
+        
+        // Check if splash is explicitly disabled
+        if (brandingValue?.splashEnabled === false) {
+          setDone(true);
           return;
         }
 
-        // No splash configured
-        setDone(true);
+        // Use custom lottie if provided, otherwise use beautiful fallback
+        setConfig({
+          enabled: true,
+          lottieUrl: brandingValue?.lottieSplashUrl || undefined,
+          duration: brandingValue?.splashDuration || DEFAULT_SPLASH_CONFIG.duration,
+          fadeOutDuration: brandingValue?.splashFadeOut || DEFAULT_SPLASH_CONFIG.fadeOutDuration,
+        });
       } catch {
-        if (!cancelled) setDone(true);
+        // On error, still show default splash
+        if (!cancelled) {
+          setConfig(DEFAULT_SPLASH_CONFIG);
+        }
       } finally {
-        if (!cancelled) setLoadingConfig(false);
+        if (!cancelled) setConfigLoaded(true);
       }
     };
 
@@ -61,23 +74,24 @@ export function SplashGate(props: { children: React.ReactNode }) {
     };
   }, []);
 
+  // Already finished showing splash
   if (done) return <>{children}</>;
 
-  // While we are fetching config, still show the overlay spinner (SplashScreen fallback)
-  if (loadingConfig) {
+  // While we are fetching config, show the splash (with loading state)
+  if (!configLoaded) {
     return (
       <SplashScreen
-        duration={0}
-        fadeOutDuration={0}
-        onComplete={() => {
-          /* keep visible until config arrives */
-        }}
+        duration={DEFAULT_SPLASH_CONFIG.duration}
+        fadeOutDuration={DEFAULT_SPLASH_CONFIG.fadeOutDuration}
+        onComplete={() => setDone(true)}
       />
     );
   }
 
-  if (!config) return <>{children}</>;
+  // Splash is disabled
+  if (!config.enabled) return <>{children}</>;
 
+  // Show configured splash screen
   return (
     <>
       <SplashScreen
@@ -86,7 +100,7 @@ export function SplashGate(props: { children: React.ReactNode }) {
         fadeOutDuration={config.fadeOutDuration}
         onComplete={() => setDone(true)}
       />
-      {!done ? null : children}
+      {done && children}
     </>
   );
 }
