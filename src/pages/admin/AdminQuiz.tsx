@@ -29,11 +29,13 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload, Download } from "lucide-react";
+import { toast } from "sonner";
+import { Plus, Pencil, Trash2, Upload, Download, Search } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { MobileTableWrapper } from "@/components/admin/MobileTableWrapper";
 import { Badge } from "@/components/ui/badge";
+import { QuizBulkImportDialog } from "@/components/admin/QuizBulkImportDialog";
+import { AdminPageActionsDropdown } from "@/components/admin/AdminPageActionsDropdown";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,7 +81,6 @@ const difficulties = ["easy", "medium", "hard"];
 
 export default function AdminQuiz() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
@@ -151,12 +152,12 @@ export default function AdminQuiz() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast({ title: "Question added successfully" });
+      toast.success("Question added successfully");
       resetForm();
       setIsDialogOpen(false);
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast.error("Error: " + error.message);
     },
   });
 
@@ -197,13 +198,13 @@ export default function AdminQuiz() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast({ title: "Question updated successfully" });
+      toast.success("Question updated successfully");
       resetForm();
       setEditingQuestion(null);
       setIsDialogOpen(false);
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast.error("Error: " + error.message);
     },
   });
 
@@ -214,12 +215,12 @@ export default function AdminQuiz() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast({ title: "Question deleted successfully" });
+      toast.success("Question deleted successfully");
       setDeleteDialogOpen(false);
       setQuestionToDelete(null);
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast.error("Error: " + error.message);
     },
   });
 
@@ -274,28 +275,19 @@ export default function AdminQuiz() {
     }
   };
 
-  const handleExport = () => {
-    if (!questions) return;
-    const exportData = questions.map((q) => ({
-      question: q.question || q.question_en || q.question_bn || "",
-      options: q.options || q.options_en || q.options_bn || [],
-      question_en: q.question_en,
-      question_bn: q.question_bn,
-      options_en: q.options_en,
-      options_bn: q.options_bn,
-      correct_answer: q.correct_answer,
-      category: q.category,
-      difficulty: q.difficulty,
-      is_active: q.is_active,
-    }));
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "quiz-questions.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  // Export data for AdminPageActionsDropdown
+  const exportData = questions?.map((q) => ({
+    question: q.question || q.question_en || q.question_bn || "",
+    options: q.options || q.options_en || q.options_bn || [],
+    question_en: q.question_en,
+    question_bn: q.question_bn,
+    options_en: q.options_en,
+    options_bn: q.options_bn,
+    correct_answer: q.correct_answer,
+    category: q.category,
+    difficulty: q.difficulty,
+    is_active: q.is_active,
+  }));
 
   const totalDays = questions ? Math.ceil(questions.filter((q) => q.is_active).length / 3) : 0;
 
@@ -303,16 +295,18 @@ export default function AdminQuiz() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Quiz Management</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Total: {questions?.length || 0} | Active: {questions?.filter((q) => q.is_active).length || 0} | Days: {totalDays}
+          <h1 className="text-3xl font-bold">Quiz Management</h1>
+          <p className="text-muted-foreground mt-1">
+            Total Questions: {questions?.length || 0} | Active: {questions?.filter((q) => q.is_active).length || 0} | Unique Days: {totalDays}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <AdminPageActionsDropdown
+            exportData={exportData}
+            exportFileName="quiz-questions.json"
+            exportLabel="Export Questions"
+          />
+          <QuizBulkImportDialog />
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) {
@@ -321,9 +315,9 @@ export default function AdminQuiz() {
             }
           }}>
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Question
+                Add New Question
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
