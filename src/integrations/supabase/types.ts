@@ -112,6 +112,9 @@ export type Database = {
           content_en: string | null
           content_hi: string | null
           content_pronunciation: string | null
+          content_pronunciation_en: string | null
+          content_pronunciation_hi: string | null
+          content_pronunciation_ur: string | null
           content_type: string
           content_ur: string | null
           created_at: string | null
@@ -144,6 +147,9 @@ export type Database = {
           content_en?: string | null
           content_hi?: string | null
           content_pronunciation?: string | null
+          content_pronunciation_en?: string | null
+          content_pronunciation_hi?: string | null
+          content_pronunciation_ur?: string | null
           content_type: string
           content_ur?: string | null
           created_at?: string | null
@@ -176,6 +182,9 @@ export type Database = {
           content_en?: string | null
           content_hi?: string | null
           content_pronunciation?: string | null
+          content_pronunciation_en?: string | null
+          content_pronunciation_hi?: string | null
+          content_pronunciation_ur?: string | null
           content_type?: string
           content_ur?: string | null
           created_at?: string | null
