@@ -37,6 +37,34 @@ const SECTION_LABELS = {
   },
 } as const;
 
+const CATEGORY_TRANSLATIONS: Record<string, Record<Language, string>> = {
+  Food: { bengali: "খাবার", english: "Food", hindi: "भोजन", urdu: "کھانا" },
+  Protection: { bengali: "সুরক্ষা", english: "Protection", hindi: "सुरक्षा", urdu: "حفاظت" },
+  Guidance: { bengali: "হেদায়াত", english: "Guidance", hindi: "मार्गदर्शन", urdu: "ہدایت" },
+  Daily: { bengali: "দৈনন্দিন", english: "Daily", hindi: "दैनिक", urdu: "روزانہ" },
+  Quran: { bengali: "কুরআন", english: "Quran", hindi: "क़ुरान", urdu: "قرآن" },
+  Death: { bengali: "মৃত্যু", english: "Death", hindi: "मृत्यु", urdu: "موت" },
+  Morning: { bengali: "সকাল", english: "Morning", hindi: "सुबह", urdu: "صبح" },
+  Knowledge: { bengali: "জ্ঞান", english: "Knowledge", hindi: "ज्ञान", urdu: "علم" },
+  Sleep: { bengali: "ঘুম", english: "Sleep", hindi: "नींद", urdu: "نیند" },
+  Hajj: { bengali: "হজ", english: "Hajj", hindi: "हज", urdu: "حج" },
+  Health: { bengali: "স্বাস্থ্য", english: "Health", hindi: "स्वास्थ्य", urdu: "صحت" },
+  Family: { bengali: "পরিবার", english: "Family", hindi: "परिवार", urdu: "خاندان" },
+  Salah: { bengali: "সালাত", english: "Salah", hindi: "सलाह", urdu: "صلاة" },
+  Masjid: { bengali: "মসজিদ", english: "Masjid", hindi: "मस्जिद", urdu: "مسجد" },
+  Fasting: { bengali: "রোজা", english: "Fasting", hindi: "रोज़ा", urdu: "روزہ" },
+  Travel: { bengali: "সফর", english: "Travel", hindi: "यात्रा", urdu: "سفر" },
+  Evening: { bengali: "সন্ধ্যা", english: "Evening", hindi: "शाम", urdu: "شام" },
+  Forgiveness: { bengali: "ক্ষমা", english: "Forgiveness", hindi: "क्षमा", urdu: "معافی" },
+  Wudu: { bengali: "অজু", english: "Wudu", hindi: "वुज़ू", urdu: "وضو" },
+  Weather: { bengali: "আবহাওয়া", english: "Weather", hindi: "मौसम", urdu: "موسم" },
+  Dua: { bengali: "দোয়া", english: "Dua", hindi: "दुआ", urdu: "دعا" },
+};
+
+const getCategoryLabel = (category: string, lang: Language): string => {
+  return CATEGORY_TRANSLATIONS[category]?.[lang] || category;
+};
+
 const UI_LABELS = {
   loading: {
     bengali: "দোয়া লোড হচ্ছে...",
@@ -185,8 +213,8 @@ const DuaPage = () => {
   }, [categoryParam, duaParam, duas]);
 
   const categories = useMemo(
-    () => [...new Set(duas.map((d) => d.translations[language].category))],
-    [duas, language]
+    () => [...new Set(duas.map((d) => d.translations.english.category))],
+    [duas]
   );
 
   const filteredDuas = useMemo(() => {
@@ -419,7 +447,7 @@ const DuaPage = () => {
                     onClick={() => pushCategory(cat)}
                     className="px-4 py-2 rounded-full text-sm font-medium bg-white/10 text-white/80 hover:bg-[hsl(45,93%,58%)]/20 hover:text-[hsl(45,93%,58%)] transition-all border border-transparent hover:border-[hsl(45,93%,58%)]/30"
                   >
-                    {cat}
+                    {getCategoryLabel(cat, language)}
                   </button>
                 ))}
               </motion.div>
