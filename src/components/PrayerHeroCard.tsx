@@ -25,8 +25,11 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
   const [logoTapCount, setLogoTapCount] = useState(0);
   const [unlockOpen, setUnlockOpen] = useState(false);
   const localPrayerData = usePrayerTimes();
-  const { branding } = useGlobalConfig();
+  const { branding, loading: configLoading } = useGlobalConfig();
   const { prayerTimes, location, hijriDate, isLoading } = prayerData || localPrayerData;
+  
+  // Check if branding is actually loaded (has at least one real value)
+  const brandingLoaded = !configLoading && (branding.appName || branding.logoUrl);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -159,7 +162,8 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
               
               {/* Top Bar - NOOR Branding & Controls */}
               <div className="flex flex-wrap items-center justify-between gap-2">
-                {/* NOOR Branding */}
+                {/* NOOR Branding - only show when loaded */}
+                {brandingLoaded && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1.5">
                     <div className="relative w-10 h-10 flex-shrink-0">
@@ -217,6 +221,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* Location & Bell */}
                 <div className="flex items-center gap-1.5">
