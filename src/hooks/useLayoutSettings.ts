@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import type { LayoutPlatform } from "@/lib/layout";
 
 export type LayoutSettingRow = {
@@ -8,16 +10,27 @@ export type LayoutSettingRow = {
   section_key: string;
   visible: boolean;
   size: "compact" | "normal" | "large";
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
 };
 
 export function useLayoutSettings(layoutKey: string, platform: LayoutPlatform) {
-  // Return empty data since the admin_layout_settings table doesn't exist
-  // This is a graceful fallback
-  return {
-    data: [] as LayoutSettingRow[],
-    isLoading: false,
-    isError: false,
-    error: null,
-  };
+  return useQuery({
+    queryKey: ["layout-settings", layoutKey, platform],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("admin_layout_settings")
+        .select("*")
+        .eq("layout_key", layoutKey)
+        .eq("platform", platform)
+        .order("order_index", { ascending: true });
+
+      if (error) {
+        console.error("Failed to fetch layout settings:", error);
+        return [];
+      }
+
+      return (data ?? []) as LayoutSettingRow[];
+    },
+    staleTime: 1000 * 60, // 1 minute
+  });
 }

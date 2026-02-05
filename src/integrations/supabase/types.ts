@@ -214,6 +214,45 @@ export type Database = {
           },
         ]
       }
+      admin_layout_settings: {
+        Row: {
+          created_at: string
+          id: string
+          layout_key: string
+          order_index: number
+          platform: string
+          section_key: string
+          settings: Json | null
+          size: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          layout_key: string
+          order_index?: number
+          platform?: string
+          section_key: string
+          settings?: Json | null
+          size?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          layout_key?: string
+          order_index?: number
+          platform?: string
+          section_key?: string
+          settings?: Json | null
+          size?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       admin_notifications: {
         Row: {
           created_at: string | null

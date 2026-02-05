@@ -12,11 +12,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { History, RotateCcw } from "lucide-react";
+import { History, RotateCcw, Loader2 } from "lucide-react";
 import type { LayoutPlatform } from "@/lib/layout";
 import { detectLayoutPlatform } from "@/lib/layout";
 import { LayoutSectionRow } from "@/components/admin/layout/LayoutSectionRow";
 import type { UiSection } from "@/components/admin/layout/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const LAYOUT_KEY = "home";
 
@@ -73,38 +75,44 @@ export default function AdminLayoutControl() {
   const [platform, setPlatform] = useState<LayoutPlatform>("web");
   const [items, setItems] = useState<UiSection[]>(() => toUiSections([]));
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [versions, setVersions] = useState<any[]>([]);
-  const [initialized, setInitialized] = useState(false);
+  const queryClient = useQueryClient();
 
   // Detect platform once on mount
   useEffect(() => {
     detectLayoutPlatform().then(setPlatform).catch(() => setPlatform("web"));
   }, []);
 
-  // Load from localStorage when platform changes
+  // Load from database when platform changes
   useEffect(() => {
-    const storageKey = `layout_settings_${LAYOUT_KEY}_${platform}`;
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
+    const fetchLayout = async () => {
+      setLoading(true);
       try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setItems(toUiSections(parsed));
-          setInitialized(true);
-        } else {
-          setItems(toUiSections([]));
-          setInitialized(false);
-        }
-      } catch {
-        setItems(toUiSections([]));
-        setInitialized(false);
-      }
-    } else {
-      // No saved data, use defaults
-      setItems(toUiSections([]));
-      setInitialized(false);
-    }
+        const { data, error } = await supabase
+          .from("admin_layout_settings")
+          .select("*")
+          .eq("layout_key", LAYOUT_KEY)
+          .eq("platform", platform)
+          .order("order_index", { ascending: true });
 
+        if (error) {
+          console.error("Failed to fetch layout:", error);
+          setItems(toUiSections([]));
+        } else {
+          setItems(toUiSections(data ?? []));
+        }
+      } catch (e) {
+        console.error(e);
+        setItems(toUiSections([]));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLayout();
+
+    // Load versions from localStorage (snapshots)
     const versionsKey = `layout_versions_${LAYOUT_KEY}_${platform}`;
     const savedVersions = localStorage.getItem(versionsKey);
     if (savedVersions) {
@@ -118,51 +126,82 @@ export default function AdminLayoutControl() {
     }
   }, [platform]);
 
-  const persist = async (nextItems: UiSection[], { snapshot }: { snapshot: boolean }) => {
+  const handlePublish = async () => {
     setBusy(true);
     try {
-      const normalized = nextItems.map((s, i) => ({ ...s, order_index: i }));
+      const normalized = items.map((s, i) => ({ ...s, order_index: i }));
 
-      // Save to localStorage
-      const storageKey = `layout_settings_${LAYOUT_KEY}_${platform}`;
-      localStorage.setItem(storageKey, JSON.stringify(normalized));
-      setInitialized(true);
+      // Upsert all sections to database
+      const upsertData = normalized.map((s) => ({
+        layout_key: LAYOUT_KEY,
+        platform,
+        section_key: s.section_key,
+        order_index: s.order_index,
+        visible: s.visible,
+        size: s.size,
+        settings: s.settings,
+      }));
 
-      if (snapshot) {
-        // Save version snapshot to localStorage
-        const versionsKey = `layout_versions_${LAYOUT_KEY}_${platform}`;
-        const existingVersions = JSON.parse(localStorage.getItem(versionsKey) || "[]");
-        const newVersion = {
-          id: Date.now().toString(),
-          created_at: new Date().toISOString(),
-          snapshot: normalized,
-        };
-        const updatedVersions = [newVersion, ...existingVersions].slice(0, 5);
-        localStorage.setItem(versionsKey, JSON.stringify(updatedVersions));
-        setVersions(updatedVersions);
-      }
+      const { error } = await supabase
+        .from("admin_layout_settings")
+        .upsert(upsertData, { onConflict: "layout_key,platform,section_key" });
 
-      toast.success("Layout updated");
+      if (error) throw error;
+
+      // Save version snapshot to localStorage
+      const versionsKey = `layout_versions_${LAYOUT_KEY}_${platform}`;
+      const existingVersions = JSON.parse(localStorage.getItem(versionsKey) || "[]");
+      const newVersion = {
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        snapshot: normalized,
+      };
+      const updatedVersions = [newVersion, ...existingVersions].slice(0, 5);
+      localStorage.setItem(versionsKey, JSON.stringify(updatedVersions));
+      setVersions(updatedVersions);
+
+      // Invalidate queries so home page fetches new layout
+      queryClient.invalidateQueries({ queryKey: ["layout-settings"] });
+
+      toast.success("Layout published! Home page will update automatically.");
     } catch (e: any) {
       console.error(e);
-      toast.error(e?.message || "Failed to update layout");
+      toast.error(e?.message || "Failed to publish layout");
     } finally {
       setBusy(false);
     }
   };
 
-  const handlePublish = async () => {
-    await persist(items, { snapshot: true });
-  };
-
   const handleInitialize = async () => {
     const defaults = toUiSections([]);
     setItems(defaults);
-    await persist(defaults, { snapshot: true });
-  };
+    
+    setBusy(true);
+    try {
+      const upsertData = defaults.map((s) => ({
+        layout_key: LAYOUT_KEY,
+        platform,
+        section_key: s.section_key,
+        order_index: s.order_index,
+        visible: s.visible,
+        size: s.size,
+        settings: s.settings,
+      }));
 
-  const handleSyncFromPageBuilder = () => {
-    toast.info("Page Builder sync will be available when database tables are set up");
+      const { error } = await supabase
+        .from("admin_layout_settings")
+        .upsert(upsertData, { onConflict: "layout_key,platform,section_key" });
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["layout-settings"] });
+      toast.success("Default layout initialized");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Failed to initialize layout");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleRestore = async (snapshot: any) => {
@@ -178,8 +217,36 @@ export default function AdminLayoutControl() {
     );
 
     setItems(restored);
-    await persist(restored, { snapshot: true });
+
+    setBusy(true);
+    try {
+      const upsertData = restored.map((s) => ({
+        layout_key: LAYOUT_KEY,
+        platform,
+        section_key: s.section_key,
+        order_index: s.order_index,
+        visible: s.visible,
+        size: s.size,
+        settings: s.settings,
+      }));
+
+      const { error } = await supabase
+        .from("admin_layout_settings")
+        .upsert(upsertData, { onConflict: "layout_key,platform,section_key" });
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["layout-settings"] });
+      toast.success("Layout restored");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Failed to restore layout");
+    } finally {
+      setBusy(false);
+    }
   };
+
+  const hasData = items.length > 0 && !loading;
 
   return (
     <div className="space-y-4">
@@ -187,7 +254,7 @@ export default function AdminLayoutControl() {
         <div>
           <h1 className="text-lg font-semibold">Layout Control</h1>
           <p className="text-sm text-muted-foreground">
-            Drag to reorder, toggle visibility, choose size, then publish. Applies in real-time.
+            Drag to reorder, toggle visibility, choose size, then publish. Changes apply instantly to home page.
           </p>
         </div>
 
@@ -205,17 +272,20 @@ export default function AdminLayoutControl() {
             </Select>
           </div>
 
-          <Button variant="outline" onClick={handleSyncFromPageBuilder} disabled={busy}>
-            Sync from Page Builder
-          </Button>
-
-          <Button onClick={handlePublish} disabled={busy}>
+          <Button onClick={handlePublish} disabled={busy || loading}>
+            {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Publish
           </Button>
         </div>
       </div>
 
-      {!initialized && items.length === 0 && (
+      {loading && (
+        <Card className="p-8 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </Card>
+      )}
+
+      {!loading && !hasData && (
         <Card className="p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -231,47 +301,49 @@ export default function AdminLayoutControl() {
         </Card>
       )}
 
-      <Card className="p-3">
-        <Reorder.Group
-          axis="y"
-          values={items}
-          onReorder={(next) => setItems(next.map((s, i) => ({ ...s, order_index: i })))}
-          className="space-y-2"
-        >
-          {items.map((item, idx) => (
-            <LayoutSectionRow
-              key={item.section_key}
-              item={item}
-              platform={platform}
-              canMoveUp={idx > 0}
-              canMoveDown={idx < items.length - 1}
-              onMoveUp={() =>
-                setItems((prev) => {
-                  if (idx <= 0) return prev;
-                  const next = prev.slice();
-                  [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
-                  return next.map((s, i) => ({ ...s, order_index: i }));
-                })
-              }
-              onMoveDown={() =>
-                setItems((prev) => {
-                  if (idx >= prev.length - 1) return prev;
-                  const next = prev.slice();
-                  [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
-                  return next.map((s, i) => ({ ...s, order_index: i }));
-                })
-              }
-              onChange={(next) =>
-                setItems((prev) =>
-                  prev.map((p) =>
-                    p.section_key === item.section_key ? { ...next, order_index: p.order_index } : p,
-                  ),
-                )
-              }
-            />
-          ))}
-        </Reorder.Group>
-      </Card>
+      {!loading && hasData && (
+        <Card className="p-3">
+          <Reorder.Group
+            axis="y"
+            values={items}
+            onReorder={(next) => setItems(next.map((s, i) => ({ ...s, order_index: i })))}
+            className="space-y-2"
+          >
+            {items.map((item, idx) => (
+              <LayoutSectionRow
+                key={item.section_key}
+                item={item}
+                platform={platform}
+                canMoveUp={idx > 0}
+                canMoveDown={idx < items.length - 1}
+                onMoveUp={() =>
+                  setItems((prev) => {
+                    if (idx <= 0) return prev;
+                    const next = prev.slice();
+                    [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+                    return next.map((s, i) => ({ ...s, order_index: i }));
+                  })
+                }
+                onMoveDown={() =>
+                  setItems((prev) => {
+                    if (idx >= prev.length - 1) return prev;
+                    const next = prev.slice();
+                    [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+                    return next.map((s, i) => ({ ...s, order_index: i }));
+                  })
+                }
+                onChange={(next) =>
+                  setItems((prev) =>
+                    prev.map((p) =>
+                      p.section_key === item.section_key ? { ...next, order_index: p.order_index } : p,
+                    ),
+                  )
+                }
+              />
+            ))}
+          </Reorder.Group>
+        </Card>
+      )}
 
       <Card className="p-4">
         <div className="flex items-center gap-2">
