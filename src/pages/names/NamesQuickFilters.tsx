@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export type QuickFilter = "all" | "boy" | "girl" | "unisex" | "quranic" | "popular" | "short";
 
@@ -8,27 +8,31 @@ export interface NamesQuickFiltersProps {
 }
 
 const FILTERS: { value: QuickFilter; label: string }[] = [
-  { value: "all", label: "সব" },
-  { value: "boy", label: "ছেলে" },
-  { value: "girl", label: "মেয়ে" },
-  { value: "unisex", label: "ইউনিসেক্স" },
-  { value: "quranic", label: "কুরআনিক" },
-  { value: "popular", label: "জনপ্রিয়" },
-  { value: "short", label: "ছোট নাম" },
+  { value: "all", label: "All" },
+  { value: "boy", label: "Boy" },
+  { value: "girl", label: "Girl" },
+  { value: "unisex", label: "Unisex" },
+  { value: "quranic", label: "Quranic" },
+  { value: "popular", label: "Popular" },
+  { value: "short", label: "Short" },
 ];
 
 export const NamesQuickFilters = ({ active, onChange }: NamesQuickFiltersProps) => {
   return (
     <div className="flex flex-wrap gap-2">
       {FILTERS.map((filter) => (
-        <Button
+        <button
           key={filter.value}
-          variant={active === filter.value ? "default" : "outline"}
-          size="sm"
           onClick={() => onChange(filter.value)}
+          className={cn(
+            "px-4 py-2 rounded-full text-sm font-medium transition-all",
+            active === filter.value
+              ? "bg-yellow-500 text-black shadow-md"
+              : "bg-emerald-600 text-white hover:bg-emerald-700"
+          )}
         >
           {filter.label}
-        </Button>
+        </button>
       ))}
     </div>
   );
