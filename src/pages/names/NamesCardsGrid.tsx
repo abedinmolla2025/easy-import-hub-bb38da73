@@ -1,21 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface Name {
-  id: string;
-  title: string;
-  title_arabic?: string | null;
-  meaning_bn?: string | null;
-  meaning_en?: string | null;
-  gender?: string | null;
-  category?: string | null;
-}
+import { NameCard, type NameCardModel } from "@/components/names/NameCard";
 
 interface NamesCardsGridProps {
-  names?: Name[];
-  cards?: Name[];
-  onNameClick?: (name: Name) => void;
-  onSelect?: (name: Name) => void;
+  cards?: NameCardModel[];
+  onSelect?: (name: NameCardModel) => void;
   isLoading?: boolean;
   isError?: boolean;
   hasResults?: boolean;
@@ -24,30 +12,40 @@ interface NamesCardsGridProps {
   emptyStateDescription?: string;
 }
 
-export const NamesCardsGrid = ({ 
-  names, 
-  cards, 
-  onNameClick, 
+export const NamesCardsGrid = ({
+  cards,
   onSelect,
   isLoading = false,
   isError = false,
   hasResults = true,
-  emptyStateTitle = "No names found.",
-  emptyStateDescription = "Try adjusting your search or filters.",
+  emptyStateTitle = "কোনো নাম পাওয়া যায়নি",
+  emptyStateDescription = "অন্য ফিল্টার বা সার্চ চেষ্টা করুন",
 }: NamesCardsGridProps) => {
-  const items = cards ?? names ?? [];
-  const handleClick = onSelect ?? onNameClick;
+  const items = cards ?? [];
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-4">
-              <Skeleton className="h-5 w-3/4 mb-2" />
-              <Skeleton className="h-4 w-full" />
-            </CardContent>
-          </Card>
+      <div className="space-y-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="dua-card relative w-full overflow-hidden p-4 animate-pulse"
+          >
+            <div className="flex gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex gap-2 mt-2">
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                  <Skeleton className="h-6 w-12 rounded-full" />
+                </div>
+              </div>
+              <div className="shrink-0 w-[6.75rem] flex items-center justify-center">
+                <Skeleton className="h-10 w-20" />
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -55,15 +53,16 @@ export const NamesCardsGrid = ({
 
   if (isError) {
     return (
-      <div className="text-center py-8">
-        <p className="text-destructive">Failed to load names. Please try again.</p>
+      <div className="text-center py-12">
+        <p className="text-destructive font-medium">নাম লোড করতে সমস্যা হয়েছে</p>
+        <p className="text-muted-foreground text-sm mt-1">আবার চেষ্টা করুন</p>
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-12">
         <p className="text-foreground font-medium">{emptyStateTitle}</p>
         <p className="text-muted-foreground text-sm mt-1">{emptyStateDescription}</p>
       </div>
@@ -71,30 +70,13 @@ export const NamesCardsGrid = ({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+    <div className="space-y-3">
       {items.map((name) => (
-        <Card
+        <NameCard
           key={name.id}
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => handleClick?.(name)}
-        >
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-foreground">{name.title}</h3>
-            {name.title_arabic && (
-              <p className="text-sm text-muted-foreground font-arabic">{name.title_arabic}</p>
-            )}
-            {(name.meaning_bn || name.meaning_en) && (
-              <p className="text-sm text-muted-foreground truncate mt-1">
-                {name.meaning_bn || name.meaning_en}
-              </p>
-            )}
-            {name.gender && (
-              <span className="inline-block text-xs bg-muted px-2 py-0.5 rounded mt-2 capitalize">
-                {name.gender}
-              </span>
-            )}
-          </CardContent>
-        </Card>
+          name={name}
+          onClick={() => onSelect?.(name)}
+        />
       ))}
     </div>
   );
