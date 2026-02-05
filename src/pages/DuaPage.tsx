@@ -37,6 +37,33 @@ const SECTION_LABELS = {
   },
 } as const;
 
+const UI_LABELS = {
+  loading: {
+    bengali: "দোয়া লোড হচ্ছে...",
+    english: "Loading duas...",
+    hindi: "दुआएं लोड हो रही हैं...",
+    urdu: "دعائیں لوڈ ہو رہی ہیں...",
+  },
+  errorMessage: {
+    bengali: "দোয়া লোড করতে সমস্যা হয়েছে।",
+    english: "Failed to load duas. Please try again.",
+    hindi: "दुआएं लोड करने में विफल।",
+    urdu: "دعائیں لوڈ کرنے میں ناکامی۔",
+  },
+  noDuasFound: {
+    bengali: "কোনো দোয়া পাওয়া যায়নি।",
+    english: "No duas found.",
+    hindi: "कोई दुआ नहीं मिली।",
+    urdu: "کوئی دعا نہیں ملی۔",
+  },
+  searchPlaceholder: {
+    bengali: "দোয়া খুঁজুন...",
+    english: "Search duas...",
+    hindi: "दुआ खोजें...",
+    urdu: "دعا تلاش کریں...",
+  },
+} as const;
+
 interface DuaTranslation {
   title: string;
   translation: string;
@@ -255,10 +282,10 @@ const DuaPage = () => {
       )}
 
       {loading && (
-        <div className="p-4 text-center text-white/70 text-sm">Loading duas...</div>
+        <div className="p-4 text-center text-white/70 text-sm">{UI_LABELS.loading[language]}</div>
       )}
       {error && (
-        <div className="p-4 text-center text-red-300 text-sm">{error}</div>
+        <div className="p-4 text-center text-red-300 text-sm">{UI_LABELS.errorMessage[language]}</div>
       )}
 
       <AnimatePresence mode="wait">
@@ -372,7 +399,7 @@ const DuaPage = () => {
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
               <Input
-                placeholder={language === "bengali" ? "দোয়া খুঁজুন..." : language === "hindi" ? "दुआ खोजें..." : language === "urdu" ? "دعا تلاش کریں..." : "Search duas..."}
+                placeholder={UI_LABELS.searchPlaceholder[language]}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 h-12 rounded-2xl bg-white/10 border-white/10 text-white placeholder:text-white/50 focus:border-[hsl(45,93%,58%)]/50"
@@ -401,13 +428,7 @@ const DuaPage = () => {
             {/* Dua List */}
             {!loading && !error && filteredDuas.length === 0 ? (
               <div className="py-8 text-center text-white/70 text-sm">
-                {language === "bengali"
-                  ? "কোনো দোয়া পাওয়া যায়নি।"
-                  : language === "hindi"
-                  ? "कोई दुआ नहीं मिली।"
-                  : language === "urdu"
-                  ? "کوئی دعا نہیں ملی۔"
-                  : "No duas found."}
+                {UI_LABELS.noDuasFound[language]}
               </div>
             ) : (
               <div className="space-y-3">
