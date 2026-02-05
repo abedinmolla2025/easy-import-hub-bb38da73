@@ -131,10 +131,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
   const locationStr = location?.city || "Loading...";
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+    <div 
       className="relative cursor-pointer group"
       onClick={() => navigate("/prayer-times")}
     >
@@ -358,7 +355,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
         onOpenChange={setUnlockOpen}
         onUnlocked={() => navigate("/admin")}
       />
-    </motion.div>
+    </div>
   );
 };
 
