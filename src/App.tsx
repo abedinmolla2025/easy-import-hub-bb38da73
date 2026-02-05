@@ -21,6 +21,7 @@ import SettingsPage from "./pages/SettingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import BackendStatusPage from "./pages/BackendStatusPage";
 import QuizPage from "./pages/QuizPage";
+import PrayerGuidePage from "./pages/PrayerGuidePage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsPage from "./pages/TermsPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -75,6 +76,7 @@ const AppRoutes = () => (
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
       <Route path="/quiz" element={<QuizPage />} />
+      <Route path="/prayer-guide" element={<PrayerGuidePage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsPage />} />
 
