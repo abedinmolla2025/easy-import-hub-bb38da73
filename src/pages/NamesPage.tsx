@@ -249,11 +249,11 @@ const NamesPage = () => {
       <header className="sticky top-0 z-40 border-b dua-header">
         <div className="mx-auto w-full max-w-none px-3 py-3 md:px-6 xl:px-10">
           <NamesPageHeader
-            title="ইসলামিক নাম"
+            title="Islamic Names"
             subtitle={
               namesQuery.isLoading
-                ? "লোড হচ্ছে…"
-                : `${filtered.length.toLocaleString()} ফলাফল • ${(totalCount ?? allRows.length).toLocaleString()} মোট`
+                ? "Loading…"
+                : `${filtered.length} results • ${totalCount ?? allRows.length} total`
             }
           />
 
