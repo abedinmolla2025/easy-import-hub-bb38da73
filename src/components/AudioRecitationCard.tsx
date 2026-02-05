@@ -6,10 +6,7 @@ const AudioRecitationCard = () => {
   const navigate = useNavigate();
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.01 }}
+    <div 
       onClick={() => navigate("/quran")}
       className="relative overflow-hidden rounded-2xl shadow-xl cursor-pointer group"
     >
@@ -83,7 +80,7 @@ const AudioRecitationCard = () => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -326,15 +326,10 @@ const Index = () => {
       {/* Main Content */}
       <main className="w-full px-3 py-4" style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
         <div className="space-y-4">
-          {orderedSections.map((s, idx) => (
+          {orderedSections.map((s) => (
             <section
               key={s.key}
-              className={idx < 2 ? "animate-fade-in" : ""}
-              style={
-                idx < 2 
-                  ? { animationDelay: `${idx * 80}ms`, transform: 'translateZ(0)' } 
-                  : { contentVisibility: 'auto', contain: 'layout style paint', transform: 'translateZ(0)' }
-              }
+              style={{ contentVisibility: 'auto', contain: 'layout style paint', transform: 'translateZ(0)' }}
             >
               <div className={s.pad ?? "space-y-4"}>{s.el}</div>
             </section>
