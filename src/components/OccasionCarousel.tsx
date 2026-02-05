@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveOccasions } from "@/hooks/useOccasions";
 import type { LayoutPlatform } from "@/lib/layout";
 import { OccasionHtmlCard } from "@/components/OccasionHtmlCard";
@@ -10,17 +9,9 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
 
   const item = useMemo(() => (data ?? [])[0] ?? null, [data]);
 
-  if (isLoading) {
-    return (
-      <div className="space-y-3">
-        <div className="rounded-2xl border border-border bg-card p-3">
-          <Skeleton className="h-40 w-full rounded-xl" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!item) return null;
+  // Don't show skeleton during loading - just return null
+  // This prevents the blank card appearance during initial load
+  if (isLoading || !item) return null;
 
   return (
     <OccasionHtmlCard
