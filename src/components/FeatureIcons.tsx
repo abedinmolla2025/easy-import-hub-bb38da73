@@ -27,6 +27,13 @@ const features: FeatureItem[] = [
     gradient: "from-amber-500/30 to-orange-600/40",
   },
   {
+    emoji: "🕌",
+    label: "Prayer",
+    labelBn: "নামাজ",
+    path: "/prayer-guide",
+    gradient: "from-teal-500/30 to-emerald-600/40",
+  },
+  {
     emoji: "👶",
     label: "Names",
     labelBn: "নাম",
