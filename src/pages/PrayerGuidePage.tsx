@@ -65,6 +65,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray two rakats of Fajr Farz prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে ফজরের দুই রাকাত ফরজ নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salatil fajri fardullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতিল ফাজরি ফারদুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "dhuhr",
@@ -76,6 +77,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray four rakats of Dhuhr Farz prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে যোহরের চার রাকাত ফরজ নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala arba'a raka'ati salatidh dhuhri fardullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা আরবা'আ রাকা'আতি সালাতিয যুহরি ফারদুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "asr",
@@ -87,6 +89,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray four rakats of Asr Farz prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে আসরের চার রাকাত ফরজ নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala arba'a raka'ati salatil asri fardullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা আরবা'আ রাকা'আতি সালাতিল আসরি ফারদুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "maghrib",
@@ -98,6 +101,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray three rakats of Maghrib Farz prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে মাগরিবের তিন রাকাত ফরজ নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala thalatha raka'ati salatil maghribi fardullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা সালাসা রাকা'আতি সালাতিল মাগরিবি ফারদুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "isha",
@@ -109,6 +113,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray four rakats of Isha Farz prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে ইশার চার রাকাত ফরজ নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala arba'a raka'ati salatil isha'i fardullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা আরবা'আ রাকা'আতি সালাতিল ইশায়ি ফারদুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "witr",
@@ -120,6 +125,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray three rakats of Witr Wajib prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে বিতরের তিন রাকাত ওয়াজিব নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala thalatha raka'ati salatil witri wajibullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা সালাসা রাকা'আতি সালাতিল বিতরি ওয়াজিবুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "sunnah",
@@ -131,6 +137,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray Sunnah prayer for Allah following the Sunnah of Rasulullah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে রাসূলুল্লাহ (সাঃ) এর সুন্নত নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salatis sunnati sunnatu rasulillahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতিস সুন্নাতি সুন্নাতু রাসূলিল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "nafl",
@@ -142,6 +149,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray two rakats of Nafl prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে দুই রাকাত নফল নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salatin nafli mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতিন নাফলি মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "tahajjud",
@@ -153,6 +161,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray two rakats of Tahajjud prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে তাহাজ্জুদের দুই রাকাত নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salatit tahajjudi mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতিত তাহাজ্জুদি মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "istikhara",
@@ -164,6 +173,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray two rakats of Istikhara prayer for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে ইস্তিখারার দুই রাকাত নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salatil istikharati mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতিল ইস্তিখারাতি মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "eid-ul-fitr",
@@ -175,6 +185,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray two rakats of Eid ul-Fitr Wajib prayer with six additional takbirs for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে ছয় তাকবিরের সাথে ঈদুল ফিতরের দুই রাকাত ওয়াজিব নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salati eidil fitri ma'a sitti takbiratin wajibullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতি ঈদিল ফিতরি মা'আ সিত্তি তাকবিরাতিন ওয়াজিবুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
   {
     id: "eid-ul-adha",
@@ -186,6 +197,7 @@ const NIYAH_DATA = [
     meaning: "I intend to pray two rakats of Eid ul-Adha Wajib prayer with six additional takbirs for Allah facing the Kaaba. Allahu Akbar.",
     meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে ছয় তাকবিরের সাথে ঈদুল আযহার দুই রাকাত ওয়াজিব নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salati eidil adha ma'a sitti takbiratin wajibullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতি ঈদিল আদহা মা'আ সিত্তি তাকবিরাতিন ওয়াজিবুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
 ];
 
@@ -483,9 +495,10 @@ const NiyahCard = ({ niyah, isBengali }: NiyahCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="rounded-2xl bg-gradient-to-br from-emerald-900/40 to-emerald-950/60 border border-emerald-700/30 p-5 mb-4"
+    className="rounded-2xl bg-gradient-to-br from-emerald-900/40 to-emerald-950/60 border border-emerald-700/30 overflow-hidden mb-4"
   >
-    <div className="flex justify-between items-start mb-3">
+    {/* Header */}
+    <div className="flex justify-between items-center px-5 pt-5 pb-3">
       <div>
         <h3 className="text-lg font-semibold text-emerald-100">
           {isBengali ? niyah.nameBn : niyah.name}
@@ -498,15 +511,40 @@ const NiyahCard = ({ niyah, isBengali }: NiyahCardProps) => (
         <Volume2 className="w-4 h-4" />
       </button>
     </div>
-    <p className="text-right text-2xl leading-loose text-amber-200/90 font-arabic mb-4">
-      {niyah.arabic}
-    </p>
-    <p className="text-sm text-emerald-200/80 mb-2 italic">
-      {niyah.transliteration}
-    </p>
-    <p className="text-sm text-emerald-100/90">
-      {isBengali ? niyah.meaningBn : niyah.meaning}
-    </p>
+
+    {/* Arabic Section */}
+    <div className="mx-4 mb-3 rounded-xl bg-emerald-950/60 border border-amber-400/15 p-4">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">আরবি</span>
+      </div>
+      <p className="text-right text-xl md:text-2xl leading-loose text-amber-200/90 font-arabic">
+        {niyah.arabic}
+      </p>
+    </div>
+
+    {/* Bengali Transliteration Section */}
+    <div className="mx-4 mb-3 rounded-xl bg-emerald-950/40 border border-emerald-600/20 p-4">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/80">
+          {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
+        </span>
+      </div>
+      <p className="text-[15px] leading-relaxed text-emerald-100/90">
+        {isBengali ? (niyah.transliterationBn || niyah.transliteration) : niyah.transliteration}
+      </p>
+    </div>
+
+    {/* Meaning / Translation Section */}
+    <div className="mx-4 mb-5 rounded-xl bg-emerald-950/30 border border-emerald-600/20 p-4">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">
+          {isBengali ? "বাংলা অর্থ" : "Meaning"}
+        </span>
+      </div>
+      <p className="text-[15px] leading-relaxed text-emerald-100/90">
+        {isBengali ? niyah.meaningBn : niyah.meaning}
+      </p>
+    </div>
   </motion.div>
 );
 
