@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Volume2, BookOpen, Heart, Footprints, HandHeart } from "lucide-react";
+import { Search, Volume2, BookOpen, Heart, Footprints, HandHeart, Sparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -495,55 +495,64 @@ const NiyahCard = ({ niyah, isBengali }: NiyahCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="rounded-2xl bg-gradient-to-br from-emerald-900/40 to-emerald-950/60 border border-emerald-700/30 overflow-hidden mb-4"
+    className="relative rounded-3xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-[hsl(45,93%,58%)]/20 shadow-lg overflow-hidden mb-4"
   >
-    {/* Header */}
-    <div className="flex justify-between items-center px-5 pt-5 pb-3">
-      <div>
-        <h3 className="text-lg font-semibold text-emerald-100">
-          {isBengali ? niyah.nameBn : niyah.name}
-        </h3>
-        <p className="text-sm text-emerald-300/70">
-          {isBengali ? niyah.rakatsBn : niyah.rakats}
+    <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full blur-2xl" />
+    <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,30%)]/30 rounded-full blur-xl" />
+
+    <div className="relative">
+      {/* Header */}
+      <div className="flex justify-between items-center px-6 pt-5 pb-3">
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            {isBengali ? niyah.nameBn : niyah.name}
+          </h3>
+          <p className="text-sm text-white/60">
+            {isBengali ? niyah.rakatsBn : niyah.rakats}
+          </p>
+        </div>
+        <button className="p-2 rounded-full bg-white/10 text-[hsl(45,93%,58%)] hover:bg-white/20 transition">
+          <Volume2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Arabic Section */}
+      <div className="mx-4 mb-3 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,22%)] to-[hsl(158,64%,18%)] border border-[hsl(45,93%,58%)]/15 p-5">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(45,93%,58%)]">আরবি</span>
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+        </div>
+        <p className="text-right text-xl md:text-2xl leading-[2] text-white font-arabic">
+          {niyah.arabic}
         </p>
       </div>
-      <button className="p-2 rounded-full bg-emerald-800/50 text-emerald-300 hover:bg-emerald-700/50 transition">
-        <Volume2 className="w-4 h-4" />
-      </button>
-    </div>
 
-    {/* Arabic Section */}
-    <div className="mx-4 mb-3 rounded-xl bg-emerald-950/60 border border-amber-400/15 p-4">
-      <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">আরবি</span>
+      {/* Transliteration Section */}
+      <div className="mx-4 mb-3 rounded-2xl bg-white/5 border border-white/10 p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-xs font-medium text-[hsl(45,93%,58%)]">
+            {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
+          </span>
+        </div>
+        <p className="text-white/90 text-[15px] md:text-base leading-relaxed">
+          {isBengali ? (niyah.transliterationBn || niyah.transliteration) : niyah.transliteration}
+        </p>
       </div>
-      <p className="text-right text-xl md:text-2xl leading-loose text-amber-200/90 font-arabic">
-        {niyah.arabic}
-      </p>
-    </div>
 
-    {/* Bengali Transliteration Section */}
-    <div className="mx-4 mb-3 rounded-xl bg-emerald-950/40 border border-emerald-600/20 p-4">
-      <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/80">
-          {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
-        </span>
+      {/* Meaning Section */}
+      <div className="mx-4 mb-5 rounded-2xl bg-gradient-to-br from-[hsl(45,93%,58%)]/10 to-transparent border border-[hsl(45,93%,58%)]/20 p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Heart className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-xs font-medium text-[hsl(45,93%,58%)]">
+            {isBengali ? "বাংলা অর্থ" : "Meaning"}
+          </span>
+        </div>
+        <p className="text-white text-[15px] md:text-base leading-relaxed">
+          {isBengali ? niyah.meaningBn : niyah.meaning}
+        </p>
       </div>
-      <p className="text-[15px] leading-relaxed text-emerald-100/90">
-        {isBengali ? (niyah.transliterationBn || niyah.transliteration) : niyah.transliteration}
-      </p>
-    </div>
-
-    {/* Meaning / Translation Section */}
-    <div className="mx-4 mb-5 rounded-xl bg-emerald-950/30 border border-emerald-600/20 p-4">
-      <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">
-          {isBengali ? "বাংলা অর্থ" : "Meaning"}
-        </span>
-      </div>
-      <p className="text-[15px] leading-relaxed text-emerald-100/90">
-        {isBengali ? niyah.meaningBn : niyah.meaning}
-      </p>
     </div>
   </motion.div>
 );
@@ -557,50 +566,59 @@ const DuaCard = ({ dua, isBengali }: DuaCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="rounded-2xl bg-gradient-to-br from-teal-900/40 to-teal-950/60 border border-teal-700/30 overflow-hidden mb-4"
+    className="relative rounded-3xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-[hsl(45,93%,58%)]/20 shadow-lg overflow-hidden mb-4"
   >
-    {/* Header */}
-    <div className="flex justify-between items-center px-5 pt-5 pb-3">
-      <h3 className="text-lg font-semibold text-teal-100">
-        {isBengali ? dua.nameBn : dua.name}
-      </h3>
-      <button className="p-2 rounded-full bg-teal-800/50 text-teal-300 hover:bg-teal-700/50 transition">
-        <Volume2 className="w-4 h-4" />
-      </button>
-    </div>
+    <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full blur-2xl" />
+    <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,30%)]/30 rounded-full blur-xl" />
 
-    {/* Arabic Section */}
-    <div className="mx-4 mb-3 rounded-xl bg-teal-950/60 border border-amber-400/15 p-4">
-      <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">আরবি</span>
+    <div className="relative">
+      {/* Header */}
+      <div className="flex justify-between items-center px-6 pt-5 pb-3">
+        <h3 className="text-lg font-semibold text-white">
+          {isBengali ? dua.nameBn : dua.name}
+        </h3>
+        <button className="p-2 rounded-full bg-white/10 text-[hsl(45,93%,58%)] hover:bg-white/20 transition">
+          <Volume2 className="w-4 h-4" />
+        </button>
       </div>
-      <p className="text-right text-xl md:text-2xl leading-loose text-amber-200/90 font-arabic">
-        {dua.arabic}
-      </p>
-    </div>
 
-    {/* Bengali Transliteration Section */}
-    <div className="mx-4 mb-3 rounded-xl bg-teal-950/40 border border-teal-600/20 p-4">
-      <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/80">
-          {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
-        </span>
+      {/* Arabic Section */}
+      <div className="mx-4 mb-3 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,22%)] to-[hsl(158,64%,18%)] border border-[hsl(45,93%,58%)]/15 p-5">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(45,93%,58%)]">আরবি</span>
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+        </div>
+        <p className="text-right text-xl md:text-2xl leading-[2] text-white font-arabic">
+          {dua.arabic}
+        </p>
       </div>
-      <p className="text-[15px] leading-relaxed text-teal-100/90">
-        {isBengali ? (dua.transliterationBn || dua.transliteration) : dua.transliteration}
-      </p>
-    </div>
 
-    {/* Meaning / Translation Section */}
-    <div className="mx-4 mb-5 rounded-xl bg-emerald-950/40 border border-emerald-600/20 p-4">
-      <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">
-          {isBengali ? "বাংলা অর্থ" : "Meaning"}
-        </span>
+      {/* Transliteration Section */}
+      <div className="mx-4 mb-3 rounded-2xl bg-white/5 border border-white/10 p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-xs font-medium text-[hsl(45,93%,58%)]">
+            {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
+          </span>
+        </div>
+        <p className="text-white/90 text-[15px] md:text-base leading-relaxed">
+          {isBengali ? (dua.transliterationBn || dua.transliteration) : dua.transliteration}
+        </p>
       </div>
-      <p className="text-[15px] leading-relaxed text-teal-100/90">
-        {isBengali ? dua.meaningBn : dua.meaning}
-      </p>
+
+      {/* Meaning Section */}
+      <div className="mx-4 mb-5 rounded-2xl bg-gradient-to-br from-[hsl(45,93%,58%)]/10 to-transparent border border-[hsl(45,93%,58%)]/20 p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Heart className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-xs font-medium text-[hsl(45,93%,58%)]">
+            {isBengali ? "বাংলা অর্থ" : "Meaning"}
+          </span>
+        </div>
+        <p className="text-white text-[15px] md:text-base leading-relaxed">
+          {isBengali ? dua.meaningBn : dua.meaning}
+        </p>
+      </div>
     </div>
   </motion.div>
 );
@@ -617,39 +635,60 @@ const StepCard = ({ step, index, isBengali, strings }: StepCardProps) => (
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ delay: index * 0.05 }}
-    className="rounded-2xl bg-gradient-to-br from-indigo-900/40 to-indigo-950/60 border border-indigo-700/30 p-5 mb-4"
+    className="relative rounded-3xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-[hsl(45,93%,58%)]/20 shadow-lg overflow-hidden mb-4"
   >
-    <div className="flex items-start gap-4">
-      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-indigo-800/50 flex items-center justify-center text-2xl">
-        {step.icon}
+    <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full blur-2xl" />
+    <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,30%)]/30 rounded-full blur-xl" />
+
+    <div className="relative p-5">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-2xl">
+          {step.icon}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-[hsl(45,93%,58%)]/20 text-xs font-medium text-[hsl(45,93%,58%)]">
+              {strings.step} {step.id}
+            </span>
+          </div>
+          <h3 className="text-lg font-semibold text-white">
+            {isBengali ? step.nameBn : step.name}
+          </h3>
+          
+          <p className="text-sm text-white/70 mb-3">
+            <strong className="text-[hsl(45,93%,58%)]">{strings.action}:</strong> {isBengali ? step.actionBn : step.action}
+          </p>
+        </div>
       </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="px-2 py-0.5 rounded-full bg-indigo-700/50 text-xs text-indigo-200">
-            {strings.step} {step.id}
+
+      {/* Arabic Recitation Section */}
+      <div className="mt-3 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,22%)] to-[hsl(158,64%,18%)] border border-[hsl(45,93%,58%)]/15 p-4">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(45,93%,58%)]">আরবি</span>
+          <Sparkles className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+        </div>
+        <p className="text-amber-200/90 text-base font-arabic text-right leading-[2]">
+          {step.recitation}
+        </p>
+      </div>
+
+      {/* Meaning Section */}
+      <div className="mt-3 rounded-2xl bg-gradient-to-br from-[hsl(45,93%,58%)]/10 to-transparent border border-[hsl(45,93%,58%)]/20 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Heart className="w-3.5 h-3.5 text-[hsl(45,93%,58%)]" />
+          <span className="text-xs font-medium text-[hsl(45,93%,58%)]">
+            {isBengali ? "বাংলা অর্থ" : "Meaning"}
           </span>
         </div>
-        <h3 className="text-lg font-semibold text-indigo-100">
-          {isBengali ? step.nameBn : step.name}
-        </h3>
-        
-        <p className="text-sm text-indigo-200/90 mb-3">
-          <strong>{strings.action}:</strong> {isBengali ? step.actionBn : step.action}
-        </p>
-        
-        <div className="bg-indigo-950/50 rounded-lg p-3 mb-3">
-          <p className="text-amber-200/90 text-sm font-arabic text-right mb-1">
-            {step.recitation}
-          </p>
-          <p className="text-xs text-indigo-200/70 italic">
-            {isBengali ? step.recitationMeaningBn : step.recitationMeaning}
-          </p>
-        </div>
-        
-        <p className="text-xs text-indigo-300/60">
-          💡 {isBengali ? step.explanationBn : step.explanation}
+        <p className="text-white/90 text-sm leading-relaxed">
+          {isBengali ? step.recitationMeaningBn : step.recitationMeaning}
         </p>
       </div>
+      
+      <p className="mt-3 text-xs text-white/50">
+        💡 {isBengali ? step.explanationBn : step.explanation}
+      </p>
     </div>
   </motion.div>
 );
@@ -660,21 +699,25 @@ interface LearningSectionProps {
 }
 
 const LearningSection = ({ title, items }: LearningSectionProps) => (
-  <Card className="bg-gradient-to-br from-slate-900/50 to-slate-950/70 border-slate-700/30 mb-4">
-    <CardHeader className="pb-2">
-      <CardTitle className="text-base text-slate-100">{title}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <ul className="space-y-2">
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="relative rounded-3xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-[hsl(45,93%,58%)]/20 shadow-lg overflow-hidden mb-4"
+  >
+    <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full blur-2xl" />
+    <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,30%)]/30 rounded-full blur-xl" />
+    <div className="relative p-6">
+      <h3 className="text-base font-semibold text-white mb-4">{title}</h3>
+      <ul className="space-y-2.5">
         {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-slate-300/90">
-            <span className="text-emerald-400 mt-1">•</span>
+          <li key={i} className="flex items-start gap-2.5 text-sm text-white/80">
+            <span className="text-[hsl(45,93%,58%)] mt-0.5">✦</span>
             {item}
           </li>
         ))}
       </ul>
-    </CardContent>
-  </Card>
+    </div>
+  </motion.div>
 );
 
 export default function PrayerGuidePage() {
@@ -766,23 +809,27 @@ export default function PrayerGuidePage() {
 
           {/* Learning Tab */}
           <TabsContent value="learning" className="mt-0">
-            <Card className="bg-gradient-to-br from-emerald-900/30 to-emerald-950/50 border-emerald-700/30 mb-4">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base text-emerald-100 flex items-center gap-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative rounded-3xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-[hsl(45,93%,58%)]/20 shadow-lg overflow-hidden mb-4"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full blur-2xl" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,30%)]/30 rounded-full blur-xl" />
+              <div className="relative p-6">
+                <h3 className="text-base font-semibold text-white flex items-center gap-2 mb-4">
                   🕌 {isBengali ? PRAYER_LEARNING.whatIsPrayer.titleBn : PRAYER_LEARNING.whatIsPrayer.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
+                </h3>
+                <ul className="space-y-2.5">
                   {(isBengali ? PRAYER_LEARNING.whatIsPrayer.contentBn : PRAYER_LEARNING.whatIsPrayer.content).map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-emerald-200/90">
-                      <span className="text-amber-400 mt-1">✦</span>
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-white/80">
+                      <span className="text-[hsl(45,93%,58%)] mt-0.5">✦</span>
                       {item}
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
+              </div>
+            </motion.div>
 
             <LearningSection 
               title={`📌 ${isBengali ? PRAYER_LEARNING.farz.titleBn : PRAYER_LEARNING.farz.title}`} 
@@ -804,8 +851,8 @@ export default function PrayerGuidePage() {
 
           {/* Steps Tab */}
           <TabsContent value="steps" className="mt-0">
-            <div className="mb-4 p-4 rounded-xl bg-indigo-900/30 border border-indigo-700/30">
-              <p className="text-sm text-indigo-200/80">
+            <div className="mb-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+              <p className="text-sm text-white/70">
                 {strings.stepsIntro}
               </p>
             </div>
@@ -816,8 +863,8 @@ export default function PrayerGuidePage() {
 
           {/* Duas Tab */}
           <TabsContent value="duas" className="mt-0">
-            <div className="mb-4 p-4 rounded-xl bg-teal-900/30 border border-teal-700/30">
-              <p className="text-sm text-teal-200/80">
+            <div className="mb-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+              <p className="text-sm text-white/70">
                 {strings.duasIntro}
               </p>
             </div>
