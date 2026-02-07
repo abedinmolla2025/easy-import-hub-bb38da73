@@ -418,6 +418,7 @@ const PRAYER_DUAS = [
     nameBn: "সানা",
     arabic: "سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَىٰ جَدُّكَ وَلَا إِلَٰهَ غَيْرُكَ",
     transliteration: "Subhanaka Allahumma wa bihamdika wa tabarakasmuka wa ta'ala jadduka wa la ilaha ghairuk",
+    transliterationBn: "সুবহানাকা আল্লাহুম্মা ওয়া বিহামদিকা ওয়া তাবারাকাসমুকা ওয়া তা'আলা জাদ্দুকা ওয়া লা ইলাহা গাইরুক",
     meaning: "Glory be to You, O Allah, and praise be to You. Blessed is Your name and exalted is Your majesty. There is no god but You.",
     meaningBn: "হে আল্লাহ! আপনার পবিত্রতা ও প্রশংসা ঘোষণা করছি। আপনার নাম বরকতময়, আপনার মর্যাদা সুউচ্চ। আপনি ছাড়া কোনো উপাস্য নেই।",
   },
@@ -427,6 +428,7 @@ const PRAYER_DUAS = [
     nameBn: "রুকুর তাসবীহ",
     arabic: "سُبْحَانَ رَبِّيَ الْعَظِيمِ",
     transliteration: "Subhana Rabbiyal Azeem",
+    transliterationBn: "সুবহানা রব্বিয়াল আযীম",
     meaning: "Glory be to my Lord, the Magnificent. (Recite 3 times)",
     meaningBn: "আমার মহান রবের পবিত্রতা ঘোষণা করছি। (৩ বার পড়ুন)",
   },
@@ -436,6 +438,7 @@ const PRAYER_DUAS = [
     nameBn: "সিজদার তাসবীহ",
     arabic: "سُبْحَانَ رَبِّيَ الْأَعْلَىٰ",
     transliteration: "Subhana Rabbiyal A'la",
+    transliterationBn: "সুবহানা রব্বিয়াল আ'লা",
     meaning: "Glory be to my Lord, the Most High. (Recite 3 times)",
     meaningBn: "আমার সর্বোচ্চ রবের পবিত্রতা ঘোষণা করছি। (৩ বার পড়ুন)",
   },
@@ -445,6 +448,7 @@ const PRAYER_DUAS = [
     nameBn: "তাশাহুদ",
     arabic: "التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ السَّلَامُ عَلَيْنَا وَعَلَىٰ عِبَادِ اللَّهِ الصَّالِحِينَ أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ",
     transliteration: "At-tahiyyatu lillahi was-salawatu wat-tayyibat. Assalamu 'alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuh. Assalamu 'alayna wa 'ala 'ibadillahis-salihin. Ash-hadu alla ilaha illallah wa ash-hadu anna Muhammadan 'abduhu wa rasuluh.",
+    transliterationBn: "আত্তাহিয়্যাতু লিল্লাহি ওয়াস্‌সালাওয়াতু ওয়াত্তায়্যিবাতু। আস্‌সালামু আলাইকা আইয়্যুহান্নাবিয়্যু ওয়া রাহমাতুল্লাহি ওয়া বারাকাতুহু। আস্‌সালামু আলাইনা ওয়া আলা ইবাদিল্লাহিস্ সালিহীন। আশহাদু আল্লা ইলাহা ইল্লাল্লাহু ওয়া আশহাদু আন্না মুহাম্মাদান আবদুহু ওয়া রাসূলুহু।",
     meaning: "All greetings, prayers, and good things are for Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah. I bear witness that there is no god but Allah, and I bear witness that Muhammad is His servant and messenger.",
     meaningBn: "সকল সম্মান, নামাজ ও পবিত্র কথা আল্লাহর জন্য। হে নবী! আপনার উপর শান্তি, আল্লাহর রহমত ও বরকত বর্ষিত হোক। আমাদের ও আল্লাহর নেক বান্দাদের উপর শান্তি বর্ষিত হোক। আমি সাক্ষ্য দিচ্ছি, আল্লাহ ছাড়া কোনো উপাস্য নেই এবং মুহাম্মদ (সাঃ) তাঁর বান্দা ও রাসূল।",
   },
@@ -454,6 +458,7 @@ const PRAYER_DUAS = [
     nameBn: "দুরুদ ইব্রাহীম",
     arabic: "اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَىٰ إِبْرَاهِيمَ وَعَلَىٰ آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ اللَّهُمَّ بَارِكْ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَىٰ إِبْرَاهِيمَ وَعَلَىٰ آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ",
     transliteration: "Allahumma salli 'ala Muhammadin wa 'ala ali Muhammadin kama sallayta 'ala Ibrahima wa 'ala ali Ibrahima innaka Hamidum Majid. Allahumma barik 'ala Muhammadin wa 'ala ali Muhammadin kama barakta 'ala Ibrahima wa 'ala ali Ibrahima innaka Hamidum Majid.",
+    transliterationBn: "আল্লাহুম্মা সাল্লি আলা মুহাম্মাদিন ওয়া আলা আলি মুহাম্মাদিন কামা সাল্লাইতা আলা ইব্রাহীমা ওয়া আলা আলি ইব্রাহীমা ইন্নাকা হামীদুম মাজীদ। আল্লাহুম্মা বারিক আলা মুহাম্মাদিন ওয়া আলা আলি মুহাম্মাদিন কামা বারাকতা আলা ইব্রাহীমা ওয়া আলা আলি ইব্রাহীমা ইন্নাকা হামীদুম মাজীদ।",
     meaning: "O Allah, send blessings upon Muhammad and upon the family of Muhammad, as You sent blessings upon Ibrahim and the family of Ibrahim. You are indeed Praiseworthy, Glorious. O Allah, bless Muhammad and the family of Muhammad as You blessed Ibrahim and the family of Ibrahim. You are indeed Praiseworthy, Glorious.",
     meaningBn: "হে আল্লাহ! মুহাম্মদ ও তাঁর বংশধরদের উপর রহমত বর্ষণ করুন যেমন ইব্রাহীম ও তাঁর বংশধরদের উপর করেছেন। নিশ্চয়ই আপনি প্রশংসিত, মহিমান্বিত। হে আল্লাহ! মুহাম্মদ ও তাঁর বংশধরদের উপর বরকত দিন যেমন ইব্রাহীম ও তাঁর বংশধরদের উপর দিয়েছেন। নিশ্চয়ই আপনি প্রশংসিত, মহিমান্বিত।",
   },
@@ -463,6 +468,7 @@ const PRAYER_DUAS = [
     nameBn: "দোয়া মাসুরা",
     arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
     transliteration: "Rabbana atina fid-dunya hasanatan wa fil-akhirati hasanatan wa qina 'adhaban-nar",
+    transliterationBn: "রব্বানা আতিনা ফিদ্দুনইয়া হাসানাতাও ওয়া ফিল আখিরাতি হাসানাতাও ওয়া ক্বিনা আযাবান্নার",
     meaning: "Our Lord, give us good in this world and good in the Hereafter, and save us from the punishment of the Fire.",
     meaningBn: "হে আমাদের রব! আমাদের দুনিয়াতে কল্যাণ দিন, আখেরাতেও কল্যাণ দিন এবং আমাদের জাহান্নামের আগুন থেকে রক্ষা করুন।",
   },
@@ -513,27 +519,51 @@ const DuaCard = ({ dua, isBengali }: DuaCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="rounded-2xl bg-gradient-to-br from-teal-900/40 to-teal-950/60 border border-teal-700/30 p-5 mb-4"
+    className="rounded-2xl bg-gradient-to-br from-teal-900/40 to-teal-950/60 border border-teal-700/30 overflow-hidden mb-4"
   >
-    <div className="flex justify-between items-start mb-3">
-      <div>
-        <h3 className="text-lg font-semibold text-teal-100">
-          {isBengali ? dua.nameBn : dua.name}
-        </h3>
-      </div>
+    {/* Header */}
+    <div className="flex justify-between items-center px-5 pt-5 pb-3">
+      <h3 className="text-lg font-semibold text-teal-100">
+        {isBengali ? dua.nameBn : dua.name}
+      </h3>
       <button className="p-2 rounded-full bg-teal-800/50 text-teal-300 hover:bg-teal-700/50 transition">
         <Volume2 className="w-4 h-4" />
       </button>
     </div>
-    <p className="text-right text-xl md:text-2xl leading-loose text-amber-200/90 font-arabic mb-4">
-      {dua.arabic}
-    </p>
-    <p className="text-sm text-teal-200/80 mb-2 italic">
-      {dua.transliteration}
-    </p>
-    <p className="text-sm text-teal-100/90">
-      {isBengali ? dua.meaningBn : dua.meaning}
-    </p>
+
+    {/* Arabic Section */}
+    <div className="mx-4 mb-3 rounded-xl bg-teal-950/60 border border-amber-400/15 p-4">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">আরবি</span>
+      </div>
+      <p className="text-right text-xl md:text-2xl leading-loose text-amber-200/90 font-arabic">
+        {dua.arabic}
+      </p>
+    </div>
+
+    {/* Bengali Transliteration Section */}
+    <div className="mx-4 mb-3 rounded-xl bg-teal-950/40 border border-teal-600/20 p-4">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/80">
+          {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
+        </span>
+      </div>
+      <p className="text-[15px] leading-relaxed text-teal-100/90">
+        {isBengali ? (dua.transliterationBn || dua.transliteration) : dua.transliteration}
+      </p>
+    </div>
+
+    {/* Meaning / Translation Section */}
+    <div className="mx-4 mb-5 rounded-xl bg-emerald-950/40 border border-emerald-600/20 p-4">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">
+          {isBengali ? "বাংলা অর্থ" : "Meaning"}
+        </span>
+      </div>
+      <p className="text-[15px] leading-relaxed text-teal-100/90">
+        {isBengali ? dua.meaningBn : dua.meaning}
+      </p>
+    </div>
   </motion.div>
 );
 
