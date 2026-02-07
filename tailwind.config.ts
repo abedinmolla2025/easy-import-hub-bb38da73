@@ -18,7 +18,7 @@ export default {
         arabic: ["Cairo", "Scheherazade New", "Noto Naskh Arabic", "Amiri", "serif"],
         display: ["Poppins", "Playfair Display", "serif"],
         premium: ["Cinzel", "Playfair Display", "serif"],
-        bangla: ["Hind Siliguri", "system-ui", "sans-serif"],
+        bangla: ["Noto Sans Bengali", "Hind Siliguri", "system-ui", "sans-serif"],
         quizEn: ["DM Sans", "system-ui", "sans-serif"],
         // Premium quiz typography
         quizBnPremium: ["Noto Serif Bengali", "Hind Siliguri", "system-ui", "serif"],

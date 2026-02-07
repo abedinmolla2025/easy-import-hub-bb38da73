@@ -504,10 +504,10 @@ const NiyahCard = ({ niyah, isBengali }: NiyahCardProps) => (
       {/* Header */}
       <div className="flex justify-between items-center px-6 pt-5 pb-3">
         <div>
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className={`text-lg font-semibold text-white ${isBengali ? "font-bangla" : ""}`}>
             {isBengali ? niyah.nameBn : niyah.name}
           </h3>
-          <p className="text-sm text-white/60">
+          <p className={`text-sm text-white/60 ${isBengali ? "font-bangla" : ""}`}>
             {isBengali ? niyah.rakatsBn : niyah.rakats}
           </p>
         </div>
@@ -536,7 +536,7 @@ const NiyahCard = ({ niyah, isBengali }: NiyahCardProps) => (
             {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
           </span>
         </div>
-        <p className="text-white/90 text-[15px] md:text-base leading-relaxed">
+        <p className={`text-white/90 text-base md:text-lg leading-[1.9] tracking-wide ${isBengali ? "font-bangla font-normal" : ""}`}>
           {isBengali ? (niyah.transliterationBn || niyah.transliteration) : niyah.transliteration}
         </p>
       </div>
@@ -549,7 +549,7 @@ const NiyahCard = ({ niyah, isBengali }: NiyahCardProps) => (
             {isBengali ? "বাংলা অর্থ" : "Meaning"}
           </span>
         </div>
-        <p className="text-white text-[15px] md:text-base leading-relaxed">
+        <p className={`text-white text-base md:text-lg leading-[1.9] tracking-wide ${isBengali ? "font-bangla font-normal" : ""}`}>
           {isBengali ? niyah.meaningBn : niyah.meaning}
         </p>
       </div>
@@ -574,7 +574,7 @@ const DuaCard = ({ dua, isBengali }: DuaCardProps) => (
     <div className="relative">
       {/* Header */}
       <div className="flex justify-between items-center px-6 pt-5 pb-3">
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className={`text-lg font-semibold text-white ${isBengali ? "font-bangla" : ""}`}>
           {isBengali ? dua.nameBn : dua.name}
         </h3>
         <button className="p-2 rounded-full bg-white/10 text-[hsl(45,93%,58%)] hover:bg-white/20 transition">
@@ -602,7 +602,7 @@ const DuaCard = ({ dua, isBengali }: DuaCardProps) => (
             {isBengali ? "বাংলা উচ্চারণ" : "Transliteration"}
           </span>
         </div>
-        <p className="text-white/90 text-[15px] md:text-base leading-relaxed">
+        <p className={`text-white/90 text-base md:text-lg leading-[1.9] tracking-wide ${isBengali ? "font-bangla font-normal" : ""}`}>
           {isBengali ? (dua.transliterationBn || dua.transliteration) : dua.transliteration}
         </p>
       </div>
@@ -615,7 +615,7 @@ const DuaCard = ({ dua, isBengali }: DuaCardProps) => (
             {isBengali ? "বাংলা অর্থ" : "Meaning"}
           </span>
         </div>
-        <p className="text-white text-[15px] md:text-base leading-relaxed">
+        <p className={`text-white text-base md:text-lg leading-[1.9] tracking-wide ${isBengali ? "font-bangla font-normal" : ""}`}>
           {isBengali ? dua.meaningBn : dua.meaning}
         </p>
       </div>
@@ -651,13 +651,13 @@ const StepCard = ({ step, index, isBengali, strings }: StepCardProps) => (
               {strings.step} {step.id}
             </span>
           </div>
-          <h3 className="text-lg font-semibold text-white">
-            {isBengali ? step.nameBn : step.name}
-          </h3>
-          
-          <p className="text-sm text-white/70 mb-3">
-            <strong className="text-[hsl(45,93%,58%)]">{strings.action}:</strong> {isBengali ? step.actionBn : step.action}
-          </p>
+           <h3 className={`text-lg font-semibold text-white ${isBengali ? "font-bangla" : ""}`}>
+             {isBengali ? step.nameBn : step.name}
+           </h3>
+           
+           <p className={`text-sm text-white/70 mb-3 ${isBengali ? "font-bangla leading-[1.8]" : ""}`}>
+             <strong className="text-[hsl(45,93%,58%)]">{strings.action}:</strong> {isBengali ? step.actionBn : step.action}
+           </p>
         </div>
       </div>
 
@@ -681,12 +681,12 @@ const StepCard = ({ step, index, isBengali, strings }: StepCardProps) => (
             {isBengali ? "বাংলা অর্থ" : "Meaning"}
           </span>
         </div>
-        <p className="text-white/90 text-sm leading-relaxed">
+        <p className={`text-white/90 text-sm leading-relaxed ${isBengali ? "font-bangla leading-[1.8]" : ""}`}>
           {isBengali ? step.recitationMeaningBn : step.recitationMeaning}
         </p>
       </div>
       
-      <p className="mt-3 text-xs text-white/50">
+      <p className={`mt-3 text-xs text-white/50 ${isBengali ? "font-bangla leading-[1.8]" : ""}`}>
         💡 {isBengali ? step.explanationBn : step.explanation}
       </p>
     </div>
