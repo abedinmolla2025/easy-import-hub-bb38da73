@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Volume2, BookOpen, Heart, Footprints, HandHeart, Sparkles, ChevronRight, ArrowLeft } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -722,16 +723,38 @@ const LearningSection = ({ title, items }: LearningSectionProps) => (
 
 export default function PrayerGuidePage() {
   const { language } = useAppSettings();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("niyah");
-  const [selectedNiyahId, setSelectedNiyahId] = useState<string | null>(null);
-  const [selectedDuaId, setSelectedDuaId] = useState<string | null>(null);
+
+  const activeTab = searchParams.get("tab") || "niyah";
+  const selectedNiyahId = searchParams.get("niyah");
+  const selectedDuaId = searchParams.get("dua");
 
   const isBengali = language === "bn";
   const strings = UI_STRINGS[language] || UI_STRINGS.en;
 
   const selectedNiyah = useMemo(() => NIYAH_DATA.find(n => n.id === selectedNiyahId) ?? null, [selectedNiyahId]);
   const selectedDua = useMemo(() => PRAYER_DUAS.find(d => d.id === selectedDuaId) ?? null, [selectedDuaId]);
+
+  const setActiveTab = (tab: string) => {
+    setSearchParams({ tab }, { replace: false });
+  };
+
+  const openNiyah = (id: string) => {
+    setSearchParams({ tab: "niyah", niyah: id }, { replace: false });
+  };
+
+  const closeNiyah = () => {
+    setSearchParams({ tab: "niyah" }, { replace: false });
+  };
+
+  const openDua = (id: string) => {
+    setSearchParams({ tab: "duas", dua: id }, { replace: false });
+  };
+
+  const closeDua = () => {
+    setSearchParams({ tab: "duas" }, { replace: false });
+  };
 
   const filteredNiyah = useMemo(() => {
     if (!searchQuery.trim()) return NIYAH_DATA;
@@ -794,7 +817,7 @@ export default function PrayerGuidePage() {
             <AnimatePresence mode="wait">
               {selectedNiyah ? (
                 <motion.div key="niyah-detail" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
-                  <button onClick={() => setSelectedNiyahId(null)} className="flex items-center gap-2 text-[hsl(45,93%,58%)] text-sm mb-4 hover:underline">
+                  <button onClick={closeNiyah} className="flex items-center gap-2 text-[hsl(45,93%,58%)] text-sm mb-4 hover:underline">
                     <ArrowLeft className="w-4 h-4" /> {isBengali ? "তালিকায় ফিরুন" : "Back to list"}
                   </button>
                   <NiyahCard niyah={selectedNiyah} isBengali={isBengali} />
@@ -817,7 +840,7 @@ export default function PrayerGuidePage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.04 }}
-                        onClick={() => setSelectedNiyahId(niyah.id)}
+                        onClick={() => openNiyah(niyah.id)}
                         className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
                       >
                         <div className="flex items-center justify-between">
@@ -905,7 +928,7 @@ export default function PrayerGuidePage() {
             <AnimatePresence mode="wait">
               {selectedDua ? (
                 <motion.div key="dua-detail" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
-                  <button onClick={() => setSelectedDuaId(null)} className="flex items-center gap-2 text-[hsl(45,93%,58%)] text-sm mb-4 hover:underline">
+                  <button onClick={closeDua} className="flex items-center gap-2 text-[hsl(45,93%,58%)] text-sm mb-4 hover:underline">
                     <ArrowLeft className="w-4 h-4" /> {isBengali ? "তালিকায় ফিরুন" : "Back to list"}
                   </button>
                   <DuaCard dua={selectedDua} isBengali={isBengali} />
@@ -922,7 +945,7 @@ export default function PrayerGuidePage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.04 }}
-                        onClick={() => setSelectedDuaId(dua.id)}
+                        onClick={() => openDua(dua.id)}
                         className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
                       >
                         <div className="flex items-center justify-between">
