@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Volume2, BookOpen, Heart, Footprints, HandHeart, Sparkles } from "lucide-react";
+import { Search, Volume2, BookOpen, Heart, Footprints, HandHeart, Sparkles, ChevronRight, ArrowLeft } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -724,9 +724,14 @@ export default function PrayerGuidePage() {
   const { language } = useAppSettings();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("niyah");
+  const [selectedNiyahId, setSelectedNiyahId] = useState<string | null>(null);
+  const [selectedDuaId, setSelectedDuaId] = useState<string | null>(null);
 
   const isBengali = language === "bn";
   const strings = UI_STRINGS[language] || UI_STRINGS.en;
+
+  const selectedNiyah = useMemo(() => NIYAH_DATA.find(n => n.id === selectedNiyahId) ?? null, [selectedNiyahId]);
+  const selectedDua = useMemo(() => PRAYER_DUAS.find(d => d.id === selectedDuaId) ?? null, [selectedDuaId]);
 
   const filteredNiyah = useMemo(() => {
     if (!searchQuery.trim()) return NIYAH_DATA;
@@ -786,25 +791,59 @@ export default function PrayerGuidePage() {
 
           {/* Niyah Tab */}
           <TabsContent value="niyah" className="mt-0">
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400/50" />
-              <Input
-                placeholder={strings.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-emerald-950/50 border-emerald-800/30 text-emerald-100 placeholder:text-emerald-500/50"
-              />
-            </div>
-            <AnimatePresence mode="popLayout">
-              {filteredNiyah.map((niyah) => (
-                <NiyahCard key={niyah.id} niyah={niyah} isBengali={isBengali} />
-              ))}
+            <AnimatePresence mode="wait">
+              {selectedNiyah ? (
+                <motion.div key="niyah-detail" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
+                  <button onClick={() => setSelectedNiyahId(null)} className="flex items-center gap-2 text-[hsl(45,93%,58%)] text-sm mb-4 hover:underline">
+                    <ArrowLeft className="w-4 h-4" /> {isBengali ? "তালিকায় ফিরুন" : "Back to list"}
+                  </button>
+                  <NiyahCard niyah={selectedNiyah} isBengali={isBengali} />
+                </motion.div>
+              ) : (
+                <motion.div key="niyah-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400/50" />
+                    <Input
+                      placeholder={strings.searchPlaceholder}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 bg-emerald-950/50 border-emerald-800/30 text-emerald-100 placeholder:text-emerald-500/50"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    {filteredNiyah.map((niyah, index) => (
+                      <motion.button
+                        key={niyah.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.04 }}
+                        onClick={() => setSelectedNiyahId(niyah.id)}
+                        className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
+                                {index + 1}
+                              </span>
+                              <p className="font-semibold text-white">{isBengali ? niyah.nameBn : niyah.name}</p>
+                            </div>
+                            <p className="text-xs text-white/50 ml-8">{isBengali ? niyah.rakatsBn : niyah.rakats}</p>
+                            <p className="text-sm text-white/60 line-clamp-1 font-arabic ml-8">{niyah.arabic}</p>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-[hsl(45,93%,58%)] transition-colors" />
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                  {filteredNiyah.length === 0 && (
+                    <div className="text-center py-12 text-emerald-400/60">
+                      {strings.noResults} "{searchQuery}"
+                    </div>
+                  )}
+                </motion.div>
+              )}
             </AnimatePresence>
-            {filteredNiyah.length === 0 && (
-              <div className="text-center py-12 text-emerald-400/60">
-                {strings.noResults} "{searchQuery}"
-              </div>
-            )}
           </TabsContent>
 
           {/* Learning Tab */}
@@ -863,14 +902,47 @@ export default function PrayerGuidePage() {
 
           {/* Duas Tab */}
           <TabsContent value="duas" className="mt-0">
-            <div className="mb-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-              <p className="text-sm text-white/70">
-                {strings.duasIntro}
-              </p>
-            </div>
-            {PRAYER_DUAS.map((dua) => (
-              <DuaCard key={dua.id} dua={dua} isBengali={isBengali} />
-            ))}
+            <AnimatePresence mode="wait">
+              {selectedDua ? (
+                <motion.div key="dua-detail" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
+                  <button onClick={() => setSelectedDuaId(null)} className="flex items-center gap-2 text-[hsl(45,93%,58%)] text-sm mb-4 hover:underline">
+                    <ArrowLeft className="w-4 h-4" /> {isBengali ? "তালিকায় ফিরুন" : "Back to list"}
+                  </button>
+                  <DuaCard dua={selectedDua} isBengali={isBengali} />
+                </motion.div>
+              ) : (
+                <motion.div key="dua-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="mb-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <p className="text-sm text-white/70">{strings.duasIntro}</p>
+                  </div>
+                  <div className="space-y-3">
+                    {PRAYER_DUAS.map((dua, index) => (
+                      <motion.button
+                        key={dua.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.04 }}
+                        onClick={() => setSelectedDuaId(dua.id)}
+                        className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
+                                {index + 1}
+                              </span>
+                              <p className="font-semibold text-white">{isBengali ? dua.nameBn : dua.name}</p>
+                            </div>
+                            <p className="text-sm text-white/60 line-clamp-1 font-arabic ml-8">{dua.arabic}</p>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-[hsl(45,93%,58%)] transition-colors" />
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </TabsContent>
         </Tabs>
       </div>
