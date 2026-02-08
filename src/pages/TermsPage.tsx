@@ -1,8 +1,18 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
 
 const TermsPage = () => {
   const navigate = useNavigate();
+  const { legal, branding } = useGlobalConfig();
+
+  const appName = branding.appName || "NOOR";
+  const devName = legal.developerName || "ABEDIN MOLLA";
+  const devNameBn = legal.developerNameBn || "আবিদিন মোল্লা";
+  const country = legal.country || "India";
+  const countryBn = legal.countryBn || "ভারত";
+  const lastUpdated = legal.termsLastUpdated || "";
+  const version = legal.legalVersionNumber || "";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-24">
@@ -16,45 +26,51 @@ const TermsPage = () => {
           </button>
           <div>
             <h1 className="text-xl font-bold tracking-wide">Terms &amp; Conditions</h1>
-            <p className="text-sm text-muted-foreground">Guidelines for using NOOR – Islamic App</p>
+            <p className="text-sm text-muted-foreground">Guidelines for using {appName}</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
+        {(lastUpdated || version) && (
+          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+            {lastUpdated && <span>Last updated: {lastUpdated}</span>}
+            {version && <span>Version: {version}</span>}
+          </div>
+        )}
+
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-1">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Developer</p>
-          <p className="font-semibold">ABEDIN MOLLA – India</p>
+          <p className="font-semibold">{devName} – {country}</p>
           <p className="text-muted-foreground">
-            A humble effort by developer <span className="font-semibold">ABEDIN MOLLA</span> from India
-            to bring daily Islamic reminders—prayer times, Quran and duas—together in one
-            beautiful place.
+            A humble effort by developer <span className="font-semibold">{devName}</span> from {country}{' '}
+            to bring daily Islamic reminders—prayer times, Quran and duas—together in one beautiful place.
           </p>
           <p className="text-muted-foreground">
-            ভারতের ডেভেলপার <span className="font-semibold">আবিদিন মোল্লা (ABEDIN MOLLA)</span>-এর একটি ছোট
-            প্রচেষ্টা, যেন নামাজের সময়, কুরআন ও দো‘আর মত দৈনন্দিন ইসলামি আমলগুলো এক জায়গায়
-            সুন্দরভাবে পাওয়া যায়।
+            {countryBn}-এর ডেভেলপার <span className="font-semibold">{devNameBn} ({devName})</span>-এর একটি ছোট
+            প্রচেষ্টা, যেন নামাজের সময়, কুরআন ও দো'আর মত দৈনন্দিন ইসলামি আমলগুলো এক জায়গায় সুন্দরভাবে পাওয়া যায়।
           </p>
         </section>
 
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-primary/10 text-primary text-base font-semibold">NOOR</div>
+          <div className="p-2 rounded-lg bg-primary/10 text-primary text-base font-semibold">{appName}</div>
           <div>
-            <p className="font-semibold">About NOOR – Islamic App</p>
+            <p className="font-semibold">About {appName}</p>
             <p className="text-muted-foreground">
-              Developed by <span className="font-semibold">ABEDIN MOLLA</span> (India) to make daily
+              Developed by <span className="font-semibold">{devName}</span> ({country}) to make daily
               Islamic practice—prayer, Quran and duas—beautiful, simple and always close at hand.
             </p>
           </div>
         </section>
+
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
           <h2 className="text-lg font-semibold">1. Purpose of the app / অ্যাপের উদ্দেশ্য</h2>
           <p className="text-muted-foreground">
-            NOOR – Islamic App is provided for educational and spiritual benefit only. It should
+            {appName} is provided for educational and spiritual benefit only. It should
             not be used for any harmful, offensive or unlawful activity.
           </p>
           <p className="text-muted-foreground">
-            NOOR – ইসলামিক অ্যাপ কেবল ইলমী ও আত্মিক উপকারের জন্য তৈরি। এটি কোনো প্রকার ক্ষতিকর,
+            {appName} কেবল ইলমী ও আত্মিক উপকারের জন্য তৈরি। এটি কোনো প্রকার ক্ষতিকর,
             অশালীন বা আইনবিরোধী কাজে ব্যবহার করা সম্পূর্ণভাবে নিষিদ্ধ।
           </p>
         </section>
@@ -81,20 +97,19 @@ const TermsPage = () => {
           </p>
           <p className="text-muted-foreground">
             আপনি সম্মত হচ্ছেন যে, অ্যাপটি অপব্যবহার করবেন না, নিরাপত্তা ভঙ্গের চেষ্টা করবেন না,
-            এবং অন্য ব্যবহারকারীর অভিজ্ঞতা নষ্ট হয় এমন কোনো কাজ করবেন না। এসব কাজ সম্পূর্ণভাবে
-            নিষিদ্ধ।
+            এবং অন্য ব্যবহারকারীর অভিজ্ঞতা নষ্ট হয় এমন কোনো কাজ করবেন না। এসব কাজ সম্পূর্ণভাবে নিষিদ্ধ।
           </p>
         </section>
 
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
           <h2 className="text-lg font-semibold">4. Developer information / ডেভেলপার তথ্য</h2>
           <p className="text-muted-foreground">
-            This app has been developed and maintained by <span className="font-semibold">ABEDIN MOLLA</span>
-            {' '}from India, with the intention of serving the Muslim community with a clean and
+            This app has been developed and maintained by <span className="font-semibold">{devName}</span>
+            {' '}from {country}, with the intention of serving the Muslim community with a clean and
             focused Islamic experience.
           </p>
           <p className="text-muted-foreground">
-            এই অ্যাপটি ভারতের <span className="font-semibold">আবিদিন মোল্লা (ABEDIN MOLLA)</span> কর্তৃক
+            এই অ্যাপটি {countryBn}-এর <span className="font-semibold">{devNameBn} ({devName})</span> কর্তৃক
             ডেভেলপ ও পরিচালিত, যেন মুসলিম উম্মাহ একটি সুন্দর, মনোযোগী ইসলামিক অ্যাপ ব্যবহার করতে পারে।
           </p>
         </section>

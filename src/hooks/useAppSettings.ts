@@ -7,6 +7,7 @@ import type {
   SeoSettings,
   SystemSettings,
   ModuleToggles,
+  LegalSettings,
   AppSettingKey,
 } from "@/context/GlobalConfigContext";
 
@@ -16,6 +17,7 @@ type SettingsMap = {
   seo: SeoSettings;
   system: SystemSettings;
   modules: ModuleToggles;
+  legal: LegalSettings;
 };
 
 export function useAppSettings<K extends AppSettingKey>(key: K) {
