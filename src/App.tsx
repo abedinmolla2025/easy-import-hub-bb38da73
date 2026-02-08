@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { SplashGate } from "@/components/SplashGate";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -55,6 +56,8 @@ import { useWebPushRegistration } from "@/hooks/useWebPushRegistration";
 import { useQuizReminder } from "@/hooks/useQuizReminder";
 import { useMobileAdsInit } from "@/hooks/useMobileAds";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +83,8 @@ const AppRoutes = () => (
       <Route path="/prayer-guide" element={<PrayerGuidePage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
 
     {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
     <Route
@@ -291,6 +296,14 @@ const App = () => {
   useQuizReminder();
   // Native AdMob SDK init (no-op on web)
   useMobileAdsInit();
+
+  // Web-only: load AdSense safely (no-op in WebView/PWA/iframe)
+  useEffect(() => {
+    import("@/lib/adsense").then(({ loadAdSense }) => {
+      // Publisher ID will be set once AdSense is approved
+      // loadAdSense("ca-pub-XXXXXXXXXXXXXXXX");
+    });
+  }, []);
 
   return (
     <SplashGate>
