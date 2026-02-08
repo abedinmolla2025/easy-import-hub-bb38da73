@@ -50,7 +50,7 @@ import AdminFinance from "./pages/admin/AdminFinance";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AdminLayout } from "./components/admin/AdminLayout";
-import { GlobalConfigProvider } from "./context/GlobalConfigContext";
+import { GlobalConfigProvider, useGlobalConfig } from "./context/GlobalConfigContext";
 import { usePushTokenRegistration } from "@/hooks/usePushTokenRegistration";
 import { useWebPushRegistration } from "@/hooks/useWebPushRegistration";
 import { useQuizReminder } from "@/hooks/useQuizReminder";
@@ -287,7 +287,17 @@ const AppRoutes = () => (
   </>
 );
 
-const App = () => {
+const AdSenseLoader = () => {
+  const { system } = useGlobalConfig();
+  useEffect(() => {
+    const pubId = system.adsensePublisherId;
+    if (!pubId || !system.showAds) return;
+    import("@/lib/adsense").then(({ loadAdSense }) => loadAdSense(pubId));
+  }, [system.adsensePublisherId, system.showAds]);
+  return null;
+};
+
+const AppInner = () => {
   // Native-only: register device token for future push delivery.
   usePushTokenRegistration();
   // Web-only: register browser for web push notifications.
@@ -297,14 +307,19 @@ const App = () => {
   // Native AdMob SDK init (no-op on web)
   useMobileAdsInit();
 
-  // Web-only: load AdSense safely (no-op in WebView/PWA/iframe)
-  useEffect(() => {
-    import("@/lib/adsense").then(({ loadAdSense }) => {
-      // Publisher ID will be set once AdSense is approved
-      // loadAdSense("ca-pub-XXXXXXXXXXXXXXXX");
-    });
-  }, []);
+  return (
+    <>
+      <AdSenseLoader />
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </>
+  );
+};
 
+const App = () => {
   return (
     <SplashGate>
       <QueryClientProvider client={queryClient}>
@@ -312,11 +327,7 @@ const App = () => {
           <AdminProvider>
             <GlobalConfigProvider>
               <AppSettingsProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <AppRoutes />
-                </BrowserRouter>
+                <AppInner />
               </AppSettingsProvider>
             </GlobalConfigProvider>
           </AdminProvider>

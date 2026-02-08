@@ -386,6 +386,19 @@ export default function AdminSettings() {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="adsenseId">AdSense Publisher ID</Label>
+                <Input
+                  id="adsenseId"
+                  value={system.adsensePublisherId || ''}
+                  onChange={handleSimpleChange(setSystem, 'adsensePublisherId')}
+                  placeholder="ca-pub-XXXXXXXXXXXXXXXX"
+                />
+                <p className="text-sm text-muted-foreground">
+                  AdSense স্ক্রিপ্ট শুধু ওয়েব ব্রাউজারে লোড হবে। খালি রাখলে AdSense নিষ্ক্রিয় থাকবে।
+                </p>
+              </div>
+
               <div className="flex justify-end">
                 <Button 
                   onClick={() => handleSave(SYSTEM_KEY, system)}
