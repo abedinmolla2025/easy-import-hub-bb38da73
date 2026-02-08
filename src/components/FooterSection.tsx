@@ -102,6 +102,18 @@ export default function FooterSection({
             <span>সেটিংস</span>
           </button>
           <button
+            onClick={() => onNavigate("/about")}
+            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
+          >
+            <span>About Us</span>
+          </button>
+          <button
+            onClick={() => onNavigate("/contact")}
+            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
+          >
+            <span>Contact Us</span>
+          </button>
+          <button
             onClick={() => onNavigate("/privacy-policy")}
             className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
           >

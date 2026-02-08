@@ -1,0 +1,109 @@
+import { ArrowLeft, Mail, Facebook, MessageCircle, Globe } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
+
+const ContactPage = () => {
+  const navigate = useNavigate();
+  const { branding } = useGlobalConfig();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-24">
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-full hover:bg-muted/70 border border-border/60 transition-colors"
+          >
+            <ArrowLeft size={22} />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold tracking-wide">Contact Us</h1>
+            <p className="text-sm text-muted-foreground">যোগাযোগ করুন</p>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
+        {/* Intro */}
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-3">
+          <h2 className="text-lg font-semibold">Get in Touch / যোগাযোগ করুন</h2>
+          <p className="text-muted-foreground">
+            We value your feedback, questions, and suggestions. Whether you've found a bug,
+            have a feature request, or want to report a content error, please don't hesitate
+            to reach out. We typically respond within 24–48 hours.
+          </p>
+          <p className="text-muted-foreground font-bangla">
+            আমরা আপনার মতামত, প্রশ্ন ও পরামর্শকে মূল্য দিই। কোনো বাগ পেলে, নতুন ফিচারের
+            অনুরোধ থাকলে, বা কনটেন্টে ত্রুটি দেখলে অনুগ্রহ করে জানাতে দ্বিধা করবেন না।
+            সাধারণত ২৪–৪৮ ঘণ্টার মধ্যে আমরা উত্তর দিয়ে থাকি।
+          </p>
+        </section>
+
+        {/* Contact Methods */}
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-4">
+          <h2 className="text-lg font-semibold">Contact Methods / যোগাযোগের মাধ্যম</h2>
+          <div className="space-y-3">
+            <a
+              href="mailto:noor.islamic.app@gmail.com"
+              className="flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-background/80 hover:bg-muted/50 transition-colors"
+            >
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Mail className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground text-xs">Email</p>
+                <p className="text-muted-foreground text-xs">noor.islamic.app@gmail.com</p>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        {/* Developer Info */}
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-3">
+          <h2 className="text-lg font-semibold">Developer / ডেভেলপার</h2>
+          <p className="text-muted-foreground">
+            <span className="font-semibold text-foreground">ABEDIN MOLLA</span><br />
+            Independent Developer — India
+          </p>
+          <p className="text-muted-foreground font-bangla">
+            <span className="font-semibold text-foreground">আবিদিন মোল্লা</span><br />
+            স্বাধীন ডেভেলপার — ভারত
+          </p>
+        </section>
+
+        {/* Report Content */}
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-3">
+          <h2 className="text-lg font-semibold">Report Content Issues / কনটেন্ট সমস্যা জানান</h2>
+          <p className="text-muted-foreground">
+            If you notice any inaccuracy in Quran text, hadith references, prayer time
+            calculations, or any other Islamic content, please report it immediately via
+            email. We take content accuracy very seriously and will address the issue
+            promptly.
+          </p>
+          <p className="text-muted-foreground font-bangla">
+            কুরআনের টেক্সট, হাদিসের রেফারেন্স, নামাজের সময় গণনা বা অন্য কোনো ইসলামিক
+            কনটেন্টে কোনো ভুল লক্ষ্য করলে অনুগ্রহ করে অবিলম্বে ইমেইলের মাধ্যমে জানান।
+            কনটেন্টের নির্ভুলতা আমরা অত্যন্ত গুরুত্বের সাথে দেখি এবং দ্রুত সমাধান করি।
+          </p>
+        </section>
+
+        {/* Response Time */}
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
+          <h2 className="text-lg font-semibold">Response Time / উত্তরের সময়</h2>
+          <p className="text-muted-foreground">
+            We aim to respond to all inquiries within 24–48 hours. For urgent content
+            corrections, we prioritize faster turnaround. Please include as much detail
+            as possible in your message to help us assist you effectively.
+          </p>
+          <p className="text-muted-foreground font-bangla">
+            আমরা সকল জিজ্ঞাসার উত্তর ২৪–৪৮ ঘণ্টার মধ্যে দেওয়ার চেষ্টা করি। জরুরি কনটেন্ট
+            সংশোধনের ক্ষেত্রে আমরা দ্রুত সমাধানকে অগ্রাধিকার দিই। আপনার বার্তায় যতটা সম্ভব
+            বিস্তারিত তথ্য দিন যাতে আমরা আপনাকে কার্যকরভাবে সাহায্য করতে পারি।
+          </p>
+        </section>
+      </main>
+    </div>
+  );
+};
+
+export default ContactPage;
