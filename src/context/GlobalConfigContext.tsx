@@ -56,6 +56,7 @@ export interface SystemSettings {
   maintenanceMode?: boolean;
   showAds?: boolean;
   forceUpdate?: boolean;
+  adsensePublisherId?: string;
 }
 
 export interface ModuleToggles {
