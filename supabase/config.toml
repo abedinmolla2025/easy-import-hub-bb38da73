@@ -1,1 +1,31 @@
 project_id = "clturlfaudwztlmysxpm"
+
+[functions.sitemap]
+verify_jwt = false
+
+[functions.notify-search-engines]
+verify_jwt = false
+
+[functions.indexnow-submit]
+verify_jwt = false
+
+[functions.test-indexnow]
+verify_jwt = false
+
+[functions.send-push]
+verify_jwt = false
+
+[functions.send-prayer-notifications]
+verify_jwt = false
+
+[functions.send-quiz-reminders]
+verify_jwt = false
+
+[functions.webpush-public-key]
+verify_jwt = false
+
+[functions.admin-security]
+verify_jwt = false
+
+[functions.generate-quiz-sfx]
+verify_jwt = false

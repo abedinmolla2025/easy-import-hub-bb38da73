@@ -758,6 +758,78 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_index_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          status_code: number | null
+          success: boolean | null
+          target_url: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          status_code?: number | null
+          success?: boolean | null
+          target_url?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          status_code?: number | null
+          success?: boolean | null
+          target_url?: string | null
+        }
+        Relationships: []
+      }
+      seo_pages: {
+        Row: {
+          canonical_url: string | null
+          changefreq: string | null
+          created_at: string
+          description: string | null
+          id: string
+          json_ld: Json | null
+          path: string
+          priority: number | null
+          robots: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          canonical_url?: string | null
+          changefreq?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          json_ld?: Json | null
+          path: string
+          priority?: number | null
+          robots?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canonical_url?: string | null
+          changefreq?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          json_ld?: Json | null
+          path?: string
+          priority?: number | null
+          robots?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_activity: {
         Row: {
           activity_data: Json | null
