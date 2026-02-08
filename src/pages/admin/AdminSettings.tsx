@@ -25,6 +25,7 @@ const THEME_KEY = 'theme';
 const SEO_KEY = 'seo';
 const SYSTEM_KEY = 'system';
 const MODULES_KEY = 'modules';
+const LEGAL_KEY = 'legal';
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -60,6 +61,23 @@ export default function AdminSettings() {
     quiz: true,
     ...(getValue(MODULES_KEY) || {}),
   }));
+  const [legal, setLegal] = useState(() => ({
+    developerName: '',
+    developerNameBn: '',
+    contactEmail: '',
+    country: '',
+    countryBn: '',
+    facebookUrl: '',
+    whatsappUrl: '',
+    websiteUrl: '',
+    playStoreUrl: '',
+    appStoreUrl: '',
+    privacyPolicyLastUpdated: '',
+    termsLastUpdated: '',
+    legalVersionNumber: '',
+    regionComplianceNote: '',
+    ...(getValue(LEGAL_KEY) || {}),
+  }));
 
   // Hydrate local form state after async settings load (only once)
   const hydratedRef = useRef(false);
@@ -77,6 +95,10 @@ export default function AdminSettings() {
     setModules((prev) => ({
       ...prev,
       ...(getValue(MODULES_KEY) || {}),
+    }));
+    setLegal((prev) => ({
+      ...prev,
+      ...(getValue(LEGAL_KEY) || {}),
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
@@ -152,6 +174,7 @@ export default function AdminSettings() {
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="system">System</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
+          <TabsTrigger value="legal">Legal & Contact</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
         </TabsList>
 
@@ -457,6 +480,162 @@ export default function AdminSettings() {
                 >
                   {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Save modules
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="legal">
+          <Card>
+            <CardHeader>
+              <CardTitle>Legal & Contact Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                This data is used across Privacy Policy, Terms, About and Contact pages.
+              </p>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Developer Name (English)</Label>
+                  <Input
+                    value={legal.developerName || ''}
+                    onChange={handleSimpleChange(setLegal, 'developerName')}
+                    placeholder="ABEDIN MOLLA"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Developer Name (বাংলা)</Label>
+                  <Input
+                    value={legal.developerNameBn || ''}
+                    onChange={handleSimpleChange(setLegal, 'developerNameBn')}
+                    placeholder="আবিদিন মোল্লা"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Contact Email</Label>
+                  <Input
+                    value={legal.contactEmail || ''}
+                    onChange={handleSimpleChange(setLegal, 'contactEmail')}
+                    placeholder="noor.islamic.app@gmail.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Country (English)</Label>
+                  <Input
+                    value={legal.country || ''}
+                    onChange={handleSimpleChange(setLegal, 'country')}
+                    placeholder="India"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Country (বাংলা)</Label>
+                  <Input
+                    value={legal.countryBn || ''}
+                    onChange={handleSimpleChange(setLegal, 'countryBn')}
+                    placeholder="ভারত"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Website URL</Label>
+                  <Input
+                    value={legal.websiteUrl || ''}
+                    onChange={handleSimpleChange(setLegal, 'websiteUrl')}
+                    placeholder="https://noor-app.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Facebook URL</Label>
+                  <Input
+                    value={legal.facebookUrl || ''}
+                    onChange={handleSimpleChange(setLegal, 'facebookUrl')}
+                    placeholder="https://facebook.com/noor-app"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>WhatsApp URL</Label>
+                  <Input
+                    value={legal.whatsappUrl || ''}
+                    onChange={handleSimpleChange(setLegal, 'whatsappUrl')}
+                    placeholder="https://wa.me/91XXXXXXXXXX"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Play Store URL</Label>
+                  <Input
+                    value={legal.playStoreUrl || ''}
+                    onChange={handleSimpleChange(setLegal, 'playStoreUrl')}
+                    placeholder="https://play.google.com/store/apps/details?id=..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>App Store URL</Label>
+                  <Input
+                    value={legal.appStoreUrl || ''}
+                    onChange={handleSimpleChange(setLegal, 'appStoreUrl')}
+                    placeholder="https://apps.apple.com/app/..."
+                  />
+                </div>
+              </div>
+
+              <h3 className="text-sm font-semibold pt-2 border-t border-border">Compliance Fields</h3>
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Privacy Policy Last Updated</Label>
+                  <Input
+                    value={legal.privacyPolicyLastUpdated || ''}
+                    onChange={handleSimpleChange(setLegal, 'privacyPolicyLastUpdated')}
+                    placeholder="2026-02-08"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Terms Last Updated</Label>
+                  <Input
+                    value={legal.termsLastUpdated || ''}
+                    onChange={handleSimpleChange(setLegal, 'termsLastUpdated')}
+                    placeholder="2026-02-08"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Legal Version</Label>
+                  <Input
+                    value={legal.legalVersionNumber || ''}
+                    onChange={handleSimpleChange(setLegal, 'legalVersionNumber')}
+                    placeholder="1.0"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Region Compliance Note (optional)</Label>
+                <Input
+                  value={legal.regionComplianceNote || ''}
+                  onChange={handleSimpleChange(setLegal, 'regionComplianceNote')}
+                  placeholder="This app complies with Indian IT regulations..."
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => handleSave(LEGAL_KEY, legal)}
+                  disabled={updateSettingMutation.isPending}
+                >
+                  {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Legal & Contact
                 </Button>
               </div>
             </CardContent>

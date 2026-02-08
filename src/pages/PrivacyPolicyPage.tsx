@@ -1,8 +1,15 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
 
 const PrivacyPolicyPage = () => {
   const navigate = useNavigate();
+  const { legal, branding } = useGlobalConfig();
+
+  const appName = branding.appName || "NOOR";
+  const lastUpdated = legal.privacyPolicyLastUpdated || "";
+  const version = legal.legalVersionNumber || "";
+  const regionNote = legal.regionComplianceNote || "";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-24">
@@ -16,21 +23,34 @@ const PrivacyPolicyPage = () => {
           </button>
           <div>
             <h1 className="text-xl font-bold tracking-wide">Privacy Policy</h1>
-            <p className="text-sm text-muted-foreground">How NOOR – Islamic App handles your data</p>
+            <p className="text-sm text-muted-foreground">How {appName} handles your data</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
+        {(lastUpdated || version) && (
+          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+            {lastUpdated && <span>Last updated: {lastUpdated}</span>}
+            {version && <span>Version: {version}</span>}
+          </div>
+        )}
+
+        {regionNote && (
+          <section className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-xs text-muted-foreground">
+            {regionNote}
+          </section>
+        )}
+
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
           <h2 className="text-lg font-semibold">1. Introduction / ভূমিকা</h2>
           <p className="text-muted-foreground">
-            NOOR – Islamic App is designed to help you with prayer times, Quran, duas and
+            {appName} is designed to help you with prayer times, Quran, duas and
             other Islamic content. We only collect the minimum information needed to keep the
             app working smoothly and to improve your experience.
           </p>
           <p className="text-muted-foreground">
-            NOOR – ইসলামিক অ্যাপ আপনার নামাজের সময়সূচি, কুরআন, দোআ ও অন্যান্য ইসলামিক কনটেন্ট
+            {appName} আপনার নামাজের সময়সূচি, কুরআন, দোআ ও অন্যান্য ইসলামিক কনটেন্ট
             সহজভাবে পাওয়ার জন্য তৈরি করা হয়েছে। অ্যাপ সঠিকভাবে চালু রাখতে এবং আপনাকে ভালো
             অভিজ্ঞতা দিতে যতটুকু প্রয়োজন ততটুকু সীমিত তথ্যই শুধু ব্যবহার করা হয়।
           </p>
@@ -80,10 +100,10 @@ const PrivacyPolicyPage = () => {
         </section>
 
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
-          <h2 className="text-lg font-semibold">5. Changes & contact / নীতি পরিবর্তন ও যোগাযোগ</h2>
+          <h2 className="text-lg font-semibold">5. Changes &amp; contact / নীতি পরিবর্তন ও যোগাযোগ</h2>
           <p className="text-muted-foreground">
             This privacy policy may be updated as the app evolves. If you have questions or
-            concerns, you may reach out to the NOOR team through the app or via the store page
+            concerns, you may reach out to the {appName} team through the app or via the store page
             where the app is published.
           </p>
           <p className="text-muted-foreground">

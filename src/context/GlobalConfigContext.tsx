@@ -6,7 +6,8 @@ export type AppSettingKey =
   | "theme"
   | "seo"
   | "system"
-  | "modules";
+  | "modules"
+  | "legal";
 
 export interface BrandingSettings {
   // Core text
@@ -66,12 +67,30 @@ export interface ModuleToggles {
   quiz?: boolean;
 }
 
+export interface LegalSettings {
+  developerName?: string;
+  developerNameBn?: string;
+  contactEmail?: string;
+  country?: string;
+  countryBn?: string;
+  facebookUrl?: string;
+  whatsappUrl?: string;
+  websiteUrl?: string;
+  playStoreUrl?: string;
+  appStoreUrl?: string;
+  privacyPolicyLastUpdated?: string;
+  termsLastUpdated?: string;
+  legalVersionNumber?: string;
+  regionComplianceNote?: string;
+}
+
 export interface GlobalConfigState {
   branding: BrandingSettings;
   theme: ThemeSettings;
   seo: SeoSettings;
   system: SystemSettings;
   modules: ModuleToggles;
+  legal: LegalSettings;
   loading: boolean;
 }
 
@@ -238,6 +257,7 @@ const defaultState: GlobalConfigState = {
     calendar: true,
     quiz: true,
   },
+  legal: {},
   loading: true,
 };
 
@@ -255,7 +275,7 @@ export const GlobalConfigProvider = ({
       const { data, error } = await supabase
         .from("app_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", ["branding", "theme", "seo", "system", "modules"]);
+        .in("setting_key", ["branding", "theme", "seo", "system", "modules", "legal"]);
 
       if (error) {
         console.error("Error loading app_settings", error);
@@ -284,6 +304,9 @@ export const GlobalConfigProvider = ({
             break;
           case "modules":
             nextState.modules = { ...nextState.modules, ...value };
+            break;
+          case "legal":
+            nextState.legal = value;
             break;
         }
       }
@@ -327,6 +350,9 @@ export const GlobalConfigProvider = ({
                 break;
               case "modules":
                 updated.modules = { ...prev.modules, ...value };
+                break;
+              case "legal":
+                updated.legal = value;
                 break;
             }
             applyDocumentBranding(updated.branding, updated.seo);
