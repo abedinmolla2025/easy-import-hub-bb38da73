@@ -53,6 +53,7 @@ import { GlobalConfigProvider } from "./context/GlobalConfigContext";
 import { usePushTokenRegistration } from "@/hooks/usePushTokenRegistration";
 import { useWebPushRegistration } from "@/hooks/useWebPushRegistration";
 import { useQuizReminder } from "@/hooks/useQuizReminder";
+import { useMobileAdsInit } from "@/hooks/useMobileAds";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
 
 const queryClient = new QueryClient();
@@ -288,6 +289,8 @@ const App = () => {
   useWebPushRegistration();
   // Quiz reminder notifications
   useQuizReminder();
+  // Native AdMob SDK init (no-op on web)
+  useMobileAdsInit();
 
   return (
     <SplashGate>
