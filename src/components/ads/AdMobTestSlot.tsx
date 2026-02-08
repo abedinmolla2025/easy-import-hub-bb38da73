@@ -1,90 +1,50 @@
-import { useEffect, useMemo, useRef } from "react";
-import { Capacitor } from "@capacitor/core";
+import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import type { AdPlacement } from "@/lib/ads";
-import { getTestAdUnitIdForPlacement, type AdMobFormat } from "@/lib/admobTestIds";
+import type { AdFormat } from "@/lib/mobileAdsService";
+import {
+  isMobileAdsAvailable,
+  showBanner,
+  hideBanner,
+  showInterstitial,
+} from "@/lib/mobileAdsService";
 
 type Props = {
   placement: AdPlacement;
-  format?: AdMobFormat;
+  format?: AdFormat;
   className?: string;
 };
 
 /**
- * Native-only AdMob TEST ads for safe pre-publish testing.
- * Renders a small placeholder in the DOM; actual ads are shown by the native plugin.
+ * Native-only AdMob ad slot.
+ * Uses the centralised MobileAdsService — safe on web (renders nothing).
  */
 export function AdMobTestSlot({ placement, format, className }: Props) {
-  const isNative = Capacitor.isNativePlatform();
-
-  const resolvedFormat: AdMobFormat = useMemo(() => {
-    if (format) return format;
-    return placement === "app_interstitial" ? "interstitial" : "banner";
-  }, [format, placement]);
-
-  const adUnitId = useMemo(
-    () => getTestAdUnitIdForPlacement(placement, resolvedFormat),
-    [placement, resolvedFormat],
-  );
-
-  const bannerRef = useRef<any>(null);
+  const resolvedFormat: AdFormat =
+    format ?? (placement === "app_interstitial" ? "interstitial" : "banner");
 
   useEffect(() => {
-    if (!isNative) return;
+    if (!isMobileAdsAvailable()) return;
 
-    let cancelled = false;
+    if (resolvedFormat === "banner") {
+      showBanner();
+      return () => { hideBanner(); };
+    }
 
-    (async () => {
-      try {
-        const mod = await import("@admob-plus/capacitor");
-        if (cancelled) return;
+    if (resolvedFormat === "interstitial") {
+      showInterstitial();
+    }
 
-        const { AdMobPlus, BannerAd, InterstitialAd, RewardedAd } = mod as any;
+    // rewarded ads should be triggered by user action, not on mount
+  }, [resolvedFormat]);
 
-        // Safe to call multiple times.
-        await AdMobPlus.start();
+  if (!isMobileAdsAvailable()) return null;
 
-        if (resolvedFormat === "banner") {
-          const banner = new BannerAd({ adUnitId });
-          bannerRef.current = banner;
-          await banner.show();
-        } else if (resolvedFormat === "interstitial") {
-          const interstitial = new InterstitialAd({ adUnitId });
-          await interstitial.load();
-          await interstitial.show();
-        } else if (resolvedFormat === "rewarded") {
-          const rewarded = new RewardedAd({ adUnitId });
-          await rewarded.load();
-          await rewarded.show();
-        }
-      } catch {
-        // If plugin isn't available (e.g. web preview), silently ignore.
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      (async () => {
-        try {
-          const banner = bannerRef.current;
-          if (banner && typeof banner.hide === "function") await banner.hide();
-          bannerRef.current = null;
-        } catch {
-          // ignore
-        }
-      })();
-    };
-  }, [adUnitId, isNative, resolvedFormat]);
-
-  if (!isNative) return null;
-
-  // Keep a small, consistent layout gap where the ad is expected.
-  // (Real banner is rendered natively.)
   if (resolvedFormat === "banner") {
     return (
       <Card
         className={"min-h-[56px] " + (className ?? "")}
-        aria-label="AdMob test banner placeholder"
+        aria-label="AdMob banner placeholder"
       />
     );
   }
