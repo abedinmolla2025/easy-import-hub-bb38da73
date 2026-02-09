@@ -14,9 +14,47 @@ function normalizeDescription(description?: string | null) {
   return description.length > 160 ? description.slice(0, 157) + "..." : description;
 }
 
+function buildHomepageJsonLd(
+  branding: ReturnType<typeof useGlobalConfig>["branding"],
+  seo: ReturnType<typeof useGlobalConfig>["seo"],
+  legal: ReturnType<typeof useGlobalConfig>["legal"],
+) {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const schemas: object[] = [];
+
+  // Organization schema
+  const org: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: branding.appName || "Noor",
+    url: legal.websiteUrl || origin,
+  };
+  if (branding.logoUrl) org.logo = branding.logoUrl;
+  if (legal.contactEmail) org.email = legal.contactEmail;
+  const sameAs: string[] = [];
+  if (legal.facebookUrl) sameAs.push(legal.facebookUrl);
+  if (legal.whatsappUrl) sameAs.push(legal.whatsappUrl);
+  if (legal.playStoreUrl) sameAs.push(legal.playStoreUrl);
+  if (legal.appStoreUrl) sameAs.push(legal.appStoreUrl);
+  if (sameAs.length) org.sameAs = sameAs;
+  schemas.push(org);
+
+  // WebSite schema with SearchAction
+  const site: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: branding.appName || "Noor",
+    url: origin,
+  };
+  if (seo.description) site.description = seo.description;
+  schemas.push(site);
+
+  return schemas;
+}
+
 export function SeoHead() {
   const { pathname } = useLocation();
-  const { branding, seo: globalSeo } = useGlobalConfig();
+  const { branding, seo: globalSeo, legal } = useGlobalConfig();
 
   const isAdmin = isAdminRoutePath(pathname);
   const pageSeoQuery = usePageSeo(pathname, !isAdmin);
@@ -40,8 +78,14 @@ export function SeoHead() {
 
   const robots = pageSeo?.robots ?? "index,follow";
 
+  // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
+  const isHomepage = pathname === "/";
   const jsonLd = pageSeo?.json_ld ?? null;
-  const jsonLdString = jsonLd ? JSON.stringify(jsonLd) : null;
+  const jsonLdString = jsonLd
+    ? JSON.stringify(jsonLd)
+    : isHomepage
+      ? JSON.stringify(buildHomepageJsonLd(branding, globalSeo, legal))
+      : null;
 
   return (
     <Helmet>
