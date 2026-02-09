@@ -166,34 +166,30 @@ function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
 
   // Prefer generated PNG variants when available (best browser support).
   const v = branding.faviconVariants;
-  if (v?.png16) upsertLink('link[rel="icon"][sizes="16x16"]', { rel: "icon", sizes: "16x16", type: "image/png", href: v.png16 });
-  if (v?.png32) upsertLink('link[rel="icon"][sizes="32x32"]', { rel: "icon", sizes: "32x32", type: "image/png", href: v.png32 });
-  if (v?.png48) upsertLink('link[rel="icon"][sizes="48x48"]', { rel: "icon", sizes: "48x48", type: "image/png", href: v.png48 });
-  if (v?.png180) upsertLink('link[rel="apple-touch-icon"]', { rel: "apple-touch-icon", sizes: "180x180", href: v.png180 });
+  if (v?.png16) upsertLink('link[rel="icon"][sizes="16x16"]', { rel: "icon", sizes: "16x16", type: "image/png", href: cacheBust(v.png16) });
+  if (v?.png32) upsertLink('link[rel="icon"][sizes="32x32"]', { rel: "icon", sizes: "32x32", type: "image/png", href: cacheBust(v.png32) });
+  if (v?.png48) upsertLink('link[rel="icon"][sizes="48x48"]', { rel: "icon", sizes: "48x48", type: "image/png", href: cacheBust(v.png48) });
+  if (v?.png180) upsertLink('link[rel="apple-touch-icon"]', { rel: "apple-touch-icon", sizes: "180x180", href: cacheBust(v.png180) });
 
   if (faviconHref) {
-    // Fallback/default favicon link
-    upsertLink('link[rel="icon"]:not([sizes])', { rel: "icon", href: v?.png32 || faviconHref });
+    upsertLink('link[rel="icon"]:not([sizes])', { rel: "icon", href: cacheBust(v?.png32 || faviconHref) });
+  } else {
+    // Fallback: use default placeholder if no admin favicon set
+    upsertLink('link[rel="icon"]:not([sizes])', { rel: "icon", href: "/favicon.ico" });
   }
 
-  // Dynamic PWA manifest (keeps icons in sync without a static manifest file).
-  // Note: using an object URL so changes are visible immediately.
+  // Dynamic PWA manifest with cache-busted icons
   const manifestIcons = [
     v?.png180
-      ? {
-          src: v.png180,
-          sizes: "180x180",
-          type: "image/png",
-          purpose: "any maskable",
-        }
-      : null,
+      ? { src: cacheBust(v.png180), sizes: "180x180", type: "image/png", purpose: "any maskable" }
+      : faviconHref
+        ? { src: cacheBust(faviconHref), sizes: "192x192", type: "image/png", purpose: "any maskable" }
+        : null,
     v?.png48
-      ? {
-          src: v.png48,
-          sizes: "48x48",
-          type: "image/png",
-          purpose: "any",
-        }
+      ? { src: cacheBust(v.png48), sizes: "48x48", type: "image/png", purpose: "any" }
+      : null,
+    faviconHref
+      ? { src: cacheBust(faviconHref), sizes: "512x512", type: "image/png", purpose: "any" }
       : null,
   ].filter(Boolean) as any[];
 
