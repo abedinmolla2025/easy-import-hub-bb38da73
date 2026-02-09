@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import { isAdminRoutePath } from "@/lib/ads";
 import { usePageSeo } from "@/hooks/usePageSeo";
+import { getPageSeoDefaults } from "@/lib/seoDefaults";
 
 function normalizeTitle(title?: string | null) {
   if (!title) return undefined;
@@ -69,8 +70,15 @@ export function SeoHead() {
     );
   }
 
-  const title = normalizeTitle(pageSeo?.title ?? globalSeo.title ?? branding.appName);
-  const description = normalizeDescription(pageSeo?.description ?? globalSeo.description);
+  // Bilingual defaults for the current route (fallback when no admin/db value)
+  const bilingualDefaults = getPageSeoDefaults(pathname, branding.appName);
+
+  const title = normalizeTitle(
+    pageSeo?.title ?? bilingualDefaults?.title ?? globalSeo.title ?? branding.appName,
+  );
+  const description = normalizeDescription(
+    pageSeo?.description ?? bilingualDefaults?.description ?? globalSeo.description,
+  );
 
   const canonical =
     pageSeo?.canonical_url ??
