@@ -80,6 +80,10 @@ export function SeoHead() {
     pageSeo?.description ?? bilingualDefaults?.description ?? globalSeo.description,
   );
 
+  const canonical =
+    pageSeo?.canonical_url ??
+    (typeof window !== "undefined" ? `${window.location.origin}${pathname}` : undefined);
+
   const robots = pageSeo?.robots ?? "index,follow";
 
   // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
