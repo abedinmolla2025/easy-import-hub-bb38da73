@@ -70,12 +70,15 @@ export function SeoHead() {
     );
   }
 
-  const title = normalizeTitle(pageSeo?.title ?? globalSeo.title ?? branding.appName);
-  const description = normalizeDescription(pageSeo?.description ?? globalSeo.description);
+  // Bilingual defaults for the current route (fallback when no admin/db value)
+  const bilingualDefaults = getPageSeoDefaults(pathname, branding.appName);
 
-  const canonical =
-    pageSeo?.canonical_url ??
-    (typeof window !== "undefined" ? `${window.location.origin}${pathname}` : undefined);
+  const title = normalizeTitle(
+    pageSeo?.title ?? bilingualDefaults?.title ?? globalSeo.title ?? branding.appName,
+  );
+  const description = normalizeDescription(
+    pageSeo?.description ?? bilingualDefaults?.description ?? globalSeo.description,
+  );
 
   const robots = pageSeo?.robots ?? "index,follow";
 
