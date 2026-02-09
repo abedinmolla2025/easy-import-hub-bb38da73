@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import { isAdminRoutePath } from "@/lib/ads";
 import { usePageSeo } from "@/hooks/usePageSeo";
+import { getPageSeoDefaults } from "@/lib/seoDefaults";
 
 function normalizeTitle(title?: string | null) {
   if (!title) return undefined;
