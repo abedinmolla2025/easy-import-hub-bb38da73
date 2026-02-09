@@ -101,6 +101,12 @@ const GlobalConfigContext = createContext<GlobalConfigContextValue | undefined>(
   undefined,
 );
 
+function cacheBust(url: string) {
+  if (!url) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${Date.now()}`;
+}
+
 function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
   if (typeof document === "undefined") return;
 
