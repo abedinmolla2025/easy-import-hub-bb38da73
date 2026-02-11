@@ -60,7 +60,7 @@ const AdminDashboard = () => {
     {
       title: "Total Users",
       value: stats?.totalUsers ?? 0,
-      description: "নিবন্ধিত ব্যবহারকারী",
+      description: "Registered users",
       icon: Users,
       link: "/admin/users",
       color: "text-primary",
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
     {
       title: "Content Items",
       value: stats?.totalContent ?? 0,
-      description: "প্রকাশিত কনটেন্ট",
+      description: "Published content",
       icon: BookOpen,
       link: "/admin/content",
       color: "text-primary",
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
     {
       title: "Notifications",
       value: stats?.totalNotifications ?? 0,
-      description: "পাঠানো নোটিফিকেশন",
+      description: "Sent notifications",
       icon: Bell,
       link: "/admin/notifications/history",
       color: "text-primary",
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
     {
       title: "Recent Activity",
       value: stats?.recentActivity ?? 0,
-      description: "গত ২৪ ঘণ্টায়",
+      description: "Last 24 hours",
       icon: BarChart3,
       link: "/admin/audit",
       color: "text-primary",
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">
-            {branding.appName || "NOOR"} অ্যাডমিন প্যানেলে স্বাগতম
+            Welcome to {branding.appName || "NOOR"} Admin Panel
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5">
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
                 {loading ? (
                   <Skeleton className="h-8 w-16" />
                 ) : (
-                  <div className="text-2xl font-bold">{stat.value.toLocaleString("bn-BD")}</div>
+                  <div className="text-2xl font-bold">{stat.value.toLocaleString("en-US")}</div>
                 )}
                 <p className="text-xs text-muted-foreground">{stat.description}</p>
               </CardContent>
@@ -212,7 +212,7 @@ const AdminDashboard = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Last Sync</span>
-              <span className="font-medium">{new Date().toLocaleTimeString("bn-BD")}</span>
+              <span className="font-medium">{new Date().toLocaleTimeString("en-US")}</span>
             </div>
           </CardContent>
         </Card>

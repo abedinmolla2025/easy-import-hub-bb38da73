@@ -66,12 +66,12 @@ export function useAppSettings<K extends AppSettingKey>(key: K) {
 
       if (error) {
         console.error(`Error saving ${key}`, error);
-        toast.error("সেটিংস সেভ করতে ব্যর্থ হয়েছে");
+        toast.error("Failed to save settings");
         return false;
       }
 
       setData(value);
-      toast.success("সেটিংস সেভ হয়েছে");
+      toast.success("Settings saved");
       return true;
     },
     [key]

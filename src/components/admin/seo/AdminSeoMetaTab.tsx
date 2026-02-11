@@ -37,7 +37,7 @@ export default function AdminSeoMetaTab() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Search className="h-5 w-5" /> Meta Tags</CardTitle>
-            <CardDescription>সাইটের মেটা ট্যাগস কনফিগার করুন</CardDescription>
+            <CardDescription>Configure site meta tags</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -50,14 +50,14 @@ export default function AdminSeoMetaTab() {
               <textarea id="description" value={form.description ?? ""} onChange={(e) => handleChange("description", e.target.value)} placeholder="Your Islamic companion..." className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" maxLength={200} />
               <p className={`text-xs ${descLength > 160 ? "text-destructive" : "text-muted-foreground"}`}>{descLength}/160 characters {descLength > 160 && "(too long)"}</p>
             </div>
-            <Button onClick={handleSave} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}সেভ করুন</Button>
+            <Button onClick={handleSave} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Save</Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Social Sharing</CardTitle>
-            <CardDescription>সোশ্যাল মিডিয়ায় শেয়ার করার সেটিংস</CardDescription>
+            <CardDescription>Social media sharing settings</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -73,7 +73,7 @@ export default function AdminSeoMetaTab() {
                 </div>
               </div>
             )}
-            <Button onClick={handleSave} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}সেভ করুন</Button>
+            <Button onClick={handleSave} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Save</Button>
           </CardContent>
         </Card>
       </div>
@@ -81,7 +81,7 @@ export default function AdminSeoMetaTab() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> Search Engine Preview</CardTitle>
-          <CardDescription>গুগলে আপনার সাইট কিভাবে দেখাবে</CardDescription>
+          <CardDescription>How your site appears on Google</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border bg-white p-4 dark:bg-background">
@@ -97,7 +97,7 @@ export default function AdminSeoMetaTab() {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>SEO Tools</CardTitle><CardDescription>দরকারী SEO টুলস</CardDescription></CardHeader>
+        <CardHeader><CardTitle>SEO Tools</CardTitle><CardDescription>Useful SEO tools</CardDescription></CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[

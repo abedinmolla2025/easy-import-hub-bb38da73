@@ -334,7 +334,7 @@ export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fad
             onClick={() => setFullscreenPreview(false)}
           >
             <X className="h-4 w-4 mr-1" />
-            বন্ধ করুন
+            Close
           </Button>
         </motion.div>
       )}
@@ -342,7 +342,7 @@ export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fad
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <CardTitle className="text-base">লাইভ প্রিভিউ</CardTitle>
+            <CardTitle className="text-base">Live Preview</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               {Object.entries(DEVICE_SIZES).map(([key, { label, icon: Icon }]) => (
                 <Button
@@ -363,22 +363,22 @@ export function SplashScreenPreview({ lottieUrl, logoUrl, appName, duration, fad
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="text-sm text-muted-foreground">
               {currentDevice.width}px × {currentDevice.height}px
-              {useFallback && <span className="ml-2 text-amber-600">(ফলব্যাক ভিউ)</span>}
+              {useFallback && <span className="ml-2 text-amber-600">(Fallback view)</span>}
             </div>
             <div className="flex gap-2 flex-wrap">
               <Button onClick={handleFullscreenPreview} size="sm" variant="outline" className="gap-1">
                 <Maximize2 className="h-4 w-4" />
-                ফুলস্ক্রিন
+                Fullscreen
               </Button>
               {!isPlaying ? (
                 <Button onClick={handlePlay} size="sm" disabled={loading}>
                   <Play className="mr-1 h-4 w-4" />
-                  প্লে করুন
+                  Play
                 </Button>
               ) : (
                 <Button onClick={handleStop} size="sm" variant="outline">
                   <X className="mr-1 h-4 w-4" />
-                  বন্ধ
+                  Stop
                 </Button>
               )}
             </div>

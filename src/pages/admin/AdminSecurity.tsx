@@ -89,7 +89,7 @@ const AdminSecurity = () => {
 
   const handleSaveEmail = async () => {
     if (!adminEmail.trim()) {
-      toast.error("ইমেইল দিন");
+      toast.error("Please enter an email");
       return;
     }
 
@@ -103,21 +103,21 @@ const AdminSecurity = () => {
 
     if (error) {
       console.error("Error saving email", error);
-      toast.error("ইমেইল সেভ করতে ব্যর্থ হয়েছে");
+      toast.error("Failed to save email");
     } else {
-      toast.success("অ্যাডমিন ইমেইল আপডেট হয়েছে");
+      toast.success("Admin email updated");
       loadData();
     }
   };
 
   const handleChangePasscode = async () => {
     if (!newPasscode || newPasscode.length < 6) {
-      toast.error("পাসকোড কমপক্ষে ৬ ডিজিটের হতে হবে");
+      toast.error("Passcode must be at least 6 characters");
       return;
     }
 
     if (newPasscode !== confirmPasscode) {
-      toast.error("পাসকোড মিলছে না");
+      toast.error("Passcodes do not match");
       return;
     }
 
@@ -130,9 +130,9 @@ const AdminSecurity = () => {
 
     if (error) {
       console.error("Error changing passcode", error);
-      toast.error("পাসকোড পরিবর্তন করতে ব্যর্থ হয়েছে");
+      toast.error("Failed to change passcode");
     } else {
-      toast.success("পাসকোড পরিবর্তন হয়েছে");
+      toast.success("Passcode changed successfully");
       setNewPasscode("");
       setConfirmPasscode("");
       loadData();
@@ -149,10 +149,10 @@ const AdminSecurity = () => {
 
     if (error) {
       console.error("Error updating fingerprint setting", error);
-      toast.error("সেটিং আপডেট করতে ব্যর্থ হয়েছে");
+      toast.error("Failed to update setting");
       setRequireFingerprint(!value);
     } else {
-      toast.success(value ? "ফিঙ্গারপ্রিন্ট ভেরিফিকেশন চালু হয়েছে" : "ফিঙ্গারপ্রিন্ট ভেরিফিকেশন বন্ধ হয়েছে");
+      toast.success(value ? "Fingerprint verification enabled" : "Fingerprint verification disabled");
     }
   };
 
@@ -191,7 +191,7 @@ const AdminSecurity = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Security</h1>
-        <p className="text-muted-foreground">অ্যাডমিন প্যানেলের সিকিউরিটি সেটিংস</p>
+        <p className="text-muted-foreground">Admin panel security settings</p>
       </div>
 
       {/* Status Overview */}
@@ -206,7 +206,7 @@ const AdminSecurity = () => {
             <div>
               <p className="text-sm font-medium">Passcode</p>
               <p className="text-xs text-muted-foreground">
-                {config?.passcode_hash ? "সেট করা আছে" : "সেট করা নেই"}
+                {config?.passcode_hash ? "Configured" : "Not set"}
               </p>
             </div>
           </CardContent>
@@ -228,7 +228,7 @@ const AdminSecurity = () => {
             <div>
               <p className="text-sm font-medium">Fingerprint</p>
               <p className="text-xs text-muted-foreground">
-                {config?.require_fingerprint ? "চালু" : "বন্ধ"}
+                {config?.require_fingerprint ? "Enabled" : "Disabled"}
               </p>
             </div>
           </CardContent>
@@ -241,7 +241,7 @@ const AdminSecurity = () => {
               <p className="text-sm font-medium">Last Updated</p>
               <p className="text-xs text-muted-foreground">
                 {config?.updated_at
-                  ? new Date(config.updated_at).toLocaleDateString("bn-BD")
+                  ? new Date(config.updated_at).toLocaleDateString("en-US")
                   : "N/A"}
               </p>
             </div>
@@ -256,7 +256,7 @@ const AdminSecurity = () => {
             <CardTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5" /> Admin Email
             </CardTitle>
-            <CardDescription>পাসকোড রিসেট কোড এই ইমেইলে পাঠানো হবে</CardDescription>
+            <CardDescription>Passcode reset code will be sent to this email</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -271,7 +271,7 @@ const AdminSecurity = () => {
             </div>
             <Button onClick={handleSaveEmail} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              সেভ করুন
+              Save
             </Button>
           </CardContent>
         </Card>
@@ -282,7 +282,7 @@ const AdminSecurity = () => {
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" /> Change Passcode
             </CardTitle>
-            <CardDescription>অ্যাডমিন আনলক পাসকোড পরিবর্তন করুন</CardDescription>
+            <CardDescription>Change admin unlock passcode</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -292,7 +292,7 @@ const AdminSecurity = () => {
                 type="password"
                 value={newPasscode}
                 onChange={(e) => setNewPasscode(e.target.value)}
-                placeholder="নতুন পাসকোড"
+                placeholder="New passcode"
                 minLength={6}
               />
             </div>
@@ -303,13 +303,13 @@ const AdminSecurity = () => {
                 type="password"
                 value={confirmPasscode}
                 onChange={(e) => setConfirmPasscode(e.target.value)}
-                placeholder="পাসকোড নিশ্চিত করুন"
+                placeholder="Confirm passcode"
                 minLength={6}
               />
             </div>
             <Button onClick={handleChangePasscode} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              পাসকোড পরিবর্তন করুন
+              Change Passcode
             </Button>
           </CardContent>
         </Card>
@@ -321,14 +321,14 @@ const AdminSecurity = () => {
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" /> Security Options
           </CardTitle>
-          <CardDescription>অতিরিক্ত সিকিউরিটি অপশনস</CardDescription>
+          <CardDescription>Additional security options</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Device Fingerprint Verification</Label>
               <p className="text-sm text-muted-foreground">
-                শুধুমাত্র পরিচিত ডিভাইস থেকে লগইন অনুমতি দিন
+                Only allow login from recognized devices
               </p>
             </div>
             <Switch
@@ -346,14 +346,14 @@ const AdminSecurity = () => {
             <History className="h-5 w-5" /> Recent Unlock Attempts
           </CardTitle>
           <CardDescription>
-            সাম্প্রতিক অ্যাডমিন আনলক প্রচেষ্টা (
+            Recent admin unlock attempts (
             <span className="text-primary">{successfulAttempts.length} successful</span>,{" "}
             <span className="text-destructive">{failedAttempts.length} failed</span>)
           </CardDescription>
         </CardHeader>
         <CardContent>
           {attempts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">কোনো প্রচেষ্টা নেই</p>
+            <p className="text-sm text-muted-foreground">No attempts yet</p>
           ) : (
             <div className="space-y-2">
               {attempts.slice(0, 10).map((attempt) => (
@@ -369,10 +369,10 @@ const AdminSecurity = () => {
                     )}
                     <div>
                       <p className="text-sm font-medium">
-                        {attempt.success ? "সফল" : "ব্যর্থ"}
+                        {attempt.success ? "Successful" : "Failed"}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(attempt.created_at).toLocaleString("bn-BD")}
+                        {new Date(attempt.created_at).toLocaleString("en-US")}
                       </p>
                     </div>
                   </div>

@@ -547,7 +547,7 @@ export function LayoutSectionRow({
                   <div className="rounded-xl border border-border bg-background/50 p-3">
                     <p className="text-sm font-medium">Daily Quiz overlay (Mobile)</p>
                     <p className="text-[11px] text-muted-foreground">
-                      Opacity, size ও position fine-tune করুন (শুধু DailyQuizCard overlay)
+                      Fine-tune opacity, size & position (DailyQuizCard overlay only)
                     </p>
 
                     <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -693,7 +693,7 @@ export function LayoutSectionRow({
                   <div className="rounded-xl border border-border bg-background/50 p-3">
                     <p className="text-sm font-medium">Daily Hadith card style</p>
                     <p className="text-[11px] text-muted-foreground">
-                      Admin থেকে DailyHadith কার্ডের wrapper style change করুন
+                      Change DailyHadith card wrapper style from Admin
                     </p>
 
                     <div className="mt-3 flex flex-wrap items-center gap-2">
