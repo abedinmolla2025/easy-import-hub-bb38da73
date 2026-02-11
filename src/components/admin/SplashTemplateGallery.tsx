@@ -114,11 +114,11 @@ export function SplashTemplateGallery({ onSelectTemplate }: SplashTemplateGaller
               />
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
-                  বন্ধ করুন
-                </Button>
-                <Button onClick={() => handleSelectTemplate(previewTemplate)}>
-                  এই Template ব্যবহার করুন
-                </Button>
+                   Close
+                 </Button>
+                 <Button onClick={() => handleSelectTemplate(previewTemplate)}>
+                   Use This Template
+                 </Button>
               </div>
             </DialogContent>
           </Dialog>

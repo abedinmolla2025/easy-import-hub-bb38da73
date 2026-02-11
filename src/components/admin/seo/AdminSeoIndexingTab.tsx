@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSeoPages, useSeoIndexLog, useNotifySearchEngines } from "@/hooks/useSeoIndexing";
 import { Activity, Globe, Loader2, Send, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { bn } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 export default function AdminSeoIndexingTab() {
   const { data: pages } = useSeoPages();
@@ -26,7 +26,7 @@ export default function AdminSeoIndexingTab() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{indexableCount}</div>
-            <p className="text-xs text-muted-foreground">ইনডেক্সযোগ্য পেজ</p>
+            <p className="text-xs text-muted-foreground">Indexable pages</p>
           </CardContent>
         </Card>
         <Card>
@@ -38,7 +38,7 @@ export default function AdminSeoIndexingTab() {
               <span className="text-sm font-medium">Google</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {lastGoogle ? formatDistanceToNow(new Date(lastGoogle.created_at), { addSuffix: true, locale: bn }) : "কখনো পিং করা হয়নি"}
+              {lastGoogle ? formatDistanceToNow(new Date(lastGoogle.created_at), { addSuffix: true, locale: enUS }) : "Never pinged"}
             </p>
           </CardContent>
         </Card>
@@ -51,7 +51,7 @@ export default function AdminSeoIndexingTab() {
               <span className="text-sm font-medium">Bing</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {lastBing ? formatDistanceToNow(new Date(lastBing.created_at), { addSuffix: true, locale: bn }) : "কখনো পিং করা হয়নি"}
+              {lastBing ? formatDistanceToNow(new Date(lastBing.created_at), { addSuffix: true, locale: enUS }) : "Never pinged"}
             </p>
           </CardContent>
         </Card>
@@ -60,18 +60,18 @@ export default function AdminSeoIndexingTab() {
       {/* Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Send className="h-5 w-5" /> সার্চ ইঞ্জিন নোটিফাই</CardTitle>
-          <CardDescription>Google ও Bing কে সাইটম্যাপ আপডেটের বিষয়ে জানান (রেট লিমিট: ১০ মিনিটে ১ বার)</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Send className="h-5 w-5" /> Notify Search Engines</CardTitle>
+          <CardDescription>Notify Google & Bing about sitemap updates (rate limit: once per 10 minutes)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Button onClick={() => notifyMutation.mutate()} disabled={notifyMutation.isPending}>
             {notifyMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             <Globe className="mr-2 h-4 w-4" />
-            এখনই পিং করুন
+            Ping Now
           </Button>
           <div className="flex items-center gap-2">
             <a href={sitemapUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <ExternalLink className="h-3 w-3" /> সাইটম্যাপ দেখুন
+              <ExternalLink className="h-3 w-3" /> View Sitemap
             </a>
           </div>
         </CardContent>
@@ -80,14 +80,14 @@ export default function AdminSeoIndexingTab() {
       {/* Log history */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> ইনডেক্সিং লগ</CardTitle>
-          <CardDescription>সর্বশেষ সার্চ ইঞ্জিন নোটিফিকেশন</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Indexing Log</CardTitle>
+          <CardDescription>Recent search engine notifications</CardDescription>
         </CardHeader>
         <CardContent>
           {logsLoading ? (
             <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}</div>
           ) : !logs?.length ? (
-            <p className="text-sm text-muted-foreground text-center py-6">কোনো লগ নেই</p>
+            <p className="text-sm text-muted-foreground text-center py-6">No logs yet</p>
           ) : (
             <div className="divide-y rounded-md border max-h-[400px] overflow-auto">
               {logs.map((l) => (
@@ -98,7 +98,7 @@ export default function AdminSeoIndexingTab() {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     {l.status_code && <span>HTTP {l.status_code}</span>}
-                    <span>{formatDistanceToNow(new Date(l.created_at), { addSuffix: true, locale: bn })}</span>
+                    <span>{formatDistanceToNow(new Date(l.created_at), { addSuffix: true, locale: enUS })}</span>
                   </div>
                 </div>
               ))}

@@ -11,8 +11,8 @@ const AdminSeoPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">SEO ও ইনডেক্সিং</h1>
-        <p className="text-muted-foreground">সার্চ ইঞ্জিন অপ্টিমাইজেশন ও অটো ইনডেক্সিং কনফিগার করুন</p>
+        <h1 className="text-2xl font-bold">SEO & Indexing</h1>
+        <p className="text-muted-foreground">Configure search engine optimization and auto-indexing</p>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
@@ -21,10 +21,10 @@ const AdminSeoPage = () => {
             <Search className="h-4 w-4" /> Meta Tags
           </TabsTrigger>
           <TabsTrigger value="pages" className="flex items-center gap-1.5">
-            <FileText className="h-4 w-4" /> সাইটম্যাপ পেজ
+            <FileText className="h-4 w-4" /> Sitemap Pages
           </TabsTrigger>
           <TabsTrigger value="indexing" className="flex items-center gap-1.5">
-            <Activity className="h-4 w-4" /> ইনডেক্সিং
+            <Activity className="h-4 w-4" /> Indexing
           </TabsTrigger>
         </TabsList>
 

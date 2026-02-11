@@ -66,9 +66,9 @@ export function useUpsertSeoPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["seo-pages"] });
-      toast.success("SEO পেজ সেভ হয়েছে");
+      toast.success("SEO page saved");
     },
-    onError: () => toast.error("সেভ করতে ব্যর্থ"),
+    onError: () => toast.error("Failed to save"),
   });
 }
 
@@ -84,9 +84,9 @@ export function useDeleteSeoPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["seo-pages"] });
-      toast.success("SEO পেজ মুছে ফেলা হয়েছে");
+      toast.success("SEO page deleted");
     },
-    onError: () => toast.error("মুছতে ব্যর্থ"),
+    onError: () => toast.error("Failed to delete"),
   });
 }
 
@@ -104,13 +104,13 @@ export function useNotifySearchEngines() {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["seo-index-log"] });
       if (data?.success) {
-        toast.success("Google ও Bing কে সাইটম্যাপ আপডেট জানানো হয়েছে");
+        toast.success("Google & Bing notified about sitemap update");
       } else if (data?.reason === "rate_limited") {
-        toast.info("রেট লিমিট: ১০ মিনিট পর আবার চেষ্টা করুন");
+        toast.info("Rate limited: try again after 10 minutes");
       } else {
-        toast.warning("কিছু সার্চ ইঞ্জিনে জানানো যায়নি");
+        toast.warning("Could not notify some search engines");
       }
     },
-    onError: () => toast.error("সার্চ ইঞ্জিন নোটিফিকেশন ব্যর্থ"),
+    onError: () => toast.error("Search engine notification failed"),
   });
 }

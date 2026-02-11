@@ -395,8 +395,8 @@ export default function AdminSettings() {
                   placeholder="ca-pub-XXXXXXXXXXXXXXXX"
                 />
                 <p className="text-sm text-muted-foreground">
-                  AdSense স্ক্রিপ্ট শুধু ওয়েব ব্রাউজারে লোড হবে। খালি রাখলে AdSense নিষ্ক্রিয় থাকবে।
-                </p>
+                   AdSense script will only load in web browsers. Leave empty to disable AdSense.
+                 </p>
               </div>
 
               <div className="flex justify-end">

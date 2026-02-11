@@ -45,10 +45,10 @@ export default function AdminSeoPagesTab() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5" /> সাইটম্যাপ পেজ তালিকা</CardTitle>
-            <CardDescription>সাইটম্যাপে অন্তর্ভুক্ত সকল পেজ ({pages?.length ?? 0} টি)</CardDescription>
+            <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5" /> Sitemap Pages</CardTitle>
+            <CardDescription>All pages included in sitemap ({pages?.length ?? 0})</CardDescription>
           </div>
-          <Button size="sm" onClick={openNew}><Plus className="h-4 w-4 mr-1" /> নতুন পেজ</Button>
+          <Button size="sm" onClick={openNew}><Plus className="h-4 w-4 mr-1" /> New Page</Button>
         </CardHeader>
         <CardContent>
           <div className="divide-y rounded-md border">
@@ -77,7 +77,7 @@ export default function AdminSeoPagesTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editPage?.id ? "পেজ সম্পাদনা" : "নতুন পেজ যুক্ত করুন"}</DialogTitle>
+            <DialogTitle>{editPage?.id ? "Edit Page" : "Add New Page"}</DialogTitle>
           </DialogHeader>
           {editPage && (
             <div className="space-y-4">
@@ -114,7 +114,7 @@ export default function AdminSeoPagesTab() {
               </div>
               <Button onClick={handleSave} disabled={upsertMutation.isPending} className="w-full">
                 {upsertMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                সেভ করুন
+                Save
               </Button>
             </div>
           )}
