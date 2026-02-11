@@ -168,7 +168,7 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="branding">
-        <TabsList className="mb-4 flex flex-wrap gap-2">
+        <TabsList className="mb-4 flex h-auto flex-wrap gap-2 p-2">
           <TabsTrigger value="branding">Branding</TabsTrigger>
           <TabsTrigger value="theme">Theme</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
