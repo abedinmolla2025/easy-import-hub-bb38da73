@@ -71,7 +71,7 @@ export function useWebPushRegistration() {
 
         // If an old subscription exists (e.g., VAPID key changed), unsubscribe first to avoid
         // "A subscription with a different applicationServerKey already exists" errors.
-        const existing = await reg.pushManager.getSubscription();
+        const existing = await (reg as any).pushManager.getSubscription();
         if (existing) {
           try {
             await existing.unsubscribe();
@@ -81,7 +81,7 @@ export function useWebPushRegistration() {
         }
 
         // Subscribe to push
-        const subscription = await reg.pushManager.subscribe({
+        const subscription = await (reg as any).pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicKey),
         });
