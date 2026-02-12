@@ -46,10 +46,11 @@ Deno.serve(async (req) => {
       return !robots.includes("noindex");
     });
 
-    // Determine origin from request or use a configured domain
+    // Use noorapp.in as the primary domain
+    const SITE_ORIGIN = "https://noorapp.in";
     const url = new URL(req.url);
     const hostParam = url.searchParams.get("host");
-    const origin = hostParam ? `https://${hostParam}` : `${url.protocol}//${url.host}`;
+    const origin = hostParam ? `https://${hostParam}` : SITE_ORIGIN;
 
     // Build URLs from seo_pages
     const seoUrls = indexablePages.map((p) => {
