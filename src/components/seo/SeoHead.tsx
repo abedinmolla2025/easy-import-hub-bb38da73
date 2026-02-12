@@ -20,7 +20,7 @@ function buildHomepageJsonLd(
   seo: ReturnType<typeof useGlobalConfig>["seo"],
   legal: ReturnType<typeof useGlobalConfig>["legal"],
 ) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const origin = "https://noorapp.in";
   const schemas: object[] = [];
 
   // Organization schema
@@ -80,9 +80,9 @@ export function SeoHead() {
     pageSeo?.description ?? bilingualDefaults?.description ?? globalSeo.description,
   );
 
+  const SITE_ORIGIN = "https://noorapp.in";
   const canonical =
-    pageSeo?.canonical_url ??
-    (typeof window !== "undefined" ? `${window.location.origin}${pathname}` : undefined);
+    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${pathname}`;
 
   const robots = pageSeo?.robots ?? "index,follow";
 
