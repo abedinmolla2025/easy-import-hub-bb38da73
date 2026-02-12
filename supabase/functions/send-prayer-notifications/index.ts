@@ -22,9 +22,6 @@ type PrayerTimes = {
   isha: string;
 };
 
-/**
- * Calculate prayer times using Aladhan API
- */
 async function getPrayerTimes(
   latitude: number,
   longitude: number,
@@ -56,25 +53,19 @@ async function getPrayerTimes(
   }
 }
 
-/**
- * Convert method name to Aladhan API method code
- */
 function getMethodCode(method: string): number {
   const methods: Record<string, number> = {
-    MWL: 3, // Muslim World League
-    ISNA: 2, // Islamic Society of North America
-    Egypt: 5, // Egyptian General Authority of Survey
-    Makkah: 4, // Umm Al-Qura University, Makkah
-    Karachi: 1, // University of Islamic Sciences, Karachi
-    Tehran: 7, // Institute of Geophysics, University of Tehran
-    Jafari: 0, // Shia Ithna-Ashari, Leva Institute, Qum
+    MWL: 3,
+    ISNA: 2,
+    Egypt: 5,
+    Makkah: 4,
+    Karachi: 1,
+    Tehran: 7,
+    Jafari: 0,
   };
   return methods[method] || 3;
 }
 
-/**
- * Get prayer name display
- */
 function getPrayerDisplay(prayer: string): { emoji: string; name: string } {
   const displays: Record<string, { emoji: string; name: string }> = {
     fajr: { emoji: "🌅", name: "Fajr" },
@@ -86,20 +77,12 @@ function getPrayerDisplay(prayer: string): { emoji: string; name: string } {
   return displays[prayer] || { emoji: "🕌", name: prayer };
 }
 
-/**
- * Check if it's time to send notification (within 5-minute window)
- */
 function isTimeToNotify(prayerTime: string, offsetMinutes: number, now: Date): boolean {
-  // Parse prayer time (format: HH:MM)
   const [hours, minutes] = prayerTime.split(":").map(Number);
-  
-  // Create prayer time date with offset
   const prayerDate = new Date(now);
   prayerDate.setHours(hours, minutes + offsetMinutes, 0, 0);
-
-  // Check if we're within 5 minutes before the prayer time
   const diff = prayerDate.getTime() - now.getTime();
-  return diff >= 0 && diff < 5 * 60 * 1000; // 0-5 minutes window
+  return diff >= 0 && diff < 5 * 60 * 1000;
 }
 
 Deno.serve(async (req) => {
@@ -113,7 +96,6 @@ Deno.serve(async (req) => {
     const now = new Date();
     const today = now.toISOString().split("T")[0];
 
-    // Get all enabled notification preferences
     const { data: preferences, error: prefError } = await svc
       .from("user_notification_preferences")
       .select("*")
@@ -127,10 +109,8 @@ Deno.serve(async (req) => {
     let sent = 0;
     const errors: string[] = [];
 
-    // Process each user's preferences
     for (const pref of preferences) {
       try {
-        // Get prayer times for this location
         const times = await getPrayerTimes(
           Number(pref.latitude),
           Number(pref.longitude),
@@ -143,7 +123,6 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Check each enabled prayer
         const enabledPrayers = pref.enabled_prayers as Record<string, boolean>;
         
         for (const [prayer, enabled] of Object.entries(enabledPrayers)) {
@@ -152,10 +131,8 @@ Deno.serve(async (req) => {
           const prayerTime = times[prayer as keyof PrayerTimes];
           if (!prayerTime) continue;
 
-          // Check if it's time to send notification
           if (!isTimeToNotify(prayerTime, pref.notification_offset, now)) continue;
 
-          // Check if already sent today
           const { data: existing } = await svc
             .from("prayer_notification_log")
             .select("id")
@@ -164,9 +141,8 @@ Deno.serve(async (req) => {
             .eq("prayer_date", today)
             .maybeSingle();
 
-          if (existing) continue; // Already sent
+          if (existing) continue;
 
-          // Find device tokens for this preference
           const { data: tokens } = await svc
             .from("device_push_tokens")
             .select("id, token, platform")
@@ -175,17 +151,13 @@ Deno.serve(async (req) => {
 
           if (!tokens || tokens.length === 0) continue;
 
-          // Create notification
           const display = getPrayerDisplay(prayer);
           const { data: notification, error: notifErr } = await svc
-            .from("notifications")
+            .from("admin_notifications")
             .insert({
               title: `${display.emoji} ${display.name} Time`,
-              body: `It's time for ${display.name} prayer. May Allah accept your worship.`,
-              deep_link: "/prayer-times",
-              target_platform: "all",
+              message: `It's time for ${display.name} prayer. May Allah accept your worship.`,
               status: "draft",
-              created_by: pref.user_id || "00000000-0000-0000-0000-000000000000",
             })
             .select("id")
             .single();
@@ -195,7 +167,6 @@ Deno.serve(async (req) => {
             continue;
           }
 
-          // Send via edge function
           const sendUrl = `${supabaseUrl}/functions/v1/send-push`;
           const sendRes = await fetch(sendUrl, {
             method: "POST",
@@ -211,7 +182,6 @@ Deno.serve(async (req) => {
             continue;
           }
 
-          // Log the sent notification
           await svc.from("prayer_notification_log").insert({
             preference_id: pref.id,
             prayer_name: prayer,

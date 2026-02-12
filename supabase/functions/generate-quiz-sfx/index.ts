@@ -18,7 +18,6 @@ serve(async (req) => {
       throw new Error("ELEVENLABS_API_KEY not configured");
     }
 
-    // Define prompts for each SFX type
     const sfxPrompts: Record<string, string> = {
       correct: "A bright, uplifting chime sound effect for a correct answer in an educational quiz, cheerful and rewarding",
       wrong: "A gentle, soft error buzz for an incorrect answer, not harsh, encouraging to try again",
