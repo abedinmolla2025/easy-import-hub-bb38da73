@@ -2,9 +2,7 @@
 /// <reference lib="deno.ns" />
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// Web Push provider (works in Edge runtime when bundled for Deno)
-// Deno-native Web Push (avoids Node crypto APIs like crypto.ECDH which are not available here)
-import * as webpush from "jsr:@negrel/webpush";
+// Web Push implemented using native Web Crypto APIs (no external library needed)
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -266,6 +264,149 @@ async function sendFcm({
   return parsed?.name as string | undefined;
 }
 
+// ---- Pure Web Crypto Web Push implementation ----
+
+async function createVapidJwt(audience: string, subject: string, privateKeyB64: string, publicKeyB64: string) {
+  const pubBytes = base64UrlToUint8Array(publicKeyB64);
+  const privBytes = base64UrlToUint8Array(privateKeyB64);
+
+  const x = base64UrlEncode(pubBytes.slice(1, 33));
+  const y = base64UrlEncode(pubBytes.slice(33, 65));
+  const d = base64UrlEncode(privBytes);
+
+  const key = await crypto.subtle.importKey(
+    "jwk",
+    { kty: "EC", crv: "P-256", x, y, d },
+    { name: "ECDSA", namedCurve: "P-256" },
+    false,
+    ["sign"],
+  );
+
+  const enc = new TextEncoder();
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64UrlEncode(enc.encode(JSON.stringify({ typ: "JWT", alg: "ES256" })));
+  const payload = base64UrlEncode(enc.encode(JSON.stringify({
+    aud: audience,
+    exp: now + 12 * 3600,
+    sub: subject,
+  })));
+
+  const data = `${header}.${payload}`;
+  const sig = await crypto.subtle.sign(
+    { name: "ECDSA", hash: "SHA-256" },
+    key,
+    enc.encode(data),
+  );
+
+  // WebCrypto ECDSA may return DER or raw r||s depending on runtime
+  const sigBytes = new Uint8Array(sig);
+  let rawSig: Uint8Array;
+  if (sigBytes.length === 64) {
+    rawSig = sigBytes;
+  } else {
+    // Parse DER: 0x30 <len> 0x02 <rLen> <r> 0x02 <sLen> <s>
+    let offset = 2;
+    const rLen = sigBytes[offset + 1];
+    offset += 2;
+    let r = sigBytes.slice(offset, offset + rLen);
+    offset += rLen;
+    const sLen = sigBytes[offset + 1];
+    offset += 2;
+    let s = sigBytes.slice(offset, offset + sLen);
+    // Trim leading zeros / pad to 32 bytes
+    if (r.length > 32) r = r.slice(r.length - 32);
+    if (s.length > 32) s = s.slice(s.length - 32);
+    rawSig = new Uint8Array(64);
+    rawSig.set(r, 32 - r.length);
+    rawSig.set(s, 64 - s.length);
+  }
+  return `${data}.${base64UrlEncode(rawSig)}`;
+}
+
+async function encryptPayload(
+  clientPublicKeyB64: string,
+  authSecretB64: string,
+  payload: Uint8Array,
+) {
+  const clientPublicKey = base64UrlToUint8Array(clientPublicKeyB64);
+  const authSecret = base64UrlToUint8Array(authSecretB64);
+
+  // Generate local ECDH key pair
+  const localKeyPair = await crypto.subtle.generateKey(
+    { name: "ECDH", namedCurve: "P-256" },
+    true,
+    ["deriveBits"],
+  ) as CryptoKeyPair;
+
+  const localPublicKey = new Uint8Array(
+    await crypto.subtle.exportKey("raw", localKeyPair.publicKey),
+  );
+
+  // Import client public key
+  const clientKey = await crypto.subtle.importKey(
+    "raw",
+    clientPublicKey,
+    { name: "ECDH", namedCurve: "P-256" },
+    false,
+    [],
+  );
+
+  // Derive shared secret via ECDH
+  const sharedSecret = new Uint8Array(
+    await crypto.subtle.deriveBits(
+      { name: "ECDH", public: clientKey },
+      localKeyPair.privateKey,
+      256,
+    ),
+  );
+
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const enc = new TextEncoder();
+
+  // HKDF helper
+  async function hkdf(ikm: Uint8Array, saltBytes: Uint8Array, info: Uint8Array, length: number) {
+    const key = await crypto.subtle.importKey("raw", ikm, "HKDF", false, ["deriveBits"]);
+    return new Uint8Array(
+      await crypto.subtle.deriveBits(
+        { name: "HKDF", hash: "SHA-256", salt: saltBytes, info },
+        key,
+        length * 8,
+      ),
+    );
+  }
+
+  // RFC 8291 info strings
+  function createInfo(type: string, clientPub: Uint8Array, serverPub: Uint8Array) {
+    const label = enc.encode(`Content-Encoding: ${type}\0`);
+    const ctx = enc.encode("P-256\0");
+    const buf = new Uint8Array(label.length + ctx.length + 2 + clientPub.length + 2 + serverPub.length);
+    let o = 0;
+    buf.set(label, o); o += label.length;
+    buf.set(ctx, o); o += ctx.length;
+    buf[o++] = 0; buf[o++] = clientPub.length;
+    buf.set(clientPub, o); o += clientPub.length;
+    buf[o++] = 0; buf[o++] = serverPub.length;
+    buf.set(serverPub, o);
+    return buf;
+  }
+
+  const prk = await hkdf(sharedSecret, authSecret, enc.encode("Content-Encoding: auth\0"), 32);
+  const nonce = await hkdf(prk, salt, createInfo("nonce", clientPublicKey, localPublicKey), 12);
+  const cek = await hkdf(prk, salt, createInfo("aesgcm", clientPublicKey, localPublicKey), 16);
+
+  // Pad: 2-byte big-endian padding length + zeros + payload
+  const padded = new Uint8Array(2 + payload.length);
+  padded[0] = 0; padded[1] = 0;
+  padded.set(payload, 2);
+
+  const aesKey = await crypto.subtle.importKey("raw", cek, "AES-GCM", false, ["encrypt"]);
+  const encrypted = new Uint8Array(
+    await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, aesKey, padded),
+  );
+
+  return { encrypted, salt, localPublicKey };
+}
+
 async function sendWebPush({
   subscriptionJson,
   title,
@@ -279,114 +420,50 @@ async function sendWebPush({
   imageUrl: string | null;
   deepLink: string | null;
 }) {
-  const publicKey = Deno.env.get("WEBPUSH_VAPID_PUBLIC_KEY") ?? "";
-  const privateKey = Deno.env.get("WEBPUSH_VAPID_PRIVATE_KEY") ?? "";
+  const publicKeyB64 = normalizeBase64Url(Deno.env.get("WEBPUSH_VAPID_PUBLIC_KEY") ?? "");
+  const privateKeyB64 = normalizeBase64Url(Deno.env.get("WEBPUSH_VAPID_PRIVATE_KEY") ?? "");
   const subject = normalizeVapidSubject(Deno.env.get("WEBPUSH_SUBJECT") ?? "");
 
-  if (!publicKey || !privateKey || !subject) {
+  if (!publicKeyB64 || !privateKeyB64 || !subject) {
     throw new Error("Missing WEBPUSH_VAPID_* keys or WEBPUSH_SUBJECT");
   }
 
   const subscription = JSON.parse(subscriptionJson);
+  const endpoint: string = subscription.endpoint;
+  const p256dh: string = subscription.keys?.p256dh;
+  const auth: string = subscription.keys?.auth;
 
-  const publicKeyB64Url = normalizeBase64Url(publicKey);
-  const privateKeyB64Url = normalizeBase64Url(privateKey);
+  if (!endpoint || !p256dh || !auth) {
+    throw new Error("Invalid push subscription: missing endpoint or keys");
+  }
 
-  // @negrel/webpush expects WebCrypto-friendly key material (Uint8Array / JWK).
-  // Passing base64url strings can trigger SubtleCrypto.importKey() errors.
-  const vapidDetails = {
-    subject,
-    publicKey: base64UrlToUint8Array(publicKeyB64Url),
-    privateKey: base64UrlToUint8Array(privateKeyB64Url),
-  };
+  const payloadStr = JSON.stringify({ title, body, image_url: imageUrl, deep_link: deepLink });
+  const payloadBytes = new TextEncoder().encode(payloadStr);
 
-  const payload = JSON.stringify({
-    title,
-    body,
-    image_url: imageUrl,
-    deep_link: deepLink,
+  const { encrypted, salt, localPublicKey } = await encryptPayload(p256dh, auth, payloadBytes);
+
+  const audience = new URL(endpoint).origin;
+  const jwt = await createVapidJwt(audience, subject, privateKeyB64, publicKeyB64);
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/octet-stream",
+      "Content-Encoding": "aesgcm",
+      "Encryption": `salt=${base64UrlEncode(salt)}`,
+      "Crypto-Key": `dh=${base64UrlEncode(localPublicKey)};p256ecdsa=${publicKeyB64}`,
+      "Authorization": `vapid t=${jwt}, k=${publicKeyB64}`,
+      "TTL": "86400",
+    },
+    body: encrypted,
   });
 
-  const w = webpush as any;
-
-  // Helpful for diagnosing runtime export differences
-  const g = globalThis as any;
-  if (!g.__WEBPUSH_EXPORTS_LOGGED__) {
-    g.__WEBPUSH_EXPORTS_LOGGED__ = true;
-    try {
-      console.log("webpush_exports", Object.keys(w));
-    } catch {
-      // ignore
-    }
-  }
-
-  // Try function-style APIs (preferred)
-  const sendFn = w.sendNotification ?? w.sendPushMessage ?? w.sendWebPush;
-  if (typeof sendFn === "function") {
-    const res: Response = await sendFn(subscription, payload, { vapidDetails });
+  if (!res.ok) {
     const text = await res.text().catch(() => "");
-    if (!res.ok) throw new Error(`webpush_failed_${res.status}: ${text}`);
-    return String(res.status);
+    throw new Error(`webpush_failed_${res.status}: ${text}`);
   }
 
-  // Try class-style API
-  const ApplicationServer = w.ApplicationServer;
-  if (typeof ApplicationServer === "function") {
-    const importVapidKeys = w.importVapidKeys;
-    const vapidKeys =
-      typeof importVapidKeys === "function"
-        ? await importVapidKeys({
-            publicKey: vapidDetails.publicKey,
-            privateKey: vapidDetails.privateKey,
-          })
-        : {
-            publicKey: vapidDetails.publicKey,
-            privateKey: vapidDetails.privateKey,
-          };
-
-    const server = new ApplicationServer({
-      contactInformation: subject,
-      vapidKeys,
-    });
-
-    const PushSubscriber = w.PushSubscriber;
-    if (typeof PushSubscriber === "function") {
-      const subscriber = new PushSubscriber(subscription);
-
-      const pushText = subscriber.pushTextMessage ?? subscriber.pushMessage ?? null;
-      if (typeof pushText === "function") {
-        // Different versions accept either (payload, { applicationServer }) or (payload, applicationServer)
-        const tryCall = async (arg2: any) => {
-          const res: Response = await pushText.call(subscriber, payload, arg2);
-          const text = await res.text().catch(() => "");
-          if (!res.ok) throw new Error(`webpush_failed_${res.status}: ${text}`);
-          return String(res.status);
-        };
-
-        try {
-          return await tryCall({ applicationServer: server });
-        } catch {
-          return await tryCall(server);
-        }
-      }
-    }
-
-    // Some versions expose server.send(subscription, payload)
-    if (typeof server.sendNotification === "function") {
-      const res: Response = await server.sendNotification(subscription, payload);
-      const text = await res.text().catch(() => "");
-      if (!res.ok) throw new Error(`webpush_failed_${res.status}: ${text}`);
-      return String(res.status);
-    }
-    if (typeof server.send === "function") {
-      const res: Response = await server.send(subscription, payload);
-      const text = await res.text().catch(() => "");
-      if (!res.ok) throw new Error(`webpush_failed_${res.status}: ${text}`);
-      return String(res.status);
-    }
-  }
-
-  throw new Error("webpush_send_not_supported_by_library");
+  return String(res.status);
 }
 
 Deno.serve(async (req) => {
@@ -511,13 +588,20 @@ Deno.serve(async (req) => {
     let googleAccessToken: string | null = null;
     let fcmProjectId: string | null = null;
 
-    if (allowedPlatforms.some((p) => p === "android" || p === "ios")) {
+    const hasFcmTargets = allowedPlatforms.some((p) => p === "android" || p === "ios");
+    if (hasFcmTargets) {
       const saJson = Deno.env.get("FCM_SERVICE_ACCOUNT_JSON") ?? "";
-      if (!saJson) throw new Error("Missing FCM_SERVICE_ACCOUNT_JSON");
-      const tok = await getGoogleAccessToken(saJson);
-      googleAccessToken = tok.accessToken;
-      fcmProjectId = tok.projectId ?? null;
-      if (!fcmProjectId) throw new Error("FCM service account JSON missing project_id");
+      if (saJson) {
+        try {
+          const tok = await getGoogleAccessToken(saJson);
+          googleAccessToken = tok.accessToken;
+          fcmProjectId = tok.projectId ?? null;
+        } catch (e) {
+          console.warn("FCM auth failed, skipping native push:", e instanceof Error ? e.message : e);
+        }
+      } else {
+        console.log("FCM_SERVICE_ACCOUNT_JSON not set, skipping native push tokens");
+      }
     }
 
     // Send sequentially (safe); can be parallelized later with rate-limiting
@@ -550,6 +634,12 @@ Deno.serve(async (req) => {
           token_id: tokenIdStr,
           platform: plat,
         };
+
+        if (plat !== "web" && (!googleAccessToken || !fcmProjectId)) {
+          // Skip native tokens when FCM is not configured
+          console.log(`Skipping ${plat} token ${t.id} — FCM not configured`);
+          continue;
+        }
 
         if (plat === "web") {
           let endpoint: string | null = null;
