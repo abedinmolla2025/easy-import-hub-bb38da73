@@ -86,6 +86,24 @@ export function SeoHead() {
 
   const robots = pageSeo?.robots ?? "index,follow";
 
+  // Page-specific OG images
+  const OG_IMAGES: Record<string, string> = {
+    "/": "/og-image.png",
+    "/quran": "/og-quran.png",
+    "/prayer-times": "/og-prayer-times.png",
+    "/dua": "/og-dua.png",
+    "/quiz": "/og-quiz.png",
+    "/bukhari": "/og-bukhari.png",
+    "/tasbih": "/og-tasbih.png",
+    "/qibla": "/og-qibla.png",
+    "/99-names": "/og-99-names.png",
+    "/baby-names": "/og-baby-names.png",
+    "/names": "/og-baby-names.png",
+    "/calendar": "/og-calendar.png",
+    "/prayer-guide": "/og-prayer-guide.png",
+  };
+  const ogImage = `${SITE_ORIGIN}${OG_IMAGES[pathname] || "/og-image.png"}`;
+
   // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
   const isHomepage = pathname === "/";
   const jsonLd = pageSeo?.json_ld ?? null;
@@ -103,9 +121,18 @@ export function SeoHead() {
       {canonical ? <link rel="canonical" href={canonical} /> : null}
       {robots ? <meta name="robots" content={robots} /> : null}
 
-      {/* Keep OG tags aligned with per-page content */}
+      {/* OG tags */}
       {title ? <meta property="og:title" content={title} /> : null}
       {description ? <meta property="og:description" content={description} /> : null}
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:url" content={canonical} />
+      <meta property="og:type" content="website" />
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      {title ? <meta name="twitter:title" content={title} /> : null}
+      {description ? <meta name="twitter:description" content={description} /> : null}
+      <meta name="twitter:image" content={ogImage} />
 
       {jsonLdString ? (
         <script type="application/ld+json">{jsonLdString}</script>
