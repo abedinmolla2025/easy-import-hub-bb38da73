@@ -266,11 +266,14 @@ export type Database = {
         Row: {
           created_at: string | null
           created_by: string | null
+          deep_link: string | null
           id: string
+          image_url: string | null
           message: string
           scheduled_at: string | null
           sent_at: string | null
           status: string | null
+          target_platform: string
           target_role: Database["public"]["Enums"]["app_role"] | null
           target_user_ids: string[] | null
           title: string
@@ -278,11 +281,14 @@ export type Database = {
         Insert: {
           created_at?: string | null
           created_by?: string | null
+          deep_link?: string | null
           id?: string
+          image_url?: string | null
           message: string
           scheduled_at?: string | null
           sent_at?: string | null
           status?: string | null
+          target_platform?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
           title: string
@@ -290,11 +296,14 @@ export type Database = {
         Update: {
           created_at?: string | null
           created_by?: string | null
+          deep_link?: string | null
           id?: string
+          image_url?: string | null
           message?: string
           scheduled_at?: string | null
           sent_at?: string | null
           status?: string | null
+          target_platform?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
           title?: string
@@ -683,6 +692,54 @@ export type Database = {
           token?: string
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      notification_deliveries: {
+        Row: {
+          browser: string | null
+          created_at: string
+          endpoint_host: string | null
+          error_code: string | null
+          error_message: string | null
+          id: string
+          notification_id: string
+          platform: string
+          provider_message_id: string | null
+          stage: string | null
+          status: string
+          subscription_endpoint: string | null
+          token_id: string
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string
+          endpoint_host?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          notification_id: string
+          platform: string
+          provider_message_id?: string | null
+          stage?: string | null
+          status?: string
+          subscription_endpoint?: string | null
+          token_id: string
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string
+          endpoint_host?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          notification_id?: string
+          platform?: string
+          provider_message_id?: string | null
+          stage?: string | null
+          status?: string
+          subscription_endpoint?: string | null
+          token_id?: string
         }
         Relationships: []
       }

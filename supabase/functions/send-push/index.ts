@@ -457,15 +457,21 @@ Deno.serve(async (req) => {
     // Service client for reading tokens + writing delivery logs regardless of RLS
     const svc = createClient(supabaseUrl, serviceKey);
 
-    const { data: notif, error: notifErr } = await svc
-      .from("notifications")
-      .select("id,title,body,image_url,deep_link,target_platform,status")
+    const { data: rawNotif, error: notifErr } = await svc
+      .from("admin_notifications")
+      .select("id,title,message,image_url,deep_link,target_platform,status")
       .eq("id", notificationId)
       .maybeSingle();
 
-    if (notifErr || !notif) {
+    if (notifErr || !rawNotif) {
       return json(404, { error: "Notification not found" });
     }
+
+    // Map admin_notifications columns to expected shape
+    const notif = {
+      ...rawNotif,
+      body: rawNotif.message,
+    };
 
     const effectiveTarget = platform ?? (notif.target_platform as any) ?? "all";
     const allowedPlatforms = ((): Array<"android" | "ios" | "web"> => {
@@ -667,7 +673,7 @@ Deno.serve(async (req) => {
 
     const finalStatus = failed > 0 && sent === 0 ? "failed" : "sent";
     await svc
-      .from("notifications")
+      .from("admin_notifications")
       .update({ status: finalStatus, sent_at: new Date().toISOString() })
       .eq("id", notif.id);
 
