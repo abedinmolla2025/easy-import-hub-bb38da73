@@ -653,6 +653,39 @@ export type Database = {
           },
         ]
       }
+      device_push_tokens: {
+        Row: {
+          created_at: string
+          device_id: string
+          enabled: boolean
+          id: string
+          platform: string
+          token: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          enabled?: boolean
+          id?: string
+          platform?: string
+          token: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          enabled?: boolean
+          id?: string
+          platform?: string
+          token?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
