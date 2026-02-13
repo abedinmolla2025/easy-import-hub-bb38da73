@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEffect, useRef, useState, ChangeEvent } from 'react';
+import { Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -26,6 +27,7 @@ const SEO_KEY = 'seo';
 const SYSTEM_KEY = 'system';
 const MODULES_KEY = 'modules';
 const LEGAL_KEY = 'legal';
+const NOTIFICATIONS_KEY = 'notifications';
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -78,6 +80,15 @@ export default function AdminSettings() {
     regionComplianceNote: '',
     ...(getValue(LEGAL_KEY) || {}),
   }));
+  const [notifications, setNotifications] = useState(() => ({
+    defaultIconUrl: '',
+    defaultBadgeUrl: '',
+    ...(getValue(NOTIFICATIONS_KEY) || {}),
+  }));
+  const [uploadingNIcon, setUploadingNIcon] = useState(false);
+  const [uploadingNBadge, setUploadingNBadge] = useState(false);
+  const nIconFileRef = useRef<HTMLInputElement>(null);
+  const nBadgeFileRef = useRef<HTMLInputElement>(null);
 
   // Hydrate local form state after async settings load (only once)
   const hydratedRef = useRef(false);
@@ -99,6 +110,10 @@ export default function AdminSettings() {
     setLegal((prev) => ({
       ...prev,
       ...(getValue(LEGAL_KEY) || {}),
+    }));
+    setNotifications((prev) => ({
+      ...prev,
+      ...(getValue(NOTIFICATIONS_KEY) || {}),
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
@@ -158,6 +173,34 @@ export default function AdminSettings() {
     updateSettingMutation.mutate({ key, value });
   };
 
+  const handleSettingsFileUpload = async (
+    file: File,
+    field: "defaultIconUrl" | "defaultBadgeUrl",
+    setUploading: (v: boolean) => void,
+  ) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 2MB", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const safeName = `notification-defaults/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { error } = await supabase.storage.from("branding").upload(safeName, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("branding").getPublicUrl(safeName);
+      setNotifications((prev: any) => ({ ...prev, [field]: urlData.publicUrl }));
+      toast({ title: "Uploaded successfully" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -175,6 +218,7 @@ export default function AdminSettings() {
           <TabsTrigger value="system">System</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
           <TabsTrigger value="legal">Legal & Contact</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
         </TabsList>
 
@@ -649,6 +693,77 @@ export default function AdminSettings() {
                 >
                   {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Save Legal & Contact
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <Card>
+            <CardHeader>
+              <CardTitle>Push Notification Defaults</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Set default icon and badge images for all push notifications. Per-notification overrides are still possible from the composer.
+              </p>
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Default Notification Icon</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="https://noorapp.in/notification-icon.png"
+                      value={notifications.defaultIconUrl || ''}
+                      onChange={(e) => setNotifications((prev: any) => ({ ...prev, defaultIconUrl: e.target.value }))}
+                      className="flex-1"
+                    />
+                    <input ref={nIconFileRef} type="file" accept="image/png,image/webp,image/svg+xml" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSettingsFileUpload(f, "defaultIconUrl", setUploadingNIcon); e.target.value = ""; }} />
+                    <Button type="button" variant="outline" size="icon" disabled={uploadingNIcon} onClick={() => nIconFileRef.current?.click()}>
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    {notifications.defaultIconUrl && (
+                      <Button type="button" variant="ghost" size="icon" onClick={() => setNotifications((prev: any) => ({ ...prev, defaultIconUrl: '' }))}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {notifications.defaultIconUrl && (
+                    <img src={notifications.defaultIconUrl} alt="Default icon" className="h-12 w-12 rounded border object-contain" />
+                  )}
+                  <p className="text-xs text-muted-foreground">Main icon shown in push notifications</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Default Notification Badge</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="https://noorapp.in/badge-icon.png"
+                      value={notifications.defaultBadgeUrl || ''}
+                      onChange={(e) => setNotifications((prev: any) => ({ ...prev, defaultBadgeUrl: e.target.value }))}
+                      className="flex-1"
+                    />
+                    <input ref={nBadgeFileRef} type="file" accept="image/png,image/webp,image/svg+xml" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSettingsFileUpload(f, "defaultBadgeUrl", setUploadingNBadge); e.target.value = ""; }} />
+                    <Button type="button" variant="outline" size="icon" disabled={uploadingNBadge} onClick={() => nBadgeFileRef.current?.click()}>
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    {notifications.defaultBadgeUrl && (
+                      <Button type="button" variant="ghost" size="icon" onClick={() => setNotifications((prev: any) => ({ ...prev, defaultBadgeUrl: '' }))}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {notifications.defaultBadgeUrl && (
+                    <img src={notifications.defaultBadgeUrl} alt="Default badge" className="h-12 w-12 rounded border object-contain" />
+                  )}
+                  <p className="text-xs text-muted-foreground">Small monochrome badge on supported platforms</p>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={() => handleSave(NOTIFICATIONS_KEY, notifications)} disabled={updateSettingMutation.isPending}>
+                  {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save notification defaults
                 </Button>
               </div>
             </CardContent>
