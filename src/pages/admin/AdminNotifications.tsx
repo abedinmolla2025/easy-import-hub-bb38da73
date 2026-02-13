@@ -99,7 +99,9 @@ const AdminNotifications = () => {
         created_by: user?.id,
         image_url: imageUrl.trim() || null,
         deep_link: deepLink.trim() || null,
-      }]).select('id').single();
+        icon_url: iconUrl.trim() || null,
+        badge_url: badgeUrl.trim() || null,
+      }] as any).select('id').single();
       if (error) throw error;
 
       // 2. If sending now, call send-push edge function
