@@ -3,6 +3,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   ApplicationServer,
+  importVapidKeys,
 } from "jsr:@negrel/webpush@0.5.0";
 
 const corsHeaders = {
@@ -142,28 +143,14 @@ async function getAppServer(): Promise<InstanceType<typeof ApplicationServer>> {
     throw new Error("Missing WEBPUSH_VAPID_PUBLIC_KEY, WEBPUSH_VAPID_PRIVATE_KEY, or WEBPUSH_SUBJECT");
   }
 
-  // Convert raw base64url keys to JWK format and import via native crypto
+  // Convert raw base64url keys to JWK format for importVapidKeys
   const jwk = rawKeysToJwk(publicKeyB64, privateKeyB64);
 
-  const publicKey = await crypto.subtle.importKey(
-    "jwk",
-    jwk.publicKey,
-    { name: "ECDSA", namedCurve: "P-256" },
-    true,
-    ["verify"],
-  );
+  // importVapidKeys expects { publicKey: JWK, privateKey: JWK } and returns CryptoKeyPair
+  const vapidKeys = await importVapidKeys(jwk);
 
-  const privateKey = await crypto.subtle.importKey(
-    "jwk",
-    jwk.privateKey,
-    { name: "ECDSA", namedCurve: "P-256" },
-    true,
-    ["sign"],
-  );
-
-  const vapidKeys = { publicKey, privateKey } as CryptoKeyPair;
-
-  cachedAppServer = new ApplicationServer({
+  // Use ApplicationServer.new() static factory (not constructor)
+  cachedAppServer = await ApplicationServer.new({
     contactInformation: subject,
     vapidKeys,
   });
