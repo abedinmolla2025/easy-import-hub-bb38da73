@@ -139,6 +139,7 @@ const AdminNotifications = () => {
     setMessage(template.body);
     setSelectedTemplate(template.id);
     if (template.deep_link) setDeepLink(template.deep_link);
+    if (template.image_url) setImageUrl(template.image_url);
   };
 
   const handleSend = () => {
