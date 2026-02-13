@@ -58,6 +58,7 @@ import { useMobileAdsInit } from "@/hooks/useMobileAds";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
+import SitemapProxy from "./pages/SitemapProxy";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const AppRoutes = () => (
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/sitemap.xml" element={<SitemapProxy />} />
 
     {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
     <Route
