@@ -83,6 +83,8 @@ const AdminNotifications = () => {
   const [message, setMessage] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [deepLink, setDeepLink] = useState("");
+  const [iconUrl, setIconUrl] = useState("");
+  const [badgeUrl, setBadgeUrl] = useState("");
   const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("all");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
@@ -138,6 +140,8 @@ const AdminNotifications = () => {
       setMessage("");
       setImageUrl("");
       setDeepLink("");
+      setIconUrl("");
+      setBadgeUrl("");
       setSelectedTemplate(null);
     },
     onError: (error: Error) => {
@@ -303,6 +307,29 @@ const AdminNotifications = () => {
                 onChange={(e) => setDeepLink(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">In-app route to open when notification is tapped</p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="iconUrl">Notification Icon (optional)</Label>
+                <Input
+                  id="iconUrl"
+                  placeholder="https://noorapp.in/notification-icon.png"
+                  value={iconUrl}
+                  onChange={(e) => setIconUrl(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Custom icon shown in push notification</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="badgeUrl">Notification Badge (optional)</Label>
+                <Input
+                  id="badgeUrl"
+                  placeholder="https://noorapp.in/badge-icon.png"
+                  value={badgeUrl}
+                  onChange={(e) => setBadgeUrl(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Small monochrome badge icon</p>
+              </div>
             </div>
             {(title || message) && (
               <div className="rounded-lg border bg-muted/30 p-4">
