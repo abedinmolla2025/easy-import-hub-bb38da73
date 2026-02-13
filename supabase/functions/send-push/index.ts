@@ -259,7 +259,20 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (notifErr || !rawNotif) return json(404, { error: "Notification not found" });
 
-    const notif = { ...rawNotif, body: rawNotif.message } as any;
+    // Fetch global notification defaults from app_settings
+    const { data: notifSettings } = await svc
+      .from("app_settings")
+      .select("setting_value")
+      .eq("setting_key", "notifications")
+      .maybeSingle();
+    const defaults = notifSettings?.setting_value as any ?? {};
+
+    const notif = {
+      ...rawNotif,
+      body: rawNotif.message,
+      icon_url: (rawNotif as any).icon_url || defaults.defaultIconUrl || null,
+      badge_url: (rawNotif as any).badge_url || defaults.defaultBadgeUrl || null,
+    } as any;
 
     // Determine platforms — default to web only (no FCM dependency)
     const effectiveTarget = platform ?? (notif.target_platform as any) ?? "all";
