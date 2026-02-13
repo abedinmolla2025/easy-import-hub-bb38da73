@@ -254,7 +254,7 @@ Deno.serve(async (req) => {
 
     const { data: rawNotif, error: notifErr } = await svc
       .from("admin_notifications")
-      .select("id,title,message,image_url,deep_link,target_platform,status")
+      .select("id,title,message,image_url,deep_link,target_platform,status,icon_url,badge_url")
       .eq("id", notificationId)
       .maybeSingle();
     if (notifErr || !rawNotif) return json(404, { error: "Notification not found" });

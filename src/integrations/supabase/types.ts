@@ -264,10 +264,12 @@ export type Database = {
       }
       admin_notifications: {
         Row: {
+          badge_url: string | null
           created_at: string | null
           created_by: string | null
           deep_link: string | null
           expires_at: string | null
+          icon_url: string | null
           id: string
           image_url: string | null
           message: string
@@ -282,10 +284,12 @@ export type Database = {
           title: string
         }
         Insert: {
+          badge_url?: string | null
           created_at?: string | null
           created_by?: string | null
           deep_link?: string | null
           expires_at?: string | null
+          icon_url?: string | null
           id?: string
           image_url?: string | null
           message: string
@@ -300,10 +304,12 @@ export type Database = {
           title: string
         }
         Update: {
+          badge_url?: string | null
           created_at?: string | null
           created_by?: string | null
           deep_link?: string | null
           expires_at?: string | null
+          icon_url?: string | null
           id?: string
           image_url?: string | null
           message?: string
