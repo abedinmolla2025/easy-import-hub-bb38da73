@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const DEVICE_ID_KEY = "noor_device_id";
 const WEB_PUSH_REGISTERED_KEY = "noor_web_push_registered";
+const WEB_PUSH_VAPID_KEY_HASH = "noor_web_push_vapid_hash";
 const PUSH_OPT_IN_KEY = "noor_push_opt_in";
 
 function getOrCreateDeviceId(): string {
@@ -46,14 +47,11 @@ export function useWebPushRegistration() {
     // Only register after user opt-in
     if (localStorage.getItem(PUSH_OPT_IN_KEY) !== "true") return;
 
-    // Check if already registered
-    if (localStorage.getItem(WEB_PUSH_REGISTERED_KEY) === "true") return;
-
     let removed = false;
 
     const run = async () => {
       try {
-        // Request notification permission (should be user-initiated via UI, but keep safe)
+        // Request notification permission
         const permission = await Notification.requestPermission();
         if (permission !== "granted") return;
 
@@ -69,12 +67,24 @@ export function useWebPushRegistration() {
         const publicKey = String(keyRes?.publicKey ?? "");
         if (!publicKey) throw new Error("Missing VAPID public key");
 
-        // If an old subscription exists (e.g., VAPID key changed), unsubscribe first to avoid
-        // "A subscription with a different applicationServerKey already exists" errors.
+        // Check if VAPID key has changed — if so, force re-registration
+        const storedKeyHash = localStorage.getItem(WEB_PUSH_VAPID_KEY_HASH);
+        const keyChanged = storedKeyHash !== null && storedKeyHash !== publicKey;
+
+        if (keyChanged) {
+          console.log("[webpush] VAPID key changed, clearing old registration");
+          localStorage.removeItem(WEB_PUSH_REGISTERED_KEY);
+        }
+
+        // Skip if already registered with the same key
+        if (!keyChanged && localStorage.getItem(WEB_PUSH_REGISTERED_KEY) === "true") return;
+
+        // Unsubscribe any existing subscription (key change or stale)
         const existing = await (reg as any).pushManager.getSubscription();
         if (existing) {
           try {
             await existing.unsubscribe();
+            console.log("[webpush] Unsubscribed old subscription");
           } catch {
             // ignore
           }
@@ -94,6 +104,13 @@ export function useWebPushRegistration() {
           data: { user },
         } = await supabase.auth.getUser();
 
+        // Delete old tokens for this device before inserting (handles key change cleanup)
+        await supabase
+          .from("device_push_tokens" as any)
+          .delete()
+          .eq("device_id", deviceId)
+          .eq("platform", "web");
+
         // Save subscription to database
         const { error } = await supabase
           .from("device_push_tokens" as any)
@@ -105,19 +122,16 @@ export function useWebPushRegistration() {
             user_id: user?.id ?? null,
           });
 
-        // Ignore duplicates
         if (error && !isDuplicateTokenError(error)) {
-          // eslint-disable-next-line no-console
           console.warn("Failed to save web push subscription", error);
           return;
         }
 
-        // Mark as registered
+        // Mark as registered and store current key hash
         localStorage.setItem(WEB_PUSH_REGISTERED_KEY, "true");
-        // eslint-disable-next-line no-console
-        console.log("Web push subscription registered");
+        localStorage.setItem(WEB_PUSH_VAPID_KEY_HASH, publicKey);
+        console.log("[webpush] Subscription registered successfully");
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.warn("Web push setup failed", e);
       }
     };
