@@ -86,23 +86,56 @@ const AdminNotifications = () => {
 
   const createNotificationMutation = useMutation({
     mutationFn: async (data: { title: string; message: string; status: string }) => {
-      const { error } = await supabase.from('admin_notifications').insert([{
+      // 1. Insert into DB
+      const { data: inserted, error } = await supabase.from('admin_notifications').insert([{
         title: data.title,
         message: data.message,
         status: data.status,
+        target_platform: targetPlatform,
         created_by: user?.id,
-      }]);
+      }]).select('id').single();
       if (error) throw error;
+
+      // 2. If sending now, call send-push edge function
+      if (data.status === "sent" && inserted?.id) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        if (!token) throw new Error("Not authenticated");
+
+        const res = await supabase.functions.invoke("send-push", {
+          body: { notificationId: inserted.id, platform: targetPlatform },
+        });
+
+        if (res.error) {
+          throw new Error(res.error.message || "Failed to send push notification");
+        }
+
+        return res.data;
+      }
+
+      return inserted;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
-      toast({ title: "Notification created and queued for sending" });
+      queryClient.invalidateQueries({ queryKey: ['in-app-notifications'] });
+
+      if (variables.status === "sent") {
+        const totals = data?.totals;
+        toast({
+          title: "Push notification sent!",
+          description: totals
+            ? `Sent: ${totals.sent}, Failed: ${totals.failed}, Total targets: ${totals.targets}`
+            : "Notification queued for delivery",
+        });
+      } else {
+        toast({ title: "Notification saved as draft" });
+      }
       setTitle("");
       setMessage("");
       setSelectedTemplate(null);
     },
     onError: (error: Error) => {
-      toast({ title: "Failed to create notification", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to send notification", description: error.message, variant: "destructive" });
     },
   });
 
