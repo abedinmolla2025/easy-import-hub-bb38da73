@@ -164,6 +164,8 @@ async function sendWebPushMessage(opts: {
   body: string;
   imageUrl: string | null;
   deepLink: string | null;
+  iconUrl: string | null;
+  badgeUrl: string | null;
 }) {
   const appServer = await getAppServer();
   const subscription = JSON.parse(opts.subscriptionJson);
@@ -172,8 +174,8 @@ async function sendWebPushMessage(opts: {
   const payload = JSON.stringify({
     title: opts.title,
     body: opts.body,
-    icon: "https://noorapp.in/notification-icon.png",
-    badge: "https://noorapp.in/badge-icon.png",
+    icon: opts.iconUrl || "https://noorapp.in/notification-icon.png",
+    badge: opts.badgeUrl || "https://noorapp.in/badge-icon.png",
     image_url: opts.imageUrl,
     deep_link: opts.deepLink,
   });
@@ -257,7 +259,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (notifErr || !rawNotif) return json(404, { error: "Notification not found" });
 
-    const notif = { ...rawNotif, body: rawNotif.message };
+    const notif = { ...rawNotif, body: rawNotif.message } as any;
 
     // Determine platforms — default to web only (no FCM dependency)
     const effectiveTarget = platform ?? (notif.target_platform as any) ?? "all";
@@ -344,6 +346,8 @@ Deno.serve(async (req) => {
             body: notif.body,
             imageUrl: notif.image_url ?? null,
             deepLink: notif.deep_link ?? null,
+            iconUrl: notif.icon_url ?? null,
+            badgeUrl: notif.badge_url ?? null,
           });
         }, { retries: 2, baseDelayMs: 450 });
 
