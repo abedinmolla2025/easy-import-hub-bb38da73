@@ -16,8 +16,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body,
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
+    icon: data.icon || 'https://noorapp.in/notification-icon.png',
+    badge: data.badge || 'https://noorapp.in/badge-icon.png',
     data: { deepLink },
     ...(imageUrl ? { image: imageUrl } : {}),
   };
