@@ -172,6 +172,8 @@ async function sendWebPushMessage(opts: {
   const payload = JSON.stringify({
     title: opts.title,
     body: opts.body,
+    icon: "https://noorapp.in/notification-icon.png",
+    badge: "https://noorapp.in/badge-icon.png",
     image_url: opts.imageUrl,
     deep_link: opts.deepLink,
   });
