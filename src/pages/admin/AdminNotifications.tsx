@@ -13,66 +13,15 @@ import {
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, History as HistoryIcon, Zap, BookOpen, Moon, Star, Upload, X } from "lucide-react";
+import { Send, History as HistoryIcon, Zap, Moon, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QuickTemplatesPanel, type TemplateItem } from "@/components/admin/QuickTemplatesPanel";
 
 type TargetPlatform = "all" | "android" | "ios" | "web";
-
-type NotificationTemplate = {
-  id: string;
-  name: string;
-  title: string;
-  body: string;
-  icon: React.ComponentType<{ className?: string }>;
-  category: "prayer" | "daily" | "special";
-};
-
-const NOTIFICATION_TEMPLATES: NotificationTemplate[] = [
-  {
-    id: "prayer-reminder",
-    name: "Prayer Reminder",
-    title: "🕌 Time for Prayer",
-    body: "Don't forget to pray. May Allah accept your prayers.",
-    icon: Moon,
-    category: "prayer",
-  },
-  {
-    id: "daily-dua",
-    name: "Daily Dua",
-    title: "📿 Today's Dua",
-    body: "Start your day with a beautiful dua. Open NOOR to read today's dua.",
-    icon: BookOpen,
-    category: "daily",
-  },
-  {
-    id: "quran-reminder",
-    name: "Quran Reminder",
-    title: "📖 Read Quran",
-    body: "Take a moment to read and reflect on the Holy Quran.",
-    icon: BookOpen,
-    category: "daily",
-  },
-  {
-    id: "friday-blessing",
-    name: "Jummah Mubarak",
-    title: "🕋 Jummah Mubarak!",
-    body: "May this blessed Friday bring you peace and blessings.",
-    icon: Star,
-    category: "special",
-  },
-  {
-    id: "ramadan-reminder",
-    name: "Ramadan Reminder",
-    title: "🌙 Ramadan Kareem",
-    body: "May this holy month bring you closer to Allah.",
-    icon: Moon,
-    category: "special",
-  },
-];
 
 const AdminNotifications = () => {
   const { user } = useAdmin();
@@ -185,13 +134,11 @@ const AdminNotifications = () => {
     },
   });
 
-  const handleTemplateSelect = (templateId: string) => {
-    const template = NOTIFICATION_TEMPLATES.find(t => t.id === templateId);
-    if (template) {
-      setTitle(template.title);
-      setMessage(template.body);
-      setSelectedTemplate(templateId);
-    }
+  const handleTemplateSelect = (template: TemplateItem) => {
+    setTitle(template.title);
+    setMessage(template.body);
+    setSelectedTemplate(template.id);
+    if (template.deep_link) setDeepLink(template.deep_link);
   };
 
   const handleSend = () => {
@@ -245,36 +192,10 @@ const AdminNotifications = () => {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Templates */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-base">Quick Templates</CardTitle>
-            <CardDescription>Click to use a pre-made template</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {NOTIFICATION_TEMPLATES.map((template) => {
-              const Icon = template.icon;
-              return (
-                <button
-                  key={template.id}
-                  onClick={() => handleTemplateSelect(template.id)}
-                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                    selectedTemplate === template.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50 hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-primary" />
-                    <span className="font-medium text-sm">{template.name}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                    {template.body}
-                  </p>
-                </button>
-              );
-            })}
-          </CardContent>
-        </Card>
+        <QuickTemplatesPanel
+          selectedTemplate={selectedTemplate}
+          onSelect={handleTemplateSelect}
+        />
 
         {/* Compose */}
         <Card className="lg:col-span-2">
