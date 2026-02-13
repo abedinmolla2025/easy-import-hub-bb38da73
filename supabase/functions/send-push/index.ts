@@ -176,13 +176,31 @@ async function sendWebPushMessage(opts: {
     deep_link: opts.deepLink,
   });
 
-  const res = await subscriber.pushTextMessage(payload, {});
+  console.log("[webpush] Sending to endpoint:", subscription?.endpoint ?? "unknown");
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`webpush_failed_${res.status}: ${text}`);
+  let res: Response;
+  try {
+    res = await subscriber.pushTextMessage(payload, {});
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[webpush] pushTextMessage threw:", msg);
+    throw new Error(`webpush_send_error: ${msg}`);
   }
 
+  const responseBody = await res.text().catch(() => "");
+
+  if (!res.ok) {
+    console.error("[webpush] Push failed", {
+      status: res.status,
+      statusText: res.statusText,
+      endpoint: subscription?.endpoint,
+      responseBody,
+      headers: Object.fromEntries(res.headers.entries()),
+    });
+    throw new Error(`webpush_failed_${res.status}: ${responseBody}`);
+  }
+
+  console.log("[webpush] Push succeeded", { status: res.status, endpoint: subscription?.endpoint });
   return `webpush_${res.status}`;
 }
 
