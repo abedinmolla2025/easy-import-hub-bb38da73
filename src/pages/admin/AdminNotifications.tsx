@@ -81,6 +81,8 @@ const AdminNotifications = () => {
 
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [deepLink, setDeepLink] = useState("");
   const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("all");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
@@ -93,6 +95,8 @@ const AdminNotifications = () => {
         status: data.status,
         target_platform: targetPlatform,
         created_by: user?.id,
+        image_url: imageUrl.trim() || null,
+        deep_link: deepLink.trim() || null,
       }]).select('id').single();
       if (error) throw error;
 
@@ -132,6 +136,8 @@ const AdminNotifications = () => {
       }
       setTitle("");
       setMessage("");
+      setImageUrl("");
+      setDeepLink("");
       setSelectedTemplate(null);
     },
     onError: (error: Error) => {
@@ -277,7 +283,27 @@ const AdminNotifications = () => {
               </Select>
             </div>
 
-            {/* Preview */}
+            <div className="space-y-2">
+              <Label htmlFor="imageUrl">Image URL (optional)</Label>
+              <Input
+                id="imageUrl"
+                placeholder="https://example.com/image.png"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Shown as a rich image in the notification</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="deepLink">Deep Link (optional)</Label>
+              <Input
+                id="deepLink"
+                placeholder="/quran or /dua"
+                value={deepLink}
+                onChange={(e) => setDeepLink(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">In-app route to open when notification is tapped</p>
+            </div>
             {(title || message) && (
               <div className="rounded-lg border bg-muted/30 p-4">
                 <p className="text-xs text-muted-foreground mb-2">Preview</p>
