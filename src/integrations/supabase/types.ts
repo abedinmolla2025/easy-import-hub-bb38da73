@@ -267,6 +267,7 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           deep_link: string | null
+          expires_at: string | null
           id: string
           image_url: string | null
           message: string
@@ -276,12 +277,15 @@ export type Database = {
           target_platform: string
           target_role: Database["public"]["Enums"]["app_role"] | null
           target_user_ids: string[] | null
+          ticker_active: boolean | null
+          ticker_style: Json | null
           title: string
         }
         Insert: {
           created_at?: string | null
           created_by?: string | null
           deep_link?: string | null
+          expires_at?: string | null
           id?: string
           image_url?: string | null
           message: string
@@ -291,12 +295,15 @@ export type Database = {
           target_platform?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
+          ticker_active?: boolean | null
+          ticker_style?: Json | null
           title: string
         }
         Update: {
           created_at?: string | null
           created_by?: string | null
           deep_link?: string | null
+          expires_at?: string | null
           id?: string
           image_url?: string | null
           message?: string
@@ -306,6 +313,8 @@ export type Database = {
           target_platform?: string
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
+          ticker_active?: boolean | null
+          ticker_style?: Json | null
           title?: string
         }
         Relationships: []
