@@ -10,10 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, History as HistoryIcon, Zap, BookOpen, Moon, Star } from "lucide-react";
+import { Send, History as HistoryIcon, Zap, BookOpen, Moon, Star, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +87,40 @@ const AdminNotifications = () => {
   const [badgeUrl, setBadgeUrl] = useState("");
   const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("all");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [uploadingIcon, setUploadingIcon] = useState(false);
+  const [uploadingBadge, setUploadingBadge] = useState(false);
+  const iconFileRef = useRef<HTMLInputElement>(null);
+  const badgeFileRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (
+    file: File,
+    field: "icon" | "badge",
+    setUrl: (url: string) => void,
+    setUploading: (v: boolean) => void,
+  ) => {
+    if (!file) return;
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      toast({ title: "File too large", description: "Max 2MB allowed", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const safeName = `notification-${field}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { error } = await supabase.storage.from("branding").upload(safeName, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("branding").getPublicUrl(safeName);
+      setUrl(urlData.publicUrl);
+      toast({ title: `${field === "icon" ? "Icon" : "Badge"} uploaded` });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const createNotificationMutation = useMutation({
     mutationFn: async (data: { title: string; message: string; status: string }) => {
@@ -313,23 +347,83 @@ const AdminNotifications = () => {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="iconUrl">Notification Icon (optional)</Label>
-                <Input
-                  id="iconUrl"
-                  placeholder="https://noorapp.in/notification-icon.png"
-                  value={iconUrl}
-                  onChange={(e) => setIconUrl(e.target.value)}
-                />
+                <Label>Notification Icon (optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://... or upload"
+                    value={iconUrl}
+                    onChange={(e) => setIconUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <input
+                    ref={iconFileRef}
+                    type="file"
+                    accept="image/png,image/webp,image/svg+xml"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleFileUpload(f, "icon", setIconUrl, setUploadingIcon);
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    disabled={uploadingIcon}
+                    onClick={() => iconFileRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                  {iconUrl && (
+                    <Button type="button" variant="ghost" size="icon" onClick={() => setIconUrl("")}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {iconUrl && (
+                  <img src={iconUrl} alt="Icon preview" className="h-10 w-10 rounded border object-contain" />
+                )}
                 <p className="text-xs text-muted-foreground">Custom icon shown in push notification</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="badgeUrl">Notification Badge (optional)</Label>
-                <Input
-                  id="badgeUrl"
-                  placeholder="https://noorapp.in/badge-icon.png"
-                  value={badgeUrl}
-                  onChange={(e) => setBadgeUrl(e.target.value)}
-                />
+                <Label>Notification Badge (optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://... or upload"
+                    value={badgeUrl}
+                    onChange={(e) => setBadgeUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <input
+                    ref={badgeFileRef}
+                    type="file"
+                    accept="image/png,image/webp,image/svg+xml"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleFileUpload(f, "badge", setBadgeUrl, setUploadingBadge);
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    disabled={uploadingBadge}
+                    onClick={() => badgeFileRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                  {badgeUrl && (
+                    <Button type="button" variant="ghost" size="icon" onClick={() => setBadgeUrl("")}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {badgeUrl && (
+                  <img src={badgeUrl} alt="Badge preview" className="h-10 w-10 rounded border object-contain" />
+                )}
                 <p className="text-xs text-muted-foreground">Small monochrome badge icon</p>
               </div>
             </div>
