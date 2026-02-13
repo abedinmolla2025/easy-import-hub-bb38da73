@@ -79,15 +79,62 @@ async function withRetry<T>(fn: (attempt: number) => Promise<T>, opts?: { retrie
   throw lastErr;
 }
 
+// --------------- Base64URL helpers ---------------
+
+function base64UrlDecode(str: string): Uint8Array {
+  const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = base64.length % 4;
+  const padded = pad ? base64 + "=".repeat(4 - pad) : base64;
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function base64UrlEncode(bytes: Uint8Array): string {
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// Convert raw base64url VAPID keys to JWK format for importVapidKeys
+function rawKeysToJwk(publicKeyB64: string, privateKeyB64: string): { publicKey: JsonWebKey; privateKey: JsonWebKey } {
+  const pubBytes = base64UrlDecode(publicKeyB64);
+  const privBytes = base64UrlDecode(privateKeyB64);
+
+  // Public key is 65 bytes uncompressed: 0x04 + x(32) + y(32)
+  const x = base64UrlEncode(pubBytes.slice(1, 33));
+  const y = base64UrlEncode(pubBytes.slice(33, 65));
+  const d = base64UrlEncode(privBytes);
+
+  const publicKey: JsonWebKey = {
+    kty: "EC",
+    crv: "P-256",
+    x,
+    y,
+    ext: true,
+  };
+
+  const privateKey: JsonWebKey = {
+    kty: "EC",
+    crv: "P-256",
+    x,
+    y,
+    d,
+    ext: true,
+  };
+
+  return { publicKey, privateKey };
+}
+
 // --------------- Web Push via @negrel/webpush ---------------
 
-async function sendWebPushMessage(opts: {
-  subscriptionJson: string;
-  title: string;
-  body: string;
-  imageUrl: string | null;
-  deepLink: string | null;
-}) {
+// Cache the ApplicationServer instance
+let cachedAppServer: InstanceType<typeof ApplicationServer> | null = null;
+
+async function getAppServer(): Promise<InstanceType<typeof ApplicationServer>> {
+  if (cachedAppServer) return cachedAppServer;
+
   const publicKeyB64 = (Deno.env.get("WEBPUSH_VAPID_PUBLIC_KEY") ?? "").trim();
   const privateKeyB64 = (Deno.env.get("WEBPUSH_VAPID_PRIVATE_KEY") ?? "").trim();
   const subject = (Deno.env.get("WEBPUSH_SUBJECT") ?? "").trim();
@@ -96,16 +143,26 @@ async function sendWebPushMessage(opts: {
     throw new Error("Missing WEBPUSH_VAPID_PUBLIC_KEY, WEBPUSH_VAPID_PRIVATE_KEY, or WEBPUSH_SUBJECT");
   }
 
-  const vapidKeys = await importVapidKeys({
-    publicKey: publicKeyB64,
-    privateKey: privateKeyB64,
-  });
+  // Convert raw base64url keys to JWK format
+  const jwkKeys = rawKeysToJwk(publicKeyB64, privateKeyB64);
+  const vapidKeys = await importVapidKeys(jwkKeys);
 
-  const appServer = new ApplicationServer({
+  cachedAppServer = new ApplicationServer({
     contactInformation: subject,
     vapidKeys,
   });
 
+  return cachedAppServer;
+}
+
+async function sendWebPushMessage(opts: {
+  subscriptionJson: string;
+  title: string;
+  body: string;
+  imageUrl: string | null;
+  deepLink: string | null;
+}) {
+  const appServer = await getAppServer();
   const subscription = JSON.parse(opts.subscriptionJson);
   const subscriber = appServer.subscribe(subscription);
 
