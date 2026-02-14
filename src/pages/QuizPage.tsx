@@ -125,10 +125,10 @@ const QuizPage = () => {
         
         return (data || []).map((q: any) => ({
           question: q.question,
-          question_bn: q.question_bn ?? null,
+          question_bn: q.question_bn ?? q.question, // base field is Bangla
           question_en: q.question_en ?? null,
           options: q.options as string[],
-          options_bn: q.options_bn ?? null,
+          options_bn: q.options_bn ?? q.options, // base field is Bangla
           options_en: q.options_en ?? null,
           correctAnswer: q.correct_answer,
           category: q.category,
