@@ -1,8 +1,7 @@
 import {
   Facebook,
-  Youtube,
-  Send,
   Mail,
+  MessageCircle,
   PlayCircle,
   Home,
   BookOpen,
@@ -14,8 +13,6 @@ import {
   Shield,
   FileText,
   Map,
-  HandHeart,
-  Sparkles,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -26,8 +23,6 @@ export type FooterLinksSettings = {
   contactEmail?: string;
   facebookUrl?: string;
   whatsappUrl?: string;
-  youtubeUrl?: string;
-  telegramUrl?: string;
   footerText?: string;
   developerLine?: string;
 };
@@ -37,13 +32,20 @@ function normalizeUrl(raw?: string) {
   return v.length ? v : undefined;
 }
 
+function normalizeEmail(raw?: string) {
+  const v = (raw ?? "").trim();
+  if (!v) return undefined;
+  if (v.startsWith("mailto:")) return v;
+  if (v.includes("@")) return `mailto:${v}`;
+  return v;
+}
+
 const quickLinks = [
-  { label: "Home", path: "/", icon: Home },
-  { label: "Quran", path: "/quran", icon: BookOpen },
-  { label: "Hadith", path: "/bukhari", icon: ScrollText },
-  { label: "Islamic Calendar", path: "/calendar", icon: Calendar },
-  { label: "Prayer Time", path: "/prayer-times", icon: Clock },
-  { label: "Duas", path: "/dua", icon: HandHeart },
+  { label: "হোম", labelEn: "Home", path: "/", icon: Home },
+  { label: "কুরআন", labelEn: "Quran", path: "/quran", icon: BookOpen },
+  { label: "হাদিস", labelEn: "Hadith", path: "/bukhari", icon: ScrollText },
+  { label: "নামাজের সময়", labelEn: "Prayer Times", path: "/prayer-times", icon: Clock },
+  { label: "ক্যালেন্ডার", labelEn: "Calendar", path: "/calendar", icon: Calendar },
 ];
 
 const legalLinks = [
@@ -67,103 +69,55 @@ export default function FooterSection({
   const appStoreUrl = useMemo(() => normalizeUrl(settings?.appStoreUrl), [settings?.appStoreUrl]);
   const websiteUrl = useMemo(
     () => normalizeUrl(settings?.websiteUrl) ?? window.location.origin,
-    [settings?.websiteUrl],
+    [settings?.websiteUrl]
   );
+  const mailto = useMemo(() => normalizeEmail(settings?.contactEmail), [settings?.contactEmail]);
   const facebookUrl = useMemo(() => normalizeUrl(settings?.facebookUrl), [settings?.facebookUrl]);
-  const youtubeUrl = useMemo(() => normalizeUrl(settings?.youtubeUrl), [settings?.youtubeUrl]);
-  const telegramUrl = useMemo(() => normalizeUrl(settings?.telegramUrl), [settings?.telegramUrl]);
+  const whatsappUrl = useMemo(() => normalizeUrl(settings?.whatsappUrl), [settings?.whatsappUrl]);
 
   return (
-    <footer
-      className="mt-10 rounded-t-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.12)]"
-      style={{
-        background: "linear-gradient(135deg, #0f766e 0%, #065f46 100%)",
-      }}
-    >
-      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8 lg:px-10">
-        {/* ── Main Grid ── */}
-        <div className="grid grid-cols-1 gap-10 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
-          {/* ── Section 1: About ── */}
+    <footer className="mt-8 border-t border-border/50 bg-gradient-to-b from-background to-muted/30">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Main grid — stacked on mobile, 4 columns on desktop */}
+        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
+          {/* ── About ── */}
           <div className="space-y-3">
-            <div className="flex items-center justify-center gap-2 sm:justify-start">
-              <Sparkles className="h-5 w-5 text-emerald-200" />
-              <h3 className="text-lg font-bold text-white tracking-wide">
-                Noor – Islamic App
-              </h3>
-            </div>
-            <p className="text-sm leading-relaxed text-emerald-100/90">
-              Your daily companion for Prayer, Quran &amp; Islamic knowledge.
-            </p>
-            <p className="text-xs leading-relaxed text-emerald-200/70">
-              আপনার দৈনিক নামাজ, কুরআন ও দীন শেখার সহজ সঙ্গী
+            <h3 className="text-sm font-semibold text-foreground">Noor</h3>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Daily Prayer, Quran, Hadith &amp; Islamic content — আপনার দৈনিক দ্বীনি রুটিনের ছোট সাথী।
             </p>
 
-            {/* Social Icons */}
-            <div className="flex items-center justify-center gap-3 pt-2 sm:justify-start">
+            {/* Social icons */}
+            <div className="flex items-center justify-center gap-3 pt-1 sm:justify-start">
+              {mailto && (
+                <a href={mailto} aria-label="Email" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Mail className="h-4 w-4" />
+                </a>
+              )}
               {facebookUrl && (
-                <a
-                  href={facebookUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Facebook"
-                  className="rounded-full bg-white/10 p-2 text-emerald-100 transition-all hover:bg-white/20 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.25)]"
-                >
+                <a href={facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" className="text-muted-foreground hover:text-primary transition-colors">
                   <Facebook className="h-4 w-4" />
                 </a>
               )}
-              {youtubeUrl && (
-                <a
-                  href={youtubeUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="YouTube"
-                  className="rounded-full bg-white/10 p-2 text-emerald-100 transition-all hover:bg-white/20 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.25)]"
-                >
-                  <Youtube className="h-4 w-4" />
+              {whatsappUrl && (
+                <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="text-muted-foreground hover:text-primary transition-colors">
+                  <MessageCircle className="h-4 w-4" />
                 </a>
-              )}
-              {telegramUrl && (
-                <a
-                  href={telegramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Telegram"
-                  className="rounded-full bg-white/10 p-2 text-emerald-100 transition-all hover:bg-white/20 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.25)]"
-                >
-                  <Send className="h-4 w-4" />
-                </a>
-              )}
-              {/* Fallback social icons when none configured */}
-              {!facebookUrl && !youtubeUrl && !telegramUrl && (
-                <>
-                  <span className="rounded-full bg-white/10 p-2 text-emerald-100/60">
-                    <Facebook className="h-4 w-4" />
-                  </span>
-                  <span className="rounded-full bg-white/10 p-2 text-emerald-100/60">
-                    <Youtube className="h-4 w-4" />
-                  </span>
-                  <span className="rounded-full bg-white/10 p-2 text-emerald-100/60">
-                    <Send className="h-4 w-4" />
-                  </span>
-                </>
               )}
             </div>
           </div>
 
-          {/* ── Section 2: Quick Links ── */}
+          {/* ── Quick Links ── */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-200">
-              Quick Links
-            </h3>
-            <div className="mx-auto h-px w-12 bg-emerald-400/30 sm:mx-0" />
-            <ul className="space-y-2.5">
+            <h3 className="text-sm font-semibold text-foreground">Quick Links</h3>
+            <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.path}>
                   <button
                     onClick={() => onNavigate(link.path)}
-                    className="group inline-flex items-center gap-2 text-sm text-emerald-100/80 transition-all hover:text-white hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.3)]"
+                    className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <link.icon className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+                    <link.icon className="h-3.5 w-3.5" />
                     <span>{link.label}</span>
                   </button>
                 </li>
@@ -171,13 +125,10 @@ export default function FooterSection({
             </ul>
           </div>
 
-          {/* ── Section 3: Legal & Support ── */}
+          {/* ── Legal & Support ── */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-200">
-              Legal &amp; Support
-            </h3>
-            <div className="mx-auto h-px w-12 bg-emerald-400/30 sm:mx-0" />
-            <ul className="space-y-2.5">
+            <h3 className="text-sm font-semibold text-foreground">Legal &amp; Support</h3>
+            <ul className="space-y-2">
               {legalLinks.map((link) => (
                 <li key={link.path}>
                   {link.external ? (
@@ -185,17 +136,17 @@ export default function FooterSection({
                       href={link.path}
                       target="_blank"
                       rel="noreferrer"
-                      className="group inline-flex items-center gap-2 text-sm text-emerald-100/80 transition-all hover:text-white hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.3)]"
+                      className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <link.icon className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+                      <link.icon className="h-3.5 w-3.5" />
                       <span>{link.label}</span>
                     </a>
                   ) : (
                     <button
                       onClick={() => onNavigate(link.path)}
-                      className="group inline-flex items-center gap-2 text-sm text-emerald-100/80 transition-all hover:text-white hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.3)]"
+                      className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <link.icon className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
+                      <link.icon className="h-3.5 w-3.5" />
                       <span>{link.label}</span>
                     </button>
                   )}
@@ -204,19 +155,16 @@ export default function FooterSection({
             </ul>
           </div>
 
-          {/* ── Section 4: App Downloads ── */}
+          {/* ── App Downloads ── */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-200">
-              App Download
-            </h3>
-            <div className="mx-auto h-px w-12 bg-emerald-400/30 sm:mx-0" />
-            <div className="flex flex-col items-center gap-3 sm:items-start">
+            <h3 className="text-sm font-semibold text-foreground">App Downloads</h3>
+            <div className="flex flex-col items-center gap-2 sm:items-start">
               {platform === "app" ? (
                 <a
                   href={websiteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-emerald-800 shadow-md transition-all hover:shadow-lg hover:shadow-emerald-900/20"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-sm hover:brightness-105 transition-all"
                 >
                   Visit our website
                 </a>
@@ -227,15 +175,15 @@ export default function FooterSection({
                       href={playStoreUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-emerald-800 shadow-md transition-all hover:shadow-lg hover:shadow-emerald-900/20"
+                      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-sm hover:brightness-105 transition-all"
                     >
-                      <PlayCircle className="h-5 w-5" />
+                      <PlayCircle className="h-4 w-4" />
                       Google Play Store
                     </a>
                   ) : (
-                    <span className="inline-flex items-center gap-2 rounded-xl bg-white/90 px-5 py-2.5 text-sm font-semibold text-emerald-800 shadow-md">
-                      <PlayCircle className="h-5 w-5" />
-                      Google Play Store
+                    <span className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-xs text-muted-foreground">
+                      <PlayCircle className="h-4 w-4" />
+                      Play Store (Coming Soon)
                     </span>
                   )}
 
@@ -244,32 +192,27 @@ export default function FooterSection({
                       href={appStoreUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:border-white/70 hover:bg-white/10"
+                      className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-all"
                     >
                       App Store
                     </a>
                   ) : (
-                    <span className="inline-flex items-center gap-2 rounded-xl border-2 border-dashed border-white/30 px-5 py-2.5 text-sm text-emerald-200/70">
-                      App Store
+                    <span className="inline-flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2 text-xs text-muted-foreground">
+                      App Store (Coming Soon)
                     </span>
                   )}
-
-                  <p className="text-[11px] text-emerald-300/60 italic">Coming Soon</p>
                 </>
               )}
             </div>
           </div>
         </div>
 
-        {/* ── Divider ── */}
-        <div className="my-8 h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />
-
-        {/* ── Copyright ── */}
-        <div className="text-center">
-          <p className="text-xs text-emerald-100/70">
+        {/* ── Bottom bar ── */}
+        <div className="mt-8 border-t border-border/50 pt-4 text-center">
+          <p className="text-[11px] text-muted-foreground">
             © {new Date().getFullYear()} Noor App. All rights reserved.
           </p>
-          <p className="mt-1 text-[11px] text-emerald-200/50">
+          <p className="mt-1 text-[11px] text-muted-foreground/70">
             Developed by Abedin Molla
           </p>
         </div>
