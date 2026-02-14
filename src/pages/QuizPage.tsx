@@ -635,12 +635,20 @@ const QuizPage = () => {
                   </div>
 
                   {/* Daily XP tracker */}
-                  <div className="mt-3 p-2 rounded-lg bg-muted/40 border border-border/40">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                      <span>Today's XP</span>
-                      <span className="font-semibold text-primary">{todayXP}/50 XP</span>
+                  <div className="mt-3 p-3 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10">
+                    <div className="flex items-center justify-between text-xs mb-2">
+                      <span className="text-muted-foreground font-medium">Today's XP</span>
+                      <span className="font-bold text-primary">{todayXP} / 50 XP</span>
                     </div>
-                    <Progress value={(todayXP / 50) * 100} className="h-1.5" />
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-muted/60">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))" }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(100, (todayXP / 50) * 100)}%` }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                    </div>
                   </div>
 
                   {/* Quran Expert badge button */}
@@ -907,46 +915,54 @@ const QuizPage = () => {
               ) : currentQuestion ? (
                 <motion.div
                   key={currentQuestionIndex}
-                  initial={{ x: 50, opacity: 0 }}
+                  initial={{ x: 40, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -50, opacity: 0 }}
+                  exit={{ x: -40, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
                 >
                   <div ref={nextButtonRef} />
-                  {/* Progress & Timer */}
+
+                  {/* Progress Bar — pill shape with gradient */}
                   <div className="mb-4 space-y-3">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Question {currentQuestionIndex + 1}/5</span>
-                      <span>Score: {score} ({score * 10} XP)</span>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-muted-foreground font-medium">Score: {score} ({score * 10} XP)</span>
                     </div>
-                    <Progress value={((currentQuestionIndex + 1) / 5) * 100} className="h-2" />
-                    
-                    {/* Timer with Progress Bar */}
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-muted/50">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))" }}
+                        animate={{ width: `${((currentQuestionIndex + 1) / 5) * 100}%` }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                      />
+                    </div>
+
+                    {/* Timer */}
                     <div
-                      className={`rounded-xl border-2 transition-all ${
+                      className={`rounded-2xl border-2 transition-all ${
                         timeLeft <= 5
-                          ? "bg-red-500/10 border-red-500/50"
+                          ? "bg-destructive/10 border-destructive/50"
                           : timeLeft <= 10
-                          ? "bg-amber-500/10 border-amber-500/50"
-                          : "bg-emerald-500/10 border-emerald-500/30"
+                          ? "bg-accent/10 border-accent/50"
+                          : "bg-primary/8 border-primary/20"
                       }`}
                     >
                       <div className="flex items-center justify-center gap-2 p-3">
                         <Clock
                           className={`w-5 h-5 ${
                             timeLeft <= 5
-                              ? "text-red-500"
+                              ? "text-destructive"
                               : timeLeft <= 10
-                              ? "text-amber-500"
-                              : "text-emerald-500"
+                              ? "text-accent"
+                              : "text-primary"
                           }`}
                         />
                         <span
                           className={`text-2xl font-bold font-mono ${
                             timeLeft <= 5
-                              ? "text-red-500"
+                              ? "text-destructive"
                               : timeLeft <= 10
-                              ? "text-amber-500"
-                              : "text-emerald-600 dark:text-emerald-400"
+                              ? "text-accent"
+                              : "text-primary"
                           }`}
                         >
                           {timeLeft}s
@@ -962,7 +978,7 @@ const QuizPage = () => {
                                 ? "bg-destructive"
                                 : timeLeft <= 10
                                 ? "bg-accent"
-                                : "bg-emerald-500"
+                                : "bg-primary"
                             }`}
                             animate={{ width: `${Math.max(0, Math.min(100, (timeLeft / 30) * 100))}%` }}
                             transition={{ duration: 0.25, ease: "easeOut" }}
@@ -972,85 +988,132 @@ const QuizPage = () => {
                     </div>
                   </div>
 
-                  <Card className="mb-3">
-                    <CardHeader>
-                      <CardTitle className="text-xl leading-relaxed">
+                  {/* Question Card — premium styling */}
+                  <div className="relative mb-3 rounded-[20px] border border-primary/10 bg-gradient-to-br from-primary/[0.04] to-accent/[0.03] shadow-[0_8px_32px_-12px_hsl(var(--primary)/0.15)] overflow-hidden">
+                    {/* Question number pill */}
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/15 px-3 py-1 text-xs font-bold text-primary">
+                        Question {currentQuestionIndex + 1}/5
+                      </span>
+                    </div>
+
+                    <div className="p-6 pt-5">
+                      {/* Question text */}
+                      <div className="pr-24 mb-6">
                         {languageMode === "en" ? (
-                          <span className="quiz-text-en text-lg md:text-xl font-semibold">
+                          <p className="quiz-text-en text-[15px] md:text-base font-semibold leading-[1.5] text-foreground">
                             {getQuestionText(currentQuestion, "en")}
-                          </span>
+                          </p>
                         ) : (
-                          <span className="quiz-text-bn text-2xl md:text-3xl font-medium">
+                          <p className="quiz-text-bn text-[22px] md:text-2xl font-bold leading-[1.5] text-foreground">
                             {getQuestionText(currentQuestion, languageMode)}
-                          </span>
+                          </p>
                         )}
-                      </CardTitle>
-                      {languageMode === "bn" && !currentQuestion.question_bn && (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          বাংলা অনুবাদ নেই — এই প্রশ্নটি fallback হিসেবে দেখানো হচ্ছে।
-                        </p>
-                      )}
-                      {shouldShowMixedSecondaryQuestion(currentQuestion) && (
-                        <p className="quiz-text-en-secondary text-sm md:text-base mt-1.5 text-muted-foreground">
-                          {getQuestionTextSecondary(currentQuestion)}
-                        </p>
-                      )}
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {currentQuestion.options.map((option, index) => (
-                      <motion.button
-                          key={index}
-                          whileTap={{ scale: 0.98 }}
-                          animate={
-                            showResult && selectedAnswer === index
-                              ? index === currentQuestion.correctAnswer
-                                ? { scale: [1, 1.04, 1] }
-                                : { x: [0, -8, 8, -6, 6, 0] }
-                              : undefined
-                          }
-                          transition={{ duration: 0.35 }}
-                          onClick={() => handleAnswerSelect(index)}
-                          disabled={showResult}
-                        className={`w-full p-4 text-left quiz-option ${
-                          showResult
-                            ? index === currentQuestion.correctAnswer
-                              ? "quiz-option-correct"
-                              : selectedAnswer === index
-                              ? "quiz-option-wrong"
-                              : "opacity-80"
-                            : selectedAnswer === index
-                            ? "quiz-option-selected"
-                            : ""
-                        }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <p
-                                className={`leading-snug ${
-                                  languageMode === "en"
-                                    ? "quiz-text-en text-sm font-medium"
-                                    : "quiz-text-bn text-lg font-medium"
+                        {languageMode === "bn" && !currentQuestion.question_bn && (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            বাংলা অনুবাদ নেই — এই প্রশ্নটি fallback হিসেবে দেখানো হচ্ছে।
+                          </p>
+                        )}
+                        {shouldShowMixedSecondaryQuestion(currentQuestion) && (
+                          <p className="quiz-text-en-secondary text-[15px] md:text-base mt-2 text-muted-foreground leading-[1.5]">
+                            {getQuestionTextSecondary(currentQuestion)}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Options */}
+                      <div className="space-y-3">
+                        {currentQuestion.options.map((option, index) => {
+                          const letterLabels = ["A", "B", "C", "D"];
+                          const isCorrectAnswer = index === currentQuestion.correctAnswer;
+                          const isSelectedAnswer = selectedAnswer === index;
+                          const isWrong = showResult && isSelectedAnswer && !isCorrectAnswer;
+                          const isCorrectHighlight = showResult && isCorrectAnswer;
+
+                          return (
+                            <motion.button
+                              key={index}
+                              whileTap={!showResult ? { scale: 0.98 } : undefined}
+                              animate={
+                                showResult && isSelectedAnswer
+                                  ? isCorrectAnswer
+                                    ? { scale: [1, 1.03, 1] }
+                                    : { x: [0, -8, 8, -6, 6, 0] }
+                                  : undefined
+                              }
+                              transition={{ duration: 0.3 }}
+                              onClick={() => handleAnswerSelect(index)}
+                              disabled={showResult}
+                              className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
+                                isCorrectHighlight
+                                  ? "border-primary bg-primary/10 shadow-[0_0_20px_-6px_hsl(var(--primary)/0.3)]"
+                                  : isWrong
+                                  ? "border-destructive bg-destructive/8 shadow-[0_0_20px_-6px_hsl(var(--destructive)/0.25)]"
+                                  : showResult
+                                  ? "border-border/50 opacity-60"
+                                  : isSelectedAnswer
+                                  ? "border-primary/40 bg-primary/8 shadow-[0_0_16px_-6px_hsl(var(--primary)/0.2)]"
+                                  : "border-border/60 bg-card/80 hover:border-primary/25 hover:shadow-[0_6px_20px_-8px_hsl(var(--primary)/0.15)]"
+                              }`}
+                            >
+                              {/* Letter badge */}
+                              <div
+                                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-colors duration-200 ${
+                                  isCorrectHighlight
+                                    ? "bg-primary text-primary-foreground"
+                                    : isWrong
+                                    ? "bg-destructive text-destructive-foreground"
+                                    : isSelectedAnswer
+                                    ? "bg-primary/20 text-primary"
+                                    : "bg-muted text-muted-foreground"
                                 }`}
                               >
-                                {getOptionText(currentQuestion, option, index, languageMode)}
-                              </p>
-                              {shouldShowMixedSecondaryOption(currentQuestion, index) && (
-                                <p className="quiz-text-en-secondary text-xs mt-1 text-muted-foreground">
-                                  {getOptionTextSecondary(currentQuestion, option, index)}
+                                {letterLabels[index]}
+                              </div>
+
+                              {/* Option text */}
+                              <div className="flex-1 min-w-0">
+                                <p
+                                  className={`leading-[1.5] ${
+                                    languageMode === "en"
+                                      ? "quiz-text-en text-sm font-medium"
+                                      : "quiz-text-bn text-lg font-medium"
+                                  }`}
+                                >
+                                  {getOptionText(currentQuestion, option, index, languageMode)}
                                 </p>
+                                {shouldShowMixedSecondaryOption(currentQuestion, index) && (
+                                  <p className="quiz-text-en-secondary text-xs mt-0.5 text-muted-foreground leading-[1.5]">
+                                    {getOptionTextSecondary(currentQuestion, option, index)}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Result icons */}
+                              {showResult && isCorrectAnswer && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 300, delay: 0.15 }}
+                                >
+                                  <CheckCircle2 className="w-6 h-6 text-primary shrink-0" />
+                                </motion.div>
                               )}
-                            </div>
-                            {showResult && index === currentQuestion.correctAnswer && (
-                              <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                            )}
-                            {showResult && selectedAnswer === index && index !== currentQuestion.correctAnswer && (
-                              <XCircle className="w-6 h-6 text-red-500" />
-                            )}
-                          </div>
-                        </motion.button>
-                      ))}
-                    </CardContent>
-                  </Card>
+                              {showResult && isSelectedAnswer && !isCorrectAnswer && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 300, delay: 0.15 }}
+                                >
+                                  <XCircle className="w-6 h-6 text-destructive shrink-0" />
+                                </motion.div>
+                              )}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
 
                 {/* Full-screen animated result overlay */}
                 <AnimatePresence>
