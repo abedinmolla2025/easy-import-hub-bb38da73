@@ -144,7 +144,8 @@ const QuizPage = () => {
   const getQuestionText = (q: Question, mode: LanguageMode) => {
     if (mode === "bn") return q.question_bn || q.question;
     if (mode === "en") return q.question_en || q.question;
-    return q.question_bn || q.question_en || q.question;
+    // mixed: always show Bangla as primary
+    return q.question_bn || q.question;
   };
 
   const getQuestionTextSecondary = (q: Question) => {
@@ -154,39 +155,29 @@ const QuizPage = () => {
   const getOptionText = (q: Question, optionFallback: string, index: number, mode: LanguageMode) => {
     if (mode === "bn") return q.options_bn?.[index] || optionFallback;
     if (mode === "en") return q.options_en?.[index] || optionFallback;
-    return q.options_bn?.[index] || q.options_en?.[index] || optionFallback;
+    // mixed: always show Bangla as primary
+    return q.options_bn?.[index] || optionFallback;
   };
 
   const getOptionTextSecondary = (q: Question, optionFallback: string, index: number) => {
     return q.options_en?.[index] || optionFallback;
   };
 
-  const isMixedPrimaryBangla = (q: Question) => {
-    const bn = (q.question_bn ?? "").trim();
-    if (!bn) return false;
-    const enOrBase = (q.question_en ?? q.question ?? "").trim();
-    return bn !== enOrBase;
-  };
+  const hasBanglaQuestion = (q: Question) => !!(q.question_bn ?? "").trim();
+  const hasEnglishQuestion = (q: Question) => !!(q.question_en ?? "").trim();
 
-  const isMixedPrimaryBanglaOption = (q: Question, index: number) => {
-    const bn = (q.options_bn?.[index] ?? "").trim();
-    if (!bn) return false;
-    const enOrBase = (q.options_en?.[index] ?? (q.options?.[index] as string) ?? "").trim();
-    return bn !== enOrBase;
-  };
+  const hasBanglaOption = (q: Question, index: number) => !!(q.options_bn?.[index] ?? "").trim();
+  const hasEnglishOption = (q: Question, index: number) => !!(q.options_en?.[index] ?? "").trim();
 
+  // In mixed mode, show secondary only if both languages exist and differ
   const shouldShowMixedSecondaryQuestion = (q: Question) => {
-    const en = (q.question_en ?? "").trim();
-    if (!en) return false;
-    const primary = getQuestionText(q, "mixed").trim();
-    return en !== primary;
+    if (languageMode !== "mixed") return false;
+    return hasBanglaQuestion(q) && hasEnglishQuestion(q);
   };
 
   const shouldShowMixedSecondaryOption = (q: Question, index: number) => {
-    const en = (q.options_en?.[index] ?? "").trim();
-    if (!en) return false;
-    const primary = getOptionText(q, (q.options?.[index] as string) ?? "", index, "mixed").trim();
-    return en !== primary;
+    if (languageMode !== "mixed") return false;
+    return hasBanglaOption(q, index) && hasEnglishOption(q, index);
   };
   
   const [activeTab, setActiveTab] = useState<"quiz" | "leaderboard" | "badges">("quiz");
@@ -830,17 +821,17 @@ const QuizPage = () => {
                                 <div className="mb-3">
                                   <Badge variant="outline" className="mb-2">প্রশ্ন {index + 1}</Badge>
                                   <div>
-                                    {languageMode === "bn" || (languageMode === "mixed" && isMixedPrimaryBangla(answer.question)) ? (
+                                    {languageMode === "en" ? (
+                                      <p className="quiz-text-en text-lg font-semibold">
+                                        {getQuestionText(answer.question, "en")}
+                                      </p>
+                                    ) : (
                                       <p className="quiz-text-bn text-lg font-medium">
                                         {getQuestionText(answer.question, languageMode)}
                                       </p>
-                                    ) : (
-                                      <p className="quiz-text-en text-lg font-semibold">
-                                        {getQuestionText(answer.question, languageMode)}
-                                      </p>
                                     )}
-                                    {languageMode === "mixed" && isMixedPrimaryBangla(answer.question) && (
-                                      <p className="quiz-text-en-secondary mt-1 text-xs">
+                                    {shouldShowMixedSecondaryQuestion(answer.question) && (
+                                      <p className="quiz-text-en-secondary mt-1 text-xs text-muted-foreground">
                                         {getQuestionTextSecondary(answer.question)}
                                       </p>
                                     )}
@@ -869,16 +860,15 @@ const QuizPage = () => {
                                           <div className="flex-1">
                                             <span
                                               className={
-                                                languageMode === "bn" ||
-                                                (languageMode === "mixed" && isMixedPrimaryBanglaOption(answer.question, optIndex))
-                                                  ? "quiz-text-bn font-medium"
-                                                  : "quiz-text-en font-medium"
+                                                languageMode === "en"
+                                                  ? "quiz-text-en font-medium"
+                                                  : "quiz-text-bn font-medium"
                                               }
                                             >
                                               {getOptionText(answer.question, option, optIndex, languageMode)}
                                             </span>
-                                            {languageMode === "mixed" && isMixedPrimaryBanglaOption(answer.question, optIndex) && (
-                                              <p className="quiz-text-en-secondary text-xs mt-0.5">
+                                            {shouldShowMixedSecondaryOption(answer.question, optIndex) && (
+                                              <p className="quiz-text-en-secondary text-xs mt-0.5 text-muted-foreground">
                                                 {getOptionTextSecondary(answer.question, option, optIndex)}
                                               </p>
                                             )}
@@ -985,12 +975,12 @@ const QuizPage = () => {
                   <Card className="mb-3">
                     <CardHeader>
                       <CardTitle className="text-xl leading-relaxed">
-                        {languageMode === "bn" || (languageMode === "mixed" && isMixedPrimaryBangla(currentQuestion)) ? (
-                          <span className="quiz-text-bn text-2xl md:text-3xl font-medium">
-                            {getQuestionText(currentQuestion, languageMode)}
+                        {languageMode === "en" ? (
+                          <span className="quiz-text-en text-lg md:text-xl font-semibold">
+                            {getQuestionText(currentQuestion, "en")}
                           </span>
                         ) : (
-                          <span className="quiz-text-en text-lg md:text-xl font-semibold">
+                          <span className="quiz-text-bn text-2xl md:text-3xl font-medium">
                             {getQuestionText(currentQuestion, languageMode)}
                           </span>
                         )}
@@ -1000,12 +990,10 @@ const QuizPage = () => {
                           বাংলা অনুবাদ নেই — এই প্রশ্নটি fallback হিসেবে দেখানো হচ্ছে।
                         </p>
                       )}
-                      {languageMode === "mixed" && isMixedPrimaryBangla(currentQuestion) && shouldShowMixedSecondaryQuestion(currentQuestion) && (
-                        <div className="mt-1 space-y-0.5">
-                          <p className="quiz-text-en-secondary text-sm md:text-xs">
-                            {getQuestionTextSecondary(currentQuestion)}
-                          </p>
-                        </div>
+                      {shouldShowMixedSecondaryQuestion(currentQuestion) && (
+                        <p className="quiz-text-en-secondary text-sm md:text-base mt-1.5 text-muted-foreground">
+                          {getQuestionTextSecondary(currentQuestion)}
+                        </p>
                       )}
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -1036,21 +1024,18 @@ const QuizPage = () => {
                         }`}
                         >
                           <div className="flex items-center justify-between">
-                            <div>
+                            <div className="flex-1">
                               <p
                                 className={`leading-snug ${
-                                  languageMode === "bn" ||
-                                  (languageMode === "mixed" && isMixedPrimaryBanglaOption(currentQuestion, index))
-                                    ? "quiz-text-bn text-lg font-medium"
-                                    : "quiz-text-en text-sm font-medium"
+                                  languageMode === "en"
+                                    ? "quiz-text-en text-sm font-medium"
+                                    : "quiz-text-bn text-lg font-medium"
                                 }`}
                               >
                                 {getOptionText(currentQuestion, option, index, languageMode)}
                               </p>
-                              {languageMode === "mixed" &&
-                                isMixedPrimaryBanglaOption(currentQuestion, index) &&
-                                shouldShowMixedSecondaryOption(currentQuestion, index) && (
-                                <p className="quiz-text-en-secondary text-xs mt-0.5">
+                              {shouldShowMixedSecondaryOption(currentQuestion, index) && (
+                                <p className="quiz-text-en-secondary text-xs mt-1 text-muted-foreground">
                                   {getOptionTextSecondary(currentQuestion, option, index)}
                                 </p>
                               )}
