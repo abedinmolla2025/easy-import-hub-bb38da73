@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface QuizProgress {
   totalPoints: number;
@@ -7,18 +7,12 @@ interface QuizProgress {
   lastPlayedDate: string;
   questionsAnswered: number;
   correctAnswers: number;
+  todayQuestionsAnswered: number;
+  todayCorrectAnswers: number;
+  todayDate: string;
 }
 
 const STORAGE_KEY = "noor_quiz_progress";
-
-const getDefaultProgress = (): QuizProgress => ({
-  totalPoints: 0,
-  currentStreak: 0,
-  longestStreak: 0,
-  lastPlayedDate: "",
-  questionsAnswered: 0,
-  correctAnswers: 0,
-});
 
 const getTodayString = (): string => {
   return new Date().toISOString().split("T")[0];
@@ -30,16 +24,33 @@ const getYesterdayString = (): string => {
   return yesterday.toISOString().split("T")[0];
 };
 
+const getDefaultProgress = (): QuizProgress => ({
+  totalPoints: 0,
+  currentStreak: 0,
+  longestStreak: 0,
+  lastPlayedDate: "",
+  questionsAnswered: 0,
+  correctAnswers: 0,
+  todayQuestionsAnswered: 0,
+  todayCorrectAnswers: 0,
+  todayDate: getTodayString(),
+});
+
 export const useQuizProgress = () => {
   const [progress, setProgress] = useState<QuizProgress>(getDefaultProgress);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load progress from localStorage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as QuizProgress;
+        // Reset daily counters if it's a new day
+        if (parsed.todayDate !== getTodayString()) {
+          parsed.todayQuestionsAnswered = 0;
+          parsed.todayCorrectAnswers = 0;
+          parsed.todayDate = getTodayString();
+        }
         setProgress(parsed);
       }
     } catch (error) {
@@ -49,7 +60,6 @@ export const useQuizProgress = () => {
     }
   }, []);
 
-  // Save progress to localStorage whenever it changes
   const saveProgress = (newProgress: QuizProgress) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newProgress));
@@ -59,29 +69,21 @@ export const useQuizProgress = () => {
     }
   };
 
-  // Update streak based on when user last played
   const updateStreak = () => {
     const today = getTodayString();
     const yesterday = getYesterdayString();
     const lastPlayed = progress.lastPlayedDate;
 
-    let newStreak = progress.currentStreak;
-
     if (lastPlayed === today) {
-      // Already played today, don't update streak
       return progress.currentStreak;
     } else if (lastPlayed === yesterday || lastPlayed === "") {
-      // Played yesterday or first time - increment streak
-      newStreak = progress.currentStreak + 1;
+      return progress.currentStreak + 1;
     } else {
-      // Streak broken - reset to 1
-      newStreak = 1;
+      return 1;
     }
-
-    return newStreak;
   };
 
-  // Add points when user answers correctly
+  // Each correct answer = 10 XP
   const addPoints = (points: number, isCorrect: boolean) => {
     const newStreak = updateStreak();
     const newProgress: QuizProgress = {
@@ -92,28 +94,49 @@ export const useQuizProgress = () => {
       lastPlayedDate: getTodayString(),
       questionsAnswered: progress.questionsAnswered + 1,
       correctAnswers: progress.correctAnswers + (isCorrect ? 1 : 0),
+      todayQuestionsAnswered: progress.todayQuestionsAnswered + 1,
+      todayCorrectAnswers: progress.todayCorrectAnswers + (isCorrect ? 1 : 0),
+      todayDate: getTodayString(),
     };
 
     saveProgress(newProgress);
     return newProgress;
   };
 
-  // Reset progress (for testing or user request)
   const resetProgress = () => {
     const defaultProgress = getDefaultProgress();
     saveProgress(defaultProgress);
   };
 
-  // Check if user has played today
   const hasPlayedToday = () => {
     return progress.lastPlayedDate === getTodayString();
   };
 
-  // Calculate accuracy percentage
+  // Daily limit: 5 questions
+  const hasReachedDailyLimit = () => {
+    if (progress.todayDate !== getTodayString()) return false;
+    return progress.todayQuestionsAnswered >= 5;
+  };
+
   const getAccuracy = () => {
     if (progress.questionsAnswered === 0) return 0;
     return Math.round((progress.correctAnswers / progress.questionsAnswered) * 100);
   };
+
+  // Quran Expert badge: 2000+ XP and 85%+ accuracy
+  const isQuranExpert = () => {
+    return progress.totalPoints >= 2000 && getAccuracy() >= 85;
+  };
+
+  // Check if badge was just unlocked (not previously acknowledged)
+  const EXPERT_ACK_KEY = "noor_quran_expert_ack";
+  const hasAcknowledgedExpert = useCallback(() => {
+    return localStorage.getItem(EXPERT_ACK_KEY) === "true";
+  }, []);
+
+  const acknowledgeExpert = useCallback(() => {
+    localStorage.setItem(EXPERT_ACK_KEY, "true");
+  }, []);
 
   return {
     progress,
@@ -121,7 +144,11 @@ export const useQuizProgress = () => {
     addPoints,
     resetProgress,
     hasPlayedToday,
+    hasReachedDailyLimit,
     getAccuracy,
     updateStreak,
+    isQuranExpert,
+    hasAcknowledgedExpert,
+    acknowledgeExpert,
   };
 };

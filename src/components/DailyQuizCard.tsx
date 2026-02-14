@@ -106,7 +106,7 @@ export const DailyQuizCard = ({ cardClassName, cardCss }: Props) => {
             Daily Islamic Quiz
           </h3>
           <p className="text-sm text-white/70 font-medium">
-            🎁 Complete today & earn 20 XP
+            🎁 Complete today & earn up to 50 XP
           </p>
         </div>
 

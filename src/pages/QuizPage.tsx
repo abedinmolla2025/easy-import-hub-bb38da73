@@ -15,6 +15,8 @@ import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { hapticImpact, hapticNotification } from "@/lib/haptics";
+import { QuranExpertCelebration } from "@/components/QuranExpertCelebration";
+import { QuranExpertCertificate } from "@/components/QuranExpertCertificate";
 
 interface Question {
   question: string;
@@ -30,29 +32,27 @@ interface Question {
 interface LeaderboardEntry {
   rank: number;
   name: string;
-  points: number;
+  xp: number;
   badges: number;
 }
 
-// Questions are now loaded from database via useQuery in the component
-
 const leaderboard: LeaderboardEntry[] = [
-  { rank: 1, name: "আহমেদ", points: 2450, badges: 12 },
-  { rank: 2, name: "ফাতিমা", points: 2320, badges: 11 },
-  { rank: 3, name: "মুহাম্মদ", points: 2180, badges: 10 },
-  { rank: 4, name: "আয়েশা", points: 1950, badges: 9 },
-  { rank: 5, name: "ইব্রাহিম", points: 1820, badges: 8 },
-  { rank: 6, name: "খাদিজা", points: 1700, badges: 7 },
-  { rank: 7, name: "উমর", points: 1580, badges: 6 },
-  { rank: 8, name: "মারিয়াম", points: 1450, badges: 5 },
+  { rank: 1, name: "আহমেদ", xp: 2450, badges: 12 },
+  { rank: 2, name: "ফাতিমা", xp: 2320, badges: 11 },
+  { rank: 3, name: "মুহাম্মদ", xp: 2180, badges: 10 },
+  { rank: 4, name: "আয়েশা", xp: 1950, badges: 9 },
+  { rank: 5, name: "ইব্রাহিম", xp: 1820, badges: 8 },
+  { rank: 6, name: "খাদিজা", xp: 1700, badges: 7 },
+  { rank: 7, name: "উমর", xp: 1580, badges: 6 },
+  { rank: 8, name: "মারিয়াম", xp: 1450, badges: 5 },
 ];
 
 const badges = [
-  { id: 1, name: "First Steps", nameBn: "প্রথম পদক্ষেপ", BadgeIcon: StarBadge, color: "text-yellow-500", bgGradient: "from-yellow-500/20 to-amber-500/20", requirement: 10 },
-  { id: 2, name: "Quiz Master", nameBn: "কুইজ মাস্টার", BadgeIcon: TrophyBadge, color: "text-amber-500", bgGradient: "from-amber-500/20 to-orange-500/20", requirement: 50 },
-  { id: 3, name: "Knowledge Seeker", nameBn: "জ্ঞানী", BadgeIcon: MedalBadge, color: "text-blue-500", bgGradient: "from-blue-500/20 to-cyan-500/20", requirement: 100 },
-  { id: 4, name: "Champion", nameBn: "চ্যাম্পিয়ন", BadgeIcon: CrownBadge, color: "text-purple-500", bgGradient: "from-purple-500/20 to-pink-500/20", requirement: 200 },
-  { id: 5, name: "Quran Expert", nameBn: "কুরআন বিশেষজ্ঞ", BadgeIcon: SparklesBadge, color: "text-emerald-500", bgGradient: "from-emerald-500/20 to-teal-500/20", requirement: 300 },
+  { id: 1, name: "First Steps", nameBn: "প্রথম পদক্ষেপ", BadgeIcon: StarBadge, color: "text-yellow-500", bgGradient: "from-yellow-500/20 to-amber-500/20", requirement: 50 },
+  { id: 2, name: "Quiz Master", nameBn: "কুইজ মাস্টার", BadgeIcon: TrophyBadge, color: "text-amber-500", bgGradient: "from-amber-500/20 to-orange-500/20", requirement: 200 },
+  { id: 3, name: "Knowledge Seeker", nameBn: "জ্ঞানী", BadgeIcon: MedalBadge, color: "text-blue-500", bgGradient: "from-blue-500/20 to-cyan-500/20", requirement: 500 },
+  { id: 4, name: "Champion", nameBn: "চ্যাম্পিয়ন", BadgeIcon: CrownBadge, color: "text-purple-500", bgGradient: "from-purple-500/20 to-pink-500/20", requirement: 1000 },
+  { id: 5, name: "Quran Expert", nameBn: "কুরআন বিশেষজ্ঞ", BadgeIcon: SparklesBadge, color: "text-emerald-500", bgGradient: "from-emerald-500/20 to-teal-500/20", requirement: 2000, requiresAccuracy: 85 },
 ];
 
 type LanguageMode = "en" | "bn" | "mixed";
@@ -68,7 +68,6 @@ const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
 type HapticType = "success" | "error";
 
 const triggerHaptic = (type: HapticType) => {
-  // Fire-and-forget; native (Capacitor) + web fallback handled in helper.
   void (type === "success" ? hapticNotification("success") : hapticNotification("error"));
   void (type === "success" ? hapticImpact("light") : hapticImpact("medium"));
 };
@@ -86,11 +85,26 @@ const QuizPage = () => {
     isLoading: loading,
     addPoints,
     hasPlayedToday,
+    hasReachedDailyLimit,
     getAccuracy,
     updateStreak,
+    isQuranExpert,
+    hasAcknowledgedExpert,
+    acknowledgeExpert,
   } = useQuizProgress();
 
-  // Fetch questions from local JSON file since database table doesn't exist
+  // Celebration & certificate modals
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+
+  // Check if we should show celebration on quiz completion
+  useEffect(() => {
+    if (isQuranExpert() && !hasAcknowledgedExpert()) {
+      setShowCelebration(true);
+    }
+  }, [progress.totalPoints, progress.correctAnswers]);
+
+  // Fetch questions from local JSON file
   const { data: allQuestions = [], isLoading: questionsLoading } = useQuery({
     queryKey: ["quiz-questions"],
     queryFn: async () => {
@@ -120,7 +134,6 @@ const QuizPage = () => {
   const getQuestionText = (q: Question, mode: LanguageMode) => {
     if (mode === "bn") return q.question_bn || q.question;
     if (mode === "en") return q.question_en || q.question;
-    // mixed: prefer Bangla when available, otherwise fall back to English/base
     return q.question_bn || q.question_en || q.question;
   };
 
@@ -131,7 +144,6 @@ const QuizPage = () => {
   const getOptionText = (q: Question, optionFallback: string, index: number, mode: LanguageMode) => {
     if (mode === "bn") return q.options_bn?.[index] || optionFallback;
     if (mode === "en") return q.options_en?.[index] || optionFallback;
-    // mixed: prefer Bangla when available, otherwise fall back to English/base
     return q.options_bn?.[index] || q.options_en?.[index] || optionFallback;
   };
 
@@ -142,7 +154,6 @@ const QuizPage = () => {
   const isMixedPrimaryBangla = (q: Question) => {
     const bn = (q.question_bn ?? "").trim();
     if (!bn) return false;
-    // If Bangla value equals the English/base value, treat it as not-a-translation
     const enOrBase = (q.question_en ?? q.question ?? "").trim();
     return bn !== enOrBase;
   };
@@ -203,29 +214,22 @@ const QuizPage = () => {
     localStorage.setItem("quizLanguageMode", languageMode);
   }, [languageMode]);
 
-  // Keep track of the current calendar day so that daily quiz
-  // can auto-refresh even if the page stays open past midnight
   useEffect(() => {
     const interval = setInterval(() => {
       const nextDate = new Date().toDateString();
       setCurrentDate(prev => (prev === nextDate ? prev : nextDate));
-    }, 60_000); // check every minute
-
+    }, 60_000);
     return () => clearInterval(interval);
   }, []);
 
   const playedToday = hasPlayedToday();
+  const reachedLimit = hasReachedDailyLimit();
 
   useEffect(() => {
-    // Get 5 deterministic questions for the current day based on date seed
     const dateSeed = currentDate;
     const hasBnPack = (q: any) => !!q.question_bn && Array.isArray(q.options_bn) && q.options_bn.length === 4;
     const hasEnPack = (q: any) => !!q.question_en && Array.isArray(q.options_en) && q.options_en.length === 4;
 
-    // Prefer language-specific packs when switching language.
-    // - bn: only questions that have Bangla fields
-    // - en: only questions that have English fields
-    // - mixed: only questions that have BOTH (so mixed can show bn big + en small)
     const preferredPool =
       languageMode === "bn"
         ? allQuestions.filter(hasBnPack)
@@ -241,7 +245,6 @@ const QuizPage = () => {
     });
     setDailyQuestions(shuffled.slice(0, 5));
     
-    // Reset quiz state when date changes (new day = new quiz)
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setShowResult(false);
@@ -253,15 +256,14 @@ const QuizPage = () => {
     setShowReview(false);
   }, [currentDate, allQuestions, languageMode]);
 
-  // Timer effect - must be before early returns
+  // Timer effect
   useEffect(() => {
     const currentQuestion = dailyQuestions[currentQuestionIndex];
     
-    if (quizCompleted || playedToday || !currentQuestion || showResult) {
+    if (quizCompleted || reachedLimit || !currentQuestion || showResult) {
       return;
     }
 
-    // Warning sounds (web only)
     const muted = localStorage.getItem(QUIZ_WARNING_SOUNDS_MUTED_KEY) === "true";
     if (!muted) {
       if (timeLeft === 10) playSfx("warn10");
@@ -274,11 +276,9 @@ const QuizPage = () => {
       playSfx("wrong");
       triggerHaptic("error");
 
-      // Result popup countdown (time-up uses 3s)
       resultMetaRef.current = { startedAt: Date.now(), durationMs: 3000 };
       setResultProgress(0);
       
-      // Auto advance to next question after 3 seconds
       const autoNextTimer = setTimeout(() => {
         handleNextQuestion();
       }, 3000);
@@ -291,7 +291,7 @@ const QuizPage = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, quizCompleted, playedToday, currentQuestionIndex, dailyQuestions, showResult]);
+  }, [timeLeft, quizCompleted, reachedLimit, currentQuestionIndex, dailyQuestions, showResult]);
 
   // Result popup progress bar updater
   useEffect(() => {
@@ -310,13 +310,12 @@ const QuizPage = () => {
     return () => window.clearInterval(id);
   }, [showResult, currentQuestionIndex]);
 
-  // Popup micro-effects (confetti on correct; shake on wrong is handled in motion props)
+  // Popup micro-effects
   useEffect(() => {
     if (!showResult) return;
     const q = dailyQuestions[currentQuestionIndex];
     if (!q) return;
 
-    // confetti only for answered questions (not time-up)
     const isCorrect = !isTimeUp && selectedAnswer !== null && selectedAnswer === q.correctAnswer;
     if (!isCorrect) return;
 
@@ -336,7 +335,6 @@ const QuizPage = () => {
     const currentQ = dailyQuestions[currentQuestionIndex];
     const isCorrect = answerIndex === currentQ.correctAnswer;
     
-    // Store the answer for review
     setQuizAnswers(prev => [...prev, {
       question: currentQ,
       userAnswer: answerIndex,
@@ -352,27 +350,20 @@ const QuizPage = () => {
       triggerHaptic("error");
     }
 
-    // Result popup countdown (answer select uses 3s for full-screen overlay)
     resultMetaRef.current = { startedAt: Date.now(), durationMs: 3000 };
     setResultProgress(0);
 
-    // Clear any previous scheduled actions
     if (submitAutoNextTimerRef.current) window.clearTimeout(submitAutoNextTimerRef.current);
     if (submitScrollTimerRef.current) window.clearTimeout(submitScrollTimerRef.current);
 
-    // Scroll to the action area (top of screen)
     submitScrollTimerRef.current = window.setTimeout(() => {
       nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 250);
-
-    // Don't auto-advance — user taps "NEXT QUESTION" button
   };
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (showResult || isTimeUp) return;
     setSelectedAnswer(answerIndex);
-
-    // Always auto-submit on select (no submit button)
     submitAnswer(answerIndex);
   };
 
@@ -392,17 +383,18 @@ const QuizPage = () => {
       setTimeLeft(30);
       setIsTimeUp(false);
     } else {
-      // Quiz completed - add points for each question
-      const earnedPoints = score * 10 + (score === 5 ? 20 : 0); // 10 per correct, +20 bonus for perfect score
+      // Quiz completed - 10 XP per correct answer
+      const earnedXP = score * 10;
       
-      // Add points for each correct answer
       for (let i = 0; i < score; i++) {
         addPoints(10, true);
       }
+      // Add entries for wrong answers (0 XP but track question)
+      for (let i = 0; i < (5 - score); i++) {
+        addPoints(0, false);
+      }
       
-      // Add bonus for perfect score
       if (score === 5) {
-        addPoints(20, true);
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000);
       }
@@ -450,14 +442,47 @@ const QuizPage = () => {
   }
 
   const currentQuestion = dailyQuestions[currentQuestionIndex];
-  const earnedBadges = badges.filter(b => progress.totalPoints >= b.requirement);
+  const earnedBadges = badges.filter(b => {
+    if ((b as any).requiresAccuracy) {
+      return progress.totalPoints >= b.requirement && getAccuracy() >= (b as any).requiresAccuracy;
+    }
+    return progress.totalPoints >= b.requirement;
+  });
 
   const availableBnCount = allQuestions.filter((q) => !!q.question_bn).length;
   const availableEnCount = allQuestions.filter((q) => !!q.question_en).length;
   const availableMixedCount = allQuestions.filter((q) => !!q.question_bn && !!q.question_en).length;
 
+  const todayXP = progress.todayCorrectAnswers * 10;
+
   return (
     <div className="min-h-screen quiz-page-bg pb-24">
+      {/* Quran Expert Celebration */}
+      <QuranExpertCelebration
+        open={showCelebration}
+        totalXP={progress.totalPoints}
+        correctAnswers={progress.correctAnswers}
+        accuracy={getAccuracy()}
+        onClose={() => {
+          setShowCelebration(false);
+          acknowledgeExpert();
+        }}
+        onGenerateCertificate={() => {
+          setShowCelebration(false);
+          acknowledgeExpert();
+          setShowCertificate(true);
+        }}
+      />
+
+      {/* Certificate */}
+      <QuranExpertCertificate
+        open={showCertificate}
+        totalXP={progress.totalPoints}
+        correctAnswers={progress.correctAnswers}
+        accuracy={getAccuracy()}
+        onClose={() => setShowCertificate(false)}
+      />
+
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-border/50 quiz-glass">
         <div className="flex items-center justify-between p-4">
@@ -472,7 +497,7 @@ const QuizPage = () => {
           </h1>
           <div className="flex items-center gap-2 rounded-full border px-3 py-1.5 quiz-glass quiz-glass-accent">
             <Zap className="w-4 h-4 text-primary" />
-            <span className="font-bold text-primary">{progress.totalPoints}</span>
+            <span className="font-bold text-primary">{progress.totalPoints} XP</span>
           </div>
         </div>
 
@@ -574,7 +599,7 @@ const QuizPage = () => {
                           <Zap className="w-3 h-3 text-primary" />
                       </div>
                         <p className="text-lg font-bold text-primary">{progress.totalPoints}</p>
-                      <p className="text-[10px] text-muted-foreground">Points</p>
+                      <p className="text-[10px] text-muted-foreground">Total XP</p>
                     </div>
                       <div className="text-center p-2 rounded-lg bg-muted/60 border border-border/60">
                       <div className="flex items-center justify-center gap-1 mb-1">
@@ -591,14 +616,38 @@ const QuizPage = () => {
                       <p className="text-[10px] text-muted-foreground">Best</p>
                     </div>
                   </div>
+
+                  {/* Daily XP tracker */}
+                  <div className="mt-3 p-2 rounded-lg bg-muted/40 border border-border/40">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                      <span>Today's XP</span>
+                      <span className="font-semibold text-primary">{todayXP}/50 XP</span>
+                    </div>
+                    <Progress value={(todayXP / 50) * 100} className="h-1.5" />
+                  </div>
+
+                  {/* Quran Expert badge button */}
+                  {isQuranExpert() && (
+                    <Button
+                      onClick={() => setShowCertificate(true)}
+                      className="w-full mt-3 gap-2 border-0"
+                      style={{
+                        background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 85% 45%))",
+                        color: "hsl(35 60% 10%)",
+                      }}
+                    >
+                      🎓 View Certificate
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
 
-              {playedToday && !quizCompleted ? (
+              {(reachedLimit || playedToday) && !quizCompleted ? (
                 <Card className="text-center py-8">
                   <CardContent>
                     <CheckCircle2 className="w-16 h-16 mx-auto text-emerald-500 mb-4" />
                     <h2 className="text-xl font-bold mb-2">আজকের কুইজ সম্পূর্ণ হয়েছে! ✅</h2>
+                    <p className="text-muted-foreground mb-2">আজ আপনি {todayXP} XP অর্জন করেছেন (সর্বোচ্চ ৫০ XP/দিন)</p>
                     <p className="text-muted-foreground mb-4">আগামীকাল নতুন প্রশ্নের জন্য ফিরে আসুন।</p>
                     <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-amber-500/10 rounded-xl border border-primary/20">
                       <div className="flex items-center justify-center gap-2 mb-2">
@@ -675,21 +724,18 @@ const QuizPage = () => {
                         
                         <div className="bg-background/50 rounded-xl p-4 mb-4 space-y-3">
                           <div>
-                            <p className="text-sm text-muted-foreground">Points earned</p>
+                            <p className="text-sm text-muted-foreground">XP earned</p>
                             <p className="text-2xl font-bold text-emerald-500">
-                              +{score * 10 + (score === 5 ? 20 : 0)}
+                              +{score * 10} XP
                             </p>
-                            {score === 5 && (
-                              <Badge className="mt-2 bg-amber-500">Perfect bonus +20</Badge>
-                            )}
                           </div>
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div className="rounded-lg bg-primary/5 p-3">
-                              <p className="text-xs text-muted-foreground">Today streak</p>
+                              <p className="text-xs text-muted-foreground">Day streak</p>
                               <p className="text-lg font-semibold text-primary">{progress.currentStreak} days</p>
                             </div>
                             <div className="rounded-lg bg-emerald-500/5 p-3">
-                              <p className="text-xs text-muted-foreground">Total points</p>
+                              <p className="text-xs text-muted-foreground">Total XP</p>
                               <p className="text-lg font-semibold text-emerald-500">{progress.totalPoints}</p>
                             </div>
                           </div>
@@ -788,16 +834,12 @@ const QuizPage = () => {
                                             ? 'bg-green-50 border-green-500 text-green-700'
                                             : isUserAnswer && !answer.isCorrect
                                             ? 'bg-red-50 border-red-500 text-red-700'
-                                            : 'bg-muted/30 border-transparent'
+                                            : 'border-border'
                                         }`}
                                       >
                                         <div className="flex items-center gap-2">
-                                          {isCorrectAnswer && (
-                                            <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                          )}
-                                          {isUserAnswer && !answer.isCorrect && (
-                                            <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-                                          )}
+                                          {isCorrectAnswer && <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />}
+                                          {isUserAnswer && !answer.isCorrect && <XCircle className="w-4 h-4 text-red-500 shrink-0" />}
                                           <div className="flex-1">
                                             <span
                                               className={
@@ -858,7 +900,7 @@ const QuizPage = () => {
                   <div className="mb-4 space-y-3">
                     <div className="flex justify-between text-sm mb-2">
                       <span>Question {currentQuestionIndex + 1}/5</span>
-                      <span>Score: {score}</span>
+                      <span>Score: {score} ({score * 10} XP)</span>
                     </div>
                     <Progress value={((currentQuestionIndex + 1) / 5) * 100} className="h-2" />
                     
@@ -895,7 +937,6 @@ const QuizPage = () => {
                         </span>
                       </div>
 
-                      {/* Animated Progress Bar (fills/empties with time) */}
                       <div className="px-3 pb-3">
                         <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60">
                           <motion.div
@@ -1125,7 +1166,7 @@ const QuizPage = () => {
                         >
                           {!isTimeUp && selectedAnswer === currentQuestion.correctAnswer ? (
                             <div className="flex flex-col items-center gap-2">
-                              <span className="text-3xl font-bold text-amber-400 drop-shadow-lg">+20 XP</span>
+                              <span className="text-3xl font-bold text-amber-400 drop-shadow-lg">+10 XP</span>
                               <span className="text-base text-emerald-300">🔥 Streak continues!</span>
                             </div>
                           ) : (
@@ -1182,7 +1223,6 @@ const QuizPage = () => {
                   )}
                 </AnimatePresence>
 
-                  {/* (inline “moving to next” removed; popup handles feedback) */}
                 </motion.div>
               ) : null}
             </motion.div>
@@ -1204,7 +1244,7 @@ const QuizPage = () => {
                         <p className="text-3xl font-bold">#9</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Your points</p>
+                        <p className="text-sm text-muted-foreground">Your XP</p>
                         <p className="text-3xl font-bold text-primary">{progress.totalPoints}</p>
                       </div>
                     </div>
@@ -1245,8 +1285,8 @@ const QuizPage = () => {
                           <p className="text-xs text-muted-foreground">{entry.badges} badges</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-primary">{entry.points}</p>
-                          <p className="text-xs text-muted-foreground font-bangla">পয়েন্ট</p>
+                          <p className="font-bold text-primary">{entry.xp}</p>
+                          <p className="text-xs text-muted-foreground">XP</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -1274,9 +1314,20 @@ const QuizPage = () => {
 
               <div className="grid grid-cols-1 gap-4">
                 {badges.map((badge, index) => {
-                  const isEarned = progress.totalPoints >= badge.requirement;
-                  const isNext = !isEarned && (index === 0 || progress.totalPoints >= badges[index - 1].requirement);
-                  const pointsNeeded = badge.requirement - progress.totalPoints;
+                  const hasAccuracyReq = !!(badge as any).requiresAccuracy;
+                  const isEarned = hasAccuracyReq
+                    ? progress.totalPoints >= badge.requirement && getAccuracy() >= (badge as any).requiresAccuracy
+                    : progress.totalPoints >= badge.requirement;
+                  const isNext = !isEarned && (index === 0 || (
+                    index > 0 && (() => {
+                      const prevBadge = badges[index - 1];
+                      const prevHasAcc = !!(prevBadge as any).requiresAccuracy;
+                      return prevHasAcc
+                        ? progress.totalPoints >= prevBadge.requirement && getAccuracy() >= (prevBadge as any).requiresAccuracy
+                        : progress.totalPoints >= prevBadge.requirement;
+                    })()
+                  ));
+                  const xpNeeded = Math.max(0, badge.requirement - progress.totalPoints);
                   const badgeProgress = isEarned ? 100 : Math.min(100, (progress.totalPoints / badge.requirement) * 100);
 
                   return (
@@ -1331,21 +1382,41 @@ const QuizPage = () => {
                               {!isEarned && (
                                 <div className="space-y-1">
                                   <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>{progress.totalPoints} points</span>
-                                    <span>{badge.requirement} needed</span>
+                                    <span>{progress.totalPoints} XP</span>
+                                    <span>{badge.requirement} XP needed</span>
                                   </div>
                                   <Progress value={badgeProgress} className="h-1.5" />
+                                  {hasAccuracyReq && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Requires {(badge as any).requiresAccuracy}% accuracy (current: {getAccuracy()}%)
+                                    </p>
+                                  )}
                                   {isNext && (
                                     <p className="text-xs text-primary font-medium">
-                                      {pointsNeeded} points to unlock
+                                      {xpNeeded} XP to unlock
                                     </p>
                                   )}
                                 </div>
                               )}
                               {isEarned && (
-                                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                                  Unlocked at {badge.requirement} points ✓
-                                </p>
+                                <div className="space-y-1">
+                                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                                    Unlocked at {badge.requirement} XP ✓
+                                  </p>
+                                  {badge.name === "Quran Expert" && (
+                                    <Button
+                                      onClick={() => setShowCertificate(true)}
+                                      size="sm"
+                                      className="mt-1 gap-1 text-xs border-0"
+                                      style={{
+                                        background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 85% 45%))",
+                                        color: "hsl(35 60% 10%)",
+                                      }}
+                                    >
+                                      🎓 Certificate
+                                    </Button>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>
