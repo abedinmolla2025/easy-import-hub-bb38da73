@@ -7,9 +7,9 @@ import {
   PlayCircle,
   Info,
   Mail,
-  Shield,
+  ShieldCheck,
   FileText,
-  Map,
+  LayoutGrid,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -35,9 +35,9 @@ const quickLinks = [
 const legalLinks = [
   { label: "About Us", path: "/about", icon: Info },
   { label: "Contact Us", path: "/contact", icon: Mail },
-  { label: "Privacy Policy", path: "/privacy-policy", icon: Shield },
+  { label: "Privacy Policy", path: "/privacy-policy", icon: ShieldCheck },
   { label: "Terms & Conditions", path: "/terms", icon: FileText },
-  { label: "Sitemap", path: "/sitemap.xml", icon: Map, external: true },
+  { label: "Sitemap", path: "/sitemap.xml", icon: LayoutGrid, external: true },
 ];
 
 export default function FooterSection({
@@ -73,7 +73,7 @@ export default function FooterSection({
                 <li key={link.path}>
                   <button
                     onClick={() => onNavigate(link.path)}
-                    className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-colors hover:text-primary"
+                    className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <link.icon className="h-[18px] w-[18px] shrink-0" />
                     {link.label}
@@ -96,7 +96,7 @@ export default function FooterSection({
                       href={link.path}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-colors hover:text-primary"
+                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <link.icon className="h-[18px] w-[18px] shrink-0" />
                       {link.label}
@@ -106,7 +106,7 @@ export default function FooterSection({
                   <li key={link.path}>
                     <button
                       onClick={() => onNavigate(link.path)}
-                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-colors hover:text-primary"
+                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <link.icon className="h-[18px] w-[18px] shrink-0" />
                       {link.label}
