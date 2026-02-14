@@ -3,6 +3,16 @@ import {
   Mail,
   MessageCircle,
   PlayCircle,
+  Home,
+  BookOpen,
+  Clock,
+  Calendar,
+  ScrollText,
+  Info,
+  Phone,
+  Shield,
+  FileText,
+  Map,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -26,10 +36,25 @@ function normalizeEmail(raw?: string) {
   const v = (raw ?? "").trim();
   if (!v) return undefined;
   if (v.startsWith("mailto:")) return v;
-  // allow both raw emails and full mailto links
   if (v.includes("@")) return `mailto:${v}`;
   return v;
 }
+
+const quickLinks = [
+  { label: "হোম", labelEn: "Home", path: "/", icon: Home },
+  { label: "কুরআন", labelEn: "Quran", path: "/quran", icon: BookOpen },
+  { label: "হাদিস", labelEn: "Hadith", path: "/bukhari", icon: ScrollText },
+  { label: "নামাজের সময়", labelEn: "Prayer Times", path: "/prayer-times", icon: Clock },
+  { label: "ক্যালেন্ডার", labelEn: "Calendar", path: "/calendar", icon: Calendar },
+];
+
+const legalLinks = [
+  { label: "About Us", path: "/about", icon: Info },
+  { label: "Contact Us", path: "/contact", icon: Phone },
+  { label: "Privacy Policy", path: "/privacy-policy", icon: Shield },
+  { label: "Terms & Conditions", path: "/terms", icon: FileText },
+  { label: "Sitemap", path: "/sitemap.xml", icon: Map, external: true },
+];
 
 export default function FooterSection({
   settings,
@@ -42,170 +67,155 @@ export default function FooterSection({
 }) {
   const playStoreUrl = useMemo(() => normalizeUrl(settings?.playStoreUrl), [settings?.playStoreUrl]);
   const appStoreUrl = useMemo(() => normalizeUrl(settings?.appStoreUrl), [settings?.appStoreUrl]);
-  const websiteUrl = useMemo(() => normalizeUrl(settings?.websiteUrl) ?? window.location.origin, [settings?.websiteUrl]);
+  const websiteUrl = useMemo(
+    () => normalizeUrl(settings?.websiteUrl) ?? window.location.origin,
+    [settings?.websiteUrl]
+  );
   const mailto = useMemo(() => normalizeEmail(settings?.contactEmail), [settings?.contactEmail]);
   const facebookUrl = useMemo(() => normalizeUrl(settings?.facebookUrl), [settings?.facebookUrl]);
   const whatsappUrl = useMemo(() => normalizeUrl(settings?.whatsappUrl), [settings?.whatsappUrl]);
 
-  const footerText =
-    (settings?.footerText ?? "").trim() ||
-    "Noor — আপনার দৈনিক নামাজ, কুরআন ও দ্বীনি রুটিনকে এক জায়গায় সহজ করে রাখার ছোট সাথী।";
-  const developerLine =
-    (settings?.developerLine ?? "").trim() || "Developed by ABEDIN MOLLA – India";
-
   return (
-    <footer className="mt-6 pt-5 border-top border-border/70">
-      <div className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-t from-primary/10 via-background to-background/80 border border-border/60 px-3 py-3 shadow-sm shadow-primary/10 animate-fade-in space-y-3">
-        <p className="text-[11px] text-center text-muted-foreground">{footerText}</p>
+    <footer className="mt-8 border-t border-border/50 bg-gradient-to-b from-background to-muted/30">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Main grid — stacked on mobile, 4 columns on desktop */}
+        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
+          {/* ── About ── */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">Noor</h3>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Daily Prayer, Quran, Hadith &amp; Islamic content — আপনার দৈনিক দ্বীনি রুটিনের ছোট সাথী।
+            </p>
 
-        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
-          <button
-            onClick={() => onNavigate("/")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>হোম</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/quran")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>কুরআন</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/bukhari")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>হাদিস</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/calendar")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>ইসলামিক ক্যালেন্ডার</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/prayer-times")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>নামাজের সময়</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/notifications")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>ইনবক্স</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/settings")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>সেটিংস</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/about")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>About Us</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/contact")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>Contact Us</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/privacy-policy")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>Privacy Policy</span>
-          </button>
-          <button
-            onClick={() => onNavigate("/terms")}
-            className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale"
-          >
-            <span>Terms &amp; Conditions</span>
-          </button>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border border-border/60 rounded-xl px-3 py-2 bg-background/80">
-          {platform === "app" ? (
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale"
-            >
-              <span>Visit our website</span>
-            </a>
-          ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              {playStoreUrl ? (
-                <a
-                  href={playStoreUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale"
-                >
-                  <PlayCircle className="h-3.5 w-3.5" />
-                  <span>Play Store</span>
-                </a>
-              ) : (
-                <button className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale">
-                  <PlayCircle className="h-3.5 w-3.5" />
-                  <span>Play Store (Soon)</span>
-                </button>
-              )}
-
-              {appStoreUrl && (
-                <a
-                  href={appStoreUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-medium text-foreground shadow-sm hover:bg-muted transition-all hover-scale"
-                >
-                  <span>App Store</span>
-                </a>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-            <span className="hidden sm:inline">Contact &amp; Feedback:</span>
-            <div className="flex items-center gap-2">
+            {/* Social icons */}
+            <div className="flex items-center justify-center gap-3 pt-1 sm:justify-start">
               {mailto && (
-                <a href={mailto} className="hover:text-foreground hover-scale inline-flex" aria-label="Email">
-                  <Mail className="h-3.5 w-3.5" />
+                <a href={mailto} aria-label="Email" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Mail className="h-4 w-4" />
                 </a>
               )}
               {facebookUrl && (
-                <a
-                  href={facebookUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-foreground hover-scale inline-flex"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="h-3.5 w-3.5" />
+                <a href={facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Facebook className="h-4 w-4" />
                 </a>
               )}
               {whatsappUrl && (
+                <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="text-muted-foreground hover:text-primary transition-colors">
+                  <MessageCircle className="h-4 w-4" />
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* ── Quick Links ── */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">Quick Links</h3>
+            <ul className="space-y-2">
+              {quickLinks.map((link) => (
+                <li key={link.path}>
+                  <button
+                    onClick={() => onNavigate(link.path)}
+                    className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <link.icon className="h-3.5 w-3.5" />
+                    <span>{link.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ── Legal & Support ── */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">Legal &amp; Support</h3>
+            <ul className="space-y-2">
+              {legalLinks.map((link) => (
+                <li key={link.path}>
+                  {link.external ? (
+                    <a
+                      href={link.path}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <link.icon className="h-3.5 w-3.5" />
+                      <span>{link.label}</span>
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => onNavigate(link.path)}
+                      className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <link.icon className="h-3.5 w-3.5" />
+                      <span>{link.label}</span>
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ── App Downloads ── */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">App Downloads</h3>
+            <div className="flex flex-col items-center gap-2 sm:items-start">
+              {platform === "app" ? (
                 <a
-                  href={whatsappUrl}
+                  href={websiteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-foreground hover-scale inline-flex"
-                  aria-label="WhatsApp"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-sm hover:brightness-105 transition-all"
                 >
-                  <MessageCircle className="h-3.5 w-3.5" />
+                  Visit our website
                 </a>
+              ) : (
+                <>
+                  {playStoreUrl ? (
+                    <a
+                      href={playStoreUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-sm hover:brightness-105 transition-all"
+                    >
+                      <PlayCircle className="h-4 w-4" />
+                      Google Play Store
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-xs text-muted-foreground">
+                      <PlayCircle className="h-4 w-4" />
+                      Play Store (Coming Soon)
+                    </span>
+                  )}
+
+                  {appStoreUrl ? (
+                    <a
+                      href={appStoreUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-all"
+                    >
+                      App Store
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2 text-xs text-muted-foreground">
+                      App Store (Coming Soon)
+                    </span>
+                  )}
+                </>
               )}
             </div>
           </div>
         </div>
 
-        <div className="h-px w-20 mx-auto bg-border/70 rounded-full" />
-
-        <p className="text-[11px] text-center text-muted-foreground">{developerLine}</p>
+        {/* ── Bottom bar ── */}
+        <div className="mt-8 border-t border-border/50 pt-4 text-center">
+          <p className="text-[11px] text-muted-foreground">
+            © {new Date().getFullYear()} Noor App. All rights reserved.
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground/70">
+            Developed by Abedin Molla
+          </p>
+        </div>
       </div>
     </footer>
   );
