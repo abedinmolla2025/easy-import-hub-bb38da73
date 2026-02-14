@@ -130,6 +130,8 @@ export const useQuizProgress = () => {
 
   // Check if badge was just unlocked (not previously acknowledged)
   const EXPERT_ACK_KEY = "noor_quran_expert_ack";
+  const BADGE_ACK_KEY = "noor_badge_ack";
+
   const hasAcknowledgedExpert = useCallback(() => {
     return localStorage.getItem(EXPERT_ACK_KEY) === "true";
   }, []);
@@ -137,6 +139,24 @@ export const useQuizProgress = () => {
   const acknowledgeExpert = useCallback(() => {
     localStorage.setItem(EXPERT_ACK_KEY, "true");
   }, []);
+
+  const getAcknowledgedBadges = useCallback((): number[] => {
+    try {
+      const stored = localStorage.getItem(BADGE_ACK_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  }, []);
+
+  const hasAcknowledgedBadge = useCallback((badgeId: number) => {
+    return getAcknowledgedBadges().includes(badgeId);
+  }, [getAcknowledgedBadges]);
+
+  const acknowledgeBadge = useCallback((badgeId: number) => {
+    const acked = getAcknowledgedBadges();
+    if (!acked.includes(badgeId)) {
+      localStorage.setItem(BADGE_ACK_KEY, JSON.stringify([...acked, badgeId]));
+    }
+  }, [getAcknowledgedBadges]);
 
   return {
     progress,
@@ -150,5 +170,7 @@ export const useQuizProgress = () => {
     isQuranExpert,
     hasAcknowledgedExpert,
     acknowledgeExpert,
+    hasAcknowledgedBadge,
+    acknowledgeBadge,
   };
 };

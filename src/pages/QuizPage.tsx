@@ -15,8 +15,8 @@ import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { hapticImpact, hapticNotification } from "@/lib/haptics";
-import { QuranExpertCelebration } from "@/components/QuranExpertCelebration";
-import { QuranExpertCertificate } from "@/components/QuranExpertCertificate";
+import { BadgeCelebration } from "@/components/BadgeCelebration";
+import { BadgeCertificate } from "@/components/BadgeCertificate";
 
 interface Question {
   question: string;
@@ -91,16 +91,26 @@ const QuizPage = () => {
     isQuranExpert,
     hasAcknowledgedExpert,
     acknowledgeExpert,
+    hasAcknowledgedBadge,
+    acknowledgeBadge,
   } = useQuizProgress();
 
-  // Celebration & certificate modals
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [showCertificate, setShowCertificate] = useState(false);
+  // Celebration & certificate modals — now for any badge
+  const [celebratingBadge, setCelebratingBadge] = useState<typeof badges[number] | null>(null);
+  const [certificateBadge, setCertificateBadge] = useState<typeof badges[number] | null>(null);
 
-  // Check if we should show celebration on quiz completion
+  // Check if any badge was just unlocked and not acknowledged
   useEffect(() => {
-    if (isQuranExpert() && !hasAcknowledgedExpert()) {
-      setShowCelebration(true);
+    for (const badge of badges) {
+      const hasAccuracyReq = !!(badge as any).requiresAccuracy;
+      const isEarned = hasAccuracyReq
+        ? progress.totalPoints >= badge.requirement && getAccuracy() >= (badge as any).requiresAccuracy
+        : progress.totalPoints >= badge.requirement;
+
+      if (isEarned && !hasAcknowledgedBadge(badge.id)) {
+        setCelebratingBadge(badge);
+        break;
+      }
     }
   }, [progress.totalPoints, progress.correctAnswers]);
 
@@ -457,31 +467,47 @@ const QuizPage = () => {
 
   return (
     <div className="min-h-screen quiz-page-bg pb-24">
-      {/* Quran Expert Celebration */}
-      <QuranExpertCelebration
-        open={showCelebration}
-        totalXP={progress.totalPoints}
-        correctAnswers={progress.correctAnswers}
-        accuracy={getAccuracy()}
-        onClose={() => {
-          setShowCelebration(false);
-          acknowledgeExpert();
-        }}
-        onGenerateCertificate={() => {
-          setShowCelebration(false);
-          acknowledgeExpert();
-          setShowCertificate(true);
-        }}
-      />
+      {/* Badge Celebration */}
+      {celebratingBadge && (
+        <BadgeCelebration
+          open={!!celebratingBadge}
+          badge={{
+            ...celebratingBadge,
+            isPremium: celebratingBadge.name === "Quran Expert",
+            requiresAccuracy: (celebratingBadge as any).requiresAccuracy,
+          }}
+          totalXP={progress.totalPoints}
+          correctAnswers={progress.correctAnswers}
+          accuracy={getAccuracy()}
+          onClose={() => {
+            acknowledgeBadge(celebratingBadge.id);
+            if (celebratingBadge.name === "Quran Expert") acknowledgeExpert();
+            setCelebratingBadge(null);
+          }}
+          onGenerateCertificate={() => {
+            acknowledgeBadge(celebratingBadge.id);
+            if (celebratingBadge.name === "Quran Expert") acknowledgeExpert();
+            setCertificateBadge(celebratingBadge);
+            setCelebratingBadge(null);
+          }}
+        />
+      )}
 
-      {/* Certificate */}
-      <QuranExpertCertificate
-        open={showCertificate}
-        totalXP={progress.totalPoints}
-        correctAnswers={progress.correctAnswers}
-        accuracy={getAccuracy()}
-        onClose={() => setShowCertificate(false)}
-      />
+      {/* Badge Certificate */}
+      {certificateBadge && (
+        <BadgeCertificate
+          open={!!certificateBadge}
+          badge={{
+            ...certificateBadge,
+            isPremium: certificateBadge.name === "Quran Expert",
+            requiresAccuracy: (certificateBadge as any).requiresAccuracy,
+          }}
+          totalXP={progress.totalPoints}
+          correctAnswers={progress.correctAnswers}
+          accuracy={getAccuracy()}
+          onClose={() => setCertificateBadge(null)}
+        />
+      )}
 
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-border/50 quiz-glass">
@@ -629,7 +655,7 @@ const QuizPage = () => {
                   {/* Quran Expert badge button */}
                   {isQuranExpert() && (
                     <Button
-                      onClick={() => setShowCertificate(true)}
+                      onClick={() => setCertificateBadge(badges.find(b => b.name === "Quran Expert") || null)}
                       className="w-full mt-3 gap-2 border-0"
                       style={{
                         background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 85% 45%))",
@@ -1403,19 +1429,19 @@ const QuizPage = () => {
                                   <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                                     Unlocked at {badge.requirement} XP ✓
                                   </p>
-                                  {badge.name === "Quran Expert" && (
-                                    <Button
-                                      onClick={() => setShowCertificate(true)}
-                                      size="sm"
-                                      className="mt-1 gap-1 text-xs border-0"
-                                      style={{
-                                        background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 85% 45%))",
-                                        color: "hsl(35 60% 10%)",
-                                      }}
-                                    >
-                                      🎓 Certificate
-                                    </Button>
-                                  )}
+                                  <Button
+                                    onClick={() => setCertificateBadge(badge)}
+                                    size="sm"
+                                    className="mt-1 gap-1 text-xs border-0"
+                                    style={{
+                                      background: badge.name === "Quran Expert"
+                                        ? "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 85% 45%))"
+                                        : "linear-gradient(135deg, hsl(145 70% 45%), hsl(155 60% 35%))",
+                                      color: badge.name === "Quran Expert" ? "hsl(35 60% 10%)" : "hsl(0 0% 100%)",
+                                    }}
+                                  >
+                                    🎓 Certificate
+                                  </Button>
                                 </div>
                               )}
                             </div>
