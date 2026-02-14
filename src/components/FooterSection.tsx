@@ -5,6 +5,11 @@ import {
   Calendar,
   ScrollText,
   PlayCircle,
+  Info,
+  Mail,
+  Shield,
+  FileText,
+  Map,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -28,11 +33,11 @@ const quickLinks = [
 ];
 
 const legalLinks = [
-  { label: "About Us", path: "/about" },
-  { label: "Contact Us", path: "/contact" },
-  { label: "Privacy Policy", path: "/privacy-policy" },
-  { label: "Terms & Conditions", path: "/terms" },
-  { label: "Sitemap", path: "/sitemap.xml", external: true },
+  { label: "About Us", path: "/about", icon: Info },
+  { label: "Contact Us", path: "/contact", icon: Mail },
+  { label: "Privacy Policy", path: "/privacy-policy", icon: Shield },
+  { label: "Terms & Conditions", path: "/terms", icon: FileText },
+  { label: "Sitemap", path: "/sitemap.xml", icon: Map, external: true },
 ];
 
 export default function FooterSection({
@@ -54,55 +59,73 @@ export default function FooterSection({
   );
 
   return (
-    <footer className="mt-8 border-t border-border bg-background pt-6 pb-4">
-      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
-        {/* Quick Links Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm text-center sm:text-left">
-          {quickLinks.map((link) => (
-            <button
-              key={link.path}
-              onClick={() => onNavigate(link.path)}
-              className="inline-flex items-center justify-center sm:justify-start gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-            >
-              <link.icon className="h-3.5 w-3.5" />
-              {link.label}
-            </button>
-          ))}
+    <footer className="mt-8 border-t border-border bg-card pt-8 pb-6">
+      <div className="mx-auto max-w-screen-xl px-6">
+        {/* Two-column grid */}
+        <div className="grid grid-cols-2 gap-x-6">
+          {/* Section 1: Quick Links */}
+          <div>
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              Quick Links
+            </h3>
+            <ul className="flex flex-col gap-4">
+              {quickLinks.map((link) => (
+                <li key={link.path}>
+                  <button
+                    onClick={() => onNavigate(link.path)}
+                    className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-colors hover:text-primary"
+                  >
+                    <link.icon className="h-[18px] w-[18px] shrink-0" />
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Section 2: Legal & Support */}
+          <div>
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              Legal & Support
+            </h3>
+            <ul className="flex flex-col gap-4">
+              {legalLinks.map((link) =>
+                link.external ? (
+                  <li key={link.path}>
+                    <a
+                      href={link.path}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      <link.icon className="h-[18px] w-[18px] shrink-0" />
+                      {link.label}
+                    </a>
+                  </li>
+                ) : (
+                  <li key={link.path}>
+                    <button
+                      onClick={() => onNavigate(link.path)}
+                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      <link.icon className="h-[18px] w-[18px] shrink-0" />
+                      {link.label}
+                    </button>
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
         </div>
 
-        {/* Legal Links Row */}
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm text-center sm:text-left">
-          {legalLinks.map((link) =>
-            link.external ? (
-              <a
-                key={link.path}
-                href={link.path}
-                target="_blank"
-                rel="noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.label}
-              </a>
-            ) : (
-              <button
-                key={link.path}
-                onClick={() => onNavigate(link.path)}
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.label}
-              </button>
-            )
-          )}
-        </div>
-
-        {/* App Download */}
-        <div className="mt-6 text-center">
+        {/* CTA Button */}
+        <div className="mt-5">
           {platform === "app" ? (
             <a
               href={websiteUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:brightness-105 transition-all"
+              className="block w-full rounded-xl bg-primary py-3 text-center text-[14px] font-semibold text-primary-foreground shadow-soft transition-all hover:brightness-105"
             >
               Visit our website
             </a>
@@ -111,19 +134,19 @@ export default function FooterSection({
               href={playStoreUrl ?? "#"}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:brightness-105 transition-all"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-[14px] font-semibold text-primary-foreground shadow-soft transition-all hover:brightness-105"
             >
-              <PlayCircle className="h-4 w-4" />
+              <PlayCircle className="h-[18px] w-[18px]" />
               Get it on Google Play
             </a>
           )}
         </div>
 
-        {/* Copyright & Developer Credit */}
-        <div className="mt-6 text-center text-xs text-muted-foreground">
+        {/* Copyright */}
+        <div className="mt-6 text-center text-[12px] leading-relaxed text-muted-foreground/50">
           © {new Date().getFullYear()} Noor App. All rights reserved.
           <br />
-          <span className="text-muted-foreground/70">Developed by Abedin Molla</span>
+          Developed by Abedin Molla
         </div>
       </div>
     </footer>
