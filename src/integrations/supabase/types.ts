@@ -710,6 +710,95 @@ export type Database = {
         }
         Relationships: []
       }
+      hadith_books: {
+        Row: {
+          author: string | null
+          author_bn: string | null
+          created_at: string
+          description: string | null
+          description_bn: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          title: string
+          title_ar: string | null
+          title_bn: string | null
+          total_chapters: number
+          total_hadiths: number
+        }
+        Insert: {
+          author?: string | null
+          author_bn?: string | null
+          created_at?: string
+          description?: string | null
+          description_bn?: string | null
+          display_order?: number
+          id: string
+          is_active?: boolean
+          title: string
+          title_ar?: string | null
+          title_bn?: string | null
+          total_chapters?: number
+          total_hadiths?: number
+        }
+        Update: {
+          author?: string | null
+          author_bn?: string | null
+          created_at?: string
+          description?: string | null
+          description_bn?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          title?: string
+          title_ar?: string | null
+          title_bn?: string | null
+          total_chapters?: number
+          total_hadiths?: number
+        }
+        Relationships: []
+      }
+      hadith_chapters: {
+        Row: {
+          book_id: string
+          chapter_number: number
+          created_at: string
+          hadith_count: number
+          id: string
+          title: string
+          title_ar: string | null
+          title_bn: string | null
+        }
+        Insert: {
+          book_id: string
+          chapter_number: number
+          created_at?: string
+          hadith_count?: number
+          id?: string
+          title: string
+          title_ar?: string | null
+          title_bn?: string | null
+        }
+        Update: {
+          book_id?: string
+          chapter_number?: number
+          created_at?: string
+          hadith_count?: number
+          id?: string
+          title?: string
+          title_ar?: string | null
+          title_bn?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hadith_chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "hadith_books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_deliveries: {
         Row: {
           browser: string | null
