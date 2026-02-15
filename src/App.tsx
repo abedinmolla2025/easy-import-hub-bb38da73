@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SeoHead } from "@/components/seo/SeoHead";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -17,6 +17,7 @@ import QuranPage from "./pages/QuranPage";
 import NamesOfAllahPage from "./pages/NamesOfAllahPage";
 import PrayerTimesPage from "./pages/PrayerTimesPage";
 import BukhariPage from "./pages/BukhariPage";
+import HadithPage from "./pages/HadithPage";
 import IslamicCalendarPage from "./pages/IslamicCalendarPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -59,6 +60,8 @@ import AnnouncementTicker from "@/components/AnnouncementTicker";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 
+const BukhariRedirect = () => <Navigate to="/hadith/bukhari" replace />;
+
 const queryClient = new QueryClient();
 
 const AppRoutes = () => (
@@ -75,7 +78,10 @@ const AppRoutes = () => (
       <Route path="/quran" element={<QuranPage />} />
       <Route path="/99-names" element={<NamesOfAllahPage />} />
       <Route path="/prayer-times" element={<PrayerTimesPage />} />
-      <Route path="/bukhari" element={<BukhariPage />} />
+      <Route path="/hadith" element={<HadithPage />} />
+      <Route path="/hadith/bukhari" element={<BukhariPage />} />
+      {/* 301-style redirect for old /bukhari route */}
+      <Route path="/bukhari" element={<BukhariRedirect />} />
       <Route path="/calendar" element={<IslamicCalendarPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
