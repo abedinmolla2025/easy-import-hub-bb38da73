@@ -12,8 +12,6 @@ const fallbackBooks = [
   { id: "abu-dawud", title: "Sunan Abu Dawud", title_bn: "সুনানে আবু দাউদ", total_chapters: 43, total_hadiths: 5274 },
 ];
 
-const geometricPatternSvg = `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M30 0L60 30L30 60L0 30z M30 8L52 30L30 52L8 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`;
-
 export default function HadithPage() {
   const navigate = useNavigate();
 
@@ -33,36 +31,26 @@ export default function HadithPage() {
   const hadithBooks = books ?? fallbackBooks;
 
   return (
-    <div className="min-h-screen pb-24 relative">
-      {/* Full-page gradient background */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{ background: "linear-gradient(160deg, #0F766E 0%, #064E3B 50%, #022c22 100%)" }}
-      />
-      {/* Geometric pattern overlay */}
-      <div
-        className="fixed inset-0 -z-10 mix-blend-overlay"
-        style={{ backgroundImage: geometricPatternSvg, backgroundSize: "60px 60px" }}
-      />
-
+    <div
+      className="min-h-screen pb-24"
+      style={{ background: "linear-gradient(170deg, #0F766E 0%, #064E3B 45%, #022c22 100%)" }}
+    >
       {/* Hero section */}
-      <div className="px-4 pt-14 pb-8 text-center">
+      <div className="px-4 pt-14 pb-10 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(167,243,208,0.15) 0%, transparent 70%)" }}
+          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/10"
         >
-          <BookOpen className="h-8 w-8 text-emerald-100" />
+          <BookOpen className="h-7 w-7 text-white" />
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="text-[28px] font-extrabold tracking-tight text-white"
-          style={{ textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}
+          className="text-[26px] font-extrabold text-white tracking-tight"
         >
           Hadith Collection
         </motion.h1>
@@ -71,7 +59,7 @@ export default function HadithPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="mt-1.5 text-[15px] text-emerald-100/90"
+          className="mt-1 text-[15px] text-emerald-200"
           style={{ fontFamily: "'Noto Sans Bengali', sans-serif" }}
         >
           হাদিস সংকলন
@@ -81,14 +69,14 @@ export default function HadithPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="mt-3 text-[13px] leading-relaxed text-white/60 max-w-sm mx-auto"
+          className="mt-3 text-[13px] leading-relaxed text-emerald-100/60 max-w-xs mx-auto"
         >
-          Browse authentic Hadith collections from the most trusted scholars of Islam.
+          Browse authentic collections from the most trusted scholars of Islam.
         </motion.p>
       </div>
 
       {/* Book cards */}
-      <div className="mx-auto max-w-lg px-4 flex flex-col gap-3.5">
+      <div className="mx-auto max-w-lg px-4 flex flex-col gap-3">
         {hadithBooks.map((book, i) => (
           <motion.button
             key={book.id}
@@ -98,19 +86,14 @@ export default function HadithPage() {
             whileHover={{ y: -2, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate(`/hadith/${book.id}`)}
-            className="flex items-center gap-4 rounded-[20px] p-5 text-left transition-shadow duration-200 bg-white"
-            style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)" }}
+            className="flex items-center gap-4 rounded-2xl bg-white p-4 text-left shadow-lg shadow-black/10"
           >
-            {/* Icon circle */}
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: "linear-gradient(135deg, #10B981 0%, #059669 100%)" }}
-            >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-600">
               <ScrollText className="h-5 w-5 text-white" />
             </div>
 
             <div className="flex-1 min-w-0">
-              <h2 className="text-[15px] font-semibold text-gray-900 leading-snug">
+              <h2 className="text-[15px] font-bold text-gray-900 leading-snug">
                 {book.title}
               </h2>
               <p
@@ -119,7 +102,7 @@ export default function HadithPage() {
               >
                 {book.title_bn}
               </p>
-              <p className="mt-1 text-[11px] text-gray-400 tracking-wide">
+              <p className="mt-0.5 text-[11px] text-gray-400">
                 {book.total_chapters} chapters · {book.total_hadiths.toLocaleString()} hadiths
               </p>
             </div>
