@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
     icon: <ScrollText className="w-5 h-5" />,
     label: "Hadith",
     labelBn: "হাদিস",
-    path: "/bukhari",
+    path: "/hadith",
     moduleKey: "hadith",
   },
   {

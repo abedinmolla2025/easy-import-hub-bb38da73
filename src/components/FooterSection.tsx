@@ -27,7 +27,7 @@ export type FooterLinksSettings = {
 const quickLinks = [
   { label: "Home", path: "/", icon: Home },
   { label: "Quran", path: "/quran", icon: BookOpen },
-  { label: "Hadith", path: "/bukhari", icon: ScrollText },
+  { label: "Hadith", path: "/hadith", icon: ScrollText },
   { label: "Prayer Time", path: "/prayer-times", icon: Clock },
   { label: "Calendar", path: "/calendar", icon: Calendar },
 ];

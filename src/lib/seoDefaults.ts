@@ -39,7 +39,12 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
     description:
       "Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।",
   },
-  "/bukhari": {
+  "/hadith": {
+    title: "Hadith Collection — হাদিস সংকলন | NOOR",
+    description:
+      "Browse authentic Hadith collections — সহীহ বুখারী, মুসলিম ও অন্যান্য বিশ্বস্ত হাদিস গ্রন্থ আরবি, বাংলা ও ইংরেজি অনুবাদ সহ পড়ুন।",
+  },
+  "/hadith/bukhari": {
     title: "Sahih Bukhari — সহীহ বুখারী | NOOR",
     description:
       "Browse the complete Sahih Bukhari Hadith collection — সহীহ বুখারী শরীফের হাদিস আরবি টেক্সট ও বাংলা অনুবাদ সহ পড়ুন।",
