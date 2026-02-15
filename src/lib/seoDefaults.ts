@@ -49,6 +49,21 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
     description:
       "Browse the complete Sahih Bukhari Hadith collection — সহীহ বুখারী শরীফের হাদিস আরবি টেক্সট ও বাংলা অনুবাদ সহ পড়ুন।",
   },
+  "/hadith/muslim": {
+    title: "Sahih Muslim — সহীহ মুসলিম | NOOR",
+    description:
+      "Read Sahih Muslim Hadith collection — ইমাম মুসলিম (রহ.) সংকলিত সহীহ মুসলিম শরীফের হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন।",
+  },
+  "/hadith/tirmidhi": {
+    title: "Jami at-Tirmidhi — জামে তিরমিযী | NOOR",
+    description:
+      "Browse Jami at-Tirmidhi Hadith collection — ইমাম তিরমিযী (রহ.) সংকলিত জামে তিরমিযীর হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন।",
+  },
+  "/hadith/abu-dawud": {
+    title: "Sunan Abu Dawud — সুনানে আবু দাউদ | NOOR",
+    description:
+      "Read Sunan Abu Dawud Hadith collection — ইমাম আবু দাউদ (রহ.) সংকলিত সুনানে আবু দাউদের হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন।",
+  },
   "/prayer-guide": {
     title: "Prayer Guide — নামাজ শিক্ষা | NOOR",
     description:
