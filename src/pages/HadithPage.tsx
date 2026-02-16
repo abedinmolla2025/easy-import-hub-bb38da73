@@ -33,15 +33,25 @@ export default function HadithPage() {
   return (
     <div
       className="min-h-screen pb-24"
-      style={{ background: "linear-gradient(170deg, #0F766E 0%, #064E3B 45%, #022c22 100%)" }}
+      style={{ background: "linear-gradient(170deg, #0F766E 0%, #064E3B 40%, #022c22 100%)" }}
     >
       {/* Hero section */}
-      <div className="px-4 pt-14 pb-10 text-center">
+      <div className="px-4 pt-14 pb-10 text-center relative">
+        {/* Radial glow behind icon */}
+        <div
+          className="absolute left-1/2 top-10 -translate-x-1/2 w-40 h-40 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%)" }}
+        />
+
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/10"
+          className="relative mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full"
+          style={{
+            background: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
+            boxShadow: "inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.15), 0 4px 12px rgba(5,150,105,0.4)",
+          }}
         >
           <BookOpen className="h-7 w-7 text-white" />
         </motion.div>
@@ -51,6 +61,7 @@ export default function HadithPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
           className="text-[26px] font-extrabold text-white tracking-tight"
+          style={{ textShadow: "0 1px 3px rgba(0,0,0,0.2)" }}
         >
           Hadith Collection
         </motion.h1>
@@ -59,8 +70,8 @@ export default function HadithPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="mt-1 text-[15px] text-emerald-200"
-          style={{ fontFamily: "'Noto Sans Bengali', sans-serif" }}
+          className="mt-1 text-[15px]"
+          style={{ fontFamily: "'Noto Sans Bengali', sans-serif", color: "rgba(255,255,255,0.85)" }}
         >
           হাদিস সংকলন
         </motion.p>
@@ -69,26 +80,37 @@ export default function HadithPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="mt-3 text-[13px] leading-relaxed text-emerald-100/60 max-w-xs mx-auto"
+          className="mt-3 text-[13px] leading-relaxed max-w-xs mx-auto"
+          style={{ color: "rgba(255,255,255,0.55)" }}
         >
           Browse authentic collections from the most trusted scholars of Islam.
         </motion.p>
       </div>
 
       {/* Book cards */}
-      <div className="mx-auto max-w-lg px-4 flex flex-col gap-3">
+      <div className="mx-auto max-w-lg px-4 flex flex-col gap-[14px]">
         {hadithBooks.map((book, i) => (
           <motion.button
             key={book.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
-            whileHover={{ y: -2, transition: { duration: 0.2 } }}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate(`/hadith/${book.id}`)}
-            className="flex items-center gap-4 rounded-2xl bg-white p-4 text-left shadow-lg shadow-black/10"
+            className="flex items-center gap-4 bg-white p-4 text-left transition-shadow duration-200"
+            style={{
+              borderRadius: 20,
+              boxShadow: "0 6px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)",
+            }}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-600">
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+              style={{
+                background: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
+                boxShadow: "inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -1px 2px rgba(0,0,0,0.1)",
+              }}
+            >
               <ScrollText className="h-5 w-5 text-white" />
             </div>
 

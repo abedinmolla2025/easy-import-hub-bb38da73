@@ -95,7 +95,7 @@ const BottomNavigation = () => {
                 {active && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute -top-1 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent"
+                    className="absolute -top-1 left-1/2 h-[3px] w-7 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}
