@@ -15,7 +15,7 @@ export type PageSeoDefaults = {
 
 const DEFAULTS: Record<string, PageSeoDefaults> = {
   "/": {
-    title: "Noor – Free Islamic App for Quran, Hadith & Dua",
+    title: "Noor — Islamic App for Quran, Hadith, Prayer Times & Dua",
     description:
       "Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz — all in one app.",
   },
