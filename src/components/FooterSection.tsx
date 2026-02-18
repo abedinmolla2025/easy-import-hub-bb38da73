@@ -14,6 +14,7 @@ import {
   Star,
   Baby,
   HelpCircle,
+  Navigation,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -28,23 +29,27 @@ export type FooterLinksSettings = {
   developerLine?: string;
 };
 
-const quickLinks = [
+const coreLinks = [
   { label: "Home", path: "/", icon: Home },
   { label: "Quran", path: "/quran", icon: BookOpen },
   { label: "Hadith", path: "/hadith", icon: ScrollText },
-  { label: "Prayer Times", path: "/prayer-times", icon: Clock },
   { label: "Dua", path: "/dua", icon: HandHeart },
   { label: "Islamic Quiz", path: "/quiz", icon: HelpCircle },
+];
+
+const toolLinks = [
+  { label: "Prayer Times", path: "/prayer-times", icon: Clock },
   { label: "Islamic Calendar", path: "/calendar", icon: Calendar },
   { label: "99 Names of Allah", path: "/99-names", icon: Star },
   { label: "Baby Names", path: "/baby-names", icon: Baby },
+  { label: "Qibla Finder", path: "/qibla", icon: Navigation },
 ];
 
-const legalLinks = [
+const companyLinks = [
   { label: "About Us", path: "/about", icon: Info },
   { label: "Contact Us", path: "/contact", icon: Mail },
   { label: "Privacy Policy", path: "/privacy-policy", icon: ShieldCheck },
-  { label: "Terms & Conditions", path: "/terms", icon: FileText },
+  { label: "Terms", path: "/terms", icon: FileText },
   { label: "Sitemap", path: "/sitemap.xml", icon: LayoutGrid, external: true },
 ];
 
@@ -66,68 +71,75 @@ export default function FooterSection({
     [settings?.websiteUrl]
   );
 
+  const renderLink = (link: { label: string; path: string; icon: React.ElementType; external?: boolean }) => {
+    const Icon = link.icon;
+    const cls =
+      "inline-flex items-center gap-2 text-[13px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]";
+
+    if (link.external) {
+      return (
+        <li key={link.path}>
+          <a href={link.path} target="_blank" rel="noreferrer" className={cls}>
+            <Icon className="h-[15px] w-[15px] shrink-0" />
+            {link.label}
+          </a>
+        </li>
+      );
+    }
+
+    // Use real <a> tags for crawlability — SPA navigation via onClick
+    return (
+      <li key={link.path}>
+        <a
+          href={link.path}
+          onClick={(e) => { e.preventDefault(); onNavigate(link.path); }}
+          className={cls}
+        >
+          <Icon className="h-[15px] w-[15px] shrink-0" />
+          {link.label}
+        </a>
+      </li>
+    );
+  };
+
   return (
     <footer className="mt-8 border-t border-border bg-card pt-8 pb-6">
       <div className="mx-auto max-w-screen-xl px-6">
-        {/* Two-column grid */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-          {/* Section 1: Quick Links */}
+        {/* Three-column grid */}
+        <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+          {/* Column 1 – Core */}
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-              Quick Links
+            <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              Core
             </h3>
             <ul className="flex flex-col gap-3">
-              {quickLinks.map((link) => (
-                <li key={link.path}>
-                  <button
-                    onClick={() => onNavigate(link.path)}
-                    className="inline-flex items-center gap-2 text-[13px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    <link.icon className="h-[16px] w-[16px] shrink-0" />
-                    {link.label}
-                  </button>
-                </li>
-              ))}
+              {coreLinks.map(renderLink)}
             </ul>
           </div>
 
-          {/* Section 2: Legal & Support */}
+          {/* Column 2 – Tools */}
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-              Legal & Support
+            <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              Tools
             </h3>
-            <ul className="flex flex-col gap-4">
-              {legalLinks.map((link) =>
-                link.external ? (
-                  <li key={link.path}>
-                    <a
-                      href={link.path}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <link.icon className="h-[18px] w-[18px] shrink-0" />
-                      {link.label}
-                    </a>
-                  </li>
-                ) : (
-                  <li key={link.path}>
-                    <button
-                      onClick={() => onNavigate(link.path)}
-                      className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <link.icon className="h-[18px] w-[18px] shrink-0" />
-                      {link.label}
-                    </button>
-                  </li>
-                )
-              )}
+            <ul className="flex flex-col gap-3">
+              {toolLinks.map(renderLink)}
+            </ul>
+          </div>
+
+          {/* Column 3 – Company */}
+          <div>
+            <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              Company
+            </h3>
+            <ul className="flex flex-col gap-3">
+              {companyLinks.map(renderLink)}
             </ul>
           </div>
         </div>
 
         {/* CTA Button */}
-        <div className="mt-5">
+        <div className="mt-6">
           {platform === "app" ? (
             <a
               href={websiteUrl}

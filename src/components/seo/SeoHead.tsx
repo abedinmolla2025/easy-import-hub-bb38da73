@@ -29,8 +29,8 @@ function buildHomepageJsonLd(
     "@type": "Organization",
     name: branding.appName || "Noor",
     url: legal.websiteUrl || origin,
+    logo: branding.logoUrl || `${origin}/logo.png`,
   };
-  if (branding.logoUrl) org.logo = branding.logoUrl;
   if (legal.contactEmail) org.email = legal.contactEmail;
   const sameAs: string[] = [];
   if (legal.facebookUrl) sameAs.push(legal.facebookUrl);
@@ -44,8 +44,13 @@ function buildHomepageJsonLd(
   const site: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: branding.appName || "Noor",
+    name: branding.appName || "Noor – Islamic App",
     url: origin,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${origin}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
   };
   if (seo.description) site.description = seo.description;
   schemas.push(site);
