@@ -52,6 +52,8 @@ const siteNavJsonLd = {
     { "@type": "SiteNavigationElement", position: 5, name: "Quiz", url: "https://noorapp.in/quiz" },
     { "@type": "SiteNavigationElement", position: 6, name: "Prayer Times", url: "https://noorapp.in/prayer-times" },
     { "@type": "SiteNavigationElement", position: 7, name: "Islamic Calendar", url: "https://noorapp.in/calendar" },
+    { "@type": "SiteNavigationElement", position: 8, name: "99 Names of Allah", url: "https://noorapp.in/99-names" },
+    { "@type": "SiteNavigationElement", position: 9, name: "Baby Names", url: "https://noorapp.in/baby-names" },
   ],
 };
 
