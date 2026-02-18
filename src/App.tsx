@@ -60,6 +60,7 @@ import { useMobileAdsInit } from "@/hooks/useMobileAds";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
+import IslamicAppPage from "./pages/IslamicAppPage";
 
 const BukhariRedirect = () => <Navigate to="/hadith/bukhari" replace />;
 
@@ -93,6 +94,7 @@ const AppRoutes = () => (
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/islamic-app" element={<IslamicAppPage />} />
 
     {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
     <Route

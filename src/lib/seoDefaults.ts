@@ -15,9 +15,14 @@ export type PageSeoDefaults = {
 
 const DEFAULTS: Record<string, PageSeoDefaults> = {
   "/": {
-    title: "NOOR — ইসলামিক অ্যাপ | Islamic Companion App",
+    title: "Noor – Free Islamic App for Quran, Hadith & Dua",
     description:
-      "Your complete Islamic companion — নামাজের সময়, Quran, দোয়া, তাসবীহ, কিবলা, ইসলামিক কুইজ সব এক অ্যাপে। Prayer times, Hadith & more.",
+      "Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz — all in one app.",
+  },
+  "/islamic-app": {
+    title: "Best Islamic App – Quran, Hadith, Dua & Prayer Times",
+    description:
+      "Noor is the best free Islamic app for Bengali Muslims. Download for Quran, Hadith, Dua, Prayer Times, Qibla, Islamic calendar & daily quiz — available on Android.",
   },
   "/quran": {
     title: "Quran Reader — পবিত্র কুরআন | NOOR",
@@ -45,24 +50,24 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
       "Browse authentic Hadith collections — সহীহ বুখারী, মুসলিম ও অন্যান্য বিশ্বস্ত হাদিস গ্রন্থ আরবি, বাংলা ও ইংরেজি অনুবাদ সহ পড়ুন।",
   },
   "/hadith/bukhari": {
-    title: "Sahih Bukhari — সহীহ বুখারী | NOOR",
+    title: "Sahih Bukhari — সহীহ বুখারী হাদিস | Noor",
     description:
-      "Browse the complete Sahih Bukhari Hadith collection — সহীহ বুখারী শরীফের হাদিস আরবি টেক্সট ও বাংলা অনুবাদ সহ পড়ুন।",
+      "Read Sahih Bukhari — the most authentic hadith collection — with Bengali translation. সহীহ বুখারী শরীফের হাদিস আরবি টেক্সট ও বাংলা অনুবাদ সহ পড়ুন।",
   },
   "/hadith/muslim": {
-    title: "Sahih Muslim — সহীহ মুসলিম | NOOR",
+    title: "Sahih Muslim — সহীহ মুসলিম হাদিস | Noor",
     description:
-      "Read Sahih Muslim Hadith collection — ইমাম মুসলিম (রহ.) সংকলিত সহীহ মুসলিম শরীফের হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন।",
+      "Read Sahih Muslim Hadith with Bengali translation. Second most authentic hadith collection — 7,500+ verified narrations. সহীহ মুসলিম পড়ুন বাংলায়।",
   },
   "/hadith/tirmidhi": {
-    title: "Jami at-Tirmidhi — জামে তিরমিযী | NOOR",
+    title: "Jami at-Tirmidhi — জামে তিরমিযী হাদিস | Noor",
     description:
-      "Browse Jami at-Tirmidhi Hadith collection — ইমাম তিরমিযী (রহ.) সংকলিত জামে তিরমিযীর হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন।",
+      "Explore Jami at-Tirmidhi with Bengali translation — 3,956 hadiths covering fiqh, seerah & virtues with unique hadith grading. জামে তিরমিযী পড়ুন।",
   },
   "/hadith/abu-dawud": {
-    title: "Sunan Abu Dawud — সুনানে আবু দাউদ | NOOR",
+    title: "Sunan Abu Dawud — সুনানে আবু দাউদ হাদিস | Noor",
     description:
-      "Read Sunan Abu Dawud Hadith collection — ইমাম আবু দাউদ (রহ.) সংকলিত সুনানে আবু দাউদের হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন।",
+      "Read Sunan Abu Dawud with Bengali translation — the definitive jurisprudence-focused hadith collection, selected from 500,000 hadiths. আবু দাউদ পড়ুন।",
   },
   "/prayer-guide": {
     title: "Prayer Guide — নামাজ শিক্ষা | NOOR",

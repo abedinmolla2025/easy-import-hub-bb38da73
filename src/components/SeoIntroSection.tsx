@@ -11,9 +11,17 @@ export default function SeoIntroSection() {
       aria-label="About Noor Islamic App"
       className="mt-2 rounded-2xl border border-border bg-card px-5 py-6 text-[13px] leading-relaxed text-muted-foreground"
     >
-      <h2 className="mb-3 text-[15px] font-bold text-foreground">
-        Your Complete Islamic Companion — নামাজ, কুরআন ও আরও অনেক কিছু
-      </h2>
+      <h1 className="mb-3 text-[17px] font-bold text-foreground">
+        Noor – Your Complete Islamic Companion
+      </h1>
+      <p className="mb-4">
+        <strong>Noor</strong> is a free Islamic app built for Muslims in India, Bangladesh, and around
+        the world. Whether you need accurate <em>prayer times</em>, want to read the{" "}
+        <strong>Holy Quran</strong> with Bengali translation, explore authentic{" "}
+        <em>Hadith collections</em>, or find the right <em>dua</em> for any moment — Noor brings it
+        all together in one clean, beautifully designed app. আমাদের লক্ষ্য প্রতিটি মুসলিমের
+        ইবাদতকে সহজ, সুন্দর ও অর্থবহ করা।
+      </p>
       <p className="mb-4">
         <strong>Noor</strong> is a free Islamic app designed for Muslims who want to stay connected
         to their faith every day. Whether you need accurate <em>prayer times</em>, want to read the{" "}
