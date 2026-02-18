@@ -10,6 +10,10 @@ import {
   ShieldCheck,
   FileText,
   LayoutGrid,
+  HandHeart,
+  Star,
+  Baby,
+  HelpCircle,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -28,8 +32,12 @@ const quickLinks = [
   { label: "Home", path: "/", icon: Home },
   { label: "Quran", path: "/quran", icon: BookOpen },
   { label: "Hadith", path: "/hadith", icon: ScrollText },
-  { label: "Prayer Time", path: "/prayer-times", icon: Clock },
-  { label: "Calendar", path: "/calendar", icon: Calendar },
+  { label: "Prayer Times", path: "/prayer-times", icon: Clock },
+  { label: "Dua", path: "/dua", icon: HandHeart },
+  { label: "Islamic Quiz", path: "/quiz", icon: HelpCircle },
+  { label: "Islamic Calendar", path: "/calendar", icon: Calendar },
+  { label: "99 Names of Allah", path: "/99-names", icon: Star },
+  { label: "Baby Names", path: "/baby-names", icon: Baby },
 ];
 
 const legalLinks = [
@@ -62,20 +70,20 @@ export default function FooterSection({
     <footer className="mt-8 border-t border-border bg-card pt-8 pb-6">
       <div className="mx-auto max-w-screen-xl px-6">
         {/* Two-column grid */}
-        <div className="grid grid-cols-2 gap-x-6">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
           {/* Section 1: Quick Links */}
           <div>
             <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
               Quick Links
             </h3>
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-3">
               {quickLinks.map((link) => (
                 <li key={link.path}>
                   <button
                     onClick={() => onNavigate(link.path)}
-                    className="inline-flex items-center gap-2 text-[14px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 text-[13px] leading-none text-muted-foreground transition-all duration-150 hover:text-primary hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    <link.icon className="h-[18px] w-[18px] shrink-0" />
+                    <link.icon className="h-[16px] w-[16px] shrink-0" />
                     {link.label}
                   </button>
                 </li>
