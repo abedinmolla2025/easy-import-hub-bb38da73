@@ -125,7 +125,21 @@ const Index = () => {
         { section_key: "daily_hadith", el: <DailyHadith /> },
         {
           section_key: "seo_intro",
-          el: <SeoIntroSection />,
+          el: (
+            <>
+              <div className="hidden md:block">
+                <SeoIntroSection />
+              </div>
+              <div className="md:hidden text-center py-2">
+                <a
+                  href="/islamic-app"
+                  className="text-xs text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors"
+                >
+                  Learn more about Noor Islamic App →
+                </a>
+              </div>
+            </>
+          ),
         },
         {
           section_key: "footer",
