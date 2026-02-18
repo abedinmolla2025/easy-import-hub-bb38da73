@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { BellRing } from "lucide-react";
+import SeoIntroSection from "@/components/SeoIntroSection";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PrayerHeroCard from "@/components/PrayerHeroCard";
@@ -122,6 +123,10 @@ const Index = () => {
           ),
         },
         { section_key: "daily_hadith", el: <DailyHadith /> },
+        {
+          section_key: "seo_intro",
+          el: <SeoIntroSection />,
+        },
         {
           section_key: "footer",
           el: <FooterSection platform={layoutPlatform} onNavigate={(path) => navigate(path)} />,
