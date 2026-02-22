@@ -15,6 +15,59 @@ function normalizeDescription(description?: string | null) {
   return description.length > 160 ? description.slice(0, 157) + "..." : description;
 }
 
+const BREADCRUMB_NAMES: Record<string, string> = {
+  quran: "Quran",
+  hadith: "Hadith",
+  bukhari: "Sahih Bukhari",
+  muslim: "Sahih Muslim",
+  tirmidhi: "Jami at-Tirmidhi",
+  "abu-dawud": "Sunan Abu Dawud",
+  "prayer-times": "Prayer Times",
+  "prayer-guide": "Prayer Guide",
+  dua: "Dua",
+  quiz: "Daily Quiz",
+  tasbih: "Tasbih",
+  qibla: "Qibla",
+  "99-names": "99 Names of Allah",
+  "baby-names": "Baby Names",
+  names: "Baby Names",
+  calendar: "Islamic Calendar",
+  "islamic-app": "Islamic App",
+  about: "About",
+  contact: "Contact",
+  settings: "Settings",
+  notifications: "Notifications",
+  "privacy-policy": "Privacy Policy",
+  terms: "Terms",
+};
+
+function buildBreadcrumbJsonLd(pathname: string) {
+  const origin = "https://noorapp.in";
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length === 0) return null;
+
+  const items = [
+    { "@type": "ListItem" as const, position: 1, name: "Home", item: `${origin}/` },
+  ];
+
+  let path = "";
+  segments.forEach((seg, i) => {
+    path += `/${seg}`;
+    items.push({
+      "@type": "ListItem" as const,
+      position: i + 2,
+      name: BREADCRUMB_NAMES[seg] || seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " "),
+      item: `${origin}${path}`,
+    });
+  });
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items,
+  };
+}
+
 function buildHomepageJsonLd(
   branding: ReturnType<typeof useGlobalConfig>["branding"],
   seo: ReturnType<typeof useGlobalConfig>["seo"],
@@ -134,6 +187,10 @@ export function SeoHead() {
       ? JSON.stringify(buildHomepageJsonLd(branding, globalSeo, legal))
       : null;
 
+  // BreadcrumbList for all non-homepage routes
+  const breadcrumbLd = !isHomepage ? buildBreadcrumbJsonLd(pathname) : null;
+  const breadcrumbString = breadcrumbLd ? JSON.stringify(breadcrumbLd) : null;
+
   return (
     <Helmet>
       {title ? <title>{title}</title> : null}
@@ -157,6 +214,9 @@ export function SeoHead() {
 
       {jsonLdString ? (
         <script type="application/ld+json">{jsonLdString}</script>
+      ) : null}
+      {breadcrumbString ? (
+        <script type="application/ld+json">{breadcrumbString}</script>
       ) : null}
     </Helmet>
   );
