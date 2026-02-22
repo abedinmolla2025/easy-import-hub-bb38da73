@@ -68,6 +68,47 @@ function buildBreadcrumbJsonLd(pathname: string) {
   };
 }
 
+const PAGE_FAQS: Record<string, { q: string; a: string }[]> = {
+  "/quran": [
+    { q: "Can I read the Quran online for free on Noor?", a: "Yes, Noor provides the complete Quran with Arabic text, English and Urdu translations, and audio recitation — all completely free." },
+    { q: "Does Noor have Quran audio recitation?", a: "Yes, you can listen to beautiful Quran recitations by renowned Qaris directly within the app while following along with the text." },
+    { q: "Can I search for a specific Surah in Noor?", a: "Absolutely. Noor lets you browse all 114 Surahs and jump to any Surah or Ayah instantly." },
+    { q: "Is the Quran text on Noor authentic?", a: "Yes, the Arabic text follows the Uthmani script and translations are sourced from widely accepted scholarly works." },
+  ],
+  "/hadith": [
+    { q: "Which Hadith collections are available on Noor?", a: "Noor features major Hadith collections including Sahih Bukhari, Sahih Muslim, Jami at-Tirmidhi, and Sunan Abu Dawud." },
+    { q: "Can I read Sahih Bukhari online for free?", a: "Yes, the complete Sahih Bukhari collection is available on Noor with English translations, organized by book and chapter." },
+    { q: "Are the Hadith on Noor authentic?", a: "Noor sources Hadith from the most authentic and widely accepted collections in Islamic scholarship." },
+    { q: "Can I browse Hadith by chapter?", a: "Yes, each Hadith book is organized by chapters so you can easily find Hadith on specific topics." },
+  ],
+  "/dua": [
+    { q: "Where can I find daily Islamic Duas?", a: "Noor provides a curated collection of authentic Duas for daily life, including morning and evening Adhkar, travel Duas, and more." },
+    { q: "Are the Duas on Noor in Arabic with translation?", a: "Yes, every Dua includes Arabic text, transliteration for easy pronunciation, and English translation." },
+    { q: "Can I listen to Dua audio on Noor?", a: "Yes, Noor offers audio playback for Duas so you can learn the correct pronunciation." },
+    { q: "Are the Duas on Noor from authentic sources?", a: "Yes, all Duas are sourced from the Quran and authentic Hadith collections." },
+  ],
+  "/quiz": [
+    { q: "What is the Islamic Quiz on Noor?", a: "Noor features a daily Islamic quiz that tests your knowledge on Quran, Hadith, Islamic history, and general Islamic teachings." },
+    { q: "Is the Islamic Quiz free?", a: "Yes, the daily quiz is completely free. You can take it every day to learn something new about Islam." },
+    { q: "How many questions are in each quiz?", a: "Each daily quiz session includes multiple-choice questions covering various Islamic topics with instant feedback." },
+    { q: "Can I track my quiz progress?", a: "Yes, Noor tracks your quiz streaks, scores, and badges so you can monitor your Islamic knowledge growth over time." },
+  ],
+};
+
+function buildFaqJsonLd(pathname: string) {
+  const faqs = PAGE_FAQS[pathname];
+  if (!faqs) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}
+
 function buildHomepageJsonLd(
   branding: ReturnType<typeof useGlobalConfig>["branding"],
   seo: ReturnType<typeof useGlobalConfig>["seo"],
@@ -191,6 +232,10 @@ export function SeoHead() {
   const breadcrumbLd = !isHomepage ? buildBreadcrumbJsonLd(pathname) : null;
   const breadcrumbString = breadcrumbLd ? JSON.stringify(breadcrumbLd) : null;
 
+  // FAQPage for key pages
+  const faqLd = buildFaqJsonLd(pathname);
+  const faqString = faqLd ? JSON.stringify(faqLd) : null;
+
   return (
     <Helmet>
       {title ? <title>{title}</title> : null}
@@ -217,6 +262,9 @@ export function SeoHead() {
       ) : null}
       {breadcrumbString ? (
         <script type="application/ld+json">{breadcrumbString}</script>
+      ) : null}
+      {faqString ? (
+        <script type="application/ld+json">{faqString}</script>
       ) : null}
     </Helmet>
   );
