@@ -23,13 +23,14 @@ function buildHomepageJsonLd(
   const origin = "https://noorapp.in";
   const schemas: object[] = [];
 
-  // Organization schema
+  // 1️⃣ Organization schema
   const org: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: branding.appName || "Noor",
-    url: legal.websiteUrl || origin,
-    logo: branding.logoUrl || `${origin}/logo.png`,
+    name: "Noor",
+    url: origin,
+    logo: `${origin}/logo.png`,
+    description: "Noor — Free Islamic app for Quran, Hadith, Dua, Prayer Times & Islamic learning.",
   };
   if (legal.contactEmail) org.email = legal.contactEmail;
   const sameAs: string[] = [];
@@ -40,20 +41,34 @@ function buildHomepageJsonLd(
   if (sameAs.length) org.sameAs = sameAs;
   schemas.push(org);
 
-  // WebSite schema with SearchAction
-  const site: Record<string, unknown> = {
+  // 2️⃣ WebSite schema with SearchAction
+  schemas.push({
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: branding.appName || "Noor – Islamic App",
+    name: "Noor Islamic App",
     url: origin,
     potentialAction: {
       "@type": "SearchAction",
       target: `${origin}/search?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
-  };
-  if (seo.description) site.description = seo.description;
-  schemas.push(site);
+  });
+
+  // 3️⃣ MobileApplication schema
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    name: "Noor Islamic App",
+    operatingSystem: "Android",
+    applicationCategory: "LifestyleApplication",
+    applicationSubCategory: "Islamic App",
+    url: origin,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "INR",
+    },
+  });
 
   return schemas;
 }
