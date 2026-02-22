@@ -61,6 +61,7 @@ import AnnouncementTicker from "@/components/AnnouncementTicker";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import IslamicAppPage from "./pages/IslamicAppPage";
+import SitemapPage from "./pages/SitemapPage";
 
 const BukhariRedirect = () => <Navigate to="/hadith/bukhari" replace />;
 
@@ -95,6 +96,7 @@ const AppRoutes = () => (
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/islamic-app" element={<IslamicAppPage />} />
+      <Route path="/sitemap" element={<SitemapPage />} />
 
     {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
     <Route
