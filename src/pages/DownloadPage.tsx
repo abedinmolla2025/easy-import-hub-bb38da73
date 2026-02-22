@@ -54,7 +54,7 @@ const DownloadPage = () => {
 
           {/* Download Button */}
           <a
-            href="https://noorapp.in/noor-app.apk"
+            href="https://noorapp.in/app/noorapp.apk"
             download
             className="flex items-center justify-center gap-3 w-full max-w-xs rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-lg hover:brightness-110 transition-all active:scale-[0.97]"
           >

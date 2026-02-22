@@ -374,8 +374,8 @@ const Index = () => {
 
         {/* Download App Section */}
         <div className="px-3 pb-4">
-          <a
-            href="/download"
+          <Link
+            to="/download"
             className="block w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 p-5 shadow-lg shadow-emerald-900/20 transition-all hover:brightness-110 active:scale-[0.98]"
           >
             <div className="flex items-center justify-center gap-3">
@@ -386,7 +386,7 @@ const Index = () => {
               </div>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </div>
-          </a>
+          </Link>
         </div>
 
         {/* Bottom Navigation */}
