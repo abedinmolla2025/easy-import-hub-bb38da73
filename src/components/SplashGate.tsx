@@ -41,7 +41,11 @@ const DEFAULT_SPLASH_CONFIG: SplashConfig = {
 export function SplashGate(props: { children: React.ReactNode }) {
   const { children } = props;
 
-  const [done, setDone] = useState(false);
+  // Skip splash entirely on /download page for immediate content access
+  const skipSplash = window.location.pathname === "/download";
+
+  const [done, setDone] = useState(skipSplash);
+
   const [config, setConfig] = useState<SplashConfig>(DEFAULT_SPLASH_CONFIG);
   const [configLoaded, setConfigLoaded] = useState(false);
 
