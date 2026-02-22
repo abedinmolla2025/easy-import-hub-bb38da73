@@ -40,6 +40,7 @@ const BREADCRUMB_NAMES: Record<string, string> = {
   "privacy-policy": "Privacy Policy",
   terms: "Terms",
   sitemap: "Sitemap",
+  download: "Download App",
 };
 
 function buildBreadcrumbJsonLd(pathname: string) {
