@@ -50,7 +50,7 @@ const companyLinks = [
   { label: "Contact Us", path: "/contact", icon: Mail },
   { label: "Privacy Policy", path: "/privacy-policy", icon: ShieldCheck },
   { label: "Terms", path: "/terms", icon: FileText },
-  { label: "Sitemap", path: "/sitemap.xml", icon: LayoutGrid, external: true },
+  { label: "Sitemap", path: "/sitemap", icon: LayoutGrid },
 ];
 
 export default function FooterSection({
