@@ -62,6 +62,7 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import IslamicAppPage from "./pages/IslamicAppPage";
 import SitemapPage from "./pages/SitemapPage";
+import DownloadPage from "./pages/DownloadPage";
 
 const BukhariRedirect = () => <Navigate to="/hadith/bukhari" replace />;
 
@@ -97,6 +98,7 @@ const AppRoutes = () => (
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/islamic-app" element={<IslamicAppPage />} />
       <Route path="/sitemap" element={<SitemapPage />} />
+      <Route path="/download" element={<DownloadPage />} />
 
     {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
     <Route
