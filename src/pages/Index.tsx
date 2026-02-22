@@ -27,6 +27,7 @@ import { NotificationOptInPrompt } from "@/components/NotificationOptInPrompt";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQueryClient } from "@tanstack/react-query";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
@@ -372,22 +373,8 @@ const Index = () => {
         onStop={stopAthan}
       />
 
-        {/* Download App Section */}
-        <div className="px-3 pb-4">
-          <Link
-            to="/download"
-            className="block w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 p-5 shadow-lg shadow-emerald-900/20 transition-all hover:brightness-110 active:scale-[0.98]"
-          >
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-2xl">📱</span>
-              <div className="text-center">
-                <span className="block text-base font-bold text-white">Download Noor Islamic App</span>
-                <span className="block text-xs text-white/70 mt-0.5">Install the official app</span>
-              </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </div>
-          </Link>
-        </div>
+        {/* PWA Install Prompt */}
+        <PwaInstallPrompt />
 
         {/* Bottom Navigation */}
         <BottomNavigation />
