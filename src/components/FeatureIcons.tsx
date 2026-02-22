@@ -1,5 +1,5 @@
 import { useMemo, type CSSProperties } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, TargetAndTransition } from "framer-motion";
 
 interface FeatureItem {
@@ -72,8 +72,6 @@ type FeatureIconsProps = {
 };
 
 const FeatureIcons = ({ layout = "scroll", columns }: FeatureIconsProps) => {
-  const navigate = useNavigate();
-
   const containerProps = useMemo(() => {
     if (layout === "grid") {
       const cols = Math.max(1, Math.min(Number(columns ?? 2), 6));
@@ -92,33 +90,32 @@ const FeatureIcons = ({ layout = "scroll", columns }: FeatureIconsProps) => {
   return (
     <div className={containerProps.className} style={{ ...containerProps.style, transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
       {features.map((feature, index) => (
-        <motion.button
+        <Link
           key={feature.label}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.05 }}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => navigate(feature.path)}
+          to={feature.path}
           className={
             layout === "grid"
               ? "flex flex-col items-center gap-1.5"
               : "flex-shrink-0 flex flex-col items-center gap-1.5"
           }
         >
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             className={`relative group cursor-pointer w-14 h-14 bg-gradient-to-br ${feature.gradient} backdrop-blur-md rounded-2xl border border-white/20 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.3),0_4px_8px_-2px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.15)] hover:shadow-[0_12px_28px_-4px_rgba(0,0,0,0.4),0_6px_12px_-2px_rgba(0,0,0,0.25)] hover:border-[hsl(45,93%,58%)]/40 transition-all duration-300 flex items-center justify-center overflow-hidden`}
           >
-            {/* Inner highlight for 3D effect */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent rounded-2xl pointer-events-none" />
             <span className="text-2xl drop-shadow-md relative z-10">
               {feature.emoji}
             </span>
-          </div>
+          </motion.div>
           <span className="text-[10px] text-muted-foreground font-medium tracking-wide">
             {feature.label}
           </span>
-        </motion.button>
+        </Link>
       ))}
     </div>
   );

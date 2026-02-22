@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BellRing } from "lucide-react";
 import SeoIntroSection from "@/components/SeoIntroSection";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import PrayerHeroCard from "@/components/PrayerHeroCard";
 import FeatureIcons from "@/components/FeatureIcons";
 import AudioRecitationCard from "@/components/AudioRecitationCard";
@@ -131,12 +131,12 @@ const Index = () => {
                 <SeoIntroSection />
               </div>
               <div className="md:hidden text-center py-2">
-                <a
-                  href="/islamic-app"
+                <Link
+                  to="/islamic-app"
                   className="text-xs text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors"
                 >
                   Learn more about Noor Islamic App →
-                </a>
+                </Link>
               </div>
             </>
           ),
