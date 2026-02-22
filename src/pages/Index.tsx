@@ -314,15 +314,6 @@ const Index = () => {
       <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
         <NotificationOptInPrompt />
 
-        {/* Slim Install Banner */}
-        <a
-          href="/download"
-          className="mx-3 mt-2 flex h-[60px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 shadow-sm transition-all hover:brightness-110 active:scale-[0.98]"
-        >
-          <span className="text-sm">📱</span>
-          <span className="text-sm font-semibold text-white">Install Noor Islamic App</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </a>
 
       {/* Maintenance banner */}
       {system.maintenanceMode && (
@@ -380,6 +371,23 @@ const Index = () => {
         onPlayTest={() => playAthan("Test")}
         onStop={stopAthan}
       />
+
+        {/* Download App Section */}
+        <div className="px-3 pb-4">
+          <a
+            href="/download"
+            className="block w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 p-5 shadow-lg shadow-emerald-900/20 transition-all hover:brightness-110 active:scale-[0.98]"
+          >
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-2xl">📱</span>
+              <div className="text-center">
+                <span className="block text-base font-bold text-white">Download Noor Islamic App</span>
+                <span className="block text-xs text-white/70 mt-0.5">Install the official app</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+          </a>
+        </div>
 
         {/* Bottom Navigation */}
         <BottomNavigation />
