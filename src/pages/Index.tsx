@@ -313,6 +313,23 @@ const Index = () => {
     >
       <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
         <NotificationOptInPrompt />
+
+        {/* Download App CTA */}
+        <div className="px-3 pt-3">
+          <a
+            href="/download"
+            className="block w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 p-4 shadow-lg shadow-emerald-900/20 transition-all hover:brightness-110 active:scale-[0.98]"
+          >
+            <div className="flex items-center justify-center gap-2.5">
+              <span className="text-lg">📱</span>
+              <span className="text-base font-bold text-white">Download Noor App</span>
+            </div>
+            <p className="mt-1 text-center text-[11px] text-white/70">
+              Install the official Noor Islamic App
+            </p>
+          </a>
+        </div>
+
       {/* Maintenance banner */}
       {system.maintenanceMode && (
         <div className="w-full bg-amber-500/90 text-amber-950 text-center text-xs py-2 px-3">
