@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import noorLogo from "@/assets/noor-logo.png";
@@ -15,6 +15,7 @@ export default function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const promptReady = useRef(false);
 
   useEffect(() => {
     // Only target mobile Android Chrome
@@ -23,28 +24,48 @@ export default function PwaInstallPrompt() {
       /android/i.test(ua) && /chrome/i.test(ua) && !/edg/i.test(ua);
     if (!isAndroidChrome) return;
 
-    // Check if already installed (standalone mode)
+    // Already installed
     if (
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as any).standalone
     )
       return;
 
-    // Cooldown check
+    // Cooldown
     const dismissedAt = localStorage.getItem(COOLDOWN_KEY);
     if (dismissedAt && Date.now() - Number(dismissedAt) < COOLDOWN_MS) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
+      console.log("PWA install prompt available");
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-
-      // Auto-show after 3 seconds
-      setTimeout(() => setVisible(true), 3000);
+      promptReady.current = true;
     };
 
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
+
+  // Show popup on first user interaction (click or scroll) once prompt is ready
+  useEffect(() => {
+    if (!deferredPrompt) return;
+
+    const show = () => {
+      if (!promptReady.current) return;
+      setVisible(true);
+      cleanup();
+    };
+
+    const cleanup = () => {
+      window.removeEventListener("click", show);
+      window.removeEventListener("scroll", show, true);
+    };
+
+    window.addEventListener("click", show, { once: true });
+    window.addEventListener("scroll", show, { once: true, capture: true });
+
+    return cleanup;
+  }, [deferredPrompt]);
 
   const handleInstall = useCallback(async () => {
     if (!deferredPrompt) return;
@@ -72,7 +93,6 @@ export default function PwaInstallPrompt() {
           className="fixed bottom-24 left-3 right-3 z-50 mx-auto max-w-sm"
         >
           <div className="relative rounded-2xl border border-border bg-card p-4 shadow-xl shadow-black/20">
-            {/* Close */}
             <button
               onClick={handleDismiss}
               className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
@@ -82,13 +102,11 @@ export default function PwaInstallPrompt() {
             </button>
 
             <div className="flex items-center gap-3">
-              {/* Logo */}
               <img
                 src={noorLogo}
                 alt="Noor App"
                 className="h-12 w-12 rounded-xl"
               />
-
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground leading-tight">
                   Install Noor Islamic App
@@ -99,7 +117,6 @@ export default function PwaInstallPrompt() {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex items-center gap-2 mt-3">
               <button
                 onClick={handleInstall}
