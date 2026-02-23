@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Download, Share } from "lucide-react";
 import noorLogo from "@/assets/noor-logo.png";
 
 const COOLDOWN_KEY = "pwa-install-dismissed-at";
@@ -11,42 +11,71 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+type BrowserType = "chrome" | "safari" | "firefox" | "samsung" | "other";
+
+function detectBrowser(): BrowserType {
+  const ua = navigator.userAgent;
+  if (/SamsungBrowser/i.test(ua)) return "samsung";
+  if (/CriOS|Chrome/i.test(ua) && !/Edg/i.test(ua)) return "chrome";
+  if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return "safari";
+  if (/Firefox/i.test(ua)) return "firefox";
+  return "other";
+}
+
+function isStandalone(): boolean {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as any).standalone === true
+  );
+}
+
+function isCooldownActive(): boolean {
+  const dismissedAt = localStorage.getItem(COOLDOWN_KEY);
+  return !!dismissedAt && Date.now() - Number(dismissedAt) < COOLDOWN_MS;
+}
+
+const instructions: Record<string, { icon: typeof Download; text: string }> = {
+  safari: { icon: Share, text: "Tap Share → Add to Home Screen" },
+  firefox: { icon: Download, text: "Tap ⋮ Menu → Install" },
+  samsung: { icon: Download, text: "Tap ☰ Menu → Add page to → Home screen" },
+  other: { icon: Download, text: "Use your browser menu to install this app" },
+};
+
 export default function PwaInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const promptReady = useRef(false);
+  const [browser] = useState<BrowserType>(detectBrowser);
+  const supportsPrompt = useRef(false);
 
+  // Listen for native install prompt (Chrome/Edge/Samsung)
   useEffect(() => {
-    // Only target mobile Android Chrome
-    const ua = navigator.userAgent;
-    const isAndroidChrome =
-      /android/i.test(ua) && /chrome/i.test(ua) && !/edg/i.test(ua);
-    if (!isAndroidChrome) return;
-
-    // Already installed
-    if (
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (navigator as any).standalone
-    )
-      return;
-
-    // Cooldown
-    const dismissedAt = localStorage.getItem(COOLDOWN_KEY);
-    if (dismissedAt && Date.now() - Number(dismissedAt) < COOLDOWN_MS) return;
+    if (isStandalone() || isCooldownActive()) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
       console.log("PWA install prompt available");
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       promptReady.current = true;
+      supportsPrompt.current = true;
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+
+    // For browsers that don't fire beforeinstallprompt, show fallback after a short delay
+    const fallbackTimer = setTimeout(() => {
+      if (!supportsPrompt.current && !isStandalone() && !isCooldownActive()) {
+        setVisible(true);
+      }
+    }, 3000);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      clearTimeout(fallbackTimer);
+    };
   }, []);
 
-  // Show popup on first user interaction (click or scroll) once prompt is ready
+  // Show popup on first user interaction once native prompt is ready
   useEffect(() => {
     if (!deferredPrompt) return;
 
@@ -82,9 +111,13 @@ export default function PwaInstallPrompt() {
     localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
   }, []);
 
+  const hasNativePrompt = !!deferredPrompt;
+  const fallback = instructions[browser] || instructions.other;
+  const FallbackIcon = fallback.icon;
+
   return (
     <AnimatePresence>
-      {visible && deferredPrompt && (
+      {visible && (
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,24 +145,38 @@ export default function PwaInstallPrompt() {
                   Install Noor Islamic App
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Get faster access from your home screen
+                  {hasNativePrompt
+                    ? "Get faster access from your home screen"
+                    : fallback.text}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 mt-3">
-              <button
-                onClick={handleInstall}
-                className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 active:scale-[0.97]"
-              >
-                Install
-              </button>
-              <button
-                onClick={handleDismiss}
-                className="flex-1 rounded-xl border border-border bg-background py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted active:scale-[0.97]"
-              >
-                Later
-              </button>
+              {hasNativePrompt ? (
+                <>
+                  <button
+                    onClick={handleInstall}
+                    className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 active:scale-[0.97]"
+                  >
+                    Install
+                  </button>
+                  <button
+                    onClick={handleDismiss}
+                    className="flex-1 rounded-xl border border-border bg-background py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted active:scale-[0.97]"
+                  >
+                    Later
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleDismiss}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border bg-background py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted active:scale-[0.97]"
+                >
+                  <FallbackIcon className="h-4 w-4" />
+                  Got it
+                </button>
+              )}
             </div>
           </div>
         </motion.div>
