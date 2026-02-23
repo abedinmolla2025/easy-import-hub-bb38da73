@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Download, Share } from "lucide-react";
+import { X, Download, Share, EllipsisVertical, Menu } from "lucide-react";
 import noorLogo from "@/assets/noor-logo.png";
 
 const COOLDOWN_KEY = "pwa-install-dismissed-at";
@@ -35,9 +35,9 @@ function isCooldownActive(): boolean {
 }
 
 const instructions: Record<string, { icon: typeof Download; text: string }> = {
-  safari: { icon: Share, text: "Tap Share → Add to Home Screen" },
-  firefox: { icon: Download, text: "Tap ⋮ Menu → Install" },
-  samsung: { icon: Download, text: "Tap ☰ Menu → Add page to → Home screen" },
+  safari: { icon: Share, text: "Tap Share ↗ → Add to Home Screen" },
+  firefox: { icon: Menu, text: "Tap ☰ menu → Install" },
+  samsung: { icon: EllipsisVertical, text: "Menu → Add page to → Home screen" },
   other: { icon: Download, text: "Use your browser menu to install this app" },
 };
 
@@ -144,10 +144,14 @@ export default function PwaInstallPrompt() {
                 <p className="text-sm font-semibold text-foreground leading-tight">
                   Install Noor Islamic App
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+                  {!hasNativePrompt && <FallbackIcon className="h-3.5 w-3.5 shrink-0 text-primary" />}
                   {hasNativePrompt
                     ? "Get faster access from your home screen"
                     : fallback.text}
+                </p>
+                <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+                  Works like a real app after install
                 </p>
               </div>
             </div>
