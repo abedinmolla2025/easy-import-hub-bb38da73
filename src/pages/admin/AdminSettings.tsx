@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEffect, useRef, useState, ChangeEvent } from 'react';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -87,8 +87,10 @@ export default function AdminSettings() {
   }));
   const [uploadingNIcon, setUploadingNIcon] = useState(false);
   const [uploadingNBadge, setUploadingNBadge] = useState(false);
+  const [uploadingApk, setUploadingApk] = useState(false);
   const nIconFileRef = useRef<HTMLInputElement>(null);
   const nBadgeFileRef = useRef<HTMLInputElement>(null);
+  const apkFileRef = useRef<HTMLInputElement>(null);
 
   // Hydrate local form state after async settings load (only once)
   const hydratedRef = useRef(false);
@@ -219,6 +221,7 @@ export default function AdminSettings() {
           <TabsTrigger value="modules">Modules</TabsTrigger>
           <TabsTrigger value="legal">Legal & Contact</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="apk">APK</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
         </TabsList>
 
@@ -764,6 +767,104 @@ export default function AdminSettings() {
                 <Button onClick={() => handleSave(NOTIFICATIONS_KEY, notifications)} disabled={updateSettingMutation.isPending}>
                   {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Save notification defaults
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="apk">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="h-5 w-5" />
+                APK Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Upload an Android APK file. The download page will automatically use this URL.
+              </p>
+
+              <div className="space-y-2">
+                <Label>Current APK URL</Label>
+                <Input
+                  value={system.apkUrl || ''}
+                  onChange={handleSimpleChange(setSystem, 'apkUrl')}
+                  placeholder="No APK uploaded yet"
+                  readOnly
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Version Label</Label>
+                <Input
+                  value={system.apkVersion || ''}
+                  onChange={handleSimpleChange(setSystem, 'apkVersion')}
+                  placeholder="1.0.0"
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  ref={apkFileRef}
+                  type="file"
+                  accept=".apk,application/vnd.android.package-archive"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 100 * 1024 * 1024) {
+                      toast({ title: "File too large", description: "Max 100MB", variant: "destructive" });
+                      return;
+                    }
+                    setUploadingApk(true);
+                    try {
+                      const safeName = `noorapp-${Date.now()}.apk`;
+                      const { error } = await supabase.storage.from("app-files").upload(safeName, file, {
+                        cacheControl: "3600",
+                        upsert: true,
+                      });
+                      if (error) throw error;
+                      const { data: urlData } = supabase.storage.from("app-files").getPublicUrl(safeName);
+                      const updated = { ...system, apkUrl: urlData.publicUrl };
+                      setSystem(updated);
+                      handleSave(SYSTEM_KEY, updated);
+                      toast({ title: "APK uploaded successfully" });
+                    } catch (err: any) {
+                      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                    } finally {
+                      setUploadingApk(false);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={() => apkFileRef.current?.click()}
+                  disabled={uploadingApk}
+                >
+                  {uploadingApk ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                  {uploadingApk ? "Uploading…" : "Upload APK"}
+                </Button>
+                {system.apkUrl && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => window.open(system.apkUrl, '_blank')}
+                  >
+                    Test Download
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => handleSave(SYSTEM_KEY, system)}
+                  disabled={updateSettingMutation.isPending}
+                >
+                  {updateSettingMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save APK settings
                 </Button>
               </div>
             </CardContent>

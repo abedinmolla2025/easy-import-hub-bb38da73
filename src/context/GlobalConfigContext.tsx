@@ -60,6 +60,8 @@ export interface SystemSettings {
   showAds?: boolean;
   forceUpdate?: boolean;
   adsensePublisherId?: string;
+  apkUrl?: string;
+  apkVersion?: string;
 }
 
 export interface ModuleToggles {

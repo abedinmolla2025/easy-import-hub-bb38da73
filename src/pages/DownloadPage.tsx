@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Download, ExternalLink, BookOpen, ScrollText, Home, Info } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, BookOpen, ScrollText, Home, Info, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -7,8 +7,10 @@ import noorLogo from "@/assets/noor-logo.png";
 
 const DownloadPage = () => {
   const navigate = useNavigate();
-  const { branding } = useGlobalConfig();
+  const { branding, system } = useGlobalConfig();
   const appName = branding.appName || "Noor";
+  const apkUrl = system.apkUrl;
+  const apkVersion = system.apkVersion || "1.0.0";
 
   return (
     <>
@@ -48,19 +50,26 @@ const DownloadPage = () => {
           {/* Version */}
           <div className="bg-card/70 border border-border/60 rounded-xl px-5 py-3 inline-flex items-center gap-3">
             <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Version</span>
-            <span className="text-sm font-bold text-foreground">1.0.0</span>
+            <span className="text-sm font-bold text-foreground">{apkVersion}</span>
             <span className="text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">APK</span>
           </div>
 
-          {/* Download Button */}
-          <a
-            href="https://noorapp.in/app/noorapp.apk"
-            download
-            className="flex items-center justify-center gap-3 w-full max-w-xs rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-lg hover:brightness-110 transition-all active:scale-[0.97]"
-          >
-            <Download className="h-5 w-5" />
-            Download {appName} App (APK)
-          </a>
+          {/* Download Button or Coming Soon */}
+          {apkUrl ? (
+            <a
+              href={apkUrl}
+              download
+              className="flex items-center justify-center gap-3 w-full max-w-xs rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-lg hover:brightness-110 transition-all active:scale-[0.97]"
+            >
+              <Download className="h-5 w-5" />
+              Download {appName} App (APK)
+            </a>
+          ) : (
+            <div className="flex items-center justify-center gap-3 w-full max-w-xs rounded-2xl bg-muted py-4 text-base font-bold text-muted-foreground">
+              <Clock className="h-5 w-5" />
+              Coming Soon
+            </div>
+          )}
 
           {/* Notes */}
           <div className="space-y-3 w-full max-w-sm">
