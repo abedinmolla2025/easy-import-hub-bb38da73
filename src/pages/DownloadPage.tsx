@@ -8,6 +8,9 @@ import noorLogo from "@/assets/noor-logo.png";
 const DownloadPage = () => {
   const navigate = useNavigate();
   const { branding, system } = useGlobalConfig();
+  const logoSrc = branding.logoUrl
+    ? `${branding.logoUrl}?v=${branding.logoVersion || ""}`
+    : noorLogo;
   const appName = branding.appName || "Noor";
   const apkUrl = system.apkUrl;
   const apkVersion = system.apkVersion || "1.0.0";
@@ -37,8 +40,8 @@ const DownloadPage = () => {
           {/* Logo & Intro */}
           <div className="space-y-4">
             <img
-              src={noorLogo}
-              alt="Noor App Logo"
+              src={logoSrc}
+              alt={`${appName} Logo`}
               className="w-24 h-24 rounded-2xl shadow-lg mx-auto"
             />
             <h2 className="text-2xl font-bold text-foreground">{appName} Islamic App</h2>
