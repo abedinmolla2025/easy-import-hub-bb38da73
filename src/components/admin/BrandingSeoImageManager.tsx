@@ -193,6 +193,10 @@ export function BrandingSeoImageManager(props: {
     if (target === "branding") {
       setBranding((prev: any) => {
         const next = { ...prev, [field]: url };
+        // Stamp logoVersion on any logo/icon/favicon change so PWA icons cache-bust
+        if (["logoUrl", "iconUrl", "faviconUrl"].includes(field)) {
+          next.logoVersion = String(Date.now());
+        }
         props.onAutoSaveSetting?.("branding", next);
         return next;
       });

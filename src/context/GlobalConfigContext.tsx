@@ -25,6 +25,9 @@ export interface BrandingSettings {
     png180?: string; // apple-touch-icon
   };
 
+  // Logo version for cache-busting PWA icons
+  logoVersion?: string;
+
   // App name typography (used in header/navigation)
   fontFamily?: string;
   fontSize?: number;
@@ -101,10 +104,11 @@ const GlobalConfigContext = createContext<GlobalConfigContextValue | undefined>(
   undefined,
 );
 
-function cacheBust(url: string) {
+function cacheBust(url: string, version?: string) {
   if (!url) return url;
+  const v = version || String(Date.now());
   const sep = url.includes("?") ? "&" : "?";
-  return `${url}${sep}v=${Date.now()}`;
+  return `${url}${sep}v=${v}`;
 }
 
 function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
@@ -166,13 +170,14 @@ function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
 
   // Prefer generated PNG variants when available (best browser support).
   const v = branding.faviconVariants;
-  if (v?.png16) upsertLink('link[rel="icon"][sizes="16x16"]', { rel: "icon", sizes: "16x16", type: "image/png", href: cacheBust(v.png16) });
-  if (v?.png32) upsertLink('link[rel="icon"][sizes="32x32"]', { rel: "icon", sizes: "32x32", type: "image/png", href: cacheBust(v.png32) });
-  if (v?.png48) upsertLink('link[rel="icon"][sizes="48x48"]', { rel: "icon", sizes: "48x48", type: "image/png", href: cacheBust(v.png48) });
-  if (v?.png180) upsertLink('link[rel="apple-touch-icon"]', { rel: "apple-touch-icon", sizes: "180x180", href: cacheBust(v.png180) });
+  const lv = branding.logoVersion;
+  if (v?.png16) upsertLink('link[rel="icon"][sizes="16x16"]', { rel: "icon", sizes: "16x16", type: "image/png", href: cacheBust(v.png16, lv) });
+  if (v?.png32) upsertLink('link[rel="icon"][sizes="32x32"]', { rel: "icon", sizes: "32x32", type: "image/png", href: cacheBust(v.png32, lv) });
+  if (v?.png48) upsertLink('link[rel="icon"][sizes="48x48"]', { rel: "icon", sizes: "48x48", type: "image/png", href: cacheBust(v.png48, lv) });
+  if (v?.png180) upsertLink('link[rel="apple-touch-icon"]', { rel: "apple-touch-icon", sizes: "180x180", href: cacheBust(v.png180, lv) });
 
   if (faviconHref) {
-    upsertLink('link[rel="icon"]:not([sizes])', { rel: "icon", href: cacheBust(v?.png32 || faviconHref) });
+    upsertLink('link[rel="icon"]:not([sizes])', { rel: "icon", href: cacheBust(v?.png32 || faviconHref, lv) });
   } else {
     // Fallback: use default placeholder if no admin favicon set
     upsertLink('link[rel="icon"]:not([sizes])', { rel: "icon", href: "/favicon.ico" });
@@ -181,15 +186,15 @@ function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
   // Dynamic PWA manifest with cache-busted icons
   const manifestIcons = [
     v?.png180
-      ? { src: cacheBust(v.png180), sizes: "180x180", type: "image/png", purpose: "any maskable" }
+      ? { src: cacheBust(v.png180, lv), sizes: "180x180", type: "image/png", purpose: "any maskable" }
       : faviconHref
-        ? { src: cacheBust(faviconHref), sizes: "192x192", type: "image/png", purpose: "any maskable" }
+        ? { src: cacheBust(faviconHref, lv), sizes: "192x192", type: "image/png", purpose: "any maskable" }
         : null,
     v?.png48
-      ? { src: cacheBust(v.png48), sizes: "48x48", type: "image/png", purpose: "any" }
+      ? { src: cacheBust(v.png48, lv), sizes: "48x48", type: "image/png", purpose: "any" }
       : null,
     faviconHref
-      ? { src: cacheBust(faviconHref), sizes: "512x512", type: "image/png", purpose: "any" }
+      ? { src: cacheBust(faviconHref, lv), sizes: "512x512", type: "image/png", purpose: "any" }
       : null,
   ].filter(Boolean) as any[];
 
