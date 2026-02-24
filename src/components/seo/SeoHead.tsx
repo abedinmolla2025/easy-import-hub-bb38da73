@@ -169,6 +169,13 @@ function buildHomepageJsonLd(
   return schemas;
 }
 
+function cacheBustUrl(url: string, version?: string) {
+  if (!url) return url;
+  const v = version || String(Date.now());
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${v}`;
+}
+
 export function SeoHead() {
   const { pathname } = useLocation();
   const { branding, seo: globalSeo, legal } = useGlobalConfig();
@@ -238,6 +245,11 @@ export function SeoHead() {
   const faqLd = buildFaqJsonLd(pathname);
   const faqString = faqLd ? JSON.stringify(faqLd) : null;
 
+  // Dynamic favicon from branding settings
+  const lv = branding.logoVersion;
+  const favVariants = branding.faviconVariants;
+  const faviconHref = branding.faviconUrl || branding.iconUrl || branding.logoUrl;
+
   return (
     <Helmet>
       {title ? <title>{title}</title> : null}
@@ -245,6 +257,13 @@ export function SeoHead() {
 
       {canonical ? <link rel="canonical" href={canonical} /> : null}
       {robots ? <meta name="robots" content={robots} /> : null}
+
+      {/* Dynamic favicons */}
+      {favVariants?.png16 ? <link rel="icon" sizes="16x16" type="image/png" href={cacheBustUrl(favVariants.png16, lv)} /> : null}
+      {favVariants?.png32 ? <link rel="icon" sizes="32x32" type="image/png" href={cacheBustUrl(favVariants.png32, lv)} /> : null}
+      {faviconHref ? <link rel="icon" href={cacheBustUrl(favVariants?.png32 || faviconHref, lv)} /> : null}
+      {faviconHref ? <link rel="shortcut icon" href={cacheBustUrl(favVariants?.png32 || faviconHref, lv)} /> : null}
+      {favVariants?.png180 || faviconHref ? <link rel="apple-touch-icon" sizes="180x180" href={cacheBustUrl(favVariants?.png180 || faviconHref!, lv)} /> : null}
 
       {/* OG tags */}
       {title ? <meta property="og:title" content={title} /> : null}
