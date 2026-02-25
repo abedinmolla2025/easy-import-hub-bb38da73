@@ -38,8 +38,10 @@ const AdminNotifications = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
   const [uploadingBadge, setUploadingBadge] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const iconFileRef = useRef<HTMLInputElement>(null);
   const badgeFileRef = useRef<HTMLInputElement>(null);
+  const imageFileRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (
     file: File,
@@ -246,14 +248,44 @@ const AdminNotifications = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl">Image URL (optional)</Label>
-              <Input
-                id="imageUrl"
-                placeholder="https://example.com/image.png"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Shown as a rich image in the notification</p>
+              <Label>Rich Image (optional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://example.com/image.png or upload"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <input
+                  ref={imageFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleFileUpload(f, "image" as any, setImageUrl, setUploadingImage);
+                    e.target.value = "";
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  disabled={uploadingImage}
+                  onClick={() => imageFileRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+                {imageUrl && (
+                  <Button type="button" variant="ghost" size="icon" onClick={() => setImageUrl("")}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {imageUrl && (
+                <img src={imageUrl} alt="Image preview" className="h-20 w-full max-w-xs rounded border object-cover" />
+              )}
+              <p className="text-xs text-muted-foreground">Large image shown in expanded notification</p>
             </div>
 
             <div className="space-y-2">
@@ -367,6 +399,9 @@ const AdminNotifications = () => {
                       {targetPlatform === "all" ? "All" : targetPlatform.toUpperCase()}
                     </Badge>
                   </div>
+                  {imageUrl && (
+                    <img src={imageUrl} alt="Notification image" className="mt-2 w-full rounded-md object-cover max-h-40" />
+                  )}
                 </div>
               </div>
             )}
