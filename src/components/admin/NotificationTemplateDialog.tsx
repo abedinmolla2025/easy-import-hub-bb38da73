@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 
 type TargetPlatform = "all" | "android" | "ios" | "web";
 type TemplateCategory = "prayer" | "daily" | "special" | "custom";
@@ -82,7 +83,30 @@ export function NotificationTemplateDialog({
   });
   const [errors, setErrors] = useState<Partial<Record<keyof TemplateFormData, string>>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageFileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 2MB allowed", variant: "destructive" });
+      return;
+    }
+    setUploadingImage(true);
+    try {
+      const safeName = `notification-image/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { error } = await supabase.storage.from("branding").upload(safeName, file, { cacheControl: "3600", upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("branding").getPublicUrl(safeName);
+      setFormData((prev) => ({ ...prev, imageUrl: urlData.publicUrl }));
+      toast({ title: "Image uploaded" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     if (editingTemplate) {
@@ -267,14 +291,46 @@ export function NotificationTemplateDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Image URL (optional)</Label>
-            <Input
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-              maxLength={2048}
-            />
+            <Label>Rich Image (optional)</Label>
+            <div className="flex gap-2">
+              <Input
+                value={formData.imageUrl}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                placeholder="https://example.com/image.jpg or upload"
+                maxLength={2048}
+                className="flex-1"
+              />
+              <input
+                ref={imageFileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleImageUpload(f);
+                  e.target.value = "";
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={uploadingImage}
+                onClick={() => imageFileRef.current?.click()}
+              >
+                {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              </Button>
+              {formData.imageUrl && (
+                <Button type="button" variant="ghost" size="icon" onClick={() => setFormData({ ...formData, imageUrl: "" })}>
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {formData.imageUrl && (
+              <img src={formData.imageUrl} alt="Image preview" className="h-20 w-full max-w-xs rounded border object-cover" />
+            )}
             {errors.imageUrl && <p className="text-sm text-destructive">{errors.imageUrl}</p>}
+            <p className="text-xs text-muted-foreground">Large image shown in expanded notification</p>
           </div>
 
           <div className="space-y-2">
