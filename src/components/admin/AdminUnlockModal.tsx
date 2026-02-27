@@ -109,11 +109,8 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
         return;
       }
 
-      if (fingerprint) {
-        localStorage.setItem("noor_admin_device_fingerprint", fingerprint);
-      } else {
-        localStorage.removeItem("noor_admin_device_fingerprint");
-      }
+      // Fingerprint is sent for audit logging only, no longer used for device binding
+      // No need to store fingerprint locally
       localStorage.setItem("noor_admin_unlocked", "1");
       localStorage.setItem("noor_admin_last_activity", String(Date.now()));
 

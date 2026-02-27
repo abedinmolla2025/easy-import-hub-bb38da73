@@ -1,7 +1,10 @@
 export const ADMIN_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 
+/**
+ * Lightweight, deterministic fingerprint used for audit logging and
+ * per-device lockout throttling. NOT used for device binding/blocking.
+ */
 export const getDeviceFingerprint = async (): Promise<string> => {
-  // Lightweight, deterministic fingerprint (not a secret): used only to bind sessions to the same device.
   const raw = [
     navigator.userAgent,
     navigator.language,
