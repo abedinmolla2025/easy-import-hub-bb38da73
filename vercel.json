@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.noorapp.in" }],
+      "destination": "https://noorapp.in/$1",
+      "statusCode": 301
+    }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ]
