@@ -1,9 +1,8 @@
 import { Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { Loader2 } from "lucide-react";
-import { getDeviceFingerprint, isAdminIdleExpired, setLastAdminActivityNow } from "@/lib/adminSecurity";
-import { supabase } from "@/integrations/supabase/client";
+import { isAdminIdleExpired, setLastAdminActivityNow } from "@/lib/adminSecurity";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,54 +18,25 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     if (!user || !isAdmin || !unlocked) return;
 
-    let cancelled = false;
-
-    // If this device doesn't match the bound fingerprint, force lock.
-    (async () => {
-      const bound = localStorage.getItem("noor_admin_device_fingerprint");
-      if (!bound) return;
-      const current = await getDeviceFingerprint();
-      if (!cancelled && current !== bound) {
-        try {
-          await supabase.functions.invoke("admin-security", {
-            body: { action: "log_event", action_name: "permission_denied" },
-          });
-        } catch {
-          // ignore
-        }
-        await supabase.auth.signOut();
-        localStorage.removeItem("noor_admin_unlocked");
-        localStorage.removeItem("noor_admin_last_activity");
-        localStorage.removeItem("noor_admin_device_fingerprint");
-      }
-    })();
-
     const bump = () => setLastAdminActivityNow();
     const events = ["mousedown", "keydown", "touchstart", "scroll"] as const;
     events.forEach((evt) => window.addEventListener(evt, bump, { passive: true }));
 
-    const timer = window.setInterval(async () => {
+    const timer = window.setInterval(() => {
       if (isAdminIdleExpired()) {
-        try {
-          await supabase.functions.invoke("admin-security", {
-            body: { action: "log_event", action_name: "session_expired" },
-          });
-        } catch {
-          // ignore
-        }
-        await supabase.auth.signOut();
+        // Soft lock: just clear unlock state, don't sign out.
+        // Admin can re-enter passcode without losing session entirely.
         localStorage.removeItem("noor_admin_unlocked");
         localStorage.removeItem("noor_admin_last_activity");
-        localStorage.removeItem("noor_admin_device_fingerprint");
+        window.location.reload();
       }
     }, 15_000);
 
     return () => {
-      cancelled = true;
       events.forEach((evt) => window.removeEventListener(evt, bump));
       window.clearInterval(timer);
     };
-  }, [user, isAdmin]);
+  }, [user, isAdmin, unlocked]);
 
   if (loading) {
     return (
@@ -82,6 +52,9 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (isAdminIdleExpired()) {
+    // Soft lock instead of hard redirect — clear unlock state
+    localStorage.removeItem("noor_admin_unlocked");
+    localStorage.removeItem("noor_admin_last_activity");
     return <Navigate to="/" replace />;
   }
 
