@@ -51,6 +51,32 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
     }
   }, [open]);
 
+  const invokeWithRetry = async (body: Record<string, unknown>, maxRetries = 3) => {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke("admin-security", { body });
+        // If we got an HTML error page (Cloudflare 522/525), treat as transient
+        if (fnError) {
+          const msg = fnError.message || String(fnError);
+          if ((msg.includes("522") || msg.includes("525") || msg.includes("timed out") || msg.includes("SSL handshake") || msg.includes("Failed to fetch") || msg.includes("non-2xx")) && attempt < maxRetries) {
+            await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+            continue;
+          }
+          throw fnError;
+        }
+        return data;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if ((msg.includes("Failed to fetch") || msg.includes("NetworkError") || msg.includes("non-2xx") || msg.includes("522") || msg.includes("525") || msg.includes("timed out")) && attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+          continue;
+        }
+        throw e;
+      }
+    }
+    throw new Error("Server temporarily unavailable. Please try again in a moment.");
+  };
+
   const handleUnlock = async () => {
     setError(null);
 
@@ -63,15 +89,11 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
     try {
       const fingerprint = useFingerprint ? await getDeviceFingerprint() : null;
 
-      const { data, error: fnError } = await supabase.functions.invoke("admin-security", {
-        body: {
-          action: "unlock",
-          passcode,
-          device_fingerprint: fingerprint,
-        },
+      const data = await invokeWithRetry({
+        action: "unlock",
+        passcode,
+        device_fingerprint: fingerprint,
       });
-
-      if (fnError) throw fnError;
 
       if (!data?.ok) {
         if (data?.error === "setup_required") {
@@ -129,18 +151,14 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
     setSubmitting(true);
     try {
       const fingerprint = useFingerprint ? await getDeviceFingerprint() : null;
-      const { data, error: fnError } = await supabase.functions.invoke("admin-security", {
-        body: {
-          action: "request_reset_code",
-          device_fingerprint: fingerprint,
-        },
+      const data = await invokeWithRetry({
+        action: "request_reset_code",
+        device_fingerprint: fingerprint,
       });
-      if (fnError) throw fnError;
 
       if (!data?.ok) {
         const err = String(data?.error ?? "");
         if (err === "email_send_failed") {
-          // backend may include details (safe-ish, mostly resend status text)
           const details = data?.details ? String(data.details) : "";
           setError(details ? `Failed to send code: ${details}` : "Failed to send code.");
           return;
@@ -168,14 +186,11 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
 
     setSubmitting(true);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("admin-security", {
-        body: {
-          action: "reset_passcode_with_code",
-          code: resetCode.trim(),
-          new_passcode: resetNewPasscode,
-        },
+      const data = await invokeWithRetry({
+        action: "reset_passcode_with_code",
+        code: resetCode.trim(),
+        new_passcode: resetNewPasscode,
       });
-      if (fnError) throw fnError;
 
       if (!data?.ok) {
         const err = String(data?.error ?? "");
