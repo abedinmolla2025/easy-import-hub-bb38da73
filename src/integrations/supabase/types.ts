@@ -799,6 +799,45 @@ export type Database = {
           },
         ]
       }
+      hadiths: {
+        Row: {
+          arabic: string
+          bengali: string | null
+          book_key: string
+          chapter_id: number
+          created_at: string
+          english: string | null
+          hadith_number: number
+          hindi: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          arabic: string
+          bengali?: string | null
+          book_key?: string
+          chapter_id: number
+          created_at?: string
+          english?: string | null
+          hadith_number: number
+          hindi?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          arabic?: string
+          bengali?: string | null
+          book_key?: string
+          chapter_id?: number
+          created_at?: string
+          english?: string | null
+          hadith_number?: number
+          hindi?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_deliveries: {
         Row: {
           browser: string | null
