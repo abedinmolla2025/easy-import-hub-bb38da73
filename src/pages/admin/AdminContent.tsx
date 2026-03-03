@@ -888,7 +888,42 @@ export default function AdminContent() {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    if (contentTypeContext === 'hadith') {
+      // Export from hadiths table
+      const allRows: any[] = [];
+      const batchSize = 1000;
+      let from = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data } = await supabase
+          .from('hadiths')
+          .select('*')
+          .eq('book_key', 'bukhari')
+          .order('hadith_number', { ascending: true })
+          .range(from, from + batchSize - 1);
+        if (data && data.length > 0) {
+          allRows.push(...data);
+          from += batchSize;
+          if (data.length < batchSize) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      }
+      if (allRows.length === 0) {
+        toast({ title: 'No data', description: 'No hadith records found to export.', variant: 'destructive' });
+        return;
+      }
+      const blob = new Blob([JSON.stringify(allRows, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'hadith-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
+    }
+
     if (!content) return;
     const filtered = contentTypeContext 
       ? content.filter(c => c.content_type === contentTypeContext)
