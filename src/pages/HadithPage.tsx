@@ -97,7 +97,7 @@ export default function HadithPage() {
             transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => navigate(`/hadith/${book.id}`)}
+            onClick={() => navigate(book.id === "bukhari" ? "/sahih-al-bukhari" : `/hadith/${book.id}`)}
             className="flex items-center gap-4 bg-white p-4 text-left transition-shadow duration-200"
             style={{
               borderRadius: 20,

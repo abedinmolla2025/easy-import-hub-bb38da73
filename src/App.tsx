@@ -17,6 +17,8 @@ import QuranPage from "./pages/QuranPage";
 import NamesOfAllahPage from "./pages/NamesOfAllahPage";
 import PrayerTimesPage from "./pages/PrayerTimesPage";
 import BukhariPage from "./pages/BukhariPage";
+import BukhariLanguageSelectPage from "./pages/bukhari/BukhariLanguageSelectPage";
+import BukhariLangPage from "./pages/bukhari/BukhariLangPage";
 import HadithPage from "./pages/HadithPage";
 import HadithBookPlaceholder from "./pages/hadith/HadithBookPlaceholder";
 import IslamicCalendarPage from "./pages/IslamicCalendarPage";
@@ -85,6 +87,8 @@ const AppRoutes = () => (
       <Route path="/prayer-times" element={<PrayerTimesPage />} />
       <Route path="/hadith" element={<HadithPage />} />
       <Route path="/hadith/bukhari" element={<BukhariPage />} />
+      <Route path="/sahih-al-bukhari" element={<BukhariLanguageSelectPage />} />
+      <Route path="/sahih-al-bukhari/:lang" element={<BukhariLangPage />} />
       <Route path="/hadith/:bookId" element={<HadithBookPlaceholder />} />
       {/* 301-style redirect for old /bukhari route */}
       <Route path="/bukhari" element={<BukhariRedirect />} />
