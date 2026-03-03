@@ -49,6 +49,7 @@ import AdminQuiz from "./pages/admin/AdminQuiz";
 import AdminSplashScreens from "./pages/admin/AdminSplashScreens";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminFinance from "./pages/admin/AdminFinance";
+import AdminImport from "./pages/admin/AdminImport";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AdminLayout } from "./components/admin/AdminLayout";
@@ -293,6 +294,14 @@ const AppRoutes = () => (
       element={
         <AdminLayout>
           <AdminAuditPage />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/import"
+      element={
+        <AdminLayout>
+          <AdminImport />
         </AdminLayout>
       }
     />
