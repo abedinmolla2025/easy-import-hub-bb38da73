@@ -114,7 +114,7 @@ const validateHadithArray = (data: unknown): ValidationResult => {
   return { valid, errors: errors.slice(0, 50), duplicatesInFile, totalChapters: chapters.size };
 };
 
-export default function AdminImport() {
+export default function HadithImportPanel() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);

@@ -7,7 +7,7 @@ export const ADMIN_CONTENT_TYPE_OPTIONS: Array<{
 }> = [
   { value: "name", label: "Islamic Names" },
   { value: "dua", label: "Dua" },
-  { value: "hadith", label: "Hadith", description: "Coming soon" },
+  { value: "hadith", label: "Hadith" },
 ];
 
 export const adminContentTypeLabel = (t: AdminContentType) => {

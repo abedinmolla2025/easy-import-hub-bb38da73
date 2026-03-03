@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload, MoreVertical, Search, Download } from 'lucide-react';
+import HadithImportPanel from '@/components/admin/HadithImportPanel';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 import { NameBulkImportDialog } from '@/components/admin/NameBulkImportDialog';
@@ -1071,7 +1072,9 @@ export default function AdminContent() {
         />
       )}
 
-      {contentTypeContext ? (
+      {contentTypeContext === 'hadith' ? (
+        <HadithImportPanel />
+      ) : contentTypeContext ? (
         <Card className="shadow-sm border-border/80">
           <CardContent className="pt-6">
             {/* Filters */}
