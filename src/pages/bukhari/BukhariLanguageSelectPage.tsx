@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight, Languages, BookText, ScrollText } from "lucide-react";
 import { motion } from "framer-motion";
 import BottomNavigation from "@/components/BottomNavigation";
 import { Helmet } from "react-helmet-async";
@@ -11,7 +11,7 @@ const languages = [
     labelEn: "Bangla",
     description: "আরবি + বাংলা অনুবাদ",
     descEn: "Arabic + Bengali Translation",
-    icon: "🇧🇩",
+    Icon: BookText,
   },
   {
     code: "english",
@@ -19,7 +19,7 @@ const languages = [
     labelEn: "English",
     description: "Arabic + English Translation",
     descEn: "Arabic + English Translation",
-    icon: "🇬🇧",
+    Icon: Languages,
   },
   {
     code: "urdu",
@@ -27,7 +27,7 @@ const languages = [
     labelEn: "Urdu",
     description: "عربی + اردو ترجمہ",
     descEn: "Arabic + Urdu Translation",
-    icon: "🇵🇰",
+    Icon: ScrollText,
   },
 ];
 
@@ -147,8 +147,14 @@ export default function BukhariLanguageSelectPage() {
               boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
             }}
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl bg-white/10">
-              {lang.icon}
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+              style={{
+                background: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
+                boxShadow: "inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -1px 2px rgba(0,0,0,0.1)",
+              }}
+            >
+              <lang.Icon className="h-5 w-5 text-white" />
             </div>
 
             <div className="flex-1 min-w-0">
