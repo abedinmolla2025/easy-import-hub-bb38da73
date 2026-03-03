@@ -36,20 +36,37 @@ type ImportSummary = {
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const BATCH_SIZE = 300;
 
+const flattenIfNeeded = (data: unknown): unknown[] | null => {
+  if (Array.isArray(data)) return data;
+  // Support { book_1: [...], book_2: [...] } structure
+  if (data && typeof data === "object" && !Array.isArray(data)) {
+    const obj = data as Record<string, unknown>;
+    const bookKeys = Object.keys(obj).filter((k) => /^book_\d+$/i.test(k));
+    if (bookKeys.length > 0) {
+      const sorted = bookKeys.sort((a, b) => parseInt(a.replace(/\D/g, "")) - parseInt(b.replace(/\D/g, "")));
+      return sorted.flatMap((k) => (Array.isArray(obj[k]) ? obj[k] : []));
+    }
+  }
+  return null;
+};
+
 const validateHadithArray = (data: unknown): ValidationResult => {
   const errors: string[] = [];
 
-  if (!Array.isArray(data)) {
-    return { valid: [], errors: ["File must contain a JSON array."], duplicatesInFile: 0, totalChapters: 0 };
+  const flat = flattenIfNeeded(data);
+  if (!flat) {
+    return { valid: [], errors: ["File must contain a JSON array or an object with book_N keys."], duplicatesInFile: 0, totalChapters: 0 };
   }
+
+  const arr = flat;
 
   const seenIds = new Set<string>();
   const valid: HadithRecord[] = [];
   let duplicatesInFile = 0;
   const chapters = new Set<number>();
 
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i];
     const prefix = `Row ${i + 1}`;
 
     if (!item || typeof item !== "object") {
