@@ -392,11 +392,17 @@ export default function BukhariLangPage() {
         <meta name="description" content={seoDesc} />
         <link rel="canonical" href={canonical} />
         <meta name="robots" content="index,follow" />
+        {/* hreflang alternate tags for language variants */}
+        <link rel="alternate" hrefLang="bn" href={buildCanonical("bangla", seoChapterId, seoHadithNumber)} />
+        <link rel="alternate" hrefLang="en" href={buildCanonical("english", seoChapterId, seoHadithNumber)} />
+        <link rel="alternate" hrefLang="ur" href={buildCanonical("urdu", seoChapterId, seoHadithNumber)} />
+        <link rel="alternate" hrefLang="x-default" href={buildCanonical("english", seoChapterId, seoHadithNumber)} />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDesc} />
         <meta property="og:url" content={canonical} />
         <meta property="og:type" content="article" />
         <meta property="og:image" content="https://noorapp.in/og-bukhari.png" />
+        <meta property="og:locale" content={slug === "bangla" ? "bn_BD" : slug === "urdu" ? "ur_PK" : "en_US"} />
         <script type="application/ld+json">{JSON.stringify(articleLd)}</script>
       </Helmet>
 
