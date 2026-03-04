@@ -240,11 +240,33 @@ const QuizPage = () => {
 
     const pool = preferredPool.length >= 5 ? preferredPool : allQuestions;
 
-    const shuffled = [...pool].sort(() => {
-      const hash = dateSeed.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
-      return Math.sin(hash) - 0.5;
-    });
-    setDailyQuestions(shuffled.slice(0, 5));
+    // Deterministic seeded shuffle (Mulberry32 PRNG)
+    const seedNum = dateSeed.split("").reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0);
+    const mulberry32 = (seed: number) => {
+      let s = seed | 0;
+      return () => {
+        s = (s + 0x6D2B79F5) | 0;
+        let t = Math.imul(s ^ (s >>> 15), 1 | s);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    };
+    const rng = mulberry32(seedNum);
+
+    // Fisher-Yates shuffle with seeded RNG
+    const shuffled = [...pool];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // Pick 5 questions, offset by answered count so replays don't repeat
+    const alreadyAnswered = progress.todayQuestionsAnswered;
+    const startIdx = alreadyAnswered > 0 ? alreadyAnswered : 0;
+    const selected = shuffled.slice(startIdx, startIdx + 5);
+    // Fallback if not enough questions after offset
+    const daily = selected.length >= 5 ? selected : shuffled.slice(0, 5);
+    setDailyQuestions(daily);
     
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
