@@ -448,14 +448,14 @@ const QuizPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
         <Helmet>
-          <title>Islamic Quiz — ইসলামিক কুইজ | NOOR</title>
+          <title>Islamic Quiz Daily — দৈনিক ইসলামিক কুইজ | NOOR</title>
           <meta name="description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন ও নতুন কিছু শিখুন।" />
           <link rel="canonical" href="https://noorapp.in/quiz" />
         </Helmet>
         <div className="max-w-2xl mx-auto pt-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-muted-foreground">লোড হচ্ছে...</p>
-          <h1 className="sr-only">Islamic Quiz — ইসলামিক কুইজ</h1>
+           <h1 className="sr-only">Islamic Quiz Daily — দৈনিক ইসলামিক কুইজ</h1>
           <p className="sr-only">Noor অ্যাপে প্রতিদিন ইসলামিক কুইজে অংশ নিন। Daily Islamic quiz on Quran, Hadith, Islamic history — earn XP, unlock badges, and track streaks.</p>
         </div>
       </div>
@@ -466,12 +466,12 @@ const QuizPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
         <Helmet>
-          <title>Islamic Quiz — ইসলামিক কুইজ | NOOR</title>
+          <title>Islamic Quiz Daily — দৈনিক ইসলামিক কুইজ | NOOR</title>
           <meta name="description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন ও নতুন কিছু শিখুন।" />
           <link rel="canonical" href="https://noorapp.in/quiz" />
         </Helmet>
         <div className="max-w-2xl mx-auto pt-8 text-center">
-          <h1 className="sr-only">Islamic Quiz — ইসলামিক কুইজ</h1>
+          <h1 className="sr-only">Islamic Quiz Daily — দৈনিক ইসলামিক কুইজ</h1>
           <p className="text-muted-foreground">কোনো প্রশ্ন পাওয়া যায়নি।</p>
           <p className="sr-only">Noor অ্যাপে প্রতিদিন ইসলামিক কুইজে অংশ নিন। Daily Islamic quiz on Quran, Hadith, Islamic history — earn XP, unlock badges, and track streaks.</p>
         </div>
@@ -496,7 +496,7 @@ const QuizPage = () => {
   return (
     <div className="min-h-screen quiz-page-bg pb-24">
       <Helmet>
-        <title>Islamic Quiz — ইসলামিক কুইজ | NOOR</title>
+        <title>Islamic Quiz Daily — দৈনিক ইসলামিক কুইজ | NOOR</title>
         <meta name="description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।" />
         <link rel="canonical" href="https://noorapp.in/quiz" />
       </Helmet>
