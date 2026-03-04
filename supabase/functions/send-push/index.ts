@@ -182,30 +182,36 @@ async function sendWebPushMessage(opts: {
 
   console.log("[webpush] Sending to endpoint:", subscription?.endpoint ?? "unknown");
 
-  let res: Response;
   try {
-    res = await subscriber.pushTextMessage(payload, {});
+    const res = await subscriber.pushTextMessage(payload, {});
+
+    // v0.5.0 may return void on success or a Response object
+    if (res && typeof res === "object" && "ok" in res) {
+      const response = res as Response;
+      const responseBody = await response.text().catch(() => "");
+
+      if (!response.ok) {
+        console.error("[webpush] Push failed", {
+          status: response.status,
+          statusText: response.statusText,
+          endpoint: subscription?.endpoint,
+          responseBody,
+        });
+        throw new Error(`webpush_failed_${response.status}: ${responseBody}`);
+      }
+
+      console.log("[webpush] Push succeeded", { status: response.status, endpoint: subscription?.endpoint });
+      return `webpush_${response.status}`;
+    }
+
+    // pushTextMessage returned void — treat as success
+    console.log("[webpush] Push succeeded (void return)", { endpoint: subscription?.endpoint });
+    return "webpush_ok";
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[webpush] pushTextMessage threw:", msg);
     throw new Error(`webpush_send_error: ${msg}`);
   }
-
-  const responseBody = await res.text().catch(() => "");
-
-  if (!res.ok) {
-    console.error("[webpush] Push failed", {
-      status: res.status,
-      statusText: res.statusText,
-      endpoint: subscription?.endpoint,
-      responseBody,
-      headers: Object.fromEntries(res.headers.entries()),
-    });
-    throw new Error(`webpush_failed_${res.status}: ${responseBody}`);
-  }
-
-  console.log("[webpush] Push succeeded", { status: res.status, endpoint: subscription?.endpoint });
-  return `webpush_${res.status}`;
 }
 
 // --------------- Main handler ---------------
