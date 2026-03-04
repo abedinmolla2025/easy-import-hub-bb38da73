@@ -40,7 +40,7 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
       "Authentic Islamic duas with Arabic, Bengali meaning & audio — দৈনন্দিন মাসনূন দোয়া, কুরআনের দোয়া ও হাদিসের দোয়া সংকলন।",
   },
   "/quiz": {
-    title: "Islamic Quiz — ইসলামিক কুইজ | NOOR",
+    title: "Islamic Quiz Daily — দৈনিক ইসলামিক কুইজ | NOOR",
     description:
       "Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।",
   },
