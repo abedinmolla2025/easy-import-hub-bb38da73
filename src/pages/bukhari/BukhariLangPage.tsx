@@ -114,32 +114,47 @@ const langMeta: Record<LangSlug, LangCfg> = {
 };
 
 // ── Lang-specific SEO helpers ────────────────────────────────
-const langSeoLabels: Record<LangSlug, { titleLang: string; titleLangBn: string; descLang: string }> = {
-  bangla: { titleLang: "Bangla", titleLangBn: "বাংলা", descLang: "Bangla" },
-  english: { titleLang: "English", titleLangBn: "ইংরেজি", descLang: "English" },
-  urdu: { titleLang: "Urdu", titleLangBn: "উর্দু", descLang: "Urdu" },
+const langSeoMeta: Record<LangSlug, { rootTitle: string; rootDesc: string; titleLang: string; descLang: string }> = {
+  bangla: {
+    rootTitle: "Sahih Bukhari Bangla Hadith – সহীহ বুখারী বাংলা হাদিস | Noor App",
+    rootDesc: "Read Sahih Bukhari Bangla Hadith with Arabic text and authentic Bangla translation.",
+    titleLang: "Bangla",
+    descLang: "Bangla",
+  },
+  english: {
+    rootTitle: "Sahih Bukhari English Hadith Collection | Noor App",
+    rootDesc: "Read authentic Sahih Bukhari hadith collection with Arabic and English translation.",
+    titleLang: "English",
+    descLang: "English",
+  },
+  urdu: {
+    rootTitle: "Sahih Bukhari Urdu Hadith – صحیح بخاری اردو | Noor App",
+    rootDesc: "صحیح بخاری احادیث اردو ترجمہ کے ساتھ پڑھیں۔",
+    titleLang: "Urdu",
+    descLang: "Urdu",
+  },
 };
 
 function buildSeoTitle(slug: LangSlug, chapterId?: number, hadithNumber?: number): string {
-  const l = langSeoLabels[slug] || langSeoLabels.bangla;
+  const l = langSeoMeta[slug] || langSeoMeta.bangla;
   if (hadithNumber != null) {
     return `Sahih Bukhari Hadith ${hadithNumber} – ${l.titleLang} Translation – Noor App`;
   }
   if (chapterId != null) {
     return `Sahih Bukhari Chapter ${chapterId} – ${l.titleLang} – Noor App`;
   }
-  return `Sahih Bukhari ${l.titleLang} Hadith – সহীহ বুখারী ${l.titleLangBn} হাদিস`;
+  return l.rootTitle;
 }
 
 function buildSeoDesc(slug: LangSlug, chapterId?: number, hadithNumber?: number): string {
-  const l = langSeoLabels[slug] || langSeoLabels.bangla;
+  const l = langSeoMeta[slug] || langSeoMeta.bangla;
   if (hadithNumber != null) {
     return `Read Sahih Bukhari Hadith ${hadithNumber} with Arabic text and ${l.descLang} translation on Noor App.`;
   }
   if (chapterId != null) {
     return `Browse all hadiths in Chapter ${chapterId} of Sahih Bukhari with Arabic text and ${l.descLang} translation.`;
   }
-  return `Read the complete Sahih al-Bukhari collection with Arabic text and ${l.descLang} translation. 7,563 authentic hadiths organized by chapter.`;
+  return l.rootDesc;
 }
 
 function buildCanonical(slug: string, chapterId?: number, hadithNumber?: number): string {
@@ -154,7 +169,7 @@ function buildCanonical(slug: string, chapterId?: number, hadithNumber?: number)
 }
 
 function buildArticleJsonLd(slug: LangSlug, hadithNumber?: number) {
-  const l = langSeoLabels[slug] || langSeoLabels.bangla;
+  const l = langSeoMeta[slug] || langSeoMeta.bangla;
   return {
     "@context": "https://schema.org",
     "@type": "Article",

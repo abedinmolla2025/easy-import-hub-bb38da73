@@ -54,6 +54,18 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
     description:
       "Read the complete Sahih al-Bukhari — the most authentic hadith collection — in Bangla, English, or Urdu with Arabic text. 97 chapters, 7,563 hadiths.",
   },
+  "/hadith/sahih-bukhari/bangla": {
+    title: "Sahih Bukhari Bangla Hadith – সহীহ বুখারী বাংলা হাদিস | Noor App",
+    description: "Read Sahih Bukhari Bangla Hadith with Arabic text and authentic Bangla translation.",
+  },
+  "/hadith/sahih-bukhari/english": {
+    title: "Sahih Bukhari English Hadith Collection | Noor App",
+    description: "Read authentic Sahih Bukhari hadith collection with Arabic and English translation.",
+  },
+  "/hadith/sahih-bukhari/urdu": {
+    title: "Sahih Bukhari Urdu Hadith – صحیح بخاری اردو | Noor App",
+    description: "صحیح بخاری احادیث اردو ترجمہ کے ساتھ پڑھیں۔",
+  },
   "/hadith/bukhari": {
     title: "Sahih Bukhari — সহীহ বুখারী হাদিস | Noor",
     description:
