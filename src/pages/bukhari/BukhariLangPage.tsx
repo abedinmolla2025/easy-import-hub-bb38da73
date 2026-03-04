@@ -479,11 +479,45 @@ export default function BukhariLangPage() {
                 <p className={`text-[16px] md:text-lg text-white leading-relaxed font-medium ${isRtl ? "text-right" : ""}`} dir={isRtl ? "rtl" : "ltr"}>{selectedHadith.translation}</p>
               </motion.div>
 
-              {/* Chapter */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-xl">
-                <p className="text-white/70 text-sm mb-1 font-medium uppercase tracking-wider">{t.chapter}</p>
-                <p className="text-white font-semibold text-base">{t.chapter} {selectedHadith.chapterId}</p>
+              {/* Breadcrumb links */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2 text-sm">
+                <a href={`/hadith/sahih-bukhari/${slug}`} onClick={(e) => { e.preventDefault(); navigate(`/hadith/sahih-bukhari/${slug}`); }} className="text-emerald-300 hover:text-emerald-200 underline underline-offset-2">
+                  {t.title}
+                </a>
+                <span className="text-white/30">›</span>
+                <a href={`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`} onClick={(e) => { e.preventDefault(); navigate(`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`); }} className="text-emerald-300 hover:text-emerald-200 underline underline-offset-2">
+                  {t.chapter} {selectedHadith.chapterId}
+                </a>
               </motion.div>
+
+              {/* Prev / Next hadith navigation */}
+              {(() => {
+                const idx = allHadiths.findIndex((h) => h.number === selectedHadith.number);
+                const prev = idx > 0 ? allHadiths[idx - 1] : null;
+                const next = idx < allHadiths.length - 1 ? allHadiths[idx + 1] : null;
+                return (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex gap-3 pt-2">
+                    {prev ? (
+                      <a
+                        href={`/hadith/sahih-bukhari/${slug}/${prev.chapterId}/${prev.number}`}
+                        onClick={(e) => { e.preventDefault(); openHadith(prev); }}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-white/10 text-white font-medium border border-white/20 hover:bg-white/15 transition-all text-sm"
+                      >
+                        ← {t.hadithNo} {prev.number}
+                      </a>
+                    ) : <div className="flex-1" />}
+                    {next ? (
+                      <a
+                        href={`/hadith/sahih-bukhari/${slug}/${next.chapterId}/${next.number}`}
+                        onClick={(e) => { e.preventDefault(); openHadith(next); }}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-white/10 text-white font-medium border border-white/20 hover:bg-white/15 transition-all text-sm"
+                      >
+                        {t.hadithNo} {next.number} →
+                      </a>
+                    ) : <div className="flex-1" />}
+                  </motion.div>
+                );
+              })()}
             </motion.div>
           ) : (
             <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-4">

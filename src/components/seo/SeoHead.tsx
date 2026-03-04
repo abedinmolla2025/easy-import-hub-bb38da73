@@ -117,6 +117,17 @@ const PAGE_FAQS: Record<string, { q: string; a: string }[]> = {
     { q: "Is Sahih Bukhari available in Urdu on Noor?", a: "Yes, Noor App provides the complete Sahih Bukhari collection with Arabic text and Urdu translation, free of charge." },
     { q: "کیا Noor ایپ کا اردو ترجمہ معتبر ہے؟", a: "جی ہاں، Noor ایپ کا اردو ترجمہ معتبر علمی ذرائع سے لیا گیا ہے۔" },
   ],
+  "/hadith/sahih-bukhari": [
+    { q: "What is Sahih al-Bukhari?", a: "Sahih al-Bukhari is the most authentic collection of Hadith in Sunni Islam, compiled by Imam Muhammad ibn Ismail al-Bukhari (810–870 CE). It contains 7,563 hadiths organized in 97 chapters." },
+    { q: "How many hadiths are in Sahih Bukhari?", a: "Sahih al-Bukhari contains 7,563 hadiths carefully selected from over 600,000 narrations based on strict criteria of authenticity." },
+    { q: "In which languages can I read Sahih Bukhari on Noor?", a: "Noor App offers Sahih Bukhari in Bangla (বাংলা), English, and Urdu (اردو) — all with the original Arabic text, completely free." },
+    { q: "Is Sahih Bukhari free to read on Noor App?", a: "Yes, the complete Sahih al-Bukhari collection is available for free on Noor App with Arabic text and translations in three languages." },
+  ],
+  "/about": [
+    { q: "What is Noor App?", a: "Noor is a free Islamic app that provides Quran reading, Hadith collections, daily Duas, Prayer Times, Qibla direction, Islamic quiz, and more — designed for Muslims worldwide." },
+    { q: "Is Noor App free?", a: "Yes, Noor App is completely free with no ads on core Islamic content. All features including Quran, Hadith, and Prayer Times are available at no cost." },
+    { q: "Which platforms is Noor available on?", a: "Noor is available as a web app at noorapp.in and as an Android app. It works on any modern browser on mobile and desktop." },
+  ],
 };
 
 function buildFaqJsonLd(pathname: string) {
@@ -240,6 +251,10 @@ export function SeoHead() {
     "/quiz": "/og-quiz.png",
     "/hadith": "/og-bukhari.png",
     "/hadith/bukhari": "/og-bukhari.png",
+    "/hadith/sahih-bukhari": "/og-bukhari.png",
+    "/hadith/sahih-bukhari/bangla": "/og-bukhari.png",
+    "/hadith/sahih-bukhari/english": "/og-bukhari.png",
+    "/hadith/sahih-bukhari/urdu": "/og-bukhari.png",
     "/tasbih": "/og-tasbih.png",
     "/qibla": "/og-qibla.png",
     "/99-names": "/og-99-names.png",
