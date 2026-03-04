@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, Share, EllipsisVertical, Menu } from "lucide-react";
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import noorLogo from "@/assets/noor-logo.png";
 
 const COOLDOWN_KEY = "pwa-install-dismissed-at";
@@ -42,11 +43,16 @@ const instructions: Record<string, { icon: typeof Download; text: string }> = {
 };
 
 export default function PwaInstallPrompt() {
+  const { branding } = useGlobalConfig();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const promptReady = useRef(false);
   const [browser] = useState<BrowserType>(detectBrowser);
   const supportsPrompt = useRef(false);
+
+  const logoSrc = branding.logoUrl
+    ? `${branding.logoUrl}?v=${branding.logoVersion || ""}`
+    : noorLogo;
 
   // Listen for native install prompt (Chrome/Edge/Samsung)
   useEffect(() => {
@@ -136,7 +142,7 @@ export default function PwaInstallPrompt() {
 
             <div className="flex items-center gap-3">
               <img
-                src={noorLogo}
+                src={logoSrc}
                 alt="Noor App"
                 className="h-12 w-12 rounded-xl"
               />
