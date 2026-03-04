@@ -99,6 +99,24 @@ const PAGE_FAQS: Record<string, { q: string; a: string }[]> = {
     { q: "How many questions are in each quiz?", a: "Each daily quiz session includes multiple-choice questions covering various Islamic topics with instant feedback." },
     { q: "Can I track my quiz progress?", a: "Yes, Noor tracks your quiz streaks, scores, and badges so you can monitor your Islamic knowledge growth over time." },
   ],
+  "/hadith/sahih-bukhari/bangla": [
+    { q: "সহীহ বুখারী বাংলা হাদিস কি Noor অ্যাপে পড়া যায়?", a: "হ্যাঁ, Noor অ্যাপে সহীহ বুখারীর সম্পূর্ণ ৭,৫৬৩টি হাদিস আরবি টেক্সট ও বাংলা অনুবাদ সহ বিনামূল্যে পড়া যায়।" },
+    { q: "Sahih Bukhari Bangla translation কি বিশ্বস্ত?", a: "হ্যাঁ, Noor অ্যাপের বাংলা অনুবাদ বিশ্বস্ত ও নির্ভরযোগ্য উৎস থেকে সংগৃহীত।" },
+    { q: "সহীহ বুখারীতে কতটি অধ্যায় আছে?", a: "সহীহ বুখারীতে ৯৭টি অধ্যায় (কিতাব) রয়েছে, যেগুলো বিষয়ভিত্তিকভাবে সাজানো।" },
+    { q: "Can I read Sahih Bukhari in Bangla for free?", a: "Yes, Noor App provides the complete Sahih Bukhari collection with Arabic text and authentic Bangla translation — completely free." },
+  ],
+  "/hadith/sahih-bukhari/english": [
+    { q: "Can I read Sahih Bukhari in English on Noor?", a: "Yes, the complete Sahih al-Bukhari collection with 7,563 hadiths is available in English with Arabic text on Noor App, completely free." },
+    { q: "Is Sahih Bukhari the most authentic hadith collection?", a: "Yes, Sahih al-Bukhari by Imam Bukhari is widely regarded as the most authentic hadith collection in Sunni Islam." },
+    { q: "How many hadiths are in Sahih Bukhari?", a: "Sahih al-Bukhari contains 7,563 hadiths organized across 97 chapters covering topics from faith to daily life." },
+    { q: "Can I browse Sahih Bukhari by chapter in English?", a: "Yes, Noor App organizes Sahih Bukhari into 97 chapters so you can easily find hadiths on specific topics." },
+  ],
+  "/hadith/sahih-bukhari/urdu": [
+    { q: "کیا Noor ایپ پر صحیح بخاری اردو میں پڑھ سکتے ہیں؟", a: "جی ہاں، Noor ایپ پر صحیح بخاری کی مکمل ۷,۵۶۳ احادیث عربی متن اور اردو ترجمے کے ساتھ مفت دستیاب ہیں۔" },
+    { q: "صحیح بخاری میں کتنے ابواب ہیں؟", a: "صحیح بخاری میں ۹۷ ابواب ہیں جو مختلف موضوعات جیسے ایمان، نماز، روزہ اور معاملات پر مشتمل ہیں۔" },
+    { q: "Is Sahih Bukhari available in Urdu on Noor?", a: "Yes, Noor App provides the complete Sahih Bukhari collection with Arabic text and Urdu translation, free of charge." },
+    { q: "کیا Noor ایپ کا اردو ترجمہ معتبر ہے؟", a: "جی ہاں، Noor ایپ کا اردو ترجمہ معتبر علمی ذرائع سے لیا گیا ہے۔" },
+  ],
 };
 
 function buildFaqJsonLd(pathname: string) {
