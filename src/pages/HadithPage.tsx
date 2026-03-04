@@ -3,13 +3,14 @@ import { BookOpen, ScrollText, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Helmet } from "react-helmet-async";
 import BottomNavigation from "@/components/BottomNavigation";
 
 const fallbackBooks = [
-  { id: "bukhari", title: "Sahih Bukhari", title_bn: "সহীহ বুখারী", total_chapters: 97, total_hadiths: 7563 },
-  { id: "muslim", title: "Sahih Muslim", title_bn: "সহীহ মুসলিম", total_chapters: 56, total_hadiths: 7563 },
-  { id: "tirmidhi", title: "Jami at-Tirmidhi", title_bn: "জামে তিরমিযী", total_chapters: 49, total_hadiths: 3956 },
-  { id: "abu-dawud", title: "Sunan Abu Dawud", title_bn: "সুনানে আবু দাউদ", total_chapters: 43, total_hadiths: 5274 },
+  { id: "bukhari", slug: "sahih-bukhari", title: "Sahih Bukhari", title_bn: "সহীহ বুখারী", total_chapters: 97, total_hadiths: 7563 },
+  { id: "muslim", slug: "muslim", title: "Sahih Muslim", title_bn: "সহীহ মুসলিম", total_chapters: 56, total_hadiths: 7563 },
+  { id: "tirmidhi", slug: "tirmidhi", title: "Jami at-Tirmidhi", title_bn: "জামে তিরমিযী", total_chapters: 49, total_hadiths: 3956 },
+  { id: "abu-dawud", slug: "abu-dawud", title: "Sunan Abu Dawud", title_bn: "সুনানে আবু দাউদ", total_chapters: 43, total_hadiths: 5274 },
 ];
 
 export default function HadithPage() {
@@ -30,14 +31,28 @@ export default function HadithPage() {
 
   const hadithBooks = books ?? fallbackBooks;
 
+  const handleBookClick = (book: typeof fallbackBooks[0]) => {
+    if (book.id === "bukhari") {
+      navigate("/hadith/sahih-bukhari");
+    } else {
+      navigate(`/hadith/${book.id}`);
+    }
+  };
+
   return (
     <div
       className="min-h-screen pb-24"
       style={{ background: "linear-gradient(170deg, #0F766E 0%, #064E3B 40%, #022c22 100%)" }}
     >
+      <Helmet>
+        <title>Authentic Hadith Collections – Noor App</title>
+        <meta name="description" content="Browse authentic Hadith collections including Sahih Bukhari, Sahih Muslim, Jami at-Tirmidhi & Sunan Abu Dawud with Arabic text and translations." />
+        <link rel="canonical" href="https://noorapp.in/hadith" />
+        <meta name="robots" content="index,follow" />
+      </Helmet>
+
       {/* Hero section */}
       <div className="px-4 pt-14 pb-10 text-center relative">
-        {/* Radial glow behind icon */}
         <div
           className="absolute left-1/2 top-10 -translate-x-1/2 w-40 h-40 rounded-full pointer-events-none"
           style={{ background: "radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%)" }}
@@ -97,7 +112,7 @@ export default function HadithPage() {
             transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => navigate(book.id === "bukhari" ? "/sahih-al-bukhari" : `/hadith/${book.id}`)}
+            onClick={() => handleBookClick(book)}
             className="flex items-center gap-4 bg-white p-4 text-left transition-shadow duration-200"
             style={{
               borderRadius: 20,

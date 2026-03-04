@@ -84,7 +84,19 @@ Deno.serve(async (req) => {
   </url>`;
       });
 
-    const allUrls = [...seoUrls, ...contentUrls].join("\n");
+    // Add hadith language routes (static, always present)
+    const hadithLangs = ["bangla", "english", "urdu"];
+    const today = new Date().toISOString().split("T")[0];
+    const hadithLangUrls = hadithLangs
+      .filter((l) => !existingPaths.has(`/hadith/sahih-bukhari/${l}`))
+      .map((l) => `  <url>
+    <loc>${origin}/hadith/sahih-bukhari/${l}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>`);
+
+    const allUrls = [...seoUrls, ...hadithLangUrls, ...contentUrls].join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -15,7 +15,10 @@ const sections = [
   {
     title: "Hadith Collections",
     links: [
-      { label: "Sahih Bukhari", href: "/hadith/bukhari" },
+      { label: "Sahih Bukhari", href: "/hadith/sahih-bukhari" },
+      { label: "Sahih Bukhari (Bangla)", href: "/hadith/sahih-bukhari/bangla" },
+      { label: "Sahih Bukhari (English)", href: "/hadith/sahih-bukhari/english" },
+      { label: "Sahih Bukhari (Urdu)", href: "/hadith/sahih-bukhari/urdu" },
       { label: "Sahih Muslim", href: "/hadith/muslim" },
       { label: "Jami at-Tirmidhi", href: "/hadith/tirmidhi" },
       { label: "Sunan Abu Dawud", href: "/hadith/abu-dawud" },
