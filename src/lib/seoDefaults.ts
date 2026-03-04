@@ -45,9 +45,14 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
       "Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।",
   },
   "/hadith": {
-    title: "Hadith Collection — হাদিস সংকলন | NOOR",
+    title: "Authentic Hadith Collections – Noor App",
     description:
-      "Browse authentic Hadith collections — সহীহ বুখারী, মুসলিম ও অন্যান্য বিশ্বস্ত হাদিস গ্রন্থ আরবি, বাংলা ও ইংরেজি অনুবাদ সহ পড়ুন।",
+      "Browse authentic Hadith collections — Sahih Bukhari, Sahih Muslim, Jami at-Tirmidhi & Sunan Abu Dawud with Arabic text and translations in Bangla, English & Urdu.",
+  },
+  "/hadith/sahih-bukhari": {
+    title: "Sahih al-Bukhari Hadith Collection (7563 Hadiths) – Noor App",
+    description:
+      "Read the complete Sahih al-Bukhari — the most authentic hadith collection — in Bangla, English, or Urdu with Arabic text. 97 chapters, 7,563 hadiths.",
   },
   "/hadith/bukhari": {
     title: "Sahih Bukhari — সহীহ বুখারী হাদিস | Noor",

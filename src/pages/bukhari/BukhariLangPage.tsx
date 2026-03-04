@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft, Search, ChevronRight, Loader2 } from "lucide-react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -86,8 +86,6 @@ interface LangCfg {
   dbField?: string;
   field: string;
   label: string;
-  seoTitle: string;
-  seoDesc: string;
   rtl: boolean;
 }
 
@@ -97,8 +95,6 @@ const langMeta: Record<LangSlug, LangCfg> = {
     dbField: "bengali",
     field: "bengali",
     label: "বাংলা",
-    seoTitle: "Sahih al-Bukhari Bangla — সহীহ আল-বুখারী বাংলা | Noor",
-    seoDesc: "Read Sahih al-Bukhari with Arabic text and Bengali translation. সহীহ আল-বুখারী আরবি সহ বাংলা অনুবাদ পড়ুন।",
     rtl: false,
   },
   english: {
@@ -106,8 +102,6 @@ const langMeta: Record<LangSlug, LangCfg> = {
     file: "/data/sahih_bukhari_en.json",
     field: "english",
     label: "English",
-    seoTitle: "Sahih al-Bukhari English — Arabic + English Translation | Noor",
-    seoDesc: "Read Sahih al-Bukhari with Arabic text and English translation. The most authentic hadith collection.",
     rtl: false,
   },
   urdu: {
@@ -115,11 +109,73 @@ const langMeta: Record<LangSlug, LangCfg> = {
     file: "/data/sahih_bukhari_ur.json",
     field: "urdu",
     label: "اردو",
-    seoTitle: "Sahih al-Bukhari Urdu — صحیح البخاری اردو | Noor",
-    seoDesc: "صحیح البخاری عربی متن کے ساتھ اردو ترجمہ پڑھیں۔ Read Sahih al-Bukhari with Arabic and Urdu translation.",
     rtl: true,
   },
 };
+
+// ── Lang-specific SEO helpers ────────────────────────────────
+const langSeoLabels: Record<LangSlug, { titleLang: string; titleLangBn: string; descLang: string }> = {
+  bangla: { titleLang: "Bangla", titleLangBn: "বাংলা", descLang: "Bangla" },
+  english: { titleLang: "English", titleLangBn: "ইংরেজি", descLang: "English" },
+  urdu: { titleLang: "Urdu", titleLangBn: "উর্দু", descLang: "Urdu" },
+};
+
+function buildSeoTitle(slug: LangSlug, chapterId?: number, hadithNumber?: number): string {
+  const l = langSeoLabels[slug] || langSeoLabels.bangla;
+  if (hadithNumber != null) {
+    return `Sahih Bukhari Hadith ${hadithNumber} – ${l.titleLang} Translation – Noor App`;
+  }
+  if (chapterId != null) {
+    return `Sahih Bukhari Chapter ${chapterId} – ${l.titleLang} – Noor App`;
+  }
+  return `Sahih Bukhari ${l.titleLang} Hadith – সহীহ বুখারী ${l.titleLangBn} হাদিস`;
+}
+
+function buildSeoDesc(slug: LangSlug, chapterId?: number, hadithNumber?: number): string {
+  const l = langSeoLabels[slug] || langSeoLabels.bangla;
+  if (hadithNumber != null) {
+    return `Read Sahih Bukhari Hadith ${hadithNumber} with Arabic text and ${l.descLang} translation on Noor App.`;
+  }
+  if (chapterId != null) {
+    return `Browse all hadiths in Chapter ${chapterId} of Sahih Bukhari with Arabic text and ${l.descLang} translation.`;
+  }
+  return `Read the complete Sahih al-Bukhari collection with Arabic text and ${l.descLang} translation. 7,563 authentic hadiths organized by chapter.`;
+}
+
+function buildCanonical(slug: string, chapterId?: number, hadithNumber?: number): string {
+  const base = `https://noorapp.in/hadith/sahih-bukhari/${slug}`;
+  if (hadithNumber != null && chapterId != null) {
+    return `${base}/${chapterId}/${hadithNumber}`;
+  }
+  if (chapterId != null) {
+    return `${base}/chapter-${chapterId}`;
+  }
+  return base;
+}
+
+function buildArticleJsonLd(slug: LangSlug, hadithNumber?: number) {
+  const l = langSeoLabels[slug] || langSeoLabels.bangla;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: hadithNumber
+      ? `Sahih Bukhari Hadith ${hadithNumber} – ${l.titleLang}`
+      : `Sahih Bukhari ${l.titleLang} Hadith Collection`,
+    author: {
+      "@type": "Person",
+      name: "Imam Bukhari",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Noor App",
+      url: "https://noorapp.in",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": buildCanonical(slug, undefined, hadithNumber),
+    },
+  };
+}
 
 // ── Flatten book_1, book_2 … into a single array ─────────────
 function flattenBooks(json: Record<string, RawHadith[]>): RawHadith[] {
@@ -180,9 +236,12 @@ const PAGE_SIZE = 40;
 
 // ── Component ───────────────────────────────────────────────
 export default function BukhariLangPage() {
-  const { lang } = useParams<{ lang: string }>();
+  const { lang, chapterId: chapterParam, hadithNumber: hadithParam } = useParams<{
+    lang: string;
+    chapterId: string;
+    hadithNumber: string;
+  }>();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHadith, setSelectedHadith] = useState<Hadith | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
@@ -218,7 +277,6 @@ export default function BukhariLangPage() {
     };
 
     if (cfg.source === "db") {
-      // Bangla: load from database
       loadFromDb(cfg.dbField || "bengali")
         .then(processHadiths)
         .catch((err) => {
@@ -228,7 +286,6 @@ export default function BukhariLangPage() {
           setLoading(false);
         });
     } else {
-      // English/Urdu: load from JSON file
       fetch(cfg.file!)
         .then((res) => {
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -259,23 +316,36 @@ export default function BukhariLangPage() {
     return () => { cancelled = true; };
   }, [cfg.source, cfg.file, cfg.field, cfg.dbField, t.error]);
 
-  // ── URL params ─────────────────────────────────────────────
-  const chapterParam = searchParams.get("chapter");
-  const hadithParam = searchParams.get("hadith");
-
+  // ── URL path params → state ────────────────────────────────
   useEffect(() => {
-    const cid = chapterParam ? Number(chapterParam) : null;
-    setSelectedChapter(cid && Number.isFinite(cid) ? cid : null);
+    // Parse chapter from path: "chapter-5" → 5, or just "5" for hadith route
+    if (chapterParam) {
+      const cid = Number(chapterParam.replace("chapter-", ""));
+      setSelectedChapter(cid && Number.isFinite(cid) ? cid : null);
+    } else {
+      setSelectedChapter(null);
+    }
     setPage(1);
   }, [chapterParam]);
 
   useEffect(() => {
-    if (!hadithParam || allHadiths.length === 0) { setSelectedHadith(null); return; }
-    setSelectedHadith(allHadiths.find((h) => h.id === hadithParam) ?? null);
+    if (!hadithParam || allHadiths.length === 0) {
+      if (!hadithParam) setSelectedHadith(null);
+      return;
+    }
+    const num = Number(hadithParam);
+    const found = allHadiths.find((h) => h.number === num);
+    setSelectedHadith(found ?? null);
   }, [hadithParam, allHadiths]);
 
-  const openChapter = (id: number) => { setSearchParams({ chapter: String(id) }, { replace: false }); setActiveTab("hadiths"); };
-  const openHadith = (id: string) => { const next: Record<string, string> = {}; if (selectedChapter !== null) next.chapter = String(selectedChapter); next.hadith = id; setSearchParams(next, { replace: false }); };
+  const openChapter = (id: number) => {
+    navigate(`/hadith/sahih-bukhari/${slug}/chapter-${id}`);
+    setActiveTab("hadiths");
+  };
+
+  const openHadith = (hadith: Hadith) => {
+    navigate(`/hadith/sahih-bukhari/${slug}/${hadith.chapterId}/${hadith.number}`);
+  };
 
   // ── Filtering ──────────────────────────────────────────────
   const filteredHadiths = useMemo(() => {
@@ -291,20 +361,51 @@ export default function BukhariLangPage() {
   const hasMore = paginatedHadiths.length < filteredHadiths.length;
   const totalInChapter = selectedChapter !== null ? allHadiths.filter((h) => h.chapterId === selectedChapter).length : allHadiths.length;
 
+  // ── SEO values ────────────────────────────────────────────
+  const seoChapterId = selectedChapter ?? (chapterParam ? Number(chapterParam.replace("chapter-", "")) : undefined);
+  const seoHadithNumber = selectedHadith?.number ?? (hadithParam ? Number(hadithParam) : undefined);
+  const seoTitle = buildSeoTitle(slug, seoChapterId, seoHadithNumber);
+  const seoDesc = buildSeoDesc(slug, seoChapterId, seoHadithNumber);
+  const canonical = buildCanonical(slug, seoChapterId, seoHadithNumber);
+  const articleLd = buildArticleJsonLd(slug, seoHadithNumber);
+
   // ── Render ─────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-900 pb-20" style={{ direction: isRtl ? "rtl" : "ltr" }}>
       <Helmet>
-        <title>{cfg.seoTitle}</title>
-        <meta name="description" content={cfg.seoDesc} />
-        <link rel="canonical" href={`https://noorapp.in/sahih-al-bukhari/${lang}`} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDesc} />
+        <link rel="canonical" href={canonical} />
+        <meta name="robots" content="index,follow" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDesc} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="article" />
+        <meta property="og:image" content="https://noorapp.in/og-bukhari.png" />
+        <script type="application/ld+json">{JSON.stringify(articleLd)}</script>
       </Helmet>
 
       {/* Header */}
       <motion.header initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="sticky top-0 z-50 bg-emerald-900/95 backdrop-blur-lg border-b border-white/10">
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/sahih-al-bukhari")} className="p-2 -ml-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors">
+            <button
+              onClick={() => {
+                if (selectedHadith) {
+                  // Go back to chapter or lang page
+                  if (selectedChapter !== null) {
+                    navigate(`/hadith/sahih-bukhari/${slug}/chapter-${selectedChapter}`);
+                  } else {
+                    navigate(`/hadith/sahih-bukhari/${slug}`);
+                  }
+                } else if (selectedChapter !== null) {
+                  navigate(`/hadith/sahih-bukhari/${slug}`);
+                } else {
+                  navigate("/hadith/sahih-bukhari");
+                }
+              }}
+              className="p-2 -ml-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+            >
               <ArrowLeft className="w-5 h-5" style={{ transform: isRtl ? "scaleX(-1)" : "none" }} />
             </button>
             <div>
@@ -385,7 +486,7 @@ export default function BukhariLangPage() {
                 <div className="space-y-3">
                   {paginatedHadiths.length === 0 && <p className="text-center text-white/50 py-10">{t.noResults}</p>}
                   {paginatedHadiths.map((hadith, index) => (
-                    <motion.button key={hadith.id} initial={index < PAGE_SIZE ? { opacity: 0, y: 16 } : false} animate={{ opacity: 1, y: 0 }} transition={{ delay: index < PAGE_SIZE ? index * 0.015 : 0 }} onClick={() => openHadith(hadith.id)} className="w-full text-left bg-white/10 backdrop-blur-md rounded-2xl p-4 hover:bg-white/15 transition-all active:scale-[0.98] shadow-xl border border-white/20">
+                    <motion.button key={hadith.id} initial={index < PAGE_SIZE ? { opacity: 0, y: 16 } : false} animate={{ opacity: 1, y: 0 }} transition={{ delay: index < PAGE_SIZE ? index * 0.015 : 0 }} onClick={() => openHadith(hadith)} className="w-full text-left bg-white/10 backdrop-blur-md rounded-2xl p-4 hover:bg-white/15 transition-all active:scale-[0.98] shadow-xl border border-white/20">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 border border-white/30">
                           <span className="text-white font-bold text-sm">{hadith.number}</span>

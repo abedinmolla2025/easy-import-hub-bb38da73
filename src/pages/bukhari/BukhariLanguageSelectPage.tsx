@@ -43,12 +43,22 @@ export default function BukhariLanguageSelectPage() {
       }}
     >
       <Helmet>
-        <title>Sahih al-Bukhari — সহীহ আল-বুখারী | Noor</title>
+        <title>Sahih al-Bukhari Hadith Collection (7563 Hadiths) – Noor App</title>
         <meta
           name="description"
-          content="Read Sahih al-Bukhari in Bangla, English, or Urdu with Arabic text. Choose your preferred language. সহীহ আল-বুখারী পড়ুন আপনার ভাষায়।"
+          content="Read Sahih al-Bukhari — the most authentic hadith collection — in Bangla, English, or Urdu with Arabic text. 97 chapters, 7,563 hadiths."
         />
-        <link rel="canonical" href="https://noorapp.in/sahih-al-bukhari" />
+        <link rel="canonical" href="https://noorapp.in/hadith/sahih-bukhari" />
+        <meta name="robots" content="index,follow" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: "Sahih al-Bukhari Hadith Collection",
+            author: { "@type": "Person", name: "Imam Bukhari" },
+            publisher: { "@type": "Organization", name: "Noor App", url: "https://noorapp.in" },
+          })}
+        </script>
       </Helmet>
 
       {/* Hero */}
@@ -137,7 +147,7 @@ export default function BukhariLanguageSelectPage() {
             transition={{ delay: 0.45 + i * 0.1, duration: 0.4 }}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate(`/sahih-al-bukhari/${lang.code}`)}
+            onClick={() => navigate(`/hadith/sahih-bukhari/${lang.code}`)}
             className="flex items-center gap-4 p-5 text-left transition-shadow duration-200"
             style={{
               borderRadius: 20,
