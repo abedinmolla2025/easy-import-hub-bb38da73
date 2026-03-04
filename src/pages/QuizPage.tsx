@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -446,9 +447,16 @@ const QuizPage = () => {
   if (loading || questionsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
+        <Helmet>
+          <title>Islamic Quiz — ইসলামিক কুইজ | NOOR</title>
+          <meta name="description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন ও নতুন কিছু শিখুন।" />
+          <link rel="canonical" href="https://noorapp.in/quiz" />
+        </Helmet>
         <div className="max-w-2xl mx-auto pt-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-muted-foreground">লোড হচ্ছে...</p>
+          <h1 className="sr-only">Islamic Quiz — ইসলামিক কুইজ</h1>
+          <p className="sr-only">Noor অ্যাপে প্রতিদিন ইসলামিক কুইজে অংশ নিন। Daily Islamic quiz on Quran, Hadith, Islamic history — earn XP, unlock badges, and track streaks.</p>
         </div>
       </div>
     );
@@ -457,8 +465,15 @@ const QuizPage = () => {
   if (!questionsLoading && allQuestions.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
+        <Helmet>
+          <title>Islamic Quiz — ইসলামিক কুইজ | NOOR</title>
+          <meta name="description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন ও নতুন কিছু শিখুন।" />
+          <link rel="canonical" href="https://noorapp.in/quiz" />
+        </Helmet>
         <div className="max-w-2xl mx-auto pt-8 text-center">
+          <h1 className="sr-only">Islamic Quiz — ইসলামিক কুইজ</h1>
           <p className="text-muted-foreground">কোনো প্রশ্ন পাওয়া যায়নি।</p>
+          <p className="sr-only">Noor অ্যাপে প্রতিদিন ইসলামিক কুইজে অংশ নিন। Daily Islamic quiz on Quran, Hadith, Islamic history — earn XP, unlock badges, and track streaks.</p>
         </div>
       </div>
     );
@@ -480,6 +495,11 @@ const QuizPage = () => {
 
   return (
     <div className="min-h-screen quiz-page-bg pb-24">
+      <Helmet>
+        <title>Islamic Quiz — ইসলামিক কুইজ | NOOR</title>
+        <meta name="description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।" />
+        <link rel="canonical" href="https://noorapp.in/quiz" />
+      </Helmet>
       {/* Badge Celebration */}
       {celebratingBadge && (
         <BadgeCelebration
@@ -1526,6 +1546,30 @@ const QuizPage = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* SEO-friendly static content for Google indexing — hidden on small screens */}
+      <section className="hidden md:block max-w-2xl mx-auto px-4 py-8 space-y-4 text-muted-foreground text-sm leading-relaxed">
+        <h2 className="text-lg font-semibold text-foreground">ইসলামিক কুইজ — Daily Islamic Quiz</h2>
+        <p>
+          Noor অ্যাপের ইসলামিক কুইজে প্রতিদিন ৫টি প্রশ্নে অংশ নিন। কুরআন, হাদিস, ইসলামিক ইতিহাস ও সাধারণ ইসলামিক জ্ঞান বিষয়ে 
+          আপনার জ্ঞান যাচাই করুন এবং প্রতিদিন নতুন কিছু শিখুন। Take 5 questions daily on Quran, Hadith, 
+          Islamic history and general Islamic knowledge. Earn XP, unlock badges, and track your learning streak.
+        </p>
+        <h3 className="text-base font-medium text-foreground">কুইজের বৈশিষ্ট্য — Quiz Features</h3>
+        <ul className="list-disc list-inside space-y-1">
+          <li>প্রতিদিন ৫টি নতুন প্রশ্ন — 5 fresh questions every day from a pool of 300+</li>
+          <li>বাংলা ও ইংরেজি উভয় ভাষায় — Bilingual Bengali & English support</li>
+          <li>সঠিক উত্তরে ১০ XP — Earn 10 XP per correct answer</li>
+          <li>ব্যাজ ও সার্টিফিকেট অর্জন — Unlock badges and generate certificates</li>
+          <li>৩০ সেকেন্ড টাইমার — 30-second countdown timer per question</li>
+          <li>Daily streak tracking — ধারাবাহিকতা ট্র্যাক করুন</li>
+        </ul>
+        <p>
+          Noor Islamic Quiz is completely free. Challenge yourself daily, compete on the leaderboard, 
+          and become a Quran Expert by reaching 2000 XP with 85%+ accuracy. 
+          সম্পূর্ণ বিনামূল্যে ইসলামিক জ্ঞান অর্জন করুন Noor অ্যাপে।
+        </p>
+      </section>
 
       <BottomNavigation />
     </div>
