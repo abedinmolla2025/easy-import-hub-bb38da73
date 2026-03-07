@@ -1816,30 +1816,75 @@ const BabyNamesPage = () => {
 
       {/* Hidden SEO content for crawlers */}
       <section className="sr-only" aria-hidden="true">
-        <h2>Muslim Baby Names — ইসলামিক শিশুর নাম</h2>
+        <h2>Muslim Baby Names with Meaning – Islamic Boys & Girls Names (1000+)</h2>
         <p>
-          Find beautiful Islamic baby names for boys and girls with Arabic script, Bengali pronunciation, and meanings.
-          ছেলে ও মেয়ে শিশুদের জন্য অর্থসহ সুন্দর মুসলিম নাম বাছাই করুন — Muhammad, Ahmad, Ali, Fatima, Aisha, Khadija সহ ৪০+ নাম।
+          Find beautiful Muslim baby names for boys and girls with Arabic spelling and meanings.
+          Browse thousands of Islamic names in Bangla and English on Noor App.
+          ইসলামিক ছেলে ও মেয়েদের সুন্দর নাম অর্থসহ দেখুন।
         </p>
-        <h3>Popular Boy Names</h3>
+
+        <h3>Muslim Boy Names — মুসলিম ছেলেদের নাম</h3>
         <ul>
-          <li>Muhammad (মুহাম্মদ) — مُحَمَّد — Praised, commendable</li>
-          <li>Ahmad (আহমাদ) — أَحْمَد — Most praiseworthy</li>
-          <li>Ali (আলী) — عَلِي — High, elevated, noble</li>
-          <li>Yusuf (ইউসুফ) — يُوسُف — God increases</li>
-          <li>Ibrahim (ইব্রাহিম) — إِبْرَاهِيم — Father of nations</li>
+          <li>Muhammad (মুহাম্মদ) — مُحَمَّد — Praised, commendable — প্রশংসিত</li>
+          <li>Ahmad (আহমাদ) — أَحْمَد — Most praiseworthy — সর্বাধিক প্রশংসনীয়</li>
+          <li>Ali (আলী) — عَلِي — High, elevated, noble — উচ্চ, মহান</li>
+          <li>Omar (উমর) — عُمَر — Flourishing, long-lived — সমৃদ্ধ, দীর্ঘজীবী</li>
+          <li>Yusuf (ইউসুফ) — يُوسُف — God increases — আল্লাহ বৃদ্ধি করেন</li>
+          <li>Ibrahim (ইব্রাহিম) — إِبْرَاهِيم — Father of nations — জাতির পিতা</li>
+          <li>Hassan (হাসান) — حَسَن — Good, handsome — সুন্দর, চমৎকার</li>
+          <li>Hamza (হামজা) — حَمْزَة — Strong, steadfast — শক্তিশালী, দৃঢ়</li>
+          <li>Khalid (খালিদ) — خَالِد — Eternal, immortal — চিরস্থায়ী, অমর</li>
+          <li>Bilal (বিলাল) — بِلَال — Water, moisture — জল, আর্দ্রতা</li>
+          <li>Zayd (জায়েদ) — زَيْد — Growth, abundance — বৃদ্ধি, প্রাচুর্য</li>
+          <li>Amir (আমির) — أَمِير — Prince, commander — রাজকুমার, সেনাপতি</li>
+          <li>Rayyan (রাইয়ান) — رَيَّان — Gates of Heaven — জান্নাতের দরজা</li>
+          <li>Zain (জায়ন) — زَيْن — Beauty, grace — সৌন্দর্য, কমনীয়তা</li>
+          <li>Faisal (ফয়সাল) — فَيْصَل — Decisive, judge — নির্ণায়ক, বিচারক</li>
         </ul>
-        <h3>Popular Girl Names</h3>
+
+        <h3>Muslim Girl Names — মুসলিম মেয়েদের নাম</h3>
         <ul>
-          <li>Fatima (ফাতিমা) — فَاطِمَة — One who abstains</li>
-          <li>Aisha (আয়েশা) — عَائِشَة — Living, prosperous</li>
-          <li>Maryam (মারিয়াম) — مَرْيَم — Beloved</li>
-          <li>Zainab (জয়নব) — زَيْنَب — Fragrant flower</li>
-          <li>Noor (নূর) — نُور — Light, radiance</li>
+          <li>Fatima (ফাতিমা) — فَاطِمَة — One who abstains — যে বিরত থাকে</li>
+          <li>Aisha (আয়েশা) — عَائِشَة — Living, prosperous — জীবন্ত, সমৃদ্ধ</li>
+          <li>Khadija (খাদিজা) — خَدِيجَة — Early baby — অকালজাত শিশু</li>
+          <li>Maryam (মারিয়াম) — مَرْيَم — Beloved — প্রিয়, কাঙ্ক্ষিত</li>
+          <li>Zainab (জয়নব) — زَيْنَب — Fragrant flower — সুগন্ধি ফুল</li>
+          <li>Layla (লায়লা) — لَيْلَى — Night, dark beauty — রাত, অন্ধকারের সৌন্দর্য</li>
+          <li>Noor (নূর) — نُور — Light, radiance — আলো, দীপ্তি</li>
+          <li>Hana (হানা) — هَنَاء — Happiness, bliss — সুখ, আনন্দ</li>
+          <li>Amina (আমিনা) — أَمِينَة — Trustworthy — বিশ্বস্ত</li>
+          <li>Safiya (সফিয়া) — صَفِيَّة — Pure, sincere — পবিত্র, আন্তরিক</li>
         </ul>
+
+        <h3>Arabic Baby Names — আরবি শিশুর নাম</h3>
+        <p>
+          All names in our collection originate from Arabic and have deep Islamic significance.
+          Each name includes the original Arabic script (عربی), Bengali meaning (বাংলা অর্থ), and English translation.
+          আমাদের সংকলনের প্রতিটি নাম আরবি উৎস থেকে এসেছে এবং ইসলামিক গুরুত্ব বহন করে।
+        </p>
+
+        <h3>Popular Islamic Names — জনপ্রিয় ইসলামিক নাম</h3>
+        <p>
+          The most popular Muslim baby names include Muhammad, Ahmad, Ali, Yusuf, Ibrahim for boys
+          and Fatima, Aisha, Maryam, Khadija, Zainab for girls. These names are chosen by millions
+          of Muslim parents worldwide for their beautiful meanings and Islamic heritage.
+          সবচেয়ে জনপ্রিয় মুসলিম নাম — ছেলে ও মেয়ে উভয়ের জন্য।
+        </p>
+
+        <h3>Modern Muslim Names — আধুনিক মুসলিম নাম</h3>
+        <p>
+          Modern Muslim parents often choose names like Rayyan, Zain, Amir, Layla, Noor, and Hana
+          that sound contemporary while carrying deep Islamic meaning. Noor App helps you find
+          the perfect balance between tradition and modernity.
+          আধুনিক ও ঐতিহ্যবাহী — উভয় ধরনের সুন্দর ইসলামিক নাম খুঁজুন।
+        </p>
+
         <p>
           Browse Muslim baby names on <a href="https://noorapp.in/baby-names">Noor App</a>.
-          Also explore <a href="https://noorapp.in/names">Islamic Names Collection</a> and <a href="https://noorapp.in/99-names">99 Names of Allah</a>.
+          Also explore <a href="https://noorapp.in/names">Islamic Names Collection</a>,
+          <a href="https://noorapp.in/99-names">99 Names of Allah</a>,
+          <a href="https://noorapp.in/quran">Read Quran</a>, and
+          <a href="https://noorapp.in/hadith">Hadith Collections</a>.
         </p>
       </section>
     </div>

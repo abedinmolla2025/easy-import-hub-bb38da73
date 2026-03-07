@@ -150,8 +150,10 @@ const PAGE_FAQS: Record<string, { q: string; a: string }[]> = {
     { q: "Does Noor explain the meaning of each name?", a: "Yes, each of the 99 names includes its meaning in Bengali and English along with the original Arabic script." },
   ],
   "/baby-names": [
-    { q: "Can I find Muslim baby names on Noor?", a: "Yes, Noor has a curated collection of beautiful Islamic baby names for boys and girls with Arabic script and Bengali meanings." },
-    { q: "Can I search names by letter or gender?", a: "Yes, you can filter names by first letter, gender (boy/girl), and search by meaning or name." },
+    { q: "Can I find Muslim baby names on Noor?", a: "Yes, Noor has over 1,000 beautiful Islamic baby names for boys and girls with Arabic script, Bengali pronunciation, and meanings in multiple languages." },
+    { q: "Can I search names by letter or gender?", a: "Yes, you can filter names by first letter, gender (boy/girl), and search by meaning or name in Bengali, English, Arabic, Hindi, and Urdu." },
+    { q: "Does Noor have Arabic baby names with meanings?", a: "Yes, every name on Noor includes the original Arabic script along with meanings in Bengali, English, and other languages." },
+    { q: "Can I find modern Muslim baby names on Noor?", a: "Yes, Noor includes both traditional and modern Muslim baby names for boys and girls, curated from authentic Islamic sources." },
   ],
   "/calendar": [
     { q: "Does Noor have an Islamic calendar?", a: "Yes, Noor provides a Hijri calendar with key Islamic dates including Ramadan, Eid ul-Fitr, Eid ul-Adha, Laylat al-Qadr, and more." },
@@ -303,6 +305,30 @@ export function SeoHead() {
   const isHomepage = pathname === "/";
   const jsonLd = pageSeo?.json_ld ?? null;
 
+  // CollectionPage JSON-LD for /baby-names
+  const isBabyNamesPage = normalizedPath === "/baby-names";
+  const collectionLdString = isBabyNamesPage && !jsonLd
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Muslim Baby Names",
+        description: "Browse Islamic baby names for boys and girls with meanings.",
+        url: `${SITE_ORIGIN}/baby-names`,
+        mainEntity: {
+          "@type": "ItemList",
+          name: "Islamic Baby Names Collection",
+          numberOfItems: "1000+",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Muhammad (مُحَمَّد) — Praised, commendable" },
+            { "@type": "ListItem", position: 2, name: "Fatima (فَاطِمَة) — One who abstains" },
+            { "@type": "ListItem", position: 3, name: "Ahmad (أَحْمَد) — Most praiseworthy" },
+            { "@type": "ListItem", position: 4, name: "Aisha (عَائِشَة) — Living, prosperous" },
+            { "@type": "ListItem", position: 5, name: "Yusuf (يُوسُف) — God increases" },
+          ],
+        },
+      })
+    : null;
+
   // Article JSON-LD for hadith language/chapter pages
   const isHadithArticlePage = normalizedPath.match(/^\/hadith\/sahih-bukhari\/(bangla|english|urdu)(\/chapter-\d+)?$/);
   const articleLdString = !jsonLd && isHadithArticlePage
@@ -379,6 +405,9 @@ export function SeoHead() {
       ) : null}
       {articleLdString ? (
         <script type="application/ld+json">{articleLdString}</script>
+      ) : null}
+      {collectionLdString ? (
+        <script type="application/ld+json">{collectionLdString}</script>
       ) : null}
       {breadcrumbString ? (
         <script type="application/ld+json">{breadcrumbString}</script>
