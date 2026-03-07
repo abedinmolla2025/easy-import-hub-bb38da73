@@ -273,6 +273,22 @@ export function SeoHead() {
   // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
   const isHomepage = pathname === "/";
   const jsonLd = pageSeo?.json_ld ?? null;
+
+  // Article JSON-LD for hadith language/chapter pages
+  const isHadithArticlePage = normalizedPath.match(/^\/hadith\/sahih-bukhari\/(bangla|english|urdu)(\/chapter-\d+)?$/);
+  const articleLdString = !jsonLd && isHadithArticlePage
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        author: { "@type": "Person", name: "Imam Muhammad ibn Ismail al-Bukhari" },
+        publisher: { "@type": "Organization", name: "Noor App", url: SITE_ORIGIN },
+        url: canonical,
+        image: ogImage,
+        description,
+      })
+    : null;
+
   const jsonLdString = jsonLd
     ? JSON.stringify(jsonLd)
     : isHomepage
