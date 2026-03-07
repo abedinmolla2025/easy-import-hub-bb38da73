@@ -172,18 +172,18 @@ export function getPageSeoDefaults(
     );
     if (chapterMatch) {
       const [, lang, chapterNum] = chapterMatch;
-      const langLabels: Record<string, { title: string; desc: string }> = {
+      const langLabels: Record<string, PageSeoDefaults> = {
         bangla: {
           title: `Sahih Bukhari Bangla Chapter ${chapterNum} – সহীহ বুখারী অধ্যায় ${chapterNum} | Noor`,
-          desc: `Read Sahih Bukhari Chapter ${chapterNum} in Bangla with Arabic text — সহীহ বুখারী অধ্যায় ${chapterNum} এর সকল হাদিস বাংলা অনুবাদ সহ পড়ুন।`,
+          description: `Read Sahih Bukhari Chapter ${chapterNum} in Bangla with Arabic text — সহীহ বুখারী অধ্যায় ${chapterNum} এর সকল হাদিস বাংলা অনুবাদ সহ পড়ুন।`,
         },
         english: {
           title: `Sahih Bukhari Chapter ${chapterNum} – English Hadith | Noor`,
-          desc: `Browse all hadiths in Sahih Bukhari Chapter ${chapterNum} with Arabic text and English translation on Noor App.`,
+          description: `Browse all hadiths in Sahih Bukhari Chapter ${chapterNum} with Arabic text and English translation on Noor App.`,
         },
         urdu: {
           title: `Sahih Bukhari Chapter ${chapterNum} – صحیح بخاری باب ${chapterNum} | Noor`,
-          desc: `صحیح بخاری باب ${chapterNum} کی تمام احادیث عربی متن اور اردو ترجمے کے ساتھ پڑھیں۔`,
+          description: `صحیح بخاری باب ${chapterNum} کی تمام احادیث عربی متن اور اردو ترجمے کے ساتھ پڑھیں۔`,
         },
       };
       entry = langLabels[lang] || langLabels.english;
