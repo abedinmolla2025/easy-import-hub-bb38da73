@@ -162,7 +162,34 @@ export function getPageSeoDefaults(
   pathname: string,
   appName?: string,
 ): PageSeoDefaults | null {
-  const entry = DEFAULTS[pathname];
+  // Check exact match first
+  let entry = DEFAULTS[pathname];
+
+  // Dynamic chapter routes: /hadith/sahih-bukhari/:lang/chapter-:id
+  if (!entry) {
+    const chapterMatch = pathname.match(
+      /^\/hadith\/sahih-bukhari\/(bangla|english|urdu)\/chapter-(\d+)$/,
+    );
+    if (chapterMatch) {
+      const [, lang, chapterNum] = chapterMatch;
+      const langLabels: Record<string, { title: string; desc: string }> = {
+        bangla: {
+          title: `Sahih Bukhari Bangla Chapter ${chapterNum} – সহীহ বুখারী অধ্যায় ${chapterNum} | Noor`,
+          desc: `Read Sahih Bukhari Chapter ${chapterNum} in Bangla with Arabic text — সহীহ বুখারী অধ্যায় ${chapterNum} এর সকল হাদিস বাংলা অনুবাদ সহ পড়ুন।`,
+        },
+        english: {
+          title: `Sahih Bukhari Chapter ${chapterNum} – English Hadith | Noor`,
+          desc: `Browse all hadiths in Sahih Bukhari Chapter ${chapterNum} with Arabic text and English translation on Noor App.`,
+        },
+        urdu: {
+          title: `Sahih Bukhari Chapter ${chapterNum} – صحیح بخاری باب ${chapterNum} | Noor`,
+          desc: `صحیح بخاری باب ${chapterNum} کی تمام احادیث عربی متن اور اردو ترجمے کے ساتھ پڑھیں۔`,
+        },
+      };
+      entry = langLabels[lang] || langLabels.english;
+    }
+  }
+
   if (!entry) return null;
 
   // Optionally replace "NOOR" with the configured app name
