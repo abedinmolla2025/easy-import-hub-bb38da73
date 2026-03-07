@@ -305,6 +305,30 @@ export function SeoHead() {
   const isHomepage = pathname === "/";
   const jsonLd = pageSeo?.json_ld ?? null;
 
+  // CollectionPage JSON-LD for /baby-names
+  const isBabyNamesPage = normalizedPath === "/baby-names";
+  const collectionLdString = isBabyNamesPage && !jsonLd
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Muslim Baby Names",
+        description: "Browse Islamic baby names for boys and girls with meanings.",
+        url: `${SITE_ORIGIN}/baby-names`,
+        mainEntity: {
+          "@type": "ItemList",
+          name: "Islamic Baby Names Collection",
+          numberOfItems: "1000+",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Muhammad (مُحَمَّد) — Praised, commendable" },
+            { "@type": "ListItem", position: 2, name: "Fatima (فَاطِمَة) — One who abstains" },
+            { "@type": "ListItem", position: 3, name: "Ahmad (أَحْمَد) — Most praiseworthy" },
+            { "@type": "ListItem", position: 4, name: "Aisha (عَائِشَة) — Living, prosperous" },
+            { "@type": "ListItem", position: 5, name: "Yusuf (يُوسُف) — God increases" },
+          ],
+        },
+      })
+    : null;
+
   // Article JSON-LD for hadith language/chapter pages
   const isHadithArticlePage = normalizedPath.match(/^\/hadith\/sahih-bukhari\/(bangla|english|urdu)(\/chapter-\d+)?$/);
   const articleLdString = !jsonLd && isHadithArticlePage
