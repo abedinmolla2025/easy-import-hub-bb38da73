@@ -45,12 +45,12 @@ const SEO_DEFAULTS: Record<string, { title: string; description: string }> = {
     description: "সহীহ বুখারী শরীফের সম্পূর্ণ হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন। Read the complete Sahih Bukhari Bangla hadith collection with Arabic text and authentic Bangla translation on Noor App.",
   },
   "/hadith/sahih-bukhari/english": {
-    title: "Sahih Bukhari English Hadith Collection | Noor App",
-    description: "Read authentic Sahih Bukhari hadith collection with Arabic and English translation.",
+    title: "Sahih Bukhari English – Authentic Hadith Collection | Noor App",
+    description: "Read the complete Sahih Bukhari English hadith collection with Arabic text and authentic English translation on Noor App.",
   },
   "/hadith/sahih-bukhari/urdu": {
-    title: "Sahih Bukhari Urdu Hadith – صحیح بخاری اردو | Noor App",
-    description: "صحیح بخاری احادیث اردو ترجمہ کے ساتھ پڑھیں۔",
+    title: "Sahih Bukhari Urdu – صحیح بخاری اردو حدیث | Noor App",
+    description: "صحیح بخاری کی مکمل احادیث عربی متن اور اردو ترجمہ کے ساتھ پڑھیں۔ Read Sahih Bukhari Urdu hadith collection with Arabic text.",
   },
   "/tasbih": {
     title: "Digital Tasbih — ডিজিটাল তাসবীহ | NOOR",
