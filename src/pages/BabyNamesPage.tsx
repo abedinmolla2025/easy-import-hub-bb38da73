@@ -1813,6 +1813,35 @@ const BabyNamesPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Hidden SEO content for crawlers */}
+      <section className="sr-only" aria-hidden="true">
+        <h2>Muslim Baby Names — ইসলামিক শিশুর নাম</h2>
+        <p>
+          Find beautiful Islamic baby names for boys and girls with Arabic script, Bengali pronunciation, and meanings.
+          ছেলে ও মেয়ে শিশুদের জন্য অর্থসহ সুন্দর মুসলিম নাম বাছাই করুন — Muhammad, Ahmad, Ali, Fatima, Aisha, Khadija সহ ৪০+ নাম।
+        </p>
+        <h3>Popular Boy Names</h3>
+        <ul>
+          <li>Muhammad (মুহাম্মদ) — مُحَمَّد — Praised, commendable</li>
+          <li>Ahmad (আহমাদ) — أَحْمَد — Most praiseworthy</li>
+          <li>Ali (আলী) — عَلِي — High, elevated, noble</li>
+          <li>Yusuf (ইউসুফ) — يُوسُف — God increases</li>
+          <li>Ibrahim (ইব্রাহিম) — إِبْرَاهِيم — Father of nations</li>
+        </ul>
+        <h3>Popular Girl Names</h3>
+        <ul>
+          <li>Fatima (ফাতিমা) — فَاطِمَة — One who abstains</li>
+          <li>Aisha (আয়েশা) — عَائِشَة — Living, prosperous</li>
+          <li>Maryam (মারিয়াম) — مَرْيَم — Beloved</li>
+          <li>Zainab (জয়নব) — زَيْنَب — Fragrant flower</li>
+          <li>Noor (নূর) — نُور — Light, radiance</li>
+        </ul>
+        <p>
+          Browse Muslim baby names on <a href="https://noorapp.in/baby-names">Noor App</a>.
+          Also explore <a href="https://noorapp.in/names">Islamic Names Collection</a> and <a href="https://noorapp.in/99-names">99 Names of Allah</a>.
+        </p>
+      </section>
     </div>
   );
 };
