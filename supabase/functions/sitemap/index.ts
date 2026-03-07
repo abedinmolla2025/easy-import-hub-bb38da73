@@ -1,5 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const escapeXml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -58,7 +61,7 @@ Deno.serve(async (req) => {
         ? new Date(p.updated_at).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0];
       return `  <url>
-    <loc>${origin}${p.path}</loc>
+    <loc>${escapeXml(`${origin}${p.path}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${p.changefreq || "weekly"}</changefreq>
     <priority>${p.priority ?? 0.8}</priority>
@@ -77,7 +80,7 @@ Deno.serve(async (req) => {
           ? new Date(c.updated_at).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0];
         return `  <url>
-    <loc>${origin}/${c.content_type}/${c.id}</loc>
+    <loc>${escapeXml(`${origin}/${c.content_type}/${c.id}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
