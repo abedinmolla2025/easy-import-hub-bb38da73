@@ -316,6 +316,15 @@ export function SeoHead() {
       {canonical ? <link rel="canonical" href={canonical} /> : null}
       {robots ? <meta name="robots" content={robots} /> : null}
 
+      {/* hreflang for hadith language variants */}
+      {isHadithArticlePage ? (
+        <>
+          <link rel="alternate" hreflang="bn" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/bangla${isHadithArticlePage[2] || ""}`} />
+          <link rel="alternate" hreflang="en" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/english${isHadithArticlePage[2] || ""}`} />
+          <link rel="alternate" hreflang="ur" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/urdu${isHadithArticlePage[2] || ""}`} />
+        </>
+      ) : null}
+
       {/* Dynamic favicons */}
       {favVariants?.png16 ? <link rel="icon" sizes="16x16" type="image/png" href={cacheBustUrl(favVariants.png16, lv)} /> : null}
       {favVariants?.png32 ? <link rel="icon" sizes="32x32" type="image/png" href={cacheBustUrl(favVariants.png32, lv)} /> : null}
