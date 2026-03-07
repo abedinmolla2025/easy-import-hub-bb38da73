@@ -265,7 +265,7 @@ export function SeoHead() {
     "/calendar": "/og-calendar.png",
     "/prayer-guide": "/og-prayer-guide.png",
   };
-  const ogImage = `${SITE_ORIGIN}${OG_IMAGES[pathname] || "/og-image.png"}`;
+  const ogImage = `${SITE_ORIGIN}${OG_IMAGES[normalizedPath] || OG_IMAGES[pathname] || "/og-image.png"}`;
 
   // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
   const isHomepage = pathname === "/";
