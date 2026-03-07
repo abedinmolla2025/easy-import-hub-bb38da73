@@ -41,8 +41,9 @@ const DEFAULT_SPLASH_CONFIG: SplashConfig = {
 export function SplashGate(props: { children: React.ReactNode }) {
   const { children } = props;
 
-  // Skip splash entirely on /download page for immediate content access
-  const skipSplash = window.location.pathname === "/download";
+  // Skip splash for bots/crawlers and /download page for immediate content access
+  const isBot = /Googlebot|bingbot|Baiduspider|yandex|facebookexternalhit|Twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|Applebot/i.test(navigator.userAgent);
+  const skipSplash = isBot || window.location.pathname === "/download";
 
   const [done, setDone] = useState(skipSplash);
 
