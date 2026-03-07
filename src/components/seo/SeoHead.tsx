@@ -339,6 +339,9 @@ export function SeoHead() {
       {jsonLdString ? (
         <script type="application/ld+json">{jsonLdString}</script>
       ) : null}
+      {articleLdString ? (
+        <script type="application/ld+json">{articleLdString}</script>
+      ) : null}
       {breadcrumbString ? (
         <script type="application/ld+json">{breadcrumbString}</script>
       ) : null}
