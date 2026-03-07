@@ -18,91 +18,107 @@ const SEO_DEFAULTS: Record<string, { title: string; description: string }> = {
   },
   "/quran": {
     title: "Quran Reader — পবিত্র কুরআন | NOOR",
-    description: "Read the Holy Quran with Arabic text, Bengali translation & audio recitation.",
+    description: "Read the Holy Quran with Arabic text, Bengali translation & audio recitation — সূরা তিলাওয়াত, তাফসীর ও অডিও সহ সম্পূর্ণ কুরআন পাঠ করুন।",
   },
   "/prayer-times": {
     title: "Prayer Times — নামাজের সময়সূচী | NOOR",
-    description: "Accurate daily Salah times for your location — Fajr, Dhuhr, Asr, Maghrib & Isha.",
+    description: "Accurate daily Salah times for your location — ফজর, যোহর, আসর, মাগরিব ও এশার সঠিক সময় জানুন। Athan alerts & countdown timer included.",
   },
   "/dua": {
     title: "Duas & Supplications — দোয়া সমূহ | NOOR",
-    description: "Authentic Islamic duas with Arabic, Bengali meaning & audio.",
+    description: "Authentic Islamic duas with Arabic, Bengali meaning & audio — দৈনন্দিন মাসনূন দোয়া, কুরআনের দোয়া ও হাদিসের দোয়া সংকলন।",
   },
   "/quiz": {
     title: "Daily Islamic Quiz — ইসলামিক কুইজ | NOOR",
-    description: "Test & improve your Islamic knowledge daily with quizzes on Quran, Hadith & more.",
+    description: "Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।",
   },
   "/hadith": {
     title: "Authentic Hadith Collections – Noor App",
-    description: "Browse authentic Hadith collections — Sahih Bukhari, Sahih Muslim, Jami at-Tirmidhi & Sunan Abu Dawud.",
+    description: "Browse authentic Hadith collections — Sahih Bukhari, Sahih Muslim, Jami at-Tirmidhi & Sunan Abu Dawud with Arabic text and translations.",
   },
   "/hadith/sahih-bukhari": {
     title: "Sahih al-Bukhari Hadith Collection (7563 Hadiths) – Noor App",
-    description: "Read the complete Sahih al-Bukhari — the most authentic hadith collection — in Bangla, English, or Urdu with Arabic text.",
+    description: "Read the complete Sahih al-Bukhari — the most authentic hadith collection — in Bangla, English, or Urdu with Arabic text. 97 chapters, 7,563 hadiths.",
   },
   "/hadith/sahih-bukhari/bangla": {
-    title: "Sahih Bukhari Bangla – সহীহ বুখারী শরীফ বাংলা হাদিস | Noor App",
-    description: "সহীহ বুখারী শরীফের সম্পূর্ণ হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন। Read the complete Sahih Bukhari Bangla hadith collection with Arabic text and authentic Bangla translation on Noor App.",
+    title: "Sahih Bukhari Bangla – সহীহ বুখারী বাংলা হাদিস | Noor App",
+    description: "সহীহ বুখারী শরীফের সম্পূর্ণ হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন। Read Sahih Bukhari Bangla with Arabic text & translation on Noor App.",
   },
   "/hadith/sahih-bukhari/english": {
     title: "Sahih Bukhari English – Authentic Hadith Collection | Noor App",
-    description: "Read the complete Sahih Bukhari English hadith collection with Arabic text and authentic English translation on Noor App.",
+    description: "Read the complete Sahih Bukhari English hadith collection with Arabic text and authentic English translation. 97 chapters, 7,563 hadiths on Noor App.",
   },
   "/hadith/sahih-bukhari/urdu": {
     title: "Sahih Bukhari Urdu – صحیح بخاری اردو حدیث | Noor App",
-    description: "صحیح بخاری کی مکمل احادیث عربی متن اور اردو ترجمہ کے ساتھ پڑھیں۔ Read Sahih Bukhari Urdu hadith collection with Arabic text.",
+    description: "صحیح بخاری کی مکمل احادیث عربی متن اور اردو ترجمہ کے ساتھ پڑھیں۔ Read Sahih Bukhari Urdu hadith with Arabic text on Noor App.",
   },
-  "/tasbih": {
-    title: "Digital Tasbih — ডিজিটাল তাসবীহ | NOOR",
-    description: "Beautiful digital Tasbih counter for dhikr.",
+  "/hadith/muslim": {
+    title: "Sahih Muslim — সহীহ মুসলিম হাদিস | Noor",
+    description: "Read Sahih Muslim Hadith with Bengali translation. Second most authentic hadith collection — 7,500+ verified narrations. সহীহ মুসলিম পড়ুন বাংলায়।",
   },
-  "/qibla": {
-    title: "Qibla Finder — কিবলার দিক | NOOR",
-    description: "Find accurate Qibla direction using compass.",
+  "/hadith/tirmidhi": {
+    title: "Jami at-Tirmidhi — জামে তিরমিযী হাদিস | Noor",
+    description: "Explore Jami at-Tirmidhi with Bengali translation — 3,956 hadiths covering fiqh, seerah & virtues with unique hadith grading. জামে তিরমিযী পড়ুন।",
   },
-  "/99-names": {
-    title: "99 Names of Allah — আল্লাহর ৯৯ নাম | NOOR",
-    description: "Learn the 99 beautiful names (Asma ul Husna) of Allah.",
-  },
-  "/baby-names": {
-    title: "Muslim Baby Names — শিশুর নাম | NOOR",
-    description: "Find beautiful Islamic baby names for boys & girls with meanings.",
-  },
-  "/names": {
-    title: "Islamic Names — ইসলামিক নামের তালিকা | NOOR",
-    description: "Browse thousands of Islamic names with Arabic script & meanings.",
-  },
-  "/calendar": {
-    title: "Islamic Calendar — হিজরি ক্যালেন্ডার | NOOR",
-    description: "Hijri calendar with key Islamic dates.",
+  "/hadith/abu-dawud": {
+    title: "Sunan Abu Dawud — সুনানে আবু দাউদ হাদিস | Noor",
+    description: "Read Sunan Abu Dawud with Bengali translation — the definitive jurisprudence-focused hadith collection. আবু দাউদ পড়ুন।",
   },
   "/prayer-guide": {
     title: "Prayer Guide — নামাজ শিক্ষা | NOOR",
-    description: "Step-by-step Salah tutorial with illustrations.",
+    description: "Step-by-step Salah tutorial with illustrations — ওযু, নামাজের নিয়ম, সূরা, দোয়া ও তাশাহহুদ সহ সম্পূর্ণ নামাজ শিক্ষা গাইড।",
+  },
+  "/tasbih": {
+    title: "Digital Tasbih — ডিজিটাল তাসবীহ | NOOR",
+    description: "Beautiful digital Tasbih counter for dhikr — সুবহানাল্লাহ, আলহামদুলিল্লাহ, আল্লাহু আকবার সহজে গণনা করুন। Haptic feedback supported.",
+  },
+  "/qibla": {
+    title: "Qibla Finder — কিবলার দিক | NOOR",
+    description: "Find accurate Qibla direction using compass — আপনার বর্তমান অবস্থান থেকে মক্কার কাবা শরীফের সঠিক দিক নির্ণয় করুন।",
+  },
+  "/99-names": {
+    title: "99 Names of Allah — আল্লাহর ৯৯ নাম | NOOR",
+    description: "Learn the 99 beautiful names (Asma ul Husna) of Allah — আল্লাহ তাআলার ৯৯টি গুণবাচক নাম আরবি, অর্থ ও ফযীলত সহ জানুন।",
+  },
+  "/baby-names": {
+    title: "Muslim Baby Names — শিশুর নাম | NOOR",
+    description: "Find beautiful Islamic baby names for boys & girls — ছেলে ও মেয়ে শিশুদের জন্য অর্থসহ সুন্দর মুসলিম নাম বাছাই করুন।",
+  },
+  "/names": {
+    title: "Islamic Names — ইসলামিক নামের তালিকা | NOOR",
+    description: "Browse thousands of Islamic names with Arabic script & meanings — আরবি, বাংলা উচ্চারণ ও অর্থসহ ইসলামিক নাম খুঁজুন।",
+  },
+  "/calendar": {
+    title: "Islamic Calendar — হিজরি ক্যালেন্ডার | NOOR",
+    description: "Hijri calendar with key Islamic dates — রমজান, ঈদুল ফিতর, ঈদুল আযহা, শবে কদর ও অন্যান্য গুরুত্বপূর্ণ ইসলামিক দিবস দেখুন।",
   },
   "/about": {
     title: "About NOOR — আমাদের সম্পর্কে | NOOR",
-    description: "Learn about the NOOR app mission & team.",
+    description: "Learn about the NOOR app mission & team — ইসলামিক শিক্ষা ও আধুনিক প্রযুক্তি একত্রে আনার আমাদের লক্ষ্য ও উদ্দেশ্য।",
   },
   "/contact": {
     title: "Contact Us — যোগাযোগ | NOOR",
-    description: "Get in touch with the NOOR team.",
+    description: "Get in touch with the NOOR team — প্রশ্ন, পরামর্শ, বাগ রিপোর্ট বা সহযোগিতার জন্য আমাদের সাথে সরাসরি যোগাযোগ করুন।",
   },
   "/privacy-policy": {
     title: "Privacy Policy — গোপনীয়তা নীতি | NOOR",
-    description: "NOOR app privacy policy & data protection.",
+    description: "NOOR app privacy policy & data protection — আপনার ব্যক্তিগত তথ্যের নিরাপত্তা ও ব্যবহার সম্পর্কে বিস্তারিত জানুন।",
   },
   "/terms": {
     title: "Terms of Service — ব্যবহারের শর্তাবলী | NOOR",
-    description: "NOOR app terms & conditions.",
+    description: "NOOR app terms & conditions — অ্যাপ ব্যবহারের শর্তাবলী ও ব্যবহারকারীর অধিকার সম্পর্কে বিস্তারিত পড়ুন।",
   },
   "/islamic-app": {
     title: "Best Islamic App – Quran, Hadith, Dua & Prayer Times",
-    description: "Noor is the best free Islamic app for Bengali Muslims.",
+    description: "Noor is the best free Islamic app for Bengali Muslims. Download for Quran, Hadith, Dua, Prayer Times, Qibla & daily quiz.",
   },
   "/download": {
     title: "Download Noor App — Android APK | NOOR",
-    description: "Download the Noor Islamic App for Android.",
+    description: "Download Noor Islamic App for Android — কুরআন, হাদিস, নামাজের সময়, দোয়া ও ইসলামিক কুইজ সহ সম্পূর্ণ ইসলামিক অ্যাপ ডাউনলোড করুন।",
+  },
+  "/sitemap": {
+    title: "Sitemap — সাইটম্যাপ | NOOR",
+    description: "Browse all pages on Noor Islamic App — Quran, Hadith, Dua, Prayer Times, Quiz ও সকল পেজের সম্পূর্ণ তালিকা দেখুন।",
   },
 };
 
