@@ -1,4 +1,5 @@
 {
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/(.*)",
@@ -24,6 +25,11 @@
     {
       "source": "/sahih-al-bukhari/:lang",
       "destination": "/hadith/sahih-bukhari/:lang",
+      "statusCode": 301
+    },
+    {
+      "source": "/app/noorapp.apk",
+      "destination": "/download",
       "statusCode": 301
     }
   ],
