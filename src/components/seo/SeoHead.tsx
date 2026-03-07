@@ -265,7 +265,10 @@ export function SeoHead() {
     "/calendar": "/og-calendar.png",
     "/prayer-guide": "/og-prayer-guide.png",
   };
-  const ogImage = `${SITE_ORIGIN}${OG_IMAGES[normalizedPath] || OG_IMAGES[pathname] || "/og-image.png"}`;
+  // For hadith chapter pages, use bukhari OG image
+  const ogImagePath = OG_IMAGES[normalizedPath] || OG_IMAGES[pathname]
+    || (normalizedPath.startsWith("/hadith/sahih-bukhari") ? "/og-bukhari.png" : "/og-image.png");
+  const ogImage = `${SITE_ORIGIN}${ogImagePath}`;
 
   // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
   const isHomepage = pathname === "/";
