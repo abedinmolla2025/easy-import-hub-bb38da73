@@ -393,6 +393,86 @@ Deno.serve(async (req) => {
                 <li><a href="${SITE_ORIGIN}/hadith/abu-dawud">Sunan Abu Dawud</a></li>
             </ul>
         </section>`;
+    } else if (path === "/baby-names") {
+      bodyContent = `
+        <section>
+            <h2>Muslim Baby Names — ইসলামিক শিশুর নাম | Noor App</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <h3>Popular Muslim Boy Names — ছেলেদের ইসলামিক নাম</h3>
+            <ul>
+                <li><strong>Muhammad (মুহাম্মদ)</strong> — مُحَمَّد — প্রশংসিত, প্রশংসনীয়</li>
+                <li><strong>Ahmad (আহমাদ)</strong> — أَحْمَد — সর্বাধিক প্রশংসনীয়</li>
+                <li><strong>Ali (আলী)</strong> — عَلِي — উচ্চ, মহান, সম্মানিত</li>
+                <li><strong>Omar (ওমর)</strong> — عُمَر — সমৃদ্ধ, দীর্ঘজীবী</li>
+                <li><strong>Yusuf (ইউসুফ)</strong> — يُوسُف — আল্লাহ বৃদ্ধি করেন</li>
+                <li><strong>Ibrahim (ইব্রাহিম)</strong> — إِبْرَاهِيم — জাতির পিতা</li>
+                <li><strong>Hassan (হাসান)</strong> — حَسَن — সুন্দর, চমৎকার</li>
+                <li><strong>Hamza (হামযা)</strong> — حَمْزَة — শক্তিশালী, দৃঢ়</li>
+                <li><strong>Khalid (খালিদ)</strong> — خَالِد — চিরস্থায়ী, অমর</li>
+                <li><strong>Rayyan (রাইয়ান)</strong> — رَيَّان — জান্নাতের দরজা, সতেজ</li>
+            </ul>
+            <h3>Popular Muslim Girl Names — মেয়েদের ইসলামিক নাম</h3>
+            <ul>
+                <li><strong>Fatima (ফাতিমা)</strong> — فَاطِمَة — যে বিরত থাকে</li>
+                <li><strong>Aisha (আয়েশা)</strong> — عَائِشَة — জীবন্ত, সমৃদ্ধ</li>
+                <li><strong>Khadija (খাদিজা)</strong> — خَدِيجَة — অকালজাত শিশু</li>
+                <li><strong>Maryam (মারিয়াম)</strong> — مَرْيَم — প্রিয়, কাঙ্ক্ষিত</li>
+                <li><strong>Zainab (জয়নব)</strong> — زَيْنَب — সুগন্ধি ফুল</li>
+                <li><strong>Layla (লাইলা)</strong> — لَيْلَى — রাত, রাতের সৌন্দর্য</li>
+                <li><strong>Amina (আমিনা)</strong> — أَمِينَة — বিশ্বস্ত, নিরাপদ</li>
+                <li><strong>Sara (সারা)</strong> — سَارَة — আনন্দ, সুখ</li>
+                <li><strong>Noor (নূর)</strong> — نُور — আলো, জ্যোতি</li>
+                <li><strong>Hafsa (হাফসা)</strong> — حَفْصَة — সিংহশাবক</li>
+            </ul>
+            <p>Browse 40+ beautiful Islamic baby names with Arabic script, Bengali meaning & pronunciation on <a href="${SITE_ORIGIN}/baby-names">Noor App</a>.</p>
+        </section>`;
+    } else if (path === "/names") {
+      bodyContent = `
+        <section>
+            <h2>Islamic Names Collection — ইসলামিক নামের তালিকা</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Browse thousands of Islamic names with Arabic script, Bengali pronunciation, and meanings. Search by letter, gender, or meaning.</p>
+            <nav>
+                <a href="${SITE_ORIGIN}/baby-names">Muslim Baby Names</a> |
+                <a href="${SITE_ORIGIN}/99-names">99 Names of Allah</a>
+            </nav>
+        </section>`;
+    } else if (path === "/prayer-times") {
+      bodyContent = `
+        <section>
+            <h2>Prayer Times — নামাজের সময়সূচী</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Get accurate Salah times based on your location. Noor shows Fajr, Dhuhr, Asr, Maghrib, and Isha prayer times with Athan alerts and countdown timer.</p>
+            <h3>Daily Prayer Schedule</h3>
+            <ul>
+                <li><strong>Fajr (ফজর)</strong> — Dawn prayer before sunrise</li>
+                <li><strong>Dhuhr (যোহর)</strong> — Midday prayer after the sun passes zenith</li>
+                <li><strong>Asr (আসর)</strong> — Afternoon prayer</li>
+                <li><strong>Maghrib (মাগরিব)</strong> — Sunset prayer</li>
+                <li><strong>Isha (এশা)</strong> — Night prayer</li>
+            </ul>
+        </section>`;
+    } else if (path === "/dua") {
+      bodyContent = `
+        <section>
+            <h2>Islamic Duas & Supplications — দোয়া সমূহ</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Browse authentic Islamic duas from Quran and Hadith with Arabic text, Bengali translation, and audio recitation.</p>
+        </section>`;
+    } else if (path === "/quran") {
+      bodyContent = `
+        <section>
+            <h2>Quran Reader — পবিত্র কুরআন</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Read the Holy Quran online with Arabic text, Bengali translation, and audio recitation. Browse all 114 Surahs with Tafseer.</p>
+        </section>`;
+    } else if (path === "/quiz") {
+      bodyContent = `
+        <section>
+            <h2>Daily Islamic Quiz — ইসলামিক কুইজ</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Test your Islamic knowledge daily with multiple-choice questions on Quran, Hadith, Islamic history, and general Islamic teachings.</p>
+        </section>`;
     } else {
       // Generic page — provide a meaningful body
       bodyContent = `
