@@ -406,6 +406,9 @@ export function SeoHead() {
       {articleLdString ? (
         <script type="application/ld+json">{articleLdString}</script>
       ) : null}
+      {collectionLdString ? (
+        <script type="application/ld+json">{collectionLdString}</script>
+      ) : null}
       {breadcrumbString ? (
         <script type="application/ld+json">{breadcrumbString}</script>
       ) : null}

@@ -296,6 +296,14 @@ const NamesPage = () => {
         ) : null}
       </main>
 
+        {/* SEO internal link */}
+        <section className="sr-only" aria-hidden="true">
+          <p>
+            Looking for baby names? Browse our curated collection of <a href="https://noorapp.in/baby-names">Muslim Baby Names for Boys and Girls</a> with Arabic script and meanings.
+          </p>
+        </section>
+      </main>
+
       <NameSharePreviewModal open={!!selected} onOpenChange={(o) => !o && closeModal()} name={selected} />
     </div>
   );

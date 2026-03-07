@@ -105,9 +105,9 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
       "Learn the 99 beautiful names (Asma ul Husna) of Allah — আল্লাহ তাআলার ৯৯টি গুণবাচক নাম আরবি, অর্থ ও ফযীলত সহ জানুন।",
   },
   "/baby-names": {
-    title: "Muslim Baby Names — শিশুর নাম | NOOR",
+    title: "Muslim Baby Names with Meaning – Islamic Boys & Girls Names (1000+) | Noor App",
     description:
-      "Find beautiful Islamic baby names for boys & girls — ছেলে ও মেয়ে শিশুদের জন্য অর্থসহ সুন্দর মুসলিম নাম বাছাই করুন।",
+      "Find beautiful Muslim baby names for boys and girls with Arabic spelling and meanings. Browse thousands of Islamic names in Bangla and English on Noor App. ইসলামিক ছেলে ও মেয়েদের সুন্দর নাম অর্থসহ দেখুন।",
   },
   "/names": {
     title: "Islamic Names — ইসলামিক নামের তালিকা | NOOR",
