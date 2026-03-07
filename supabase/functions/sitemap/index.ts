@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
           ? new Date(c.updated_at).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0];
         return `  <url>
-    <loc>${origin}/${c.content_type}/${c.id}</loc>
+    <loc>${escapeXml(`${origin}/${c.content_type}/${c.id}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
