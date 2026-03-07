@@ -149,6 +149,16 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
     description:
       "Manage your notification preferences — নামাজের আযান, কুইজ রিমাইন্ডার ও গুরুত্বপূর্ণ আপডেট নোটিফিকেশন পরিচালনা করুন।",
   },
+  "/download": {
+    title: "Download Noor App — Android APK | NOOR",
+    description:
+      "Download Noor Islamic App for Android — কুরআন, হাদিস, নামাজের সময়, দোয়া ও ইসলামিক কুইজ সহ সম্পূর্ণ ইসলামিক অ্যাপ ডাউনলোড করুন।",
+  },
+  "/sitemap": {
+    title: "Sitemap — সাইটম্যাপ | NOOR",
+    description:
+      "Browse all pages on Noor Islamic App — Quran, Hadith, Dua, Prayer Times, Quiz ও সকল পেজের সম্পূর্ণ তালিকা দেখুন।",
+  },
 };
 
 /**
