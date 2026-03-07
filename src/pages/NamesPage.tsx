@@ -294,7 +294,6 @@ const NamesPage = () => {
             </button>
           </div>
         ) : null}
-      </main>
 
         {/* SEO internal link */}
         <section className="sr-only" aria-hidden="true">
