@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
         ? new Date(p.updated_at).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0];
       return `  <url>
-    <loc>${origin}${p.path}</loc>
+    <loc>${escapeXml(`${origin}${p.path}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${p.changefreq || "weekly"}</changefreq>
     <priority>${p.priority ?? 0.8}</priority>
