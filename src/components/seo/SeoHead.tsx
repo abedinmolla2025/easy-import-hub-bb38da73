@@ -328,7 +328,7 @@ export function SeoHead() {
       {description ? <meta property="og:description" content={description} /> : null}
       <meta property="og:image" content={ogImage} />
       <meta property="og:url" content={canonical} />
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content={isHadithArticlePage ? "article" : "website"} />
 
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
