@@ -128,6 +128,35 @@ const PAGE_FAQS: Record<string, { q: string; a: string }[]> = {
     { q: "Is Noor App free?", a: "Yes, Noor App is completely free with no ads on core Islamic content. All features including Quran, Hadith, and Prayer Times are available at no cost." },
     { q: "Which platforms is Noor available on?", a: "Noor is available as a web app at noorapp.in and as an Android app. It works on any modern browser on mobile and desktop." },
   ],
+  "/prayer-times": [
+    { q: "How does Noor calculate prayer times?", a: "Noor uses your GPS location and the Aladhan API with configurable calculation methods to provide accurate Fajr, Dhuhr, Asr, Maghrib, and Isha times." },
+    { q: "Can I get Athan alerts from Noor?", a: "Yes, Noor supports push notification alerts for each prayer time so you never miss Salah." },
+    { q: "Does Noor show prayer countdown?", a: "Yes, Noor displays a live countdown timer to the next prayer, helping you prepare for Salah on time." },
+  ],
+  "/prayer-guide": [
+    { q: "Does Noor have a step-by-step prayer guide?", a: "Yes, Noor provides a complete Namaz tutorial with illustrations covering Wudu, Takbir, Qiyam, Ruku, Sujud, and Tashahhud." },
+    { q: "Can beginners learn Salah on Noor?", a: "Absolutely. The prayer guide is designed for beginners with clear Bengali and English instructions for every step of Salah." },
+  ],
+  "/tasbih": [
+    { q: "What is the Digital Tasbih on Noor?", a: "Noor's digital Tasbih is a beautiful counter for dhikr — count SubhanAllah, Alhamdulillah, and Allahu Akbar with haptic feedback." },
+    { q: "Does the Tasbih counter save my progress?", a: "Yes, the Tasbih counter tracks your total count and maintains your dhikr history." },
+  ],
+  "/qibla": [
+    { q: "How does the Qibla Finder work on Noor?", a: "Noor uses your device compass and GPS location to calculate the exact direction to the Kaaba in Makkah from your current position." },
+    { q: "Is the Qibla direction accurate on Noor?", a: "Yes, Noor calculates the precise bearing from your coordinates to the Kaaba using spherical trigonometry for maximum accuracy." },
+  ],
+  "/99-names": [
+    { q: "Can I learn the 99 Names of Allah on Noor?", a: "Yes, Noor presents all 99 beautiful names (Asma ul Husna) of Allah with Arabic text, Bengali meaning, and transliteration." },
+    { q: "Does Noor explain the meaning of each name?", a: "Yes, each of the 99 names includes its meaning in Bengali and English along with the original Arabic script." },
+  ],
+  "/baby-names": [
+    { q: "Can I find Muslim baby names on Noor?", a: "Yes, Noor has a curated collection of beautiful Islamic baby names for boys and girls with Arabic script and Bengali meanings." },
+    { q: "Can I search names by letter or gender?", a: "Yes, you can filter names by first letter, gender (boy/girl), and search by meaning or name." },
+  ],
+  "/calendar": [
+    { q: "Does Noor have an Islamic calendar?", a: "Yes, Noor provides a Hijri calendar with key Islamic dates including Ramadan, Eid ul-Fitr, Eid ul-Adha, Laylat al-Qadr, and more." },
+    { q: "Can I see upcoming Islamic events on Noor?", a: "Yes, the Islamic calendar highlights important dates and events throughout the year so you never miss a significant occasion." },
+  ],
 };
 
 function buildFaqJsonLd(pathname: string) {

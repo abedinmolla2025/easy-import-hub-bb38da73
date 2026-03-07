@@ -55,21 +55,19 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
       "Read the complete Sahih al-Bukhari — the most authentic hadith collection — in Bangla, English, or Urdu with Arabic text. 97 chapters, 7,563 hadiths.",
   },
   "/hadith/sahih-bukhari/bangla": {
-    title: "Sahih Bukhari Bangla – সহীহ বুখারী শরীফ বাংলা হাদিস | Noor App",
-    description: "সহীহ বুখারী শরীফের সম্পূর্ণ হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন। Read the complete Sahih Bukhari Bangla hadith collection with Arabic text and authentic Bangla translation on Noor App.",
+    title: "Sahih Bukhari Bangla – সহীহ বুখারী বাংলা হাদিস | Noor App",
+    description:
+      "সহীহ বুখারী শরীফের সম্পূর্ণ হাদিস আরবি ও বাংলা অনুবাদ সহ পড়ুন। Read Sahih Bukhari Bangla with Arabic text & translation on Noor App.",
   },
   "/hadith/sahih-bukhari/english": {
     title: "Sahih Bukhari English – Authentic Hadith Collection | Noor App",
-    description: "Read the complete Sahih Bukhari English hadith collection with Arabic text and authentic English translation on Noor App.",
+    description:
+      "Read the complete Sahih Bukhari English hadith collection with Arabic text and authentic English translation. 97 chapters, 7,563 hadiths on Noor App.",
   },
   "/hadith/sahih-bukhari/urdu": {
     title: "Sahih Bukhari Urdu – صحیح بخاری اردو حدیث | Noor App",
-    description: "صحیح بخاری کی مکمل احادیث عربی متن اور اردو ترجمہ کے ساتھ پڑھیں۔ Read Sahih Bukhari Urdu hadith collection with Arabic text.",
-  },
-  "/hadith/bukhari": {
-    title: "Sahih Bukhari — সহীহ বুখারী হাদিস | Noor",
     description:
-      "Read Sahih Bukhari — the most authentic hadith collection — with Bengali translation. সহীহ বুখারী শরীফের হাদিস আরবি টেক্সট ও বাংলা অনুবাদ সহ পড়ুন।",
+      "صحیح بخاری کی مکمل احادیث عربی متن اور اردو ترجمہ کے ساتھ پڑھیں۔ Read Sahih Bukhari Urdu hadith with Arabic text on Noor App.",
   },
   "/hadith/muslim": {
     title: "Sahih Muslim — সহীহ মুসলিম হাদিস | Noor",
@@ -150,6 +148,16 @@ const DEFAULTS: Record<string, PageSeoDefaults> = {
     title: "Notifications — নোটিফিকেশন | NOOR",
     description:
       "Manage your notification preferences — নামাজের আযান, কুইজ রিমাইন্ডার ও গুরুত্বপূর্ণ আপডেট নোটিফিকেশন পরিচালনা করুন।",
+  },
+  "/download": {
+    title: "Download Noor App — Android APK | NOOR",
+    description:
+      "Download Noor Islamic App for Android — কুরআন, হাদিস, নামাজের সময়, দোয়া ও ইসলামিক কুইজ সহ সম্পূর্ণ ইসলামিক অ্যাপ ডাউনলোড করুন।",
+  },
+  "/sitemap": {
+    title: "Sitemap — সাইটম্যাপ | NOOR",
+    description:
+      "Browse all pages on Noor Islamic App — Quran, Hadith, Dua, Prayer Times, Quiz ও সকল পেজের সম্পূর্ণ তালিকা দেখুন।",
   },
 };
 
