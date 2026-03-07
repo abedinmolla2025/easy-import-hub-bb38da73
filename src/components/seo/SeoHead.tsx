@@ -7,7 +7,8 @@ import { getPageSeoDefaults } from "@/lib/seoDefaults";
 
 function normalizeTitle(title?: string | null) {
   if (!title) return undefined;
-  return title.length > 60 ? title.slice(0, 57) + "..." : title;
+  // Google displays ~60 chars but indexes up to ~70; avoid hard truncation
+  return title.length > 75 ? title.slice(0, 72) + "..." : title;
 }
 
 function normalizeDescription(description?: string | null) {
