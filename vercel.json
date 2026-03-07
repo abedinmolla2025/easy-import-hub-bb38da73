@@ -5,6 +5,35 @@
       "has": [{ "type": "host", "value": "www.noorapp.in" }],
       "destination": "https://noorapp.in/$1",
       "statusCode": 301
+    },
+    {
+      "source": "/bukhari",
+      "destination": "/hadith/sahih-bukhari",
+      "statusCode": 301
+    },
+    {
+      "source": "/hadith/bukhari",
+      "destination": "/hadith/sahih-bukhari",
+      "statusCode": 301
+    },
+    {
+      "source": "/sahih-al-bukhari",
+      "destination": "/hadith/sahih-bukhari",
+      "statusCode": 301
+    },
+    {
+      "source": "/sahih-al-bukhari/:lang",
+      "destination": "/hadith/sahih-bukhari/:lang",
+      "statusCode": 301
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=86400" }
+      ]
     }
   ],
   "rewrites": [

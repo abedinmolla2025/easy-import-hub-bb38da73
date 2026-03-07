@@ -237,8 +237,10 @@ export function SeoHead() {
   );
 
   const SITE_ORIGIN = "https://noorapp.in";
+  // Normalize: remove trailing slash (except root "/")
+  const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
   const canonical =
-    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${pathname}`;
+    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${normalizedPath}`;
 
   const robots = pageSeo?.robots ?? "index,follow";
 
@@ -263,7 +265,7 @@ export function SeoHead() {
     "/calendar": "/og-calendar.png",
     "/prayer-guide": "/og-prayer-guide.png",
   };
-  const ogImage = `${SITE_ORIGIN}${OG_IMAGES[pathname] || "/og-image.png"}`;
+  const ogImage = `${SITE_ORIGIN}${OG_IMAGES[normalizedPath] || OG_IMAGES[pathname] || "/og-image.png"}`;
 
   // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
   const isHomepage = pathname === "/";
