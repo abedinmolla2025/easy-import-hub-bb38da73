@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft, Search, ChevronRight, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
@@ -39,10 +40,10 @@ const uiStrings = {
     title: "সহিহ বুখারী শরীফ",
     subtitle: "আরবি + বাংলা অনুবাদ",
     searchPlaceholder: "হাদিস খুঁজুন...",
-    chapters: "অধ্যায়সমূহ",
+    chapters: "কিতাবসমূহ",
     allHadiths: "সকল হাদিস",
     hadithNo: "হাদিস নং",
-    chapter: "অধ্যায়",
+    chapter: "কিতাব",
     hadiths: "টি হাদিস",
     loading: "হাদিস লোড হচ্ছে...",
     error: "ডাটা লোড করতে সমস্যা হয়েছে",
@@ -53,10 +54,10 @@ const uiStrings = {
     title: "Sahih Al-Bukhari",
     subtitle: "Arabic + English Translation",
     searchPlaceholder: "Search hadiths...",
-    chapters: "Chapters",
+    chapters: "Books (Kitab)",
     allHadiths: "All Hadiths",
     hadithNo: "Hadith No",
-    chapter: "Chapter",
+    chapter: "Book",
     hadiths: "Hadiths",
     loading: "Loading hadiths...",
     error: "Failed to load data",
@@ -67,10 +68,10 @@ const uiStrings = {
     title: "صحیح البخاری",
     subtitle: "عربی + اردو ترجمہ",
     searchPlaceholder: "حدیث تلاش کریں...",
-    chapters: "ابواب",
+    chapters: "کتب",
     allHadiths: "تمام احادیث",
     hadithNo: "حدیث نمبر",
-    chapter: "باب",
+    chapter: "کتاب",
     hadiths: "احادیث",
     loading: "...احادیث لوڈ ہو رہی ہیں",
     error: "ڈیٹا لوڈ نہیں ہو سکا",
@@ -113,113 +114,23 @@ const langMeta: Record<LangSlug, LangCfg> = {
   },
 };
 
-// ── Bangla chapter names (Kitab titles) ──────────────────────
-const bukhariChapterNames: Record<number, { bn: string; en: string; ur: string }> = {
-  1: { bn: "ওহীর সূচনা (বদউল ওহি)", en: "Revelation", ur: "وحی کی ابتداء" },
-  2: { bn: "ঈমান", en: "Belief (Faith)", ur: "ایمان" },
-  3: { bn: "ইলম (জ্ঞান)", en: "Knowledge", ur: "علم" },
-  4: { bn: "ওজু", en: "Ablution (Wudu)", ur: "وضو" },
-  5: { bn: "গোসল", en: "Bathing (Ghusl)", ur: "غسل" },
-  6: { bn: "হায়েজ", en: "Menstrual Periods", ur: "حیض" },
-  7: { bn: "তায়াম্মুম", en: "Tayammum", ur: "تیمم" },
-  8: { bn: "সালাত", en: "Prayer (Salat)", ur: "نماز" },
-  9: { bn: "সালাতের সময়সমূহ", en: "Times of Prayer", ur: "نماز کے اوقات" },
-  10: { bn: "আযান", en: "Call to Prayer (Adhan)", ur: "اذان" },
-  11: { bn: "জুমা", en: "Friday Prayer", ur: "جمعہ" },
-  12: { bn: "খাওফের সালাত", en: "Fear Prayer", ur: "نماز خوف" },
-  13: { bn: "ঈদের সালাত", en: "Two Eid Prayers", ur: "عیدین کی نماز" },
-  14: { bn: "বিতর", en: "Witr Prayer", ur: "وتر" },
-  15: { bn: "ইস্তিসকা", en: "Invoking Allah for Rain", ur: "استسقاء" },
-  16: { bn: "সূর্যগ্রহণের সালাত", en: "Eclipses", ur: "کسوف کی نماز" },
-  17: { bn: "সিজদাতুল কুরআন", en: "Prostration During Quran", ur: "سجدۂ تلاوت" },
-  18: { bn: "সালাত সংক্ষিপ্ত করা", en: "Shortening Prayers", ur: "نماز قصر کرنا" },
-  19: { bn: "তাহাজ্জুদ", en: "Night Prayer (Tahajjud)", ur: "تہجد" },
-  20: { bn: "জানাযা", en: "Funerals (Janaza)", ur: "جنازہ" },
-  21: { bn: "যাকাত", en: "Obligatory Charity (Zakat)", ur: "زکاۃ" },
-  22: { bn: "হজ্জ", en: "Hajj (Pilgrimage)", ur: "حج" },
-  23: { bn: "উমরা", en: "Minor Pilgrimage (Umrah)", ur: "عمرہ" },
-  24: { bn: "সাওম (রোজা)", en: "Fasting", ur: "روزے" },
-  25: { bn: "তারাবীহ", en: "Taraweeh Prayer", ur: "تراویح" },
-  26: { bn: "লাইলাতুল কদর", en: "Night of Qadr", ur: "لیلۃ القدر" },
-  27: { bn: "ইতিকাফ", en: "I'tikaf", ur: "اعتکاف" },
-  28: { bn: "ক্রয়-বিক্রয়", en: "Sales and Trade", ur: "خرید و فروخت" },
-  29: { bn: "সালাম", en: "Advance Payment (Salam)", ur: "سلم" },
-  30: { bn: "ইজারা", en: "Hiring (Ijara)", ur: "اجارہ" },
-  31: { bn: "হাওয়ালা", en: "Transfer of Debt (Hawala)", ur: "حوالہ" },
-  32: { bn: "কফালা", en: "Guarantee (Kafala)", ur: "کفالت" },
-  33: { bn: "ওয়াকালা", en: "Representation (Wakala)", ur: "وکالت" },
-  34: { bn: "কৃষিকাজ", en: "Agriculture", ur: "کھیتی باڑی" },
-  35: { bn: "পানি সেচ", en: "Distribution of Water", ur: "پانی کی تقسیم" },
-  36: { bn: "ঋণ", en: "Loans, Bankruptcy", ur: "قرض" },
-  37: { bn: "ঝগড়া-বিবাদ", en: "Disputes", ur: "جھگڑے" },
-  38: { bn: "হারানো বস্তু", en: "Lost Things (Luqata)", ur: "لقطہ" },
-  39: { bn: "অত্যাচার", en: "Oppressions (Mazalim)", ur: "مظالم" },
-  40: { bn: "অংশীদারিত্ব", en: "Partnership", ur: "شراکت" },
-  41: { bn: "বন্ধক", en: "Mortgaging (Rahn)", ur: "رہن" },
-  42: { bn: "দাসমুক্তি", en: "Manumission of Slaves", ur: "غلام آزاد کرنا" },
-  43: { bn: "হিবা (উপহার)", en: "Gifts (Hiba)", ur: "ہبہ" },
-  44: { bn: "সাক্ষ্য", en: "Witnesses", ur: "گواہی" },
-  45: { bn: "সন্ধি", en: "Peacemaking", ur: "صلح" },
-  46: { bn: "জিহাদ", en: "Fighting for Allah (Jihad)", ur: "جہاد" },
-  47: { bn: "জিযিয়া", en: "Jizyah and Mawaada'ah", ur: "جزیہ" },
-  48: { bn: "সৃষ্টির সূচনা", en: "Beginning of Creation", ur: "ابتدائے تخلیق" },
-  49: { bn: "নবীদের কাহিনী", en: "Prophets", ur: "انبیاء" },
-  50: { bn: "ফজায়েলে সাহাবা", en: "Companions of the Prophet", ur: "صحابہ کے فضائل" },
-  51: { bn: "নিকাহ", en: "Weddings (Nikah)", ur: "نکاح" },
-  52: { bn: "তালাক", en: "Divorce", ur: "طلاق" },
-  53: { bn: "ভরণপোষণ", en: "Supporting the Family", ur: "نفقہ" },
-  54: { bn: "খাদ্য", en: "Food, Meals", ur: "کھانے" },
-  55: { bn: "আকিকা", en: "Aqiqa", ur: "عقیقہ" },
-  56: { bn: "যবেহ", en: "Slaughtering", ur: "ذبح" },
-  57: { bn: "পানীয়", en: "Drinks", ur: "مشروبات" },
-  58: { bn: "রোগ", en: "Patients", ur: "مریض" },
-  59: { bn: "চিকিৎসা", en: "Medicine", ur: "طب" },
-  60: { bn: "পোশাক", en: "Dress", ur: "لباس" },
-  61: { bn: "আদব", en: "Good Manners (Adab)", ur: "آداب" },
-  62: { bn: "অনুমতি", en: "Asking Permission", ur: "اجازت" },
-  63: { bn: "দোয়া", en: "Invocations (Dua)", ur: "دعائیں" },
-  64: { bn: "নরম হৃদয় (রিকার)", en: "Heart Softeners (Riqaq)", ur: "رقاق" },
-  65: { bn: "তাকদীর", en: "Divine Will (Qadar)", ur: "تقدیر" },
-  66: { bn: "কসম", en: "Oaths and Vows", ur: "قسمیں" },
-  67: { bn: "কাফফারা", en: "Expiation of Oaths", ur: "کفارہ" },
-  68: { bn: "উত্তরাধিকার", en: "Laws of Inheritance", ur: "میراث" },
-  69: { bn: "শাস্তি", en: "Limits and Punishments (Hudud)", ur: "حدود" },
-  70: { bn: "দিয়া", en: "Blood Money (Diyat)", ur: "دیت" },
-  71: { bn: "মুরতাদ", en: "Dealing with Apostates", ur: "مرتدین" },
-  72: { bn: "বাধ্যবাধকতা", en: "Coercion", ur: "اکراہ" },
-  73: { bn: "কুরআনের ফজিলত", en: "Virtues of the Quran", ur: "فضائل القرآن" },
-  74: { bn: "তাফসীর", en: "Prophetic Commentary on Quran", ur: "تفسیر القرآن" },
-  75: { bn: "বিবাহ", en: "Weddings", ur: "نکاح" },
-  76: { bn: "তালাক (বিস্তারিত)", en: "Divorce (Detailed)", ur: "طلاق تفصیلی" },
-  77: { bn: "মুক্তি", en: "Manumission", ur: "آزادی" },
-  78: { bn: "যুদ্ধ", en: "Military Expeditions", ur: "غزوات" },
-  79: { bn: "ফিতনা", en: "Tribulations (Fitan)", ur: "فتنے" },
-  80: { bn: "কিয়ামতের লক্ষণ", en: "Signs of the Last Day", ur: "قیامت کی نشانیاں" },
-  81: { bn: "জান্নাত", en: "Paradise", ur: "جنت" },
-  82: { bn: "জাহান্নাম", en: "Hellfire", ur: "جہنم" },
-  83: { bn: "জান্নাত-জাহান্নামের বর্ণনা", en: "Description of Paradise & Hell", ur: "جنت و جہنم کا بیان" },
-  84: { bn: "নৈতিকতা", en: "Morality", ur: "اخلاقیات" },
-  85: { bn: "আচার", en: "Etiquette", ur: "رسوم" },
-  86: { bn: "আল্লাহর স্মরণ", en: "Remembrance of Allah", ur: "ذکر اللہ" },
-  87: { bn: "তাওহীদ", en: "Oneness of Allah (Tawhid)", ur: "توحید" },
-  88: { bn: "আল্লাহর গুণাবলী", en: "Attributes of Allah", ur: "اللہ کی صفات" },
-  89: { bn: "তাকদীর আলোচনা", en: "Discussion on Destiny", ur: "تقدیر کی بحث" },
-  90: { bn: "কিয়ামত", en: "Day of Judgment", ur: "قیامت" },
-  91: { bn: "হিসাব", en: "Reckoning", ur: "حساب" },
-  92: { bn: "মিজান", en: "The Scale (Mizan)", ur: "میزان" },
-  93: { bn: "সিরাত", en: "The Bridge (Sirat)", ur: "صراط" },
-  94: { bn: "শাফাআত", en: "Intercession", ur: "شفاعت" },
-  95: { bn: "জান্নাতের নিয়ামত", en: "Blessings of Paradise", ur: "جنت کی نعمتیں" },
-  96: { bn: "জাহান্নামের শাস্তি", en: "Punishment of Hellfire", ur: "جہنم کا عذاب" },
-  97: { bn: "তাওহীদের সমাপনী আলোচনা", en: "Concluding Discussion on Tawhid", ur: "توحید کا اختتامی بیان" },
-};
+// ── DB chapter (Kitab) names type ────────────────────────────
+interface KitabInfo {
+  chapter_number: number;
+  title: string;
+  title_bn: string | null;
+  title_ar: string | null;
+  hadith_count: number;
+}
 
-function getChapterName(chapterId: number, lang: LangSlug): string {
-  const key = lang === "bangla" ? "bn" : lang === "urdu" ? "ur" : "en";
-  const names = bukhariChapterNames[chapterId];
-  if (names) return names[key];
-  // Fallback for chapters beyond the map
-  const fallback = { bangla: "অধ্যায়", english: "Chapter", urdu: "باب" };
+function getChapterName(chapterId: number, lang: LangSlug, kitabMap: Map<number, KitabInfo>): string {
+  const kitab = kitabMap.get(chapterId);
+  if (kitab) {
+    if (lang === "bangla") return kitab.title_bn || kitab.title;
+    if (lang === "urdu") return kitab.title_ar || kitab.title;
+    return kitab.title;
+  }
+  const fallback = { bangla: "কিতাব", english: "Book", urdu: "کتاب" };
   return `${fallback[lang]} ${chapterId}`;
 }
 
@@ -251,7 +162,7 @@ function buildSeoTitle(slug: LangSlug, chapterId?: number, hadithNumber?: number
     return `Sahih Bukhari Hadith ${hadithNumber} – ${l.titleLang} Translation – Noor App`;
   }
   if (chapterId != null) {
-    return `Sahih Bukhari Chapter ${chapterId} – ${l.titleLang} – Noor App`;
+    return `Sahih Bukhari Book ${chapterId} – ${l.titleLang} – Noor App`;
   }
   return l.rootTitle;
 }
@@ -262,7 +173,7 @@ function buildSeoDesc(slug: LangSlug, chapterId?: number, hadithNumber?: number)
     return `Read Sahih Bukhari Hadith ${hadithNumber} with Arabic text and ${l.descLang} translation on Noor App.`;
   }
   if (chapterId != null) {
-    return `Browse all hadiths in Chapter ${chapterId} of Sahih Bukhari with Arabic text and ${l.descLang} translation.`;
+    return `Browse all hadiths in Book ${chapterId} of Sahih Bukhari with Arabic text and ${l.descLang} translation.`;
   }
   return l.rootDesc;
 }
@@ -386,6 +297,27 @@ export default function BukhariLangPage() {
   const cfg = langMeta[slug] ?? langMeta.bangla;
   const t = uiStrings[slug] ?? uiStrings.bangla;
   const isRtl = cfg.rtl;
+
+  // ── Fetch Kitab names from DB ──────────────────────────────
+  const { data: kitabData } = useQuery({
+    queryKey: ["bukhari-kitabs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hadith_chapters")
+        .select("chapter_number, title, title_bn, title_ar, hadith_count")
+        .eq("book_id", "bukhari")
+        .order("chapter_number");
+      if (error) throw error;
+      return data as KitabInfo[];
+    },
+    staleTime: Infinity,
+  });
+
+  const kitabMap = useMemo(() => {
+    const m = new Map<number, KitabInfo>();
+    if (kitabData) for (const k of kitabData) m.set(k.chapter_number, k);
+    return m;
+  }, [kitabData]);
 
   // ── Load data ──────────────────────────────────────────────
   useEffect(() => {
@@ -544,7 +476,7 @@ export default function BukhariLangPage() {
               <ArrowLeft className="w-5 h-5" style={{ transform: isRtl ? "scaleX(-1)" : "none" }} />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white tracking-wide">{selectedChapter !== null ? getChapterName(selectedChapter, slug) : t.title}</h1>
+              <h1 className="text-xl font-bold text-white tracking-wide">{selectedChapter !== null ? `${t.chapter}: ${getChapterName(selectedChapter, slug, kitabMap)}` : t.title}</h1>
               <p className="text-xs text-white/70">{selectedChapter !== null ? `${totalInChapter} ${t.hadiths}` : t.subtitle}</p>
             </div>
           </div>
@@ -600,13 +532,13 @@ export default function BukhariLangPage() {
               </motion.div>
 
               {/* Breadcrumb links */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2 text-sm">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2 text-sm items-center">
                 <a href={`/hadith/sahih-bukhari/${slug}`} onClick={(e) => { e.preventDefault(); navigate(`/hadith/sahih-bukhari/${slug}`); }} className="text-emerald-300 hover:text-emerald-200 underline underline-offset-2">
                   {t.title}
                 </a>
                 <span className="text-white/30">›</span>
                 <a href={`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`} onClick={(e) => { e.preventDefault(); navigate(`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`); }} className="text-emerald-300 hover:text-emerald-200 underline underline-offset-2">
-                  {getChapterName(selectedHadith.chapterId, slug)}
+                  {t.chapter}: {getChapterName(selectedHadith.chapterId, slug, kitabMap)}
                 </a>
               </motion.div>
 
@@ -684,7 +616,7 @@ export default function BukhariLangPage() {
                             <span className="text-white font-bold text-sm">{chapter.id}</span>
                           </div>
                           <div>
-                            <p className="text-white font-semibold text-base">{getChapterName(chapter.id, slug)}</p>
+                            <p className="text-white font-semibold text-base">{getChapterName(chapter.id, slug, kitabMap)}</p>
                             <p className="text-white/60 text-sm">{chapter.count} {t.hadiths}</p>
                           </div>
                         </div>
