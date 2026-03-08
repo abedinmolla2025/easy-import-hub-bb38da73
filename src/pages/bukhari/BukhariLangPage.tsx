@@ -251,11 +251,15 @@ const PAGE_SIZE = 40;
 
 // ── Component ───────────────────────────────────────────────
 export default function BukhariLangPage() {
-  const { lang, chapterId: chapterParam, hadithNumber: hadithParam } = useParams<{
+  const { lang, chapterSlug, chapterId: chapterParam, hadithNumber: hadithParam } = useParams<{
     lang: string;
+    chapterSlug: string;
     chapterId: string;
     hadithNumber: string;
   }>();
+  // chapterSlug is used for /hadith/sahih-bukhari/:lang/:chapterSlug (e.g. "chapter-5")
+  // chapterId is used for /hadith/sahih-bukhari/:lang/:chapterId/:hadithNumber
+  const effectiveChapterParam = chapterSlug || chapterParam;
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHadith, setSelectedHadith] = useState<Hadith | null>(null);
