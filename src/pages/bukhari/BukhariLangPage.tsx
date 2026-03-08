@@ -298,6 +298,27 @@ export default function BukhariLangPage() {
   const t = uiStrings[slug] ?? uiStrings.bangla;
   const isRtl = cfg.rtl;
 
+  // ── Fetch Kitab names from DB ──────────────────────────────
+  const { data: kitabData } = useQuery({
+    queryKey: ["bukhari-kitabs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hadith_chapters")
+        .select("chapter_number, title, title_bn, title_ar, hadith_count")
+        .eq("book_id", "bukhari")
+        .order("chapter_number");
+      if (error) throw error;
+      return data as KitabInfo[];
+    },
+    staleTime: Infinity,
+  });
+
+  const kitabMap = useMemo(() => {
+    const m = new Map<number, KitabInfo>();
+    if (kitabData) for (const k of kitabData) m.set(k.chapter_number, k);
+    return m;
+  }, [kitabData]);
+
   // ── Load data ──────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
