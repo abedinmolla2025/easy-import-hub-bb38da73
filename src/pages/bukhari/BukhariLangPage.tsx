@@ -162,7 +162,7 @@ function buildSeoTitle(slug: LangSlug, chapterId?: number, hadithNumber?: number
     return `Sahih Bukhari Hadith ${hadithNumber} – ${l.titleLang} Translation – Noor App`;
   }
   if (chapterId != null) {
-    return `Sahih Bukhari Chapter ${chapterId} – ${l.titleLang} – Noor App`;
+    return `Sahih Bukhari Book ${chapterId} – ${l.titleLang} – Noor App`;
   }
   return l.rootTitle;
 }
@@ -173,7 +173,7 @@ function buildSeoDesc(slug: LangSlug, chapterId?: number, hadithNumber?: number)
     return `Read Sahih Bukhari Hadith ${hadithNumber} with Arabic text and ${l.descLang} translation on Noor App.`;
   }
   if (chapterId != null) {
-    return `Browse all hadiths in Chapter ${chapterId} of Sahih Bukhari with Arabic text and ${l.descLang} translation.`;
+    return `Browse all hadiths in Book ${chapterId} of Sahih Bukhari with Arabic text and ${l.descLang} translation.`;
   }
   return l.rootDesc;
 }
