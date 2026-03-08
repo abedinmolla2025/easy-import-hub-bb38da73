@@ -538,7 +538,7 @@ export default function BukhariLangPage() {
                 </a>
                 <span className="text-white/30">›</span>
                 <a href={`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`} onClick={(e) => { e.preventDefault(); navigate(`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`); }} className="text-emerald-300 hover:text-emerald-200 underline underline-offset-2">
-                  {getChapterName(selectedHadith.chapterId, slug)}
+                  {getChapterName(selectedHadith.chapterId, slug, kitabMap)}
                 </a>
               </motion.div>
 
