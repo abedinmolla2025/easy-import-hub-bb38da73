@@ -617,7 +617,7 @@ export default function BukhariLangPage() {
                             <span className="text-white font-bold text-sm">{chapter.id}</span>
                           </div>
                           <div>
-                            <p className="text-white font-semibold text-base">{t.chapter} {chapter.id}</p>
+                            <p className="text-white font-semibold text-base">{getChapterName(chapter.id, slug)}</p>
                             <p className="text-white/60 text-sm">{chapter.count} {t.hadiths}</p>
                           </div>
                         </div>
