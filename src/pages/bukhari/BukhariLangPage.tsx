@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft, Search, ChevronRight, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
