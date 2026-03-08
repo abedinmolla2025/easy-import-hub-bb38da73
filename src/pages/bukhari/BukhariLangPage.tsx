@@ -476,7 +476,7 @@ export default function BukhariLangPage() {
               <ArrowLeft className="w-5 h-5" style={{ transform: isRtl ? "scaleX(-1)" : "none" }} />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white tracking-wide">{selectedChapter !== null ? getChapterName(selectedChapter, slug, kitabMap) : t.title}</h1>
+              <h1 className="text-xl font-bold text-white tracking-wide">{selectedChapter !== null ? `${t.chapter}: ${getChapterName(selectedChapter, slug, kitabMap)}` : t.title}</h1>
               <p className="text-xs text-white/70">{selectedChapter !== null ? `${totalInChapter} ${t.hadiths}` : t.subtitle}</p>
             </div>
           </div>
