@@ -381,7 +381,7 @@ export default function BukhariLangPage() {
   const totalInChapter = selectedChapter !== null ? allHadiths.filter((h) => h.chapterId === selectedChapter).length : allHadiths.length;
 
   // ── SEO values ────────────────────────────────────────────
-  const seoChapterId = selectedChapter ?? (chapterParam ? Number(chapterParam.replace("chapter-", "")) : undefined);
+  const seoChapterId = selectedChapter ?? (effectiveChapterParam ? Number(effectiveChapterParam.replace("chapter-", "")) : undefined);
   const seoHadithNumber = selectedHadith?.number ?? (hadithParam ? Number(hadithParam) : undefined);
   const seoTitle = buildSeoTitle(slug, seoChapterId, seoHadithNumber);
   const seoDesc = buildSeoDesc(slug, seoChapterId, seoHadithNumber);
