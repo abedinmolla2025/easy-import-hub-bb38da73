@@ -338,14 +338,14 @@ export default function BukhariLangPage() {
   // ── URL path params → state ────────────────────────────────
   useEffect(() => {
     // Parse chapter from path: "chapter-5" → 5, or just "5" for hadith route
-    if (chapterParam) {
-      const cid = Number(chapterParam.replace("chapter-", ""));
+    if (effectiveChapterParam) {
+      const cid = Number(effectiveChapterParam.replace("chapter-", ""));
       setSelectedChapter(cid && Number.isFinite(cid) ? cid : null);
     } else {
       setSelectedChapter(null);
     }
     setPage(1);
-  }, [chapterParam]);
+  }, [effectiveChapterParam]);
 
   useEffect(() => {
     if (!hadithParam || allHadiths.length === 0) {
