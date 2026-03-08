@@ -532,13 +532,13 @@ export default function BukhariLangPage() {
               </motion.div>
 
               {/* Breadcrumb links */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2 text-sm">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2 text-sm items-center">
                 <a href={`/hadith/sahih-bukhari/${slug}`} onClick={(e) => { e.preventDefault(); navigate(`/hadith/sahih-bukhari/${slug}`); }} className="text-emerald-300 hover:text-emerald-200 underline underline-offset-2">
                   {t.title}
                 </a>
                 <span className="text-white/30">›</span>
                 <a href={`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`} onClick={(e) => { e.preventDefault(); navigate(`/hadith/sahih-bukhari/${slug}/chapter-${selectedHadith.chapterId}`); }} className="text-emerald-300 hover:text-emerald-200 underline underline-offset-2">
-                  {getChapterName(selectedHadith.chapterId, slug, kitabMap)}
+                  {t.chapter}: {getChapterName(selectedHadith.chapterId, slug, kitabMap)}
                 </a>
               </motion.div>
 
