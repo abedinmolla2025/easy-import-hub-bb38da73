@@ -113,6 +113,49 @@ const langMeta: Record<LangSlug, LangCfg> = {
   },
 };
 
+// ── Bangla chapter names (Kitab titles) ──────────────────────
+const bukhariChapterNames: Record<number, { bn: string; en: string; ur: string }> = {
+  1: { bn: "ওহীর সূচনা (বদউল ওহি)", en: "Revelation", ur: "وحی کی ابتداء" },
+  2: { bn: "ঈমান", en: "Belief (Faith)", ur: "ایمان" },
+  3: { bn: "ইলম (জ্ঞান)", en: "Knowledge", ur: "علم" },
+  4: { bn: "ওজু", en: "Ablution (Wudu)", ur: "وضو" },
+  5: { bn: "গোসল", en: "Bathing (Ghusl)", ur: "غسل" },
+  6: { bn: "হায়েজ", en: "Menstrual Periods", ur: "حیض" },
+  7: { bn: "তায়াম্মুম", en: "Tayammum", ur: "تیمم" },
+  8: { bn: "সালাত", en: "Prayer (Salat)", ur: "نماز" },
+  9: { bn: "সালাতের সময়সমূহ", en: "Times of Prayer", ur: "نماز کے اوقات" },
+  10: { bn: "আযান", en: "Call to Prayer (Adhan)", ur: "اذان" },
+  11: { bn: "জুমা", en: "Friday Prayer", ur: "جمعہ" },
+  12: { bn: "খাওফের সালাত", en: "Fear Prayer", ur: "نماز خوف" },
+  13: { bn: "ঈদের সালাত", en: "Two Eid Prayers", ur: "عیدین کی نماز" },
+  14: { bn: "বিতর সালাত", en: "Witr Prayer", ur: "وتر کی نماز" },
+  15: { bn: "ইস্তিসকা", en: "Invoking Allah for Rain", ur: "استسقاء" },
+  16: { bn: "সূর্যগ্রহণের সালাত", en: "Eclipses", ur: "سورج گرہن کی نماز" },
+  17: { bn: "সিজদাতুল কুরআন", en: "Prostration During Quran", ur: "سجدۂ تلاوت" },
+  18: { bn: "সালাত সংক্ষিপ্ত করা", en: "Shortening Prayers", ur: "نماز قصر کرنا" },
+  19: { bn: "তাহাজ্জুদ", en: "Night Prayer (Tahajjud)", ur: "تہجد" },
+  20: { bn: "জানাযা", en: "Funerals (Janaza)", ur: "جنازہ" },
+  21: { bn: "যাকাত", en: "Obligatory Charity (Zakat)", ur: "زکاۃ" },
+  22: { bn: "হজ্জ", en: "Hajj", ur: "حج" },
+  23: { bn: "উমরা", en: "Umrah", ur: "عمرہ" },
+  24: { bn: "সাওম (রোজা)", en: "Fasting", ur: "روزے" },
+  25: { bn: "তারাবীহ", en: "Taraweeh Prayer", ur: "تراویح" },
+  26: { bn: "লাইলাতুল কদর", en: "Night of Qadr", ur: "لیلۃ القدر" },
+  27: { bn: "ইতিকাফ", en: "I'tikaf", ur: "اعتکاف" },
+  28: { bn: "ব্যবসা-বাণিজ্য", en: "Sales and Trade", ur: "خرید و فروخت" },
+  29: { bn: "নিকাহ", en: "Weddings (Nikah)", ur: "نکاح" },
+  30: { bn: "তালাক", en: "Divorce", ur: "طلاق" },
+};
+
+function getChapterName(chapterId: number, lang: LangSlug): string {
+  const key = lang === "bangla" ? "bn" : lang === "urdu" ? "ur" : "en";
+  const names = bukhariChapterNames[chapterId];
+  if (names) return names[key];
+  // Fallback for chapters beyond the map
+  const fallback = { bangla: "অধ্যায়", english: "Chapter", urdu: "باب" };
+  return `${fallback[lang]} ${chapterId}`;
+}
+
 // ── Lang-specific SEO helpers ────────────────────────────────
 const langSeoMeta: Record<LangSlug, { rootTitle: string; rootDesc: string; titleLang: string; descLang: string }> = {
   bangla: {
