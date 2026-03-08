@@ -88,7 +88,7 @@ const AppRoutes = () => (
       <Route path="/hadith" element={<HadithPage />} />
       <Route path="/hadith/sahih-bukhari" element={<BukhariLanguageSelectPage />} />
       <Route path="/hadith/sahih-bukhari/:lang" element={<BukhariLangPage />} />
-      <Route path="/hadith/sahih-bukhari/:lang/chapter-:chapterId" element={<BukhariLangPage />} />
+      <Route path="/hadith/sahih-bukhari/:lang/:chapterSlug" element={<BukhariLangPage />} />
       <Route path="/hadith/sahih-bukhari/:lang/:chapterId/:hadithNumber" element={<BukhariLangPage />} />
       <Route path="/hadith/:bookId" element={<HadithBookPlaceholder />} />
 

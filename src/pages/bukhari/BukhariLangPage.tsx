@@ -251,11 +251,15 @@ const PAGE_SIZE = 40;
 
 // ── Component ───────────────────────────────────────────────
 export default function BukhariLangPage() {
-  const { lang, chapterId: chapterParam, hadithNumber: hadithParam } = useParams<{
+  const { lang, chapterSlug, chapterId: chapterParam, hadithNumber: hadithParam } = useParams<{
     lang: string;
+    chapterSlug: string;
     chapterId: string;
     hadithNumber: string;
   }>();
+  // chapterSlug is used for /hadith/sahih-bukhari/:lang/:chapterSlug (e.g. "chapter-5")
+  // chapterId is used for /hadith/sahih-bukhari/:lang/:chapterId/:hadithNumber
+  const effectiveChapterParam = chapterSlug || chapterParam;
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHadith, setSelectedHadith] = useState<Hadith | null>(null);
@@ -334,14 +338,14 @@ export default function BukhariLangPage() {
   // ── URL path params → state ────────────────────────────────
   useEffect(() => {
     // Parse chapter from path: "chapter-5" → 5, or just "5" for hadith route
-    if (chapterParam) {
-      const cid = Number(chapterParam.replace("chapter-", ""));
+    if (effectiveChapterParam) {
+      const cid = Number(effectiveChapterParam.replace("chapter-", ""));
       setSelectedChapter(cid && Number.isFinite(cid) ? cid : null);
     } else {
       setSelectedChapter(null);
     }
     setPage(1);
-  }, [chapterParam]);
+  }, [effectiveChapterParam]);
 
   useEffect(() => {
     if (!hadithParam || allHadiths.length === 0) {
@@ -377,7 +381,7 @@ export default function BukhariLangPage() {
   const totalInChapter = selectedChapter !== null ? allHadiths.filter((h) => h.chapterId === selectedChapter).length : allHadiths.length;
 
   // ── SEO values ────────────────────────────────────────────
-  const seoChapterId = selectedChapter ?? (chapterParam ? Number(chapterParam.replace("chapter-", "")) : undefined);
+  const seoChapterId = selectedChapter ?? (effectiveChapterParam ? Number(effectiveChapterParam.replace("chapter-", "")) : undefined);
   const seoHadithNumber = selectedHadith?.number ?? (hadithParam ? Number(hadithParam) : undefined);
   const seoTitle = buildSeoTitle(slug, seoChapterId, seoHadithNumber);
   const seoDesc = buildSeoDesc(slug, seoChapterId, seoHadithNumber);
