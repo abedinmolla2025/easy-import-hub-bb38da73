@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SplashScreen } from "@/components/SplashScreen";
+import { ChandRaatSplash } from "@/components/ChandRaatSplash";
 
 type SplashMessage = {
   text?: string;
