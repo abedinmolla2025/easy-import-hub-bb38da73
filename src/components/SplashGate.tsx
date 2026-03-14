@@ -115,8 +115,23 @@ export function SplashGate(props: { children: React.ReactNode }) {
   // Already finished showing splash
   if (done) return <>{children}</>;
 
+  // Show Chand Raat special splash during the period
+  if (isChandRaatPeriod()) {
+    return (
+      <>
+        <ChandRaatSplash
+          logoUrl={config.logoUrl}
+          appName={config.appName}
+          duration={4500}
+          fadeOutDuration={900}
+          onComplete={() => setDone(true)}
+        />
+        {done && children}
+      </>
+    );
+  }
+
   // Show splash screen - same component handles both loading and display states
-  // The SplashScreen component will show for the full duration once rendered
   return (
     <>
       <SplashScreen
