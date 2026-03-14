@@ -51,7 +51,7 @@ export const useAthanNotification = (prayerTimes: PrayerTimings | null) => {
   const [currentPrayer, setCurrentPrayer] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastPlayedRef = useRef<string | null>(null);
-  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const checkIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Save settings to localStorage
   useEffect(() => {
