@@ -92,11 +92,7 @@ const AppRoutes = () => (
       <Route path="/hadith/sahih-bukhari/:lang/:chapterId/:hadithNumber" element={<BukhariLangPage />} />
       <Route path="/hadith/:bookId" element={<HadithBookPlaceholder />} />
 
-      {/* Legacy redirects for old Bukhari routes */}
-      <Route path="/hadith/bukhari" element={<Navigate to="/hadith/sahih-bukhari" replace />} />
-      <Route path="/sahih-al-bukhari" element={<Navigate to="/hadith/sahih-bukhari" replace />} />
-      <Route path="/sahih-al-bukhari/:lang" element={<LegacyLangRedirect />} />
-      <Route path="/bukhari" element={<Navigate to="/hadith/sahih-bukhari" replace />} />
+      {/* Legacy redirects handled by vercel.json 301s — no React Router duplicates */}
 
       <Route path="/calendar" element={<IslamicCalendarPage />} />
       <Route path="/settings" element={<SettingsPage />} />

@@ -498,12 +498,27 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error("Prerender error:", err);
-    // On error, return a minimal HTML with redirect to the SPA
-    return new Response(
-      `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${SITE_ORIGIN}"></head><body>Redirecting...</body></html>`,
-      {
-        headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
-      },
+    // On error, return valid HTML with content (NEVER redirect — causes GSC "Redirect error")
+    const url = new URL(req.url);
+    const errorPath = url.searchParams.get("path") || "/";
+    const fallbackSeo = SEO_DEFAULTS[errorPath] || SEO_DEFAULTS["/"];
+    const fallbackHtml = buildFullHtml(
+      errorPath,
+      fallbackSeo.title,
+      fallbackSeo.description,
+      `${SITE_ORIGIN}/og-image.png`,
+      `<section>
+        <p>${escapeHtml(fallbackSeo.description)}</p>
+        <p>Visit <a href="${SITE_ORIGIN}${errorPath}">${SITE_ORIGIN}${errorPath}</a> for the full experience.</p>
+      </section>`,
     );
+    return new Response(fallbackHtml, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=300",
+        "X-Robots-Tag": "index,follow",
+      },
+    });
   }
 });
