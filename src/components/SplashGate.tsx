@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SplashScreen } from "@/components/SplashScreen";
+import { ChandRaatSplash } from "@/components/ChandRaatSplash";
 
 type SplashMessage = {
   text?: string;
@@ -32,6 +33,15 @@ const DEFAULT_SPLASH_CONFIG: SplashConfig = {
   duration: 3500,
   fadeOutDuration: 800,
 };
+
+/** Check if today falls within Chand Raat period (eve of Eid ul-Fitr 2026) */
+function isChandRaatPeriod(): boolean {
+  const now = new Date();
+  // Chand Raat 2026: March 14 (for preview) through March 21 morning
+  const start = new Date("2026-03-14T00:00:00+05:30");
+  const end = new Date("2026-03-21T06:00:00+05:30");
+  return now >= start && now <= end;
+}
 
 /**
  * Ensures splash overlay is visible while we fetch splash config.
@@ -105,8 +115,23 @@ export function SplashGate(props: { children: React.ReactNode }) {
   // Already finished showing splash
   if (done) return <>{children}</>;
 
+  // Show Chand Raat special splash during the period
+  if (isChandRaatPeriod()) {
+    return (
+      <>
+        <ChandRaatSplash
+          logoUrl={config.logoUrl}
+          appName={config.appName}
+          duration={4500}
+          fadeOutDuration={900}
+          onComplete={() => setDone(true)}
+        />
+        {done && children}
+      </>
+    );
+  }
+
   // Show splash screen - same component handles both loading and display states
-  // The SplashScreen component will show for the full duration once rendered
   return (
     <>
       <SplashScreen
