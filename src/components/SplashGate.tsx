@@ -37,9 +37,9 @@ const DEFAULT_SPLASH_CONFIG: SplashConfig = {
 /** Check if today falls within Chand Raat period (eve of Eid ul-Fitr 2026) */
 function isChandRaatPeriod(): boolean {
   const now = new Date();
-  // Chand Raat 2026: March 19 evening to March 20 (Eid ul-Fitr)
-  const start = new Date("2026-03-19T16:00:00+05:30"); // evening before Eid
-  const end = new Date("2026-03-21T06:00:00+05:30");   // morning after Eid
+  // Chand Raat 2026: March 14 (for preview) through March 21 morning
+  const start = new Date("2026-03-14T00:00:00+05:30");
+  const end = new Date("2026-03-21T06:00:00+05:30");
   return now >= start && now <= end;
 }
 
