@@ -509,6 +509,36 @@ const PRAYER_DUAS = [
     meaning: "Our Lord, give us good in this world and good in the Hereafter, and save us from the punishment of the Fire.",
     meaningBn: "হে আমাদের রব! আমাদের দুনিয়াতে কল্যাণ দিন, আখেরাতেও কল্যাণ দিন এবং আমাদের জাহান্নামের আগুন থেকে রক্ষা করুন।",
   },
+  {
+    id: "lailatul-qadr-dua",
+    name: "Dua for Lailatul Qadr",
+    nameBn: "লাইলাতুল কদরের দোয়া",
+    arabic: "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+    transliteration: "Allahumma innaka 'afuwwun tuhibbul 'afwa fa'fu 'anni",
+    transliterationBn: "আল্লাহুম্মা ইন্নাকা আফুউউন তুহিব্বুল আফওয়া ফা'ফু আন্নি",
+    meaning: "O Allah, You are the One Who pardons greatly, and You love to pardon, so pardon me.",
+    meaningBn: "হে আল্লাহ! নিশ্চয়ই আপনি ক্ষমাশীল, আপনি ক্ষমা করতে ভালোবাসেন, তাই আমাকে ক্ষমা করুন।",
+  },
+  {
+    id: "taraweeh-dua",
+    name: "Dua After 4 Rakats of Taraweeh",
+    nameBn: "তারাবীহর ৪ রাকাত পর দোয়া",
+    arabic: "سُبْحَانَ ذِي الْمُلْكِ وَالْمَلَكُوتِ سُبْحَانَ ذِي الْعِزَّةِ وَالْعَظَمَةِ وَالْهَيْبَةِ وَالْقُدْرَةِ وَالْكِبْرِيَاءِ وَالْجَبَرُوتِ سُبْحَانَ الْمَلِكِ الْحَيِّ الَّذِي لَا يَنَامُ وَلَا يَمُوتُ أَبَدًا سُبُّوحٌ قُدُّوسٌ رَبُّنَا وَرَبُّ الْمَلَائِكَةِ وَالرُّوحِ",
+    transliteration: "Subhana dhil mulki wal malakuti, subhana dhil izzati wal azamati wal haibati wal qudrati wal kibriyai wal jabarut. Subhanal malikil hayyilladhi la yanamu wa la yamutu abadan. Subbuhun quddusun rabbuna wa rabbul malaikati war ruh.",
+    transliterationBn: "সুবহানা যিল মুলকি ওয়াল মালাকুতি, সুবহানা যিল ইযযাতি ওয়াল আযামাতি ওয়াল হাইবাতি ওয়াল কুদরাতি ওয়াল কিবরিয়াই ওয়াল জাবারুতি। সুবহানাল মালিকিল হাইয়্যিল্লাযী লা ইয়ানামু ওয়া লা ইয়ামুতু আবাদান। সুব্বুহুন কুদ্দুসুন রব্বুনা ওয়া রব্বুল মালায়িকাতি ওয়ার রুহ।",
+    meaning: "Glory be to the Owner of Kingdom and Dominion. Glory be to the Owner of Honour, Greatness, Awe, Power, Pride and Majesty. Glory be to the Sovereign, the Living, Who neither sleeps nor dies. Most Holy, Most Pure, our Lord and Lord of the angels and the Spirit.",
+    meaningBn: "পবিত্র তিনি যিনি রাজত্ব ও মহিমার অধিকারী। পবিত্র তিনি যিনি সম্মান, মহত্ত্ব, প্রতাপ, শক্তি, বড়ত্ব ও প্রভুত্বের অধিকারী। পবিত্র তিনি যিনি চিরঞ্জীব, যিনি ঘুমান না এবং কখনো মৃত্যুবরণ করেন না। তিনি পবিত্র, মহাপবিত্র, আমাদের রব এবং ফেরেশতাদের ও রূহের রব।",
+  },
+  {
+    id: "dua-qunut",
+    name: "Dua Qunut (Witr Prayer)",
+    nameBn: "দোয়া কুনুত (বিতর নামাজ)",
+    arabic: "اللَّهُمَّ إِنَّا نَسْتَعِينُكَ وَنَسْتَغْفِرُكَ وَنُؤْمِنُ بِكَ وَنَتَوَكَّلُ عَلَيْكَ وَنُثْنِي عَلَيْكَ الْخَيْرَ وَنَشْكُرُكَ وَلَا نَكْفُرُكَ وَنَخْلَعُ وَنَتْرُكُ مَنْ يَفْجُرُكَ اللَّهُمَّ إِيَّاكَ نَعْبُدُ وَلَكَ نُصَلِّي وَنَسْجُدُ وَإِلَيْكَ نَسْعَىٰ وَنَحْفِدُ وَنَرْجُو رَحْمَتَكَ وَنَخْشَىٰ عَذَابَكَ إِنَّ عَذَابَكَ بِالْكُفَّارِ مُلْحِقٌ",
+    transliteration: "Allahumma inna nasta'inuka wa nastaghfiruka wa nu'minu bika wa natawakkalu 'alayka wa nuthni 'alaykal khayr. Wa nashkuruka wa la nakfuruka wa nakhla'u wa natruku man yafjuruk. Allahumma iyyaka na'budu wa laka nusalli wa nasjudu wa ilayka nas'a wa nahfidu wa narju rahmataka wa nakhsha 'adhabaka inna 'adhabaka bil kuffari mulhiq.",
+    transliterationBn: "আল্লাহুম্মা ইন্না নাসতায়ীনুকা ওয়া নাসতাগফিরুকা ওয়া নু'মিনু বিকা ওয়া নাতাওয়াক্কালু আলাইকা ওয়া নুসনী আলাইকাল খাইর। ওয়া নাশকুরুকা ওয়া লা নাকফুরুকা ওয়া নাখলাউ ওয়া নাতরুকু মাই ইয়াফজুরুক। আল্লাহুম্মা ইয়্যাকা না'বুদু ওয়া লাকা নুসাল্লি ওয়া নাসজুদু ওয়া ইলাইকা নাস'আ ওয়া নাহফিদু ওয়া নারজু রাহমাতাকা ওয়া নাখশা আযাবাকা ইন্না আযাবাকা বিল কুফফারি মুলহিক।",
+    meaning: "O Allah! We seek Your help, we ask Your forgiveness, we believe in You, we rely on You, and we praise You for all goodness. We thank You and we are not ungrateful. We reject and abandon anyone who disobeys You. O Allah! You alone we worship, to You we pray and prostrate, and to You we hasten. We hope for Your mercy and fear Your punishment, for surely Your punishment will overtake the disbelievers.",
+    meaningBn: "হে আল্লাহ! আমরা আপনার সাহায্য চাই, আপনার কাছে ক্ষমা প্রার্থনা করি, আপনার প্রতি ঈমান রাখি, আপনার উপর ভরসা করি এবং সকল কল্যাণে আপনার প্রশংসা করি। আমরা আপনার শুকরিয়া আদায় করি, অকৃতজ্ঞ হই না। আপনার অবাধ্যদের সাথে সম্পর্ক ত্যাগ করি। হে আল্লাহ! একমাত্র আপনারই ইবাদত করি, আপনার জন্যই নামাজ পড়ি ও সিজদা করি, আপনার দিকেই ছুটে যাই, আপনার রহমতের আশা করি ও শাস্তিকে ভয় করি। নিশ্চয়ই আপনার শাস্তি কাফেরদের উপর পতিত হবে।",
+  },
 ];
 
 interface NiyahCardProps {
