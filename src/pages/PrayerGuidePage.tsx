@@ -200,6 +200,30 @@ const NIYAH_DATA = [
     transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salati eidil adha ma'a sitti takbiratin wajibullahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
     transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতি ঈদিল আদহা মা'আ সিত্তি তাকবিরাতিন ওয়াজিবুল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
   },
+  {
+    id: "taraweeh",
+    name: "Taraweeh",
+    nameBn: "তারাবীহ",
+    rakats: "2 Sunnah (20 Rakats)",
+    rakatsBn: "২ রাকাত সুন্নত (মোট ২০ রাকাত)",
+    arabic: "نَوَيْتُ أَنْ أُصَلِّيَ لِلَّهِ تَعَالَىٰ رَكْعَتَيْ صَلَاةِ التَّرَاوِيحِ سُنَّةُ رَسُولِ اللَّهِ تَعَالَىٰ مُتَوَجِّهًا إِلَىٰ جِهَةِ الْكَعْبَةِ الشَّرِيفَةِ اللَّهُ أَكْبَرُ",
+    meaning: "I intend to pray two rakats of Taraweeh Sunnah prayer following the Sunnah of Rasulullah for Allah facing the Kaaba. Allahu Akbar.",
+    meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে রাসূলুল্লাহ (সাঃ) এর সুন্নত তারাবীহ নামাজের দুই রাকাত আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
+    transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salatit tarawihi sunnatu rasulillahi ta'ala mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতিত তারাবীহি সুন্নাতু রাসূলিল্লাহি তা'আলা মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
+  },
+  {
+    id: "lailatul-qadr",
+    name: "Lailatul Qadr (Shab-e-Qadr)",
+    nameBn: "লাইলাতুল কদর (শবে কদর)",
+    rakats: "2-12 Nafl",
+    rakatsBn: "২-১২ রাকাত নফল",
+    arabic: "نَوَيْتُ أَنْ أُصَلِّيَ لِلَّهِ تَعَالَىٰ رَكْعَتَيْ صَلَاةِ لَيْلَةِ الْقَدْرِ مُتَوَجِّهًا إِلَىٰ جِهَةِ الْكَعْبَةِ الشَّرِيفَةِ اللَّهُ أَكْبَرُ",
+    meaning: "I intend to pray two rakats of Lailatul Qadr Nafl prayer for Allah facing the Kaaba. Allahu Akbar.",
+    meaningBn: "আমি কেবলামুখী হয়ে আল্লাহর ওয়াস্তে লাইলাতুল কদরের দুই রাকাত নফল নামাজ আদায় করার নিয়ত করছি। আল্লাহু আকবার।",
+    transliteration: "Nawaitu an usalliya lillahi ta'ala rak'atay salati lailatil qadri mutawajjihan ila jihatil ka'batish sharifati Allahu Akbar",
+    transliterationBn: "নাওয়াইতু আন উসাল্লিয়া লিল্লাহি তা'আলা রাকা'তাই সালাতি লাইলাতিল ক্বাদরি মুতাওয়াজ্জিহান ইলা জিহাতিল কা'বাতিশ শারীফাতি আল্লাহু আকবার",
+  },
 ];
 
 // Prayer Learning Data
