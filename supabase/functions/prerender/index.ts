@@ -427,16 +427,14 @@ Deno.serve(async (req) => {
             <p>Browse 40+ beautiful Islamic baby names with Arabic script, Bengali meaning & pronunciation on <a href="${SITE_ORIGIN}/baby-names">Noor App</a>.</p>
         </section>`;
     } else if (path === "/names") {
-      bodyContent = `
-        <section>
-            <h2>Islamic Names Collection — ইসলামিক নামের তালিকা</h2>
-            <p>${escapeHtml(seo?.description || "")}</p>
-            <p>Browse thousands of Islamic names with Arabic script, Bengali pronunciation, and meanings. Search by letter, gender, or meaning.</p>
-            <nav>
-                <a href="${SITE_ORIGIN}/baby-names">Muslim Baby Names</a> |
-                <a href="${SITE_ORIGIN}/99-names">99 Names of Allah</a>
-            </nav>
-        </section>`;
+      // /names is a duplicate of /baby-names — 301 redirect
+      return new Response(null, {
+        status: 301,
+        headers: {
+          ...corsHeaders,
+          "Location": `${SITE_ORIGIN}/baby-names`,
+        },
+      });
     } else if (path === "/prayer-times") {
       bodyContent = `
         <section>

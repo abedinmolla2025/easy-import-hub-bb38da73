@@ -109,12 +109,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://noorapp.in/names</loc>
-    <lastmod>2026-03-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://noorapp.in/calendar</loc>
     <lastmod>2026-03-14</lastmod>
     <changefreq>daily</changefreq>
