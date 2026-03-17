@@ -165,9 +165,11 @@ function buildHreflangTags(path: string): string {
     { lang: "en", slug: "english" },
     { lang: "ur", slug: "urdu" },
   ];
-  return langs
+  const tags = langs
     .map((l) => `<link rel="alternate" hreflang="${l.lang}" href="${SITE_ORIGIN}/hadith/sahih-bukhari/${l.slug}${suffix}" />`)
     .join("\n    ");
+  // Add x-default pointing to English
+  return `${tags}\n    <link rel="alternate" hreflang="x-default" href="${SITE_ORIGIN}/hadith/sahih-bukhari/english${suffix}" />`;
 }
 
 async function fetchHadithContent(
