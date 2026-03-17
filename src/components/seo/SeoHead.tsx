@@ -271,8 +271,10 @@ export function SeoHead() {
   const SITE_ORIGIN = "https://noorapp.in";
   // Normalize: remove trailing slash (except root "/")
   const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
+  // Canonical consolidation: /names → /baby-names
+  const canonicalPath = normalizedPath === "/names" ? "/baby-names" : normalizedPath;
   const canonical =
-    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${normalizedPath}`;
+    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${canonicalPath}`;
 
   const robots = pageSeo?.robots ?? "index,follow";
 
@@ -378,6 +380,7 @@ export function SeoHead() {
           <link rel="alternate" hrefLang="bn" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/bangla${isHadithArticlePage[2] || ""}`} />
           <link rel="alternate" hrefLang="en" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/english${isHadithArticlePage[2] || ""}`} />
           <link rel="alternate" hrefLang="ur" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/urdu${isHadithArticlePage[2] || ""}`} />
+          <link rel="alternate" hrefLang="x-default" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/english${isHadithArticlePage[2] || ""}`} />
         </>
       ) : null}
 

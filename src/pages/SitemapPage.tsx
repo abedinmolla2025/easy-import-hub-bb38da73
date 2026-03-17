@@ -39,7 +39,7 @@ const sections = [
     links: [
       { label: "99 Names of Allah", href: "/99-names" },
       { label: "Baby Names", href: "/baby-names" },
-      { label: "Islamic Names", href: "/names" },
+      
     ],
   },
   {

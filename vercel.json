@@ -31,6 +31,11 @@
       "source": "/app/noorapp.apk",
       "destination": "/download",
       "statusCode": 301
+    },
+    {
+      "source": "/names",
+      "destination": "/baby-names",
+      "statusCode": 301
     }
   ],
   "headers": [
@@ -44,7 +49,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap|sw\\.js|data/).*)",
+      "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap\\.xml|sw\\.js|data/).*)",
       "has": [
         {
           "type": "header",

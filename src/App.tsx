@@ -76,7 +76,7 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/baby-names" element={<BabyNamesPage />} />
-      <Route path="/names" element={<NamesPage />} />
+      <Route path="/names" element={<Navigate to="/baby-names" replace />} />
       <Route path="/qibla" element={<QiblaPage />} />
       <Route path="/tasbih" element={<TasbihPage />} />
       <Route path="/dua" element={<DuaPage />} />
