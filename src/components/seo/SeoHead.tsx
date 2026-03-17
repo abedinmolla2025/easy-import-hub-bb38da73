@@ -271,8 +271,10 @@ export function SeoHead() {
   const SITE_ORIGIN = "https://noorapp.in";
   // Normalize: remove trailing slash (except root "/")
   const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
+  // Canonical consolidation: /names → /baby-names
+  const canonicalPath = normalizedPath === "/names" ? "/baby-names" : normalizedPath;
   const canonical =
-    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${normalizedPath}`;
+    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${canonicalPath}`;
 
   const robots = pageSeo?.robots ?? "index,follow";
 
