@@ -380,6 +380,7 @@ export function SeoHead() {
           <link rel="alternate" hrefLang="bn" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/bangla${isHadithArticlePage[2] || ""}`} />
           <link rel="alternate" hrefLang="en" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/english${isHadithArticlePage[2] || ""}`} />
           <link rel="alternate" hrefLang="ur" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/urdu${isHadithArticlePage[2] || ""}`} />
+          <link rel="alternate" hrefLang="x-default" href={`${SITE_ORIGIN}/hadith/sahih-bukhari/english${isHadithArticlePage[2] || ""}`} />
         </>
       ) : null}
 
