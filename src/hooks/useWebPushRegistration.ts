@@ -33,8 +33,47 @@ function isDuplicateTokenError(error: unknown): boolean {
 }
 
 /**
+ * Auto-sync user's current location to prayer notification preferences.
+ * This ensures the server-side cron job can send prayer-time push notifications
+ * even when the app/tab is closed.
+ */
+async function syncLocationToPreferences(deviceId: string) {
+  if (!("geolocation" in navigator)) return;
+
+  try {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000,
+      });
+    });
+
+    const { latitude, longitude } = position.coords;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    await supabase.from("user_notification_preferences" as any).upsert(
+      {
+        device_id: deviceId,
+        latitude,
+        longitude,
+        timezone,
+        enabled: true,
+        updated_at: new Date().toISOString(),
+      } as any,
+      { onConflict: "device_id" }
+    );
+
+    console.log("[webpush] Location synced for prayer notifications");
+  } catch (e) {
+    console.warn("[webpush] Location sync skipped:", e);
+  }
+}
+
+/**
  * Registers the browser for web push notifications.
  * Only runs on web (not native platforms).
+ * Also auto-syncs user location for server-side prayer notifications.
  */
 export function useWebPushRegistration() {
   useEffect(() => {
@@ -76,7 +115,12 @@ export function useWebPushRegistration() {
           localStorage.removeItem(WEB_PUSH_REGISTERED_KEY);
         }
 
-        // Skip if already registered with the same key
+        const deviceId = getOrCreateDeviceId();
+
+        // Always sync location for prayer notifications (even if push already registered)
+        syncLocationToPreferences(deviceId);
+
+        // Skip push registration if already registered with the same key
         if (!keyChanged && localStorage.getItem(WEB_PUSH_REGISTERED_KEY) === "true") return;
 
         // Unsubscribe any existing subscription (key change or stale)
@@ -97,8 +141,6 @@ export function useWebPushRegistration() {
         });
 
         if (removed) return;
-
-        const deviceId = getOrCreateDeviceId();
 
         const {
           data: { user },
