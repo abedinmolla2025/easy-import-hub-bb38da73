@@ -4,7 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 function json(status: number, body: unknown) {
@@ -31,7 +32,7 @@ async function getPrayerTimes(
   try {
     const url = `https://api.aladhan.com/v1/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=${getMethodCode(method)}`;
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       console.error("Aladhan API error:", response.status);
       return null;
@@ -77,16 +78,39 @@ function getPrayerDisplay(prayer: string): { emoji: string; name: string } {
   return displays[prayer] || { emoji: "🕌", name: prayer };
 }
 
-function isTimeToNotify(prayerTime: string, offsetMinutes: number, now: Date): boolean {
+function isTimeToNotify(
+  prayerTime: string,
+  offsetMinutes: number,
+  now: Date,
+  timezone: string
+): boolean {
   const [hours, minutes] = prayerTime.split(":").map(Number);
-  const prayerDate = new Date(now);
-  prayerDate.setHours(hours, minutes + offsetMinutes, 0, 0);
-  const diff = prayerDate.getTime() - now.getTime();
-  return diff >= 0 && diff < 5 * 60 * 1000;
+
+  // Build a date in the user's timezone
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const nowHour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
+  const nowMinute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+
+  const prayerTotalMin = hours * 60 + minutes + offsetMinutes;
+  const nowTotalMin = nowHour * 60 + nowMinute;
+
+  const diff = prayerTotalMin - nowTotalMin;
+  return diff >= 0 && diff <= 5; // within a 5-minute window
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS")
+    return new Response(null, { headers: corsHeaders });
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -111,6 +135,7 @@ Deno.serve(async (req) => {
 
     for (const pref of preferences) {
       try {
+        const tz = pref.timezone || "UTC";
         const times = await getPrayerTimes(
           Number(pref.latitude),
           Number(pref.longitude),
@@ -124,15 +149,17 @@ Deno.serve(async (req) => {
         }
 
         const enabledPrayers = pref.enabled_prayers as Record<string, boolean>;
-        
+
         for (const [prayer, enabled] of Object.entries(enabledPrayers)) {
           if (!enabled) continue;
 
           const prayerTime = times[prayer as keyof PrayerTimes];
           if (!prayerTime) continue;
 
-          if (!isTimeToNotify(prayerTime, pref.notification_offset, now)) continue;
+          if (!isTimeToNotify(prayerTime, pref.notification_offset, now, tz))
+            continue;
 
+          // Check if already notified today for this prayer
           const { data: existing } = await svc
             .from("prayer_notification_log")
             .select("id")
@@ -143,6 +170,7 @@ Deno.serve(async (req) => {
 
           if (existing) continue;
 
+          // Find push tokens for this device
           const { data: tokens } = await svc
             .from("device_push_tokens")
             .select("id, token, platform")
@@ -158,6 +186,7 @@ Deno.serve(async (req) => {
               title: `${display.emoji} ${display.name} Time`,
               message: `It's time for ${display.name} prayer. May Allah accept your worship.`,
               status: "draft",
+              target_platform: "web",
             })
             .select("id")
             .single();
@@ -167,25 +196,29 @@ Deno.serve(async (req) => {
             continue;
           }
 
+          // Send push via send-push function
           const sendUrl = `${supabaseUrl}/functions/v1/send-push`;
           const sendRes = await fetch(sendUrl, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${serviceKey}`,
+              Authorization: `Bearer ${serviceKey}`,
             },
             body: JSON.stringify({ notificationId: notification.id }),
           });
 
           if (!sendRes.ok) {
-            errors.push(`Failed to send notification: ${await sendRes.text()}`);
+            errors.push(
+              `Failed to send notification: ${await sendRes.text()}`
+            );
             continue;
           }
 
+          // Log the notification
           await svc.from("prayer_notification_log").insert({
             preference_id: pref.id,
             prayer_name: prayer,
-            prayer_time: `${today}T${prayerTime}:00Z`,
+            prayer_time: `${today}T${prayerTime}:00`,
             prayer_date: today,
             notification_id: notification.id,
           });

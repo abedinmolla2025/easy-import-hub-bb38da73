@@ -886,6 +886,44 @@ export type Database = {
         }
         Relationships: []
       }
+      prayer_notification_log: {
+        Row: {
+          created_at: string
+          id: string
+          notification_id: string | null
+          prayer_date: string
+          prayer_name: string
+          prayer_time: string
+          preference_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_id?: string | null
+          prayer_date: string
+          prayer_name: string
+          prayer_time: string
+          preference_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_id?: string | null
+          prayer_date?: string
+          prayer_name?: string
+          prayer_time?: string
+          preference_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prayer_notification_log_preference_id_fkey"
+            columns: ["preference_id"]
+            isOneToOne: false
+            referencedRelation: "user_notification_preferences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1111,6 +1149,48 @@ export type Database = {
           method?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_notification_preferences: {
+        Row: {
+          calculation_method: string
+          created_at: string
+          device_id: string
+          enabled: boolean
+          enabled_prayers: Json
+          id: string
+          latitude: number
+          longitude: number
+          notification_offset: number
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          calculation_method?: string
+          created_at?: string
+          device_id: string
+          enabled?: boolean
+          enabled_prayers?: Json
+          id?: string
+          latitude?: number
+          longitude?: number
+          notification_offset?: number
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          calculation_method?: string
+          created_at?: string
+          device_id?: string
+          enabled?: boolean
+          enabled_prayers?: Json
+          id?: string
+          latitude?: number
+          longitude?: number
+          notification_offset?: number
+          timezone?: string
+          updated_at?: string
         }
         Relationships: []
       }
