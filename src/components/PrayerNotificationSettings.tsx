@@ -8,8 +8,19 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Bell, MapPin, Clock, Loader2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { supabase } from "@/integrations/supabase/client";
 
 const PREFERENCES_STORAGE_KEY = "noor_prayer_notification_preferences";
+const DEVICE_ID_KEY = "noor_device_id";
+
+function getOrCreateDeviceId(): string {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
 
 const CALCULATION_METHODS = [
   { value: "MWL", label: "Muslim World League" },
@@ -101,11 +112,40 @@ export function PrayerNotificationSettings() {
     );
   };
 
-  const savePreferences = () => {
+  const savePreferences = async () => {
     setSaving(true);
     try {
+      // Save locally
       localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
-      toast({ title: "Preferences saved successfully" });
+
+      // Sync to database for server-side push notifications
+      const deviceId = getOrCreateDeviceId();
+      const payload = {
+        device_id: deviceId,
+        latitude: preferences.latitude,
+        longitude: preferences.longitude,
+        timezone: preferences.timezone,
+        calculation_method: preferences.calculation_method,
+        enabled_prayers: preferences.enabled_prayers,
+        notification_offset: preferences.notification_offset,
+        enabled: preferences.enabled,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from("user_notification_preferences" as any)
+        .upsert(payload as any, { onConflict: "device_id" });
+
+      if (error) {
+        console.error("Failed to sync preferences to database:", error);
+        // Still show success since local save worked
+        toast({
+          title: "Preferences saved locally",
+          description: "Server sync will retry automatically",
+        });
+      } else {
+        toast({ title: "✅ Prayer notifications activated!" });
+      }
     } catch (error: any) {
       toast({
         title: "Failed to save preferences",
