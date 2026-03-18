@@ -204,8 +204,12 @@ function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
     const manifest = {
       name: branding.appName,
       short_name: branding.appName,
+      description: "Prayer times, Quran, Dua, Qibla finder and more.",
       start_url: "/",
       display: "standalone",
+      background_color: "#0a1a14",
+      theme_color: "#0d9f6e",
+      orientation: "portrait" as const,
       icons: manifestIcons,
     };
 
