@@ -27,6 +27,37 @@ const QuranAudioPlayer = ({
   const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(1);
 
+  // Setup Media Session for lock-screen / background playback
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: `আয়াত ${ayahNumber}`,
+      artist: "কুরআন তিলাওয়াত",
+      album: "আল-কুরআন",
+    });
+
+    navigator.mediaSession.setActionHandler("play", () => {
+      audioRef.current?.play();
+    });
+    navigator.mediaSession.setActionHandler("pause", () => {
+      audioRef.current?.pause();
+    });
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      if (hasPrevious && onPrevious) onPrevious();
+    });
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      if (hasNext && onNext) onNext();
+    });
+
+    return () => {
+      navigator.mediaSession.setActionHandler("play", null);
+      navigator.mediaSession.setActionHandler("pause", null);
+      navigator.mediaSession.setActionHandler("previoustrack", null);
+      navigator.mediaSession.setActionHandler("nexttrack", null);
+    };
+  }, [ayahNumber, hasNext, hasPrevious, onNext, onPrevious]);
+
   useEffect(() => {
     if (audioRef.current && audioUrl) {
       audioRef.current.pause();
