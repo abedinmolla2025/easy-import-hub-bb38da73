@@ -200,10 +200,11 @@ function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
       : null,
   ].filter(Boolean) as any[];
 
-  if (branding.appName && manifestIcons.length) {
+  if (manifestIcons.length) {
+    const appName = branding.appName || "Noor";
     const manifest = {
-      name: branding.appName,
-      short_name: branding.appName,
+      name: appName,
+      short_name: appName,
       description: "Prayer times, Quran, Dua, Qibla finder and more.",
       start_url: "/",
       display: "standalone",
