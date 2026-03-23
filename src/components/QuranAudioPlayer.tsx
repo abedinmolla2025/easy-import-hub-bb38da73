@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface QuranAudioPlayerProps {
   audioUrl: string;
   ayahNumber: number;
+  surahName?: string;
   onNext?: () => void;
   onPrevious?: () => void;
   hasNext?: boolean;
@@ -16,25 +17,70 @@ const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const QuranAudioPlayer = ({
   audioUrl,
   ayahNumber,
+  surahName = "কুরআন",
   onNext,
   onPrevious,
   hasNext = true,
   hasPrevious = true,
 }: QuranAudioPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(1);
 
-  // Setup Media Session for lock-screen / background playback
+  // --- Wake Lock: keep screen/CPU awake while playing ---
+  const requestWakeLock = useCallback(async () => {
+    try {
+      if ("wakeLock" in navigator && !wakeLockRef.current) {
+        wakeLockRef.current = await (navigator as any).wakeLock.request("screen");
+        wakeLockRef.current?.addEventListener("release", () => {
+          wakeLockRef.current = null;
+        });
+      }
+    } catch {
+      // Wake Lock not supported or denied
+    }
+  }, []);
+
+  const releaseWakeLock = useCallback(() => {
+    wakeLockRef.current?.release();
+    wakeLockRef.current = null;
+  }, []);
+
+  // Re-acquire wake lock when page becomes visible again (e.g. unlock screen)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && isPlaying) {
+        requestWakeLock();
+        // Also ensure audio is still playing after visibility change
+        if (audioRef.current && audioRef.current.paused && isPlaying) {
+          audioRef.current.play().catch(() => {});
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [isPlaying, requestWakeLock]);
+
+  // Cleanup wake lock on unmount
+  useEffect(() => {
+    return () => releaseWakeLock();
+  }, [releaseWakeLock]);
+
+  // --- Media Session for lock-screen controls ---
   useEffect(() => {
     if (!("mediaSession" in navigator)) return;
 
     navigator.mediaSession.metadata = new MediaMetadata({
       title: `আয়াত ${ayahNumber}`,
-      artist: "কুরআন তিলাওয়াত",
-      album: "আল-কুরআন",
+      artist: surahName,
+      album: "আল-কুরআন আল-কারীম",
+      artwork: [
+        { src: "/pwa-icon-192.png", sizes: "192x192", type: "image/png" },
+        { src: "/pwa-icon-512.png", sizes: "512x512", type: "image/png" },
+      ],
     });
 
     navigator.mediaSession.setActionHandler("play", () => {
@@ -49,15 +95,41 @@ const QuranAudioPlayer = ({
     navigator.mediaSession.setActionHandler("nexttrack", () => {
       if (hasNext && onNext) onNext();
     });
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      if (audioRef.current && details.seekTime != null) {
+        audioRef.current.currentTime = details.seekTime;
+      }
+    });
 
     return () => {
       navigator.mediaSession.setActionHandler("play", null);
       navigator.mediaSession.setActionHandler("pause", null);
       navigator.mediaSession.setActionHandler("previoustrack", null);
       navigator.mediaSession.setActionHandler("nexttrack", null);
+      navigator.mediaSession.setActionHandler("seekto", null);
     };
-  }, [ayahNumber, hasNext, hasPrevious, onNext, onPrevious]);
+  }, [ayahNumber, surahName, hasNext, hasPrevious, onNext, onPrevious]);
 
+  // Update media session position state
+  useEffect(() => {
+    if (!("mediaSession" in navigator) || !audioRef.current) return;
+    const audio = audioRef.current;
+    const updatePosition = () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        try {
+          navigator.mediaSession.setPositionState({
+            duration: audio.duration,
+            playbackRate: audio.playbackRate,
+            position: audio.currentTime,
+          });
+        } catch {}
+      }
+    };
+    audio.addEventListener("timeupdate", updatePosition);
+    return () => audio.removeEventListener("timeupdate", updatePosition);
+  }, [audioUrl]);
+
+  // --- Audio source management ---
   useEffect(() => {
     if (audioRef.current && audioUrl) {
       audioRef.current.pause();
@@ -65,9 +137,13 @@ const QuranAudioPlayer = ({
       audioRef.current.playbackRate = speed;
       audioRef.current.load();
       setProgress(0);
-      
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
+
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          requestWakeLock();
+        })
         .catch((err) => {
           console.log("Autoplay prevented:", err);
           setIsPlaying(false);
@@ -85,8 +161,10 @@ const QuranAudioPlayer = ({
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        releaseWakeLock();
       } else {
         audioRef.current.play();
+        requestWakeLock();
       }
       setIsPlaying(!isPlaying);
     }
@@ -107,8 +185,8 @@ const QuranAudioPlayer = ({
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
-      setProgress(progress || 0);
+      const p = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      setProgress(p || 0);
     }
   };
 
@@ -117,7 +195,18 @@ const QuranAudioPlayer = ({
     setProgress(0);
     if (onNext && hasNext) {
       onNext();
+    } else {
+      releaseWakeLock();
     }
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    if (!audioRef.current) return;
+    const bar = e.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    audioRef.current.currentTime = ratio * audioRef.current.duration;
   };
 
   return (
@@ -131,12 +220,26 @@ const QuranAudioPlayer = ({
         preload="auto"
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
+        onPlay={() => {
+          setIsPlaying(true);
+          if ("mediaSession" in navigator) {
+            navigator.mediaSession.playbackState = "playing";
+          }
+        }}
+        onPause={() => {
+          setIsPlaying(false);
+          if ("mediaSession" in navigator) {
+            navigator.mediaSession.playbackState = "paused";
+          }
+        }}
       />
 
-      {/* Progress Bar with Gold */}
-      <div className="w-full h-1.5 bg-muted rounded-full mb-3 overflow-hidden">
+      {/* Seekable Progress Bar */}
+      <div
+        className="w-full h-2 bg-muted rounded-full mb-3 overflow-hidden cursor-pointer touch-none"
+        onClick={handleSeek}
+        onTouchStart={handleSeek}
+      >
         <div
           className="h-full bg-primary rounded-full transition-all duration-200 shadow-glow"
           style={{ width: `${progress}%` }}
@@ -144,14 +247,13 @@ const QuranAudioPlayer = ({
       </div>
 
       <div className="flex items-center justify-between">
-        {/* Speed Control with Gold */}
         <button
           onClick={cycleSpeed}
           className="px-3 py-1.5 rounded-lg bg-primary/20 text-primary text-xs font-bold min-w-[45px] hover:bg-primary/30 transition-colors border border-primary/30"
         >
           {speed}x
         </button>
-        
+
         <div className="flex items-center gap-2">
           <button
             onClick={onPrevious}
@@ -193,7 +295,6 @@ const QuranAudioPlayer = ({
         </button>
       </div>
 
-      {/* Ayah Number with Gold */}
       <div className="text-center mt-2">
         <span className="text-xs text-primary font-medium">আয়াত {ayahNumber}</span>
       </div>
