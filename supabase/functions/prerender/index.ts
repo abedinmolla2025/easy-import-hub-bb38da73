@@ -458,6 +458,14 @@ Deno.serve(async (req) => {
             <h2>Islamic Duas & Supplications — দোয়া সমূহ</h2>
             <p>${escapeHtml(seo?.description || "")}</p>
             <p>Browse authentic Islamic duas from Quran and Hadith with Arabic text, Bengali translation, and audio recitation.</p>
+            <h3>Popular Duas</h3>
+            <ul>
+                <li><strong>দোয়া কুনূত</strong> — বিতর নামাজে পঠিত বিশেষ দোয়া</li>
+                <li><strong>আয়াতুল কুরসি</strong> — সর্বশ্রেষ্ঠ আয়াত, সুরক্ষার দোয়া</li>
+                <li><strong>সকালের দোয়া</strong> — সকালে পাঠযোগ্য মাসনূন দোয়া</li>
+                <li><strong>ইফতারের দোয়া</strong> — রোজা ভাঙার সময়ের দোয়া</li>
+                <li><strong>সেহরির দোয়া</strong> — রোজা রাখার নিয়ত</li>
+            </ul>
         </section>`;
     } else if (path === "/quran") {
       bodyContent = `
@@ -465,6 +473,15 @@ Deno.serve(async (req) => {
             <h2>Quran Reader — পবিত্র কুরআন</h2>
             <p>${escapeHtml(seo?.description || "")}</p>
             <p>Read the Holy Quran online with Arabic text, Bengali translation, and audio recitation. Browse all 114 Surahs with Tafseer.</p>
+            <h3>Browse Surahs</h3>
+            <ul>
+                <li><strong>সূরা আল-ফাতিহা</strong> — The Opening (7 আয়াত)</li>
+                <li><strong>সূরা আল-বাকারা</strong> — The Cow (286 আয়াত)</li>
+                <li><strong>সূরা আলে ইমরান</strong> — Family of Imran (200 আয়াত)</li>
+                <li><strong>সূরা ইয়াসিন</strong> — Ya-Sin (83 আয়াত)</li>
+                <li><strong>সূরা আর-রাহমান</strong> — The Most Merciful (78 আয়াত)</li>
+                <li><strong>সূরা আল-মুলক</strong> — The Sovereignty (30 আয়াত)</li>
+            </ul>
         </section>`;
     } else if (path === "/quiz") {
       bodyContent = `
@@ -472,12 +489,138 @@ Deno.serve(async (req) => {
             <h2>Daily Islamic Quiz — ইসলামিক কুইজ</h2>
             <p>${escapeHtml(seo?.description || "")}</p>
             <p>Test your Islamic knowledge daily with multiple-choice questions on Quran, Hadith, Islamic history, and general Islamic teachings.</p>
+            <h3>Quiz Features</h3>
+            <ul>
+                <li>প্রতিদিন ৫টি নতুন প্রশ্ন</li>
+                <li>স্কোর ও streak ট্র্যাকিং</li>
+                <li>ব্যাজ ও সার্টিফিকেট অর্জন করুন</li>
+                <li>কুরআন, হাদিস ও ইসলামিক ইতিহাস থেকে প্রশ্ন</li>
+            </ul>
+        </section>`;
+    } else if (path === "/download") {
+      bodyContent = `
+        <section>
+            <h2>Download Noor App — নূর অ্যাপ ডাউনলোড করুন</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Download the Noor Islamic App for Android. Get instant access to Quran, Hadith, Prayer Times, Duas, Qibla, Tasbih, Islamic Quiz and more — all in one beautiful app.</p>
+            <h3>App Features</h3>
+            <ul>
+                <li>পবিত্র কুরআন — আরবি, বাংলা অনুবাদ ও অডিও তিলাওয়াত</li>
+                <li>সহীহ হাদিস — বুখারী, মুসলিম, তিরমিযী ও আবু দাউদ</li>
+                <li>নামাজের সময়সূচী — আজান অ্যালার্ট সহ</li>
+                <li>দৈনিক ইসলামিক কুইজ</li>
+                <li>কিবলা ফাইন্ডার ও ডিজিটাল তাসবীহ</li>
+            </ul>
+        </section>`;
+    } else if (path === "/about") {
+      bodyContent = `
+        <section>
+            <h2>About NOOR — আমাদের সম্পর্কে</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Noor is a free Islamic app designed for Muslims in India, Bangladesh, and around the world. Our mission is to make authentic Islamic knowledge accessible to everyone through modern technology.</p>
+            <p>Noor provides Quran reading with translations, authentic Hadith collections, daily Duas, accurate Prayer Times, Qibla direction, Islamic calendar, and educational quizzes — all completely free.</p>
+        </section>`;
+    } else if (path === "/contact") {
+      bodyContent = `
+        <section>
+            <h2>Contact Us — যোগাযোগ করুন</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Have questions, suggestions, or feedback? We'd love to hear from you. Contact the Noor team for support, bug reports, or collaboration opportunities.</p>
+        </section>`;
+    } else if (path === "/99-names") {
+      bodyContent = `
+        <section>
+            <h2>99 Names of Allah — আল্লাহর ৯৯ নাম (আসমাউল হুসনা)</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Learn the 99 beautiful names of Allah (Asma ul Husna) with Arabic text, Bengali meaning, and transliteration.</p>
+            <h3>Some Beautiful Names</h3>
+            <ul>
+                <li><strong>আর-রাহমান (الرَّحْمَن)</strong> — পরম দয়ালু</li>
+                <li><strong>আর-রাহীম (الرَّحِيم)</strong> — অতি দয়ালু</li>
+                <li><strong>আল-মালিক (الْمَلِك)</strong> — সর্বময় কর্তা</li>
+                <li><strong>আল-কুদ্দূস (الْقُدُّوس)</strong> — পবিত্রতম</li>
+                <li><strong>আস-সালাম (السَّلَام)</strong> — শান্তিদাতা</li>
+            </ul>
+        </section>`;
+    } else if (path === "/tasbih") {
+      bodyContent = `
+        <section>
+            <h2>Digital Tasbih — ডিজিটাল তাসবীহ কাউন্টার</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Use Noor's beautiful 3D Tasbih counter for dhikr. Count SubhanAllah, Alhamdulillah, Allahu Akbar and other adhkar with haptic feedback and progress tracking.</p>
+        </section>`;
+    } else if (path === "/qibla") {
+      bodyContent = `
+        <section>
+            <h2>Qibla Finder — কিবলার দিক নির্ণয়</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Find the accurate Qibla direction from your current location using your device compass. Point towards the Kaaba in Makkah for Salah with confidence.</p>
+        </section>`;
+    } else if (path === "/calendar") {
+      bodyContent = `
+        <section>
+            <h2>Islamic Calendar — হিজরি ক্যালেন্ডার</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>View the Hijri calendar with important Islamic dates including Ramadan, Eid ul-Fitr, Eid ul-Adha, Laylat al-Qadr, and other significant events.</p>
+        </section>`;
+    } else if (path === "/prayer-guide") {
+      bodyContent = `
+        <section>
+            <h2>Prayer Guide — নামাজ শিক্ষা</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Learn how to pray Salah step-by-step with illustrations. Complete guide covering Wudu, Fajr, Dhuhr, Asr, Maghrib, Isha, Jummah, Eid, Janaza, Tahajjud, and Laylatul Qadr prayers.</p>
+        </section>`;
+    } else if (path === "/islamic-app") {
+      bodyContent = `
+        <section>
+            <h2>Best Islamic App — Quran, Hadith, Dua & Prayer Times</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Noor is the best free Islamic app for Bengali-speaking Muslims. Read the Quran with Bengali translation, browse Sahih Bukhari and other Hadith collections, find prayer times for your city, learn authentic Duas, and take daily Islamic quizzes.</p>
+        </section>`;
+    } else if (path === "/privacy-policy") {
+      bodyContent = `
+        <section>
+            <h2>Privacy Policy — গোপনীয়তা নীতি</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>Noor respects your privacy. This policy describes how we collect, use, and protect your personal information when you use our Islamic app.</p>
+        </section>`;
+    } else if (path === "/terms") {
+      bodyContent = `
+        <section>
+            <h2>Terms of Service — ব্যবহারের শর্তাবলী</h2>
+            <p>${escapeHtml(seo?.description || "")}</p>
+            <p>By using Noor App, you agree to the following terms and conditions governing the use of our Islamic application and services.</p>
+        </section>`;
+    } else if (path === "/sitemap") {
+      bodyContent = `
+        <section>
+            <h2>Sitemap — সাইটম্যাপ</h2>
+            <p>Browse all pages on Noor Islamic App.</p>
+            <ul>
+                <li><a href="${SITE_ORIGIN}/">Home</a></li>
+                <li><a href="${SITE_ORIGIN}/quran">Quran</a></li>
+                <li><a href="${SITE_ORIGIN}/hadith">Hadith</a></li>
+                <li><a href="${SITE_ORIGIN}/prayer-times">Prayer Times</a></li>
+                <li><a href="${SITE_ORIGIN}/dua">Duas</a></li>
+                <li><a href="${SITE_ORIGIN}/quiz">Islamic Quiz</a></li>
+                <li><a href="${SITE_ORIGIN}/tasbih">Tasbih</a></li>
+                <li><a href="${SITE_ORIGIN}/qibla">Qibla</a></li>
+                <li><a href="${SITE_ORIGIN}/99-names">99 Names of Allah</a></li>
+                <li><a href="${SITE_ORIGIN}/baby-names">Baby Names</a></li>
+                <li><a href="${SITE_ORIGIN}/calendar">Islamic Calendar</a></li>
+                <li><a href="${SITE_ORIGIN}/prayer-guide">Prayer Guide</a></li>
+                <li><a href="${SITE_ORIGIN}/download">Download App</a></li>
+                <li><a href="${SITE_ORIGIN}/about">About</a></li>
+                <li><a href="${SITE_ORIGIN}/contact">Contact</a></li>
+            </ul>
         </section>`;
     } else {
       // Generic page — provide a meaningful body
       bodyContent = `
         <section>
+            <h2>${escapeHtml(seo?.title || "Noor Islamic App")}</h2>
             <p>${escapeHtml(seo?.description || "Noor — Free Islamic app for Quran, Hadith, Prayer Times & Dua.")}</p>
+            <p>Visit <a href="${SITE_ORIGIN}${path}">this page</a> on Noor App for the full experience.</p>
         </section>`;
     }
 
