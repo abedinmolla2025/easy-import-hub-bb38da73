@@ -100,7 +100,61 @@ const PrivacyPolicyPage = () => {
         </section>
 
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
-          <h2 className="text-lg font-semibold">5. Changes &amp; contact / নীতি পরিবর্তন ও যোগাযোগ</h2>
+          <h2 className="text-lg font-semibold">5. Advertising & Cookies / বিজ্ঞাপন ও কুকিজ</h2>
+          <p className="text-muted-foreground">
+            {appName} may display advertisements provided by third-party advertising networks,
+            including Google AdSense. These services may use cookies and similar tracking technologies
+            to serve ads based on your prior visits to this app or other websites. Google's use of
+            advertising cookies enables it and its partners to serve ads based on your visit to
+            {appName} and/or other sites on the internet.
+          </p>
+          <p className="text-muted-foreground">
+            {appName} তৃতীয় পক্ষের বিজ্ঞাপন নেটওয়ার্ক (যেমন Google AdSense) এর মাধ্যমে বিজ্ঞাপন
+            প্রদর্শন করতে পারে। এই পরিষেবাগুলো আপনার পূর্ববর্তী ভিজিটের উপর ভিত্তি করে বিজ্ঞাপন
+            দেখানোর জন্য কুকিজ ও অনুরূপ ট্র্যাকিং প্রযুক্তি ব্যবহার করতে পারে।
+          </p>
+          <p className="text-muted-foreground">
+            You may opt out of personalized advertising by visiting{" "}
+            <a href="https://www.google.com/settings/ads" target="_blank" rel="noreferrer" className="text-primary underline">
+              Google Ads Settings
+            </a>{" "}
+            or{" "}
+            <a href="https://www.aboutads.info/choices/" target="_blank" rel="noreferrer" className="text-primary underline">
+              www.aboutads.info
+            </a>
+            .
+          </p>
+          <p className="text-muted-foreground">
+            আপনি{" "}
+            <a href="https://www.google.com/settings/ads" target="_blank" rel="noreferrer" className="text-primary underline">
+              Google Ads Settings
+            </a>{" "}
+            থেকে ব্যক্তিগতকৃত বিজ্ঞাপন বন্ধ করতে পারেন।
+          </p>
+        </section>
+
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
+          <h2 className="text-lg font-semibold">6. Third-party services / তৃতীয় পক্ষের সেবা</h2>
+          <p className="text-muted-foreground">
+            {appName} uses the following third-party services that may collect data:
+          </p>
+          <ul className="list-disc list-inside text-muted-foreground space-y-1 pl-1">
+            <li><strong className="text-foreground">Aladhan API</strong> — for accurate prayer time calculations based on your location</li>
+            <li><strong className="text-foreground">OpenStreetMap / Nominatim</strong> — for reverse geocoding your location to display city names</li>
+            <li><strong className="text-foreground">Google AdSense</strong> — for displaying relevant advertisements</li>
+          </ul>
+          <p className="text-muted-foreground">
+            {appName} নিম্নলিখিত তৃতীয় পক্ষের সেবা ব্যবহার করে:
+          </p>
+          <ul className="list-disc list-inside text-muted-foreground space-y-1 pl-1">
+            <li><strong className="text-foreground">Aladhan API</strong> — নামাজের সঠিক সময় গণনার জন্য</li>
+            <li><strong className="text-foreground">OpenStreetMap</strong> — আপনার অবস্থানের নাম প্রদর্শনের জন্য</li>
+            <li><strong className="text-foreground">Google AdSense</strong> — প্রাসঙ্গিক বিজ্ঞাপন প্রদর্শনের জন্য</li>
+          </ul>
+        </section>
+
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
+          <h2 className="text-lg font-semibold">7. Changes & contact / নীতি পরিবর্তন ও যোগাযোগ</h2>
           <p className="text-muted-foreground">
             This privacy policy may be updated as the app evolves. If you have questions or
             concerns, you may reach out to the {appName} team through the app or via the store page
