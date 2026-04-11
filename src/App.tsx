@@ -66,6 +66,7 @@ import ContactPage from "./pages/ContactPage";
 import IslamicAppPage from "./pages/IslamicAppPage";
 import SitemapPage from "./pages/SitemapPage";
 import DownloadPage from "./pages/DownloadPage";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
 
