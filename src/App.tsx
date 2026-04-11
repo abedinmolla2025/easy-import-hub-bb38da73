@@ -334,6 +334,7 @@ const AppInner = () => {
       <Sonner />
       <BrowserRouter>
         <AppRoutes />
+        <CookieConsentBanner />
       </BrowserRouter>
     </>
   );
