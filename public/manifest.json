@@ -9,16 +9,22 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/placeholder.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
+      "src": "https://oveuimwssgsadagddtef.supabase.co/storage/v1/object/public/branding/branding/faviconVariants/a2702b92-c6de-4dc4-b8c0-03d6acd4cc77-apple-touch-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/placeholder.svg",
+      "src": "https://oveuimwssgsadagddtef.supabase.co/storage/v1/object/public/branding/branding/iconUrl/680856c2-4f22-47e9-88d6-cd7058f2a5a1-iconUrl.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://oveuimwssgsadagddtef.supabase.co/storage/v1/object/public/branding/branding/logoUrl/359e2551-0e7a-4f59-a2fe-1a517f3380e0-logoUrl.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
