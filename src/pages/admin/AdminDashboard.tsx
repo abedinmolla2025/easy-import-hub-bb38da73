@@ -218,6 +218,9 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* PWA Manifest Health */}
+      <PwaManifestHealthWidget />
     </div>
   );
 };
