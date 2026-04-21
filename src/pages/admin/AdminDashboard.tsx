@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import PwaManifestHealthWidget from "@/components/admin/PwaManifestHealthWidget";
 
 interface DashboardStats {
   totalUsers: number;
@@ -217,6 +218,9 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* PWA Manifest Health */}
+      <PwaManifestHealthWidget />
     </div>
   );
 };
