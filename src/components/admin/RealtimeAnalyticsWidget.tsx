@@ -82,22 +82,17 @@ const RealtimeAnalyticsWidget = () => {
         return { visitors: sessions.size, views };
       };
 
-      // All-time unique visitors (separate query — distinct session count)
-      const { count: allTimeViews } = await supabase
-        .from("page_visits")
-        .select("*", { count: "exact", head: true });
-
-      const { data: allSessions } = await supabase
-        .from("page_visits")
-        .select("session_id")
-        .limit(100000);
-      const allTimeUnique = new Set((allSessions ?? []).map((r: any) => r.session_id)).size;
+      // All-time totals computed server-side via RPC (avoids fetching rows)
+      const { data: allTimeRows } = await supabase.rpc("get_analytics_alltime_totals");
+      const allTimeRow = Array.isArray(allTimeRows) ? allTimeRows[0] : null;
+      const allTimeUnique = Number(allTimeRow?.unique_visitors ?? 0);
+      const allTimeViews = Number(allTimeRow?.total_views ?? 0);
 
       setTotals({
         day: calc(dayAgo),
         week: calc(weekAgo),
         month: calc(monthAgo),
-        allTime: { visitors: allTimeUnique, views: allTimeViews ?? 0 },
+        allTime: { visitors: allTimeUnique, views: allTimeViews },
       });
     };
     loadTotals();
