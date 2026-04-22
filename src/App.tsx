@@ -307,7 +307,8 @@ const AppRoutes = () => {
       <Route path="*" element={<NotFound />} />
     </Routes>
   </>
-);
+  );
+};
 
 /** Redirect /sahih-al-bukhari/:lang → /hadith/sahih-bukhari/:lang */
 function LegacyLangRedirect() {
