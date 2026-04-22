@@ -20,6 +20,12 @@ type Visit = {
 
 const WINDOW_MIN = 5;
 
+type Totals = {
+  day: { visitors: number; views: number };
+  week: { visitors: number; views: number };
+  month: { visitors: number; views: number };
+};
+
 function aggregate<T extends string>(rows: Visit[], key: (v: Visit) => T | null | undefined) {
   const map = new Map<string, number>();
   for (const r of rows) {
@@ -42,6 +48,52 @@ const RealtimeAnalyticsWidget = () => {
   const [visits, setVisits] = useState<Visit[]>([]);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
+  const [totals, setTotals] = useState<Totals | null>(null);
+
+  // Load day/week/month totals
+  useEffect(() => {
+    let mounted = true;
+    const loadTotals = async () => {
+      const now = Date.now();
+      const dayAgo = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+      const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+      const { data } = await supabase
+        .from("page_visits")
+        .select("session_id,created_at")
+        .gte("created_at", monthAgo)
+        .order("created_at", { ascending: false })
+        .limit(50000);
+
+      if (!mounted || !data) return;
+
+      const calc = (sinceIso: string) => {
+        const cutoff = new Date(sinceIso).getTime();
+        const sessions = new Set<string>();
+        let views = 0;
+        for (const r of data as { session_id: string; created_at: string }[]) {
+          if (new Date(r.created_at).getTime() >= cutoff) {
+            sessions.add(r.session_id);
+            views++;
+          }
+        }
+        return { visitors: sessions.size, views };
+      };
+
+      setTotals({
+        day: calc(dayAgo),
+        week: calc(weekAgo),
+        month: calc(monthAgo),
+      });
+    };
+    loadTotals();
+    const interval = setInterval(loadTotals, 60_000); // refresh every minute
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Initial load + sliding window pruning
   useEffect(() => {
@@ -132,6 +184,35 @@ const RealtimeAnalyticsWidget = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Day / Week / Month totals */}
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { label: "Today", data: totals?.day },
+            { label: "Last 7 days", data: totals?.week },
+            { label: "Last 30 days", data: totals?.month },
+          ].map((t) => (
+            <div
+              key={t.label}
+              className="rounded-lg border bg-gradient-to-br from-primary/5 to-transparent p-4"
+            >
+              <div className="text-xs font-medium text-muted-foreground">{t.label}</div>
+              {!totals ? (
+                <Skeleton className="mt-2 h-8 w-20" />
+              ) : (
+                <>
+                  <div className="mt-1 text-2xl font-bold">
+                    {t.data!.visitors.toLocaleString()}
+                    <span className="ml-1 text-xs font-normal text-muted-foreground">visitors</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t.data!.views.toLocaleString()} page views
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
         {/* KPIs */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-lg border bg-card p-4">
