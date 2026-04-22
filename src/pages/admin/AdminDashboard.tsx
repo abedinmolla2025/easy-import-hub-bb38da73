@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import PwaManifestHealthWidget from "@/components/admin/PwaManifestHealthWidget";
+import RealtimeAnalyticsWidget from "@/components/admin/RealtimeAnalyticsWidget";
 
 interface DashboardStats {
   totalUsers: number;
@@ -221,6 +222,9 @@ const AdminDashboard = () => {
 
       {/* PWA Manifest Health */}
       <PwaManifestHealthWidget />
+
+      {/* Real-time Analytics */}
+      <RealtimeAnalyticsWidget />
     </div>
   );
 };

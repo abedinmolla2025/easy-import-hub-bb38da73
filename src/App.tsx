@@ -58,6 +58,7 @@ import { AdminLayout } from "./components/admin/AdminLayout";
 import { GlobalConfigProvider, useGlobalConfig } from "./context/GlobalConfigContext";
 import { usePushTokenRegistration } from "@/hooks/usePushTokenRegistration";
 import { useWebPushRegistration } from "@/hooks/useWebPushRegistration";
+import { usePageTracking } from "@/hooks/usePageTracking";
 import { useQuizReminder } from "@/hooks/useQuizReminder";
 import { useMobileAdsInit } from "@/hooks/useMobileAds";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
@@ -70,7 +71,9 @@ import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
 
-const AppRoutes = () => (
+const AppRoutes = () => {
+  usePageTracking();
+  return (
   <>
     <SeoHead />
     <AnnouncementTicker />
@@ -304,7 +307,8 @@ const AppRoutes = () => (
       <Route path="*" element={<NotFound />} />
     </Routes>
   </>
-);
+  );
+};
 
 /** Redirect /sahih-al-bukhari/:lang → /hadith/sahih-bukhari/:lang */
 function LegacyLangRedirect() {

@@ -886,6 +886,63 @@ export type Database = {
         }
         Relationships: []
       }
+      page_visits: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          id: string
+          language: string | null
+          os: string | null
+          page_title: string | null
+          path: string
+          referrer: string | null
+          referrer_source: string | null
+          region: string | null
+          session_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          language?: string | null
+          os?: string | null
+          page_title?: string | null
+          path: string
+          referrer?: string | null
+          referrer_source?: string | null
+          region?: string | null
+          session_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          language?: string | null
+          os?: string | null
+          page_title?: string | null
+          path?: string
+          referrer?: string | null
+          referrer_source?: string | null
+          region?: string | null
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       prayer_notification_log: {
         Row: {
           created_at: string
