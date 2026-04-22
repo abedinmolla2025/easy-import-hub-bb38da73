@@ -71,7 +71,9 @@ import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
 
-const AppRoutes = () => (
+const AppRoutes = () => {
+  usePageTracking();
+  return (
   <>
     <SeoHead />
     <AnnouncementTicker />
