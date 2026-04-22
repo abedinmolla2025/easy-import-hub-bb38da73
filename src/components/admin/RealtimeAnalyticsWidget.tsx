@@ -198,11 +198,12 @@ const RealtimeAnalyticsWidget = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Day / Week / Month totals */}
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Today", data: totals?.day },
             { label: "Last 7 days", data: totals?.week },
             { label: "Last 30 days", data: totals?.month },
+            { label: "All time", data: totals?.allTime },
           ].map((t) => (
             <div
               key={t.label}
@@ -215,7 +216,7 @@ const RealtimeAnalyticsWidget = () => {
                 <>
                   <div className="mt-1 text-2xl font-bold">
                     {t.data!.visitors.toLocaleString()}
-                    <span className="ml-1 text-xs font-normal text-muted-foreground">visitors</span>
+                    <span className="ml-1 text-xs font-normal text-muted-foreground">unique</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {t.data!.views.toLocaleString()} page views
@@ -227,26 +228,41 @@ const RealtimeAnalyticsWidget = () => {
         </div>
 
         {/* KPIs */}
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-lg border bg-card p-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Users className="h-3.5 w-3.5" /> Live Visitors
+              <Users className="h-3.5 w-3.5" /> Live Visitors (unique)
             </div>
             {loading ? (
               <Skeleton className="mt-2 h-8 w-16" />
             ) : (
               <div className="mt-1 text-3xl font-bold text-primary">{liveSessions}</div>
             )}
+            <div className="text-xs text-muted-foreground">
+              unique sessions · last {WINDOW_MIN}m
+            </div>
           </div>
           <div className="rounded-lg border bg-card p-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <FileText className="h-3.5 w-3.5" /> Page Views
+              <Users className="h-3.5 w-3.5" /> Unique Today
+            </div>
+            {!totals ? (
+              <Skeleton className="mt-2 h-8 w-16" />
+            ) : (
+              <div className="mt-1 text-3xl font-bold">{totals.day.visitors.toLocaleString()}</div>
+            )}
+            <div className="text-xs text-muted-foreground">distinct session_ids · 24h</div>
+          </div>
+          <div className="rounded-lg border bg-card p-4">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <FileText className="h-3.5 w-3.5" /> Live Page Views
             </div>
             {loading ? (
               <Skeleton className="mt-2 h-8 w-16" />
             ) : (
               <div className="mt-1 text-3xl font-bold">{totalViews}</div>
             )}
+            <div className="text-xs text-muted-foreground">last {WINDOW_MIN}m</div>
           </div>
           <div className="rounded-lg border bg-card p-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -257,6 +273,7 @@ const RealtimeAnalyticsWidget = () => {
             ) : (
               <div className="mt-1 text-3xl font-bold">{livePerPage.length}</div>
             )}
+            <div className="text-xs text-muted-foreground">pages with live visitors</div>
           </div>
         </div>
 
