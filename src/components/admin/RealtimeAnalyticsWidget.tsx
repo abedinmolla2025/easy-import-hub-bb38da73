@@ -24,6 +24,7 @@ type Totals = {
   day: { visitors: number; views: number };
   week: { visitors: number; views: number };
   month: { visitors: number; views: number };
+  allTime: { visitors: number; views: number };
 };
 
 function aggregate<T extends string>(rows: Visit[], key: (v: Visit) => T | null | undefined) {
