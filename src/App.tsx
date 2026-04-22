@@ -58,6 +58,7 @@ import { AdminLayout } from "./components/admin/AdminLayout";
 import { GlobalConfigProvider, useGlobalConfig } from "./context/GlobalConfigContext";
 import { usePushTokenRegistration } from "@/hooks/usePushTokenRegistration";
 import { useWebPushRegistration } from "@/hooks/useWebPushRegistration";
+import { usePageTracking } from "@/hooks/usePageTracking";
 import { useQuizReminder } from "@/hooks/useQuizReminder";
 import { useMobileAdsInit } from "@/hooks/useMobileAds";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
