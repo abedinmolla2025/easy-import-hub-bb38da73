@@ -21,6 +21,22 @@
 
     <!-- OG & canonical tags are dynamically injected by react-helmet-async per route -->
     <!-- Do NOT hardcode canonical or OG here — it overrides page-specific values -->
+    <!-- Static fallback OG tags so social crawlers (WhatsApp, Telegram, Slack) that don't execute JS or skip prerender still get the app's own logo, not a generic icon. Per-route values from react-helmet-async / prerender will override these when present. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Noor Islamic App" />
+    <meta property="og:title" content="NOOR — Islamic App for Quran, Hadith, Prayer Times & Dua" />
+    <meta property="og:description" content="Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz." />
+    <meta property="og:image" content="https://noorapp.in/og-image.png" />
+    <meta property="og:image:secure_url" content="https://noorapp.in/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Noor Islamic App" />
+    <meta property="og:url" content="https://noorapp.in/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NOOR — Islamic App for Quran, Hadith, Prayer Times & Dua" />
+    <meta name="twitter:description" content="Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz." />
+    <meta name="twitter:image" content="https://noorapp.in/og-image.png" />
   </head>
 
   <body>
