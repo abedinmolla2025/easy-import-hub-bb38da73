@@ -132,7 +132,7 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [open, safeName?.title, safeName?.title_arabic, render]);
+  }, [open, safeName?.title, safeName?.title_arabic, dynamicLogoUrl, dynamicAppName, render]);
 
   const shareNative = async () => {
     if (!safeName) return;
