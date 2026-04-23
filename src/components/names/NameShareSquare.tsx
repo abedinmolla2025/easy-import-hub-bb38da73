@@ -1,5 +1,4 @@
 import { forwardRef } from "react";
-import noorLogo from "@/assets/noor-logo.png";
 import { cn } from "@/lib/utils";
 import type { NameCardModel } from "./NameCard";
 
@@ -7,6 +6,7 @@ type Props = {
   name: NameCardModel;
   className?: string;
   appName?: string;
+  logoUrl?: string;
 };
 
 /**
@@ -14,7 +14,7 @@ type Props = {
  * IMPORTANT: keep this node unscaled; scale with an outer wrapper for preview.
  */
 export const NameShareSquare = forwardRef<HTMLDivElement, Props>(function NameShareSquare(
-  { name, className, appName = "Noor" },
+  { name, className, appName = "Noor", logoUrl },
   ref
 ) {
   const arabic = name.title_arabic?.trim() || name.title;
@@ -86,12 +86,18 @@ export const NameShareSquare = forwardRef<HTMLDivElement, Props>(function NameSh
         <div className="mt-12 flex items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl bg-[hsl(var(--dua-fg)/0.08)] p-2">
-              <img
-                src={noorLogo}
-                alt={`${appName} logo`}
-                crossOrigin="anonymous"
-                className="h-full w-full object-contain"
-              />
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={`${appName} logo`}
+                  crossOrigin="anonymous"
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <span className="text-[36px] font-bold text-[hsl(var(--dua-accent))]">
+                  {appName.charAt(0)}
+                </span>
+              )}
             </div>
             <div>
               <p className="text-[28px] font-semibold leading-tight text-[hsl(var(--dua-fg))]">{appName}</p>

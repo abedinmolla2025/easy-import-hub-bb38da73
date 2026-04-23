@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useDomToPng } from "@/hooks/useDomToPng";
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import type { NameCardModel } from "./NameCard";
 import { NameShareSquare } from "./NameShareSquare";
 
@@ -50,6 +51,9 @@ function getNativeShareSupport(): NativeShareSupport {
 
 export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
   const squareRef = useRef<HTMLDivElement>(null);
+  const { branding } = useGlobalConfig();
+  const dynamicLogoUrl = branding?.logoUrl;
+  const dynamicAppName = branding?.appName || "Noor";
   const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState(false);
   const [nativeShareSupport, setNativeShareSupport] = useState<NativeShareSupport>("none");
@@ -128,7 +132,7 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [open, safeName?.title, safeName?.title_arabic, render]);
+  }, [open, safeName?.title, safeName?.title_arabic, dynamicLogoUrl, dynamicAppName, render]);
 
   const shareNative = async () => {
     if (!safeName) return;
@@ -253,7 +257,12 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                       the user sees the generated PNG preview instead of a scaled DOM node.
                     */}
                     <div className="pointer-events-none absolute -left-[99999px] top-0 opacity-0">
-                      <NameShareSquare ref={squareRef} name={safeName} />
+                      <NameShareSquare
+                        ref={squareRef}
+                        name={safeName}
+                        appName={dynamicAppName}
+                        logoUrl={dynamicLogoUrl}
+                      />
                     </div>
 
                     {/* Visible preview (must render before share/download buttons) */}
