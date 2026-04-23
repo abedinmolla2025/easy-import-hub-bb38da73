@@ -1456,7 +1456,7 @@ const BabyNamesPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<number[]>(() => {
+  const [favorites, setFavorites] = useState<Array<number | string>>(() => {
     const saved = localStorage.getItem("baby_names_favorites");
     return saved ? JSON.parse(saved) : [];
   });
@@ -1471,16 +1471,94 @@ const BabyNamesPage = () => {
   const isRtl = language === "ar" || language === "ur";
 
   const selectedIdParam = searchParams.get("name");
-  const selectedId = selectedIdParam ? Number(selectedIdParam) : null;
+  const selectedId: number | string | null = selectedIdParam
+    ? /^\d+$/.test(selectedIdParam)
+      ? Number(selectedIdParam)
+      : selectedIdParam
+    : null;
+
+  // Fetch admin-managed names from the database (admin_content where content_type='name')
+  const dbNamesQuery = useQuery({
+    queryKey: ["baby-names-admin-content"],
+    queryFn: async (): Promise<BabyName[]> => {
+      const { data, error } = await (supabase as any)
+        .from("admin_content")
+        .select(
+          "id,title,title_arabic,content,content_en,content_hi,content_ur,content_arabic,category,metadata,order_index,created_at,is_published,content_type"
+        )
+        .eq("content_type", "name")
+        .eq("is_published", true)
+        .order("order_index", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(2000);
+      if (error) throw error;
+
+      const pickStr = (m: any, k: string) =>
+        m && typeof m === "object" && typeof m[k] === "string" ? (m[k] as string) : undefined;
+
+      const normalizeGender = (raw?: string): "boy" | "girl" => {
+        const g = (raw ?? "").trim().toLowerCase();
+        if (g === "girl" || g === "female" || g === "f") return "girl";
+        return "boy";
+      };
+
+      return ((data ?? []) as any[]).map((row) => {
+        const meta = row.metadata ?? {};
+        const bn = row.content ?? "";
+        const en = row.content_en ?? "";
+        const ar = row.content_arabic ?? "";
+        const hi = row.content_hi ?? "";
+        const ur = row.content_ur ?? "";
+        return {
+          id: String(row.id),
+          name: (row.title ?? "").trim(),
+          arabic: (row.title_arabic ?? "").trim() || (row.title ?? ""),
+          meanings: {
+            bn: bn || en,
+            en: en || bn,
+            ar: ar || en,
+            hi: hi || en,
+            ur: ur || en,
+          },
+          gender: normalizeGender(pickStr(meta, "gender") || row.category),
+          origin: pickStr(meta, "origin") || "Arabic",
+          bnPronunciation: pickStr(meta, "pronunciation") || pickStr(meta, "bn_name"),
+          reference: pickStr(meta, "reference") || pickStr(meta, "source"),
+        } as BabyName;
+      });
+    },
+    staleTime: 60_000,
+  });
+
+  // Merge: DB names first (newest admin entries), then hardcoded seed names.
+  // Dedupe by lowercased English name so admin-edited entries override seeds.
+  const allBabyNames: BabyName[] = (() => {
+    const dbItems = dbNamesQuery.data ?? [];
+    const seen = new Set<string>();
+    const out: BabyName[] = [];
+    for (const n of dbItems) {
+      const k = (n.name ?? "").toLowerCase();
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      out.push(n);
+    }
+    for (const n of babyNames) {
+      const k = (n.name ?? "").toLowerCase();
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      out.push(n);
+    }
+    return out;
+  })();
 
   useEffect(() => {
-    if (!selectedId) {
+    if (selectedId === null || selectedId === undefined) {
       setSelectedName(null);
       return;
     }
-    const found = babyNames.find((n) => n.id === selectedId) ?? null;
+    const found = allBabyNames.find((n) => String(n.id) === String(selectedId)) ?? null;
     setSelectedName(found);
-  }, [selectedId]);
+  }, [selectedId, allBabyNames]);
 
   const openName = (name: BabyName) => {
     setSearchParams({ name: String(name.id) }, { replace: false });
@@ -1496,10 +1574,12 @@ const BabyNamesPage = () => {
     localStorage.setItem("baby_names_language", language);
   }, [language]);
 
-  const toggleFavorite = (id: number, e: React.MouseEvent) => {
+  const toggleFavorite = (id: number | string, e: React.MouseEvent) => {
     e.stopPropagation();
     setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((fId) => fId !== id) : [...prev, id]
+      prev.some((fId) => String(fId) === String(id))
+        ? prev.filter((fId) => String(fId) !== String(id))
+        : [...prev, id]
     );
   };
 
