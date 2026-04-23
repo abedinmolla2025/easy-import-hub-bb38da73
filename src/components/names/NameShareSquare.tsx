@@ -85,16 +85,17 @@ export const NameShareSquare = forwardRef<HTMLDivElement, Props>(function NameSh
 
         <div className="mt-12 flex items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            {/* NOTE: Avoid raster images in canvas exports; some environments drop them.
-                Use pure text branding so PNG export is always consistent. */}
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[hsl(var(--dua-fg)/0.08)]">
-              <span className="text-[22px] font-bold tracking-tight text-[hsl(var(--dua-fg))]">
-                {appName.slice(0, 1).toUpperCase()}
-              </span>
+            <div className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl bg-[hsl(var(--dua-fg)/0.08)] p-2">
+              <img
+                src={noorLogo}
+                alt={`${appName} logo`}
+                crossOrigin="anonymous"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
-              <p className="text-[26px] font-semibold text-[hsl(var(--dua-fg))]">{appName}</p>
-              <p className="text-[22px] text-[hsl(var(--dua-fg-soft))]">Premium Islamic Names</p>
+              <p className="text-[28px] font-semibold leading-tight text-[hsl(var(--dua-fg))]">{appName}</p>
+              <p className="text-[22px] font-medium leading-tight text-[hsl(var(--dua-accent))]">noorapp.in</p>
             </div>
           </div>
           <p className="text-[22px] text-[hsl(var(--dua-fg-soft))]">Share • Save • Remember</p>
