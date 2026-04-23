@@ -1636,7 +1636,7 @@ const BabyNamesPage = () => {
           onClick={(e) => toggleFavorite(name.id, e)}
           className="p-2 hover:bg-white/10 rounded-full transition-colors"
         >
-          {favorites.includes(name.id) ? (
+          {favorites.some((fId) => String(fId) === String(name.id)) ? (
             <Heart className="w-5 h-5 text-red-400 fill-red-400" />
           ) : (
             <Heart className="w-5 h-5 text-white/50" />
@@ -1689,7 +1689,7 @@ const BabyNamesPage = () => {
               <h1 className="text-lg font-semibold text-white">
                 {selectedName ? selectedName.name : t.title}
               </h1>
-              <p className="text-xs text-teal-200/70">👶 {babyNames.length} names</p>
+              <p className="text-xs text-teal-200/70">👶 {allBabyNames.length} names</p>
             </div>
           </div>
           
@@ -1828,12 +1828,12 @@ const BabyNamesPage = () => {
               transition={{ delay: 0.3 }}
               onClick={(e) => toggleFavorite(selectedName.id, e)}
               className={`w-full py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 active:scale-[0.98] ${
-                favorites.includes(selectedName.id)
+                favorites.some((fId) => String(fId) === String(selectedName.id))
                   ? "bg-red-500/20 text-red-300"
                   : "bg-amber-500 text-amber-900"
               }`}
             >
-              {favorites.includes(selectedName.id) ? (
+              {favorites.some((fId) => String(fId) === String(selectedName.id)) ? (
                 <>
                   <Heart className="w-5 h-5 fill-current" />
                   {t.removeFavorite}
@@ -1878,17 +1878,19 @@ const BabyNamesPage = () => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="all" className="mt-4">
-                <NamesList names={filterNames(babyNames)} />
+                <NamesList names={filterNames(allBabyNames)} />
               </TabsContent>
               <TabsContent value="boys" className="mt-4">
-                <NamesList names={filterNames(babyNames, "boy")} />
+                <NamesList names={filterNames(allBabyNames, "boy")} />
               </TabsContent>
               <TabsContent value="girls" className="mt-4">
-                <NamesList names={filterNames(babyNames, "girl")} />
+                <NamesList names={filterNames(allBabyNames, "girl")} />
               </TabsContent>
               <TabsContent value="favorites" className="mt-4">
                 <NamesList
-                  names={babyNames.filter((n) => favorites.includes(n.id))}
+                  names={allBabyNames.filter((n) =>
+                    favorites.some((fId) => String(fId) === String(n.id))
+                  )}
                 />
               </TabsContent>
             </Tabs>
