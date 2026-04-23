@@ -8,7 +8,6 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-
 import { SeoHead } from "@/components/seo/SeoHead";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import BabyNamesPage from "./pages/BabyNamesPage";
 import NamesPage from "./pages/NamesPage";
 import QiblaPage from "./pages/QiblaPage";
 import TasbihPage from "./pages/TasbihPage";
@@ -79,7 +78,7 @@ const AppRoutes = () => {
     <AnnouncementTicker />
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/baby-names" element={<BabyNamesPage />} />
+      <Route path="/baby-names" element={<NamesPage />} />
       <Route path="/names" element={<Navigate to="/baby-names" replace />} />
       <Route path="/qibla" element={<QiblaPage />} />
       <Route path="/tasbih" element={<TasbihPage />} />
