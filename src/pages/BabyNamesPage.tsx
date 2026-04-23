@@ -4,6 +4,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 type Language = "bn" | "en" | "ar" | "hi" | "ur";
 
@@ -22,7 +24,7 @@ const languages: LanguageOption[] = [
 ];
 
 interface BabyName {
-  id: number;
+  id: number | string;
   name: string;
   arabic: string;
   meanings: Record<Language, string>;
