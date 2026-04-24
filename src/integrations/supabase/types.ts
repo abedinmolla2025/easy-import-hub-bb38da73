@@ -1124,6 +1124,7 @@ export type Database = {
           description: string | null
           id: string
           json_ld: Json | null
+          og_image_url: string | null
           path: string
           priority: number | null
           robots: string | null
@@ -1137,6 +1138,7 @@ export type Database = {
           description?: string | null
           id?: string
           json_ld?: Json | null
+          og_image_url?: string | null
           path: string
           priority?: number | null
           robots?: string | null
@@ -1150,6 +1152,7 @@ export type Database = {
           description?: string | null
           id?: string
           json_ld?: Json | null
+          og_image_url?: string | null
           path?: string
           priority?: number | null
           robots?: string | null
