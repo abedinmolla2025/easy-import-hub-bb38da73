@@ -54,7 +54,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(Googlebot|bingbot|Baiduspider|yandex|facebookexternalhit|Twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|Applebot|AhrefsBot|SemrushBot|DotBot|MJ12bot|PetalBot|Discordbot|TelegramBot).*"
+          "value": ".*(Googlebot|bingbot|Baiduspider|yandex|facebookexternalhit|Twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|WhatsApp|whatsapp|Applebot|AhrefsBot|SemrushBot|DotBot|MJ12bot|PetalBot|Discordbot|TelegramBot).*"
         }
       ],
       "destination": "https://oveuimwssgsadagddtef.supabase.co/functions/v1/prerender?path=/$1"
