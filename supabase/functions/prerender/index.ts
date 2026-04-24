@@ -418,6 +418,10 @@ Deno.serve(async (req) => {
         <section>
             <h2>Authentic Hadith Collections</h2>
             <p>Browse major Hadith collections with Arabic text and translations.</p>
+            <h3>Selected Sahih Bukhari Hadith</h3>
+            <ul>
+                ${Object.entries(HADITH_ARTICLE_SEO).map(([slug, item]) => `<li><a href="${SITE_ORIGIN}/hadith/${slug}">${escapeHtml(item.title)}</a> — ${escapeHtml(item.reference)}</li>`).join("\n")}
+            </ul>
             <ul>
                 <li><a href="${SITE_ORIGIN}/hadith/sahih-bukhari">Sahih al-Bukhari (7,563 Hadiths)</a></li>
                 <li><a href="${SITE_ORIGIN}/hadith/muslim">Sahih Muslim</a></li>
@@ -425,6 +429,37 @@ Deno.serve(async (req) => {
                 <li><a href="${SITE_ORIGIN}/hadith/abu-dawud">Sunan Abu Dawud</a></li>
             </ul>
         </section>`;
+    } else if (path.startsWith("/hadith/")) {
+      const slug = path.replace("/hadith/", "");
+      const item = HADITH_ARTICLE_SEO[slug];
+      if (item) {
+        seo = { title: item.title, description: item.description };
+        jsonLd = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: item.title,
+          description: item.description,
+          image: `${SITE_ORIGIN}/og-bukhari.png`,
+          url: `${SITE_ORIGIN}${path}`,
+          inLanguage: "bn-BD",
+          citation: item.reference,
+          publisher: { "@type": "Organization", name: "Noor", url: SITE_ORIGIN },
+        });
+        bodyContent = `
+          <article>
+              <p><a href="${SITE_ORIGIN}/hadith">← Hadith</a></p>
+              <h2>${escapeHtml(item.title)}</h2>
+              <p><strong>${escapeHtml(item.reference)}</strong></p>
+              <h3>বাংলা অনুবাদ</h3>
+              <p>${escapeHtml(item.translation)}</p>
+              <h3>বাংলা ব্যাখ্যা ও প্রেক্ষাপট</h3>
+              <p>${escapeHtml(item.explanation)}</p>
+              <h3>এই হাদিস থেকে শিক্ষা</h3>
+              <ul>${item.lessons.map((lesson) => `<li>${escapeHtml(lesson)}</li>`).join("\n")}</ul>
+              <h3>সম্পর্কিত হাদিস</h3>
+              <ul>${item.related.map((relatedSlug) => HADITH_ARTICLE_SEO[relatedSlug] ? `<li><a href="${SITE_ORIGIN}/hadith/${relatedSlug}">${escapeHtml(HADITH_ARTICLE_SEO[relatedSlug].title)}</a></li>` : "").join("\n")}</ul>
+          </article>`;
+      }
     } else if (path === "/baby-names") {
       bodyContent = `
         <section>
