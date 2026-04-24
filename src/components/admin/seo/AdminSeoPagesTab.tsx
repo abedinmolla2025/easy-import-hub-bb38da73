@@ -103,7 +103,7 @@ export default function AdminSeoPagesTab() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editPage?.id ? "Edit Page" : "Add New Page"}</DialogTitle>
           </DialogHeader>
@@ -120,6 +120,37 @@ export default function AdminSeoPagesTab() {
               <div className="space-y-1">
                 <Label>Description</Label>
                 <Input value={editPage.description ?? ""} onChange={(e) => setEditPage({ ...editPage, description: e.target.value })} />
+              </div>
+              <div className="space-y-2 rounded-md border border-border p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <Label className="flex items-center gap-2"><FileImage className="h-4 w-4" /> OG Image</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()} disabled={uploadingOg}>
+                    {uploadingOg ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                    Upload
+                  </Button>
+                </div>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleOgUpload(file);
+                    e.currentTarget.value = "";
+                  }}
+                />
+                <Input value={editPage.og_image_url ?? ""} onChange={(e) => setEditPage({ ...editPage, og_image_url: e.target.value })} placeholder="https://example.com/og-image.png" />
+                <div className="overflow-hidden rounded-md border border-border bg-muted">
+                  <AspectRatio ratio={1200 / 630}>
+                    {editPage.og_image_url ? (
+                      <img src={editPage.og_image_url} alt="Page OG preview" className="h-full w-full object-cover" loading="lazy" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">1200 × 630 preview</div>
+                    )}
+                  </AspectRatio>
+                </div>
+                <p className="text-xs text-muted-foreground">Recommended size: 1200×630 pixels.</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
