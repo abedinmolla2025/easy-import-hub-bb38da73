@@ -1,23 +1,29 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSeoPages, useUpsertSeoPage, useDeleteSeoPage, type SeoPageRow } from "@/hooks/useSeoIndexing";
-import { FileText, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { FileImage, FileText, Plus, Pencil, Trash2, Loader2, Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const CHANGEFREQ_OPTIONS = ["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"];
 
 export default function AdminSeoPagesTab() {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const { toast } = useToast();
   const { data: pages, isLoading } = useSeoPages();
   const upsertMutation = useUpsertSeoPage();
   const deleteMutation = useDeleteSeoPage();
   const [editPage, setEditPage] = useState<Partial<SeoPageRow> | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [uploadingOg, setUploadingOg] = useState(false);
 
   const openNew = () => {
     setEditPage({ path: "", title: "", description: "", robots: "index,follow", changefreq: "weekly", priority: 0.8 });
@@ -34,6 +40,28 @@ export default function AdminSeoPagesTab() {
     await upsertMutation.mutateAsync(editPage as any);
     setDialogOpen(false);
     setEditPage(null);
+  };
+
+  const handleOgUpload = async (file: File) => {
+    if (!editPage?.path) return;
+    setUploadingOg(true);
+    try {
+      const safePath = editPage.path.replace(/[^a-z0-9-]+/gi, "-").replace(/^-|-$/g, "") || "home";
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const uploadPath = `seo-pages/${safePath}-${crypto.randomUUID()}.${ext}`;
+      const { data, error } = await supabase.storage.from("branding").upload(uploadPath, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+      if (error) throw error;
+      const { data: publicUrlData } = supabase.storage.from("branding").getPublicUrl(data.path);
+      setEditPage({ ...editPage, og_image_url: publicUrlData.publicUrl });
+      toast({ title: "OG image uploaded" });
+    } catch (error: any) {
+      toast({ title: "Upload failed", description: error?.message ?? "Could not upload OG image", variant: "destructive" });
+    } finally {
+      setUploadingOg(false);
+    }
   };
 
   if (isLoading) {
