@@ -19,7 +19,7 @@ import PrayerTimesPage from "./pages/PrayerTimesPage";
 import BukhariLanguageSelectPage from "./pages/bukhari/BukhariLanguageSelectPage";
 import BukhariLangPage from "./pages/bukhari/BukhariLangPage";
 import HadithPage from "./pages/HadithPage";
-import HadithBookPlaceholder from "./pages/hadith/HadithBookPlaceholder";
+import HadithArticlePage from "./pages/hadith/HadithArticlePage";
 import IslamicCalendarPage from "./pages/IslamicCalendarPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -93,7 +93,7 @@ const AppRoutes = () => {
       <Route path="/hadith/sahih-bukhari/:lang" element={<BukhariLangPage />} />
       <Route path="/hadith/sahih-bukhari/:lang/:chapterSlug" element={<BukhariLangPage />} />
       <Route path="/hadith/sahih-bukhari/:lang/:chapterId/:hadithNumber" element={<BukhariLangPage />} />
-      <Route path="/hadith/:bookId" element={<HadithBookPlaceholder />} />
+      <Route path="/hadith/:slug" element={<HadithArticlePage />} />
 
       {/* Legacy redirects handled by vercel.json 301s — no React Router duplicates */}
 
