@@ -6,6 +6,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getHadithArticleBySlug, getRelatedHadith } from "@/lib/hadithArticles";
 import NotFound from "@/pages/NotFound";
+import HadithBookPlaceholder from "@/pages/hadith/HadithBookPlaceholder";
 
 const SITE_ORIGIN = "https://noorapp.in";
 const OG_IMAGE = `${SITE_ORIGIN}/og-bukhari.png`;
@@ -20,6 +21,10 @@ const LANGUAGE_TABS = [
 export default function HadithArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const article = getHadithArticleBySlug(slug);
+
+  if (!article && ["muslim", "tirmidhi", "abu-dawud"].includes(slug ?? "")) {
+    return <HadithBookPlaceholder />;
+  }
 
   if (!article) return <NotFound />;
 
