@@ -104,7 +104,7 @@ export default function HadithPage() {
       </div>
 
       <section className="mx-auto max-w-lg px-4 pb-6">
-        <h2 className="mb-3 text-lg font-bold text-white">সহীহ বুখারী নির্বাচিত হাদিস</h2>
+        <h2 className="mb-3 text-lg font-bold text-primary-foreground">সহীহ বুখারী নির্বাচিত হাদিস</h2>
         <div className="flex flex-col gap-[14px]">
           {HADITH_ARTICLES.map((hadith, i) => (
             <motion.button
@@ -115,18 +115,18 @@ export default function HadithPage() {
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate(`/hadith/${hadith.slug}`)}
-              className="flex items-center gap-4 bg-white p-4 text-left transition-shadow duration-200"
+              className="flex items-center gap-4 bg-card p-4 text-left transition-shadow duration-200"
               style={{ borderRadius: 20, boxShadow: "0 6px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)" }}
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary">
                 <BookOpen className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="text-[15px] font-bold leading-snug text-gray-900">{hadith.title}</h2>
-                <p className="mt-1 line-clamp-2 text-[12px] leading-5 text-gray-500">{hadith.preview}</p>
-                <p className="mt-1 text-[11px] text-gray-400">{hadith.reference}</p>
+                <h2 className="text-[15px] font-bold leading-snug text-card-foreground">{hadith.title}</h2>
+                <p className="mt-1 line-clamp-2 text-[12px] leading-5 text-muted-foreground">{hadith.preview}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{hadith.reference}</p>
               </div>
-              <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
             </motion.button>
           ))}
         </div>
