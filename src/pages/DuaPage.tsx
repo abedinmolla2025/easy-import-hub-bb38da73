@@ -469,7 +469,13 @@ const DuaPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    onClick={() => pushDua(dua.id)}
+                    onClick={() => {
+                      if (dua.slug) {
+                        navigate(`/dua/${dua.slug}`);
+                      } else {
+                        pushDua(dua.id);
+                      }
+                    }}
                     className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
                   >
                     <div className="flex items-center justify-between">
