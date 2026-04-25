@@ -1,29 +1,23 @@
-import { useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSeoPages, useUpsertSeoPage, useDeleteSeoPage, type SeoPageRow } from "@/hooks/useSeoIndexing";
-import { FileImage, FileText, Plus, Pencil, Trash2, Loader2, Upload } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { FileText, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 
 const CHANGEFREQ_OPTIONS = ["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"];
 
 export default function AdminSeoPagesTab() {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const { toast } = useToast();
   const { data: pages, isLoading } = useSeoPages();
   const upsertMutation = useUpsertSeoPage();
   const deleteMutation = useDeleteSeoPage();
   const [editPage, setEditPage] = useState<Partial<SeoPageRow> | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [uploadingOg, setUploadingOg] = useState(false);
 
   const openNew = () => {
     setEditPage({ path: "", title: "", description: "", robots: "index,follow", changefreq: "weekly", priority: 0.8 });
@@ -40,28 +34,6 @@ export default function AdminSeoPagesTab() {
     await upsertMutation.mutateAsync(editPage as any);
     setDialogOpen(false);
     setEditPage(null);
-  };
-
-  const handleOgUpload = async (file: File) => {
-    if (!editPage?.path) return;
-    setUploadingOg(true);
-    try {
-      const safePath = editPage.path.replace(/[^a-z0-9-]+/gi, "-").replace(/^-|-$/g, "") || "home";
-      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-      const uploadPath = `seo-pages/${safePath}-${crypto.randomUUID()}.${ext}`;
-      const { data, error } = await supabase.storage.from("branding").upload(uploadPath, file, {
-        cacheControl: "3600",
-        upsert: true,
-      });
-      if (error) throw error;
-      const { data: publicUrlData } = supabase.storage.from("branding").getPublicUrl(data.path);
-      setEditPage({ ...editPage, og_image_url: publicUrlData.publicUrl });
-      toast({ title: "OG image uploaded" });
-    } catch (error: any) {
-      toast({ title: "Upload failed", description: error?.message ?? "Could not upload OG image", variant: "destructive" });
-    } finally {
-      setUploadingOg(false);
-    }
   };
 
   if (isLoading) {
@@ -103,7 +75,7 @@ export default function AdminSeoPagesTab() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>{editPage?.id ? "Edit Page" : "Add New Page"}</DialogTitle>
           </DialogHeader>
@@ -120,37 +92,6 @@ export default function AdminSeoPagesTab() {
               <div className="space-y-1">
                 <Label>Description</Label>
                 <Input value={editPage.description ?? ""} onChange={(e) => setEditPage({ ...editPage, description: e.target.value })} />
-              </div>
-              <div className="space-y-2 rounded-md border border-border p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <Label className="flex items-center gap-2"><FileImage className="h-4 w-4" /> OG Image</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()} disabled={uploadingOg}>
-                    {uploadingOg ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                    Upload
-                  </Button>
-                </div>
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleOgUpload(file);
-                    e.currentTarget.value = "";
-                  }}
-                />
-                <Input value={editPage.og_image_url ?? ""} onChange={(e) => setEditPage({ ...editPage, og_image_url: e.target.value })} placeholder="https://example.com/og-image.png" />
-                <div className="overflow-hidden rounded-md border border-border bg-muted">
-                  <AspectRatio ratio={1200 / 630}>
-                    {editPage.og_image_url ? (
-                      <img src={editPage.og_image_url} alt="Page OG preview" className="h-full w-full object-cover" loading="lazy" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">1200 × 630 preview</div>
-                    )}
-                  </AspectRatio>
-                </div>
-                <p className="text-xs text-muted-foreground">Recommended size: 1200×630 pixels.</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">

@@ -155,36 +155,6 @@ function getOgImage(path: string): string {
   return `${SITE_ORIGIN}/og-image.png`;
 }
 
-const HADITH_ARTICLE_SEO: Record<string, { title: string; description: string; reference: string; translation: string; explanation: string; lessons: string[]; related: string[] }> = {
-  "importance-of-salah": {
-    title: "নামাজ ইসলামের প্রধান স্তম্ভ",
-    description: "সহীহ বুখারীর হাদিসে ইসলামের পাঁচ ভিত্তি, নামাজের গুরুত্ব ও জীবনের শিক্ষা সহজ বাংলায় পড়ুন।",
-    reference: "Sahih al-Bukhari, Hadith No: 8",
-    translation: "ইসলাম পাঁচটি ভিত্তির উপর প্রতিষ্ঠিত: আল্লাহ ছাড়া কোনো উপাস্য নেই এবং মুহাম্মদ ﷺ আল্লাহর রাসূল—এই সাক্ষ্য দেওয়া, নামাজ প্রতিষ্ঠা করা, যাকাত দেওয়া, হজ করা এবং রমজানের রোজা রাখা।",
-    explanation: "এই হাদিসটি ইসলামের পরিচয়কে অত্যন্ত সংক্ষিপ্ত অথচ পূর্ণাঙ্গভাবে তুলে ধরে। রাসূলুল্লাহ ﷺ ইসলামকে একটি মজবুত স্থাপনার সঙ্গে তুলনা করেছেন, যার পাঁচটি ভিত্তি আছে। কোনো ভবন যেমন ভিত্তি ছাড়া দাঁড়িয়ে থাকতে পারে না, তেমনি একজন মুসলিমের জীবনও এই মৌলিক আমলগুলো ছাড়া পূর্ণতা পায় না। তাওহীদের সাক্ষ্য ইসলামের দরজা, আর নামাজ সেই ঈমানকে দৈনন্দিন জীবনে জীবন্ত রাখার প্রধান মাধ্যম। নামাজকে এখানে ‘ইকামুস সালাহ’ বলা হয়েছে, যার অর্থ শুধু নামাজ পড়ে নেওয়া নয়; বরং সময়মতো, পবিত্রতা, বিনয় ও সচেতনতার সঙ্গে নামাজ প্রতিষ্ঠা করা। বাস্তব জীবনে নামাজ মানুষকে আল্লাহর স্মরণে রাখে, অন্যায় থেকে দূরে রাখে এবং সময় ব্যবস্থাপনা শেখায়। পরিবার, কাজ, পড়াশোনা ও সামাজিক জীবনের ব্যস্ততার মাঝেও নামাজ মুমিনকে মনে করিয়ে দেয় যে তার জীবনের মূল লক্ষ্য আল্লাহর সন্তুষ্টি। তাই এই হাদিসের শিক্ষা হলো—ইসলাম পরিচয়ের বিষয় নয়, নিয়মিত আমল ও দায়িত্বের জীবনব্যবস্থা।",
-    lessons: ["নামাজ ঈমানের বাস্তব প্রকাশ।", "সময়মতো সালাহ জীবনকে শৃঙ্খলিত করে।", "ইসলামের ভিত্তিগুলো ভারসাম্যপূর্ণভাবে পালন করা জরুরি।"],
-    related: ["truthfulness", "charity-reward"],
-  },
-  truthfulness: {
-    title: "সত্যবাদিতা জান্নাতের পথ দেখায়",
-    description: "সত্যবাদিতা, চরিত্র গঠন ও জান্নাতের পথে চলার বিষয়ে সহীহ বুখারীর হাদিসের বাংলা ব্যাখ্যা।",
-    reference: "Sahih al-Bukhari, Hadith No: 6094",
-    translation: "নিশ্চয়ই সত্যবাদিতা সৎকর্মের দিকে পথ দেখায়, আর সৎকর্ম জান্নাতের দিকে পথ দেখায়।",
-    explanation: "সত্যবাদিতা ইসলামের অন্যতম মৌলিক চরিত্রগুণ। এই হাদিসে রাসূলুল্লাহ ﷺ সত্যকে শুধু সামাজিক ভালো আচরণ হিসেবে নয়, বরং আধ্যাত্মিক উন্নতির পথ হিসেবে উপস্থাপন করেছেন। একজন মানুষ যখন সত্য বলতে অভ্যস্ত হয়, তখন তার চিন্তা, সিদ্ধান্ত ও কাজ ধীরে ধীরে সৎ পথে পরিচালিত হয়। সত্য কথা বলা অনেক সময় কঠিন হতে পারে, কারণ এতে ব্যক্তিগত স্বার্থ বা সাময়িক সুবিধা ক্ষতিগ্রস্ত হতে পারে। কিন্তু মুমিন জানে, মানুষের সাময়িক সন্তুষ্টির চেয়ে আল্লাহর সন্তুষ্টি অনেক বড়। সত্য নেকির দিকে নিয়ে যায়—এর অর্থ সত্যবাদী মানুষ প্রতারণা, মিথ্যা অজুহাত, অন্যের অধিকার নষ্ট করা বা দ্বিমুখী আচরণ থেকে দূরে থাকে। পরিবারে সে বিশ্বস্ত, ব্যবসায় নিরাপদ, বন্ধুত্বে নির্ভরযোগ্য এবং সমাজে সম্মানের পাত্র হয়ে ওঠে। আজকের অনলাইন যুগে তথ্য শেয়ার, ব্যবসা, পড়াশোনা ও চাকরির ক্ষেত্রেও সত্যবাদিতা অপরিহার্য। সত্য মানুষকে অন্তরের শান্তি, মানুষের আস্থা এবং আল্লাহর কাছে মর্যাদা এনে দেয়।",
-    lessons: ["সত্য কথা বলা ঈমানদার চরিত্রের লক্ষণ।", "ছোট মিথ্যাও চরিত্র দুর্বল করে।", "অনলাইনে তথ্য শেয়ার করার আগে যাচাই করা জরুরি।"],
-    related: ["importance-of-salah", "charity-reward"],
-  },
-  "charity-reward": {
-    title: "সামান্য দানও বড় নেকি হতে পারে",
-    description: "সহীহ বুখারীর আলোকে দান, সদকা ও সামান্য ভালো কাজের মূল্য সম্পর্কে সহজ বাংলা ব্যাখ্যা পড়ুন।",
-    reference: "Sahih al-Bukhari, Hadith No: 1417",
-    translation: "তোমরা জাহান্নাম থেকে বাঁচো, যদিও তা অর্ধেক খেজুর দান করার মাধ্যমেও হয়।",
-    explanation: "এই হাদিসে রাসূলুল্লাহ ﷺ দানের মূল্যকে অত্যন্ত সহজ ও গভীরভাবে বুঝিয়েছেন। অর্ধেক খেজুর খুব ছোট একটি জিনিস; কিন্তু নবী ﷺ এটিকেই জাহান্নাম থেকে বাঁচার উপায় হিসেবে উল্লেখ করেছেন। এর মাধ্যমে বোঝা যায়, আল্লাহর কাছে দানের পরিমাণের চেয়ে বেশি গুরুত্বপূর্ণ হলো আন্তরিকতা, হালাল উপার্জন এবং মানুষের উপকারের ইচ্ছা। কেউ যদি সামর্থ্য কম থাকার কারণে বড় দান করতে না পারে, তবুও সে নেকির দরজা থেকে বঞ্চিত নয়। ইসলামে সদকা শুধু অর্থের মধ্যে সীমাবদ্ধ নয়। ক্ষুধার্তকে খাবার দেওয়া, অসহায়কে সাহায্য করা, ভালো কথা বলা, কারও কষ্ট দূর করা—এসবও সদকার অর্থ বহন করে। বাস্তব জীবনে নিয়মিত সামান্য দান মানুষের হৃদয় কোমল করে, সম্পদের প্রতি অতিরিক্ত আসক্তি কমায় এবং সমাজে সহমর্মিতা বাড়ায়। দান মানুষের অহংকার ভাঙে এবং মনে করিয়ে দেয়—সম্পদ আল্লাহর আমানত। তাই দান শুধু গ্রহীতার উপকার করে না; দাতার আত্মাকে পরিশুদ্ধ করে।",
-    lessons: ["সামান্য দানকেও তুচ্ছ ভাবা উচিত নয়।", "দান আন্তরিক হলে বড় সওয়াবের কারণ হতে পারে।", "অসহায় মানুষের পাশে দাঁড়ানো ঈমানি দায়িত্ব।"],
-    related: ["importance-of-salah", "truthfulness"],
-  },
-};
-
 // Build hreflang alternate links for hadith pages
 function buildHreflangTags(path: string): string {
   const chapterMatch = path.match(/^\/hadith\/sahih-bukhari\/(bangla|english|urdu)(\/chapter-\d+)?$/);
@@ -418,10 +388,6 @@ Deno.serve(async (req) => {
         <section>
             <h2>Authentic Hadith Collections</h2>
             <p>Browse major Hadith collections with Arabic text and translations.</p>
-            <h3>Selected Sahih Bukhari Hadith</h3>
-            <ul>
-                ${Object.entries(HADITH_ARTICLE_SEO).map(([slug, item]) => `<li><a href="${SITE_ORIGIN}/hadith/${slug}">${escapeHtml(item.title)}</a> — ${escapeHtml(item.reference)}</li>`).join("\n")}
-            </ul>
             <ul>
                 <li><a href="${SITE_ORIGIN}/hadith/sahih-bukhari">Sahih al-Bukhari (7,563 Hadiths)</a></li>
                 <li><a href="${SITE_ORIGIN}/hadith/muslim">Sahih Muslim</a></li>
@@ -429,37 +395,6 @@ Deno.serve(async (req) => {
                 <li><a href="${SITE_ORIGIN}/hadith/abu-dawud">Sunan Abu Dawud</a></li>
             </ul>
         </section>`;
-    } else if (path.startsWith("/hadith/")) {
-      const slug = path.replace("/hadith/", "");
-      const item = HADITH_ARTICLE_SEO[slug];
-      if (item) {
-        seo = { title: item.title, description: item.description };
-        jsonLd = JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: item.title,
-          description: item.description,
-          image: `${SITE_ORIGIN}/og-bukhari.png`,
-          url: `${SITE_ORIGIN}${path}`,
-          inLanguage: "bn-BD",
-          citation: item.reference,
-          publisher: { "@type": "Organization", name: "Noor", url: SITE_ORIGIN },
-        });
-        bodyContent = `
-          <article>
-              <p><a href="${SITE_ORIGIN}/hadith">← Hadith</a></p>
-              <h2>${escapeHtml(item.title)}</h2>
-              <p><strong>${escapeHtml(item.reference)}</strong></p>
-              <h3>বাংলা অনুবাদ</h3>
-              <p>${escapeHtml(item.translation)}</p>
-              <h3>বাংলা ব্যাখ্যা ও প্রেক্ষাপট</h3>
-              <p>${escapeHtml(item.explanation)}</p>
-              <h3>এই হাদিস থেকে শিক্ষা</h3>
-              <ul>${item.lessons.map((lesson) => `<li>${escapeHtml(lesson)}</li>`).join("\n")}</ul>
-              <h3>সম্পর্কিত হাদিস</h3>
-              <ul>${item.related.map((relatedSlug) => HADITH_ARTICLE_SEO[relatedSlug] ? `<li><a href="${SITE_ORIGIN}/hadith/${relatedSlug}">${escapeHtml(HADITH_ARTICLE_SEO[relatedSlug].title)}</a></li>` : "").join("\n")}</ul>
-          </article>`;
-      }
     } else if (path === "/baby-names") {
       bodyContent = `
         <section>
