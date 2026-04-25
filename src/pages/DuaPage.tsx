@@ -100,6 +100,7 @@ interface DuaTranslation {
 
 interface Dua {
   id: string;
+  slug?: string | null;
   arabic: string;
   bengaliTransliteration?: string;
   pronunciationEn?: string;
@@ -110,6 +111,7 @@ interface Dua {
 
 interface AdminContentDuaRow {
   id: string;
+  slug?: string | null;
   title: string | null;
   title_en: string | null;
   title_hi: string | null;
@@ -161,6 +163,7 @@ const DuaPage = () => {
 
       const mapped: Dua[] = (data as unknown as AdminContentDuaRow[]).map((row) => ({
         id: row.id,
+        slug: row.slug ?? null,
         arabic: row.content_arabic || "",
         bengaliTransliteration: row.content_pronunciation || undefined,
         pronunciationEn: row.content_pronunciation_en || undefined,
