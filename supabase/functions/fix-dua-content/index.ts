@@ -10,16 +10,35 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-const PRONUNCIATION_MIN = 50;
-const MEANING_MIN = 80;
+const PRONUNCIATION_MIN = 100;
+const MEANING_MIN = 120;
+const MAX_ATTEMPTS = 3;
 
 const SYSTEM_PROMPT = [
   "তুমি একজন ইসলামিক স্কলার এবং বাংলা ভাষার বিশেষজ্ঞ।",
   "প্রতিটি দোয়ার জন্য সম্পূর্ণ বাংলা উচ্চারণ (transliteration) এবং সম্পূর্ণ বাংলা অর্থ লিখবে।",
-  "content_pronunciation: সম্পূর্ণ আরবি text এর বাংলা উচ্চারণ; কোনো অংশ বাদ দেবে না; প্রতিটি শব্দ স্পষ্টভাবে; প্রয়োজনে multi-line।",
-  "content (অর্থ): সহজ, প্রাঞ্জল বাংলায় ৩–৫ লাইনের সম্পূর্ণ অনুবাদ; multi-line paragraph; পাঠযোগ্য।",
-  "কোনো অংশ সংক্ষেপ করবে না। আরবি text এর প্রতিটি বাক্যের অনুবাদ ও উচ্চারণ থাকতে হবে।",
-  "শুধু tool call এর মাধ্যমে structured output দাও।",
+  "",
+  "STRICT RULES (অবশ্যই মানতে হবে):",
+  "- কখনোই সংক্ষিপ্ত (short) output দেবে না।",
+  "- কখনোই summary দেবে না, সম্পূর্ণ text দেবে।",
+  "- truncate / '...' / 'ইত্যাদি' ব্যবহার করবে না।",
+  "- আরবি text এর প্রতিটি শব্দ ও বাক্যের জন্য উচ্চারণ ও অনুবাদ থাকতে হবে।",
+  "",
+  "content_pronunciation (বাংলা উচ্চারণ):",
+  "- সম্পূর্ণ দোয়ার বাংলা transliteration।",
+  "- Multi-line format, কমপক্ষে ৩–৬ লাইন।",
+  "- প্রতিটি লাইন \\n দিয়ে আলাদা।",
+  "- কমপক্ষে ১০০ অক্ষর।",
+  "- কোনো অংশ বাদ দেওয়া যাবে না।",
+  "",
+  "content (বাংলা অর্থ):",
+  "- সহজ, প্রাঞ্জল বাংলায় সম্পূর্ণ অনুবাদ।",
+  "- ৩–৫ লাইনের multi-line paragraph।",
+  "- প্রতিটি লাইন \\n দিয়ে আলাদা।",
+  "- কমপক্ষে ১২০ অক্ষর।",
+  "- শুধু এক বাক্যে দেবে না; পরিপূর্ণ ব্যাখ্যামূলক অনুবাদ দেবে।",
+  "",
+  "শুধু tool call এর মাধ্যমে structured output দাও, free text নয়।",
 ].join("\n");
 
 async function generate(args: {
@@ -35,11 +54,21 @@ async function generate(args: {
   const properties: Record<string, unknown> = {};
   const required: string[] = [];
   if (args.needPron) {
-    properties.content_pronunciation = { type: "string", description: "সম্পূর্ণ বাংলা উচ্চারণ, multi-line" };
+    properties.content_pronunciation = {
+      type: "string",
+      description:
+        "সম্পূর্ণ বাংলা উচ্চারণ। Multi-line, কমপক্ষে ৩–৬ লাইন (\\n দিয়ে আলাদা), কমপক্ষে ১০০ অক্ষর। কোনো truncation নয়।",
+      minLength: 100,
+    };
     required.push("content_pronunciation");
   }
   if (args.needMeaning) {
-    properties.content = { type: "string", description: "সম্পূর্ণ বাংলা অর্থ, ৩–৫ লাইন, multi-line paragraph" };
+    properties.content = {
+      type: "string",
+      description:
+        "সম্পূর্ণ বাংলা অর্থ। ৩–৫ লাইন multi-line paragraph (\\n দিয়ে আলাদা), কমপক্ষে ১২০ অক্ষর। এক বাক্যে নয়।",
+      minLength: 120,
+    };
     required.push("content");
   }
 
@@ -164,26 +193,44 @@ Deno.serve(async (req) => {
     for (let i = 0; i < slice.length; i += concurrency) {
       const chunk = slice.slice(i, i + concurrency);
       await Promise.all(
-        chunk.map(async ({ row, needPron, needMeaning }) => {
+          chunk.map(async ({ row, needPron, needMeaning }) => {
           try {
-            const out = await generate({
-              title: row.title,
-              arabic: row.content_arabic,
-              existingPron: row.content_pronunciation,
-              existingMeaning: row.content,
-              needPron,
-              needMeaning,
-            });
-            const update: Record<string, unknown> = {};
-            if (needPron && out.content_pronunciation && out.content_pronunciation.length >= PRONUNCIATION_MIN) {
-              update.content_pronunciation = out.content_pronunciation;
-            }
-            if (needMeaning && out.content && out.content.length >= MEANING_MIN) {
-              update.content = out.content;
-            }
-            if (Object.keys(update).length === 0) {
-              throw new Error("AI returned content too short");
-            }
+              let stillNeedPron = needPron;
+              let stillNeedMeaning = needMeaning;
+              const update: Record<string, unknown> = {};
+              let lastErr: string | null = null;
+
+              for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+                if (!stillNeedPron && !stillNeedMeaning) break;
+                const out = await generate({
+                  title: row.title,
+                  arabic: row.content_arabic,
+                  existingPron: row.content_pronunciation,
+                  existingMeaning: row.content,
+                  needPron: stillNeedPron,
+                  needMeaning: stillNeedMeaning,
+                });
+                if (
+                  stillNeedPron &&
+                  out.content_pronunciation &&
+                  out.content_pronunciation.length >= PRONUNCIATION_MIN
+                ) {
+                  update.content_pronunciation = out.content_pronunciation;
+                  stillNeedPron = false;
+                } else if (stillNeedPron) {
+                  lastErr = `pronunciation too short (${out.content_pronunciation?.length ?? 0} chars)`;
+                }
+                if (stillNeedMeaning && out.content && out.content.length >= MEANING_MIN) {
+                  update.content = out.content;
+                  stillNeedMeaning = false;
+                } else if (stillNeedMeaning) {
+                  lastErr = `meaning too short (${out.content?.length ?? 0} chars)`;
+                }
+              }
+
+              if (Object.keys(update).length === 0) {
+                throw new Error(lastErr || "AI returned content too short");
+              }
             const { error: upErr } = await supabase
               .from("admin_content")
               .update(update)
