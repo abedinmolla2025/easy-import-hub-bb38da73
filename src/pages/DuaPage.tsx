@@ -361,7 +361,7 @@ const DuaPage = () => {
 
               {/* Transliteration */}
               {(() => {
-                const translitText =
+                const langText =
                   language === "bengali"
                     ? selectedDua.bengaliTransliteration
                     : language === "english"
@@ -370,12 +370,8 @@ const DuaPage = () => {
                     ? selectedDua.pronunciationHi
                     : selectedDua.pronunciationUr;
 
-                const fallbackText =
-                  translitText ||
-                  selectedDua.bengaliTransliteration ||
-                  selectedDua.pronunciationEn ||
-                  selectedDua.pronunciationHi ||
-                  selectedDua.pronunciationUr;
+                // Spec: fallback to Bengali only when selected language is missing.
+                const fallbackText = langText || selectedDua.bengaliTransliteration;
 
                 if (!fallbackText) return null;
 
