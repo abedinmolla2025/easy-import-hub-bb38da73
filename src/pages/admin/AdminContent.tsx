@@ -37,6 +37,7 @@ import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload, More
 import HadithImportPanel from '@/components/admin/HadithImportPanel';
 import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel';
 import DuaSeoGeneratorPanel from '@/components/admin/DuaSeoGeneratorPanel';
+import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 import { NameBulkImportDialog } from '@/components/admin/NameBulkImportDialog';
@@ -1110,8 +1111,9 @@ export default function AdminContent() {
       )}
 
       {contentTypeContext === 'dua' && (
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <DuaSeoGeneratorPanel />
+          <DuaContentFixerPanel />
         </div>
       )}
 
