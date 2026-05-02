@@ -95,8 +95,7 @@ export default function DuaContentFixerPanel() {
           <Wrench className="h-4 w-4 text-primary" /> Fix Incomplete Dua Content
         </CardTitle>
         <CardDescription>
-          যেসব দোয়ার বাংলা <code>উচ্চারণ &lt; 50</code> অক্ষর বা <code>অর্থ &lt; 80</code> অক্ষর, AI দিয়ে সম্পূর্ণ করা হবে।
-          ভালো content overwrite হবে না। Batch size: {BATCH_SIZE}।
+          যেসব দোয়ার বাংলা <code>উচ্চারণ &lt; 100</code> অক্ষর বা <code>অর্থ &lt; 120</code> অক্ষর, AI দিয়ে সম্পূর্ণ multi-line content তৈরি হবে। Short output হলে ৩ বার retry হবে। ভালো content overwrite হবে না। Batch size: {BATCH_SIZE}।
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
