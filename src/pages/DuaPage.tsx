@@ -145,7 +145,17 @@ interface AdminContentDuaRow {
 const DuaPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [language, setLanguage] = useState<Language>("bengali");
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") return "bengali";
+    const saved = window.localStorage.getItem("dua_language");
+    return (saved as Language) || "bengali";
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("dua_language", language);
+    } catch {}
+  }, [language]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDua, setSelectedDua] = useState<Dua | null>(null);
