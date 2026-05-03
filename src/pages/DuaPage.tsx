@@ -97,6 +97,12 @@ const UI_LABELS = {
     hindi: "दुआ खोजें...",
     urdu: "دعا تلاش کریں...",
   },
+  readMore: {
+    bengali: "📖 বিস্তারিত পড়ুন",
+    english: "📖 Read More",
+    hindi: "📖 और पढ़ें",
+    urdu: "📖 مزید پڑھیں",
+  },
 } as const;
 
 interface DuaTranslation {
@@ -474,7 +480,7 @@ const DuaPage = () => {
                         {daily.arabic}
                       </p>
                       <p className="mt-2 text-xs text-[hsl(45,93%,58%)] font-medium">
-                        📖 বিস্তারিত পড়ুন →
+                        {UI_LABELS.readMore[language]} →
                       </p>
                     </Link>
                   );
@@ -596,7 +602,7 @@ const DuaPage = () => {
                         className="mt-3 inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-[hsl(45,93%,58%)]/20 text-[hsl(45,93%,58%)] text-xs font-semibold hover:bg-[hsl(45,93%,58%)]/30 transition"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
-                        📖 বিস্তারিত পড়ুন
+                        {UI_LABELS.readMore[language]}
                       </span>
                     )}
                   </motion.button>
