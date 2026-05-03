@@ -17,6 +17,15 @@ interface DuaRow {
 
 const SITE_ORIGIN = "https://noorapp.in";
 
+type DuaLang = "bengali" | "english" | "hindi" | "urdu";
+
+const READ_MORE_TEXT: Record<DuaLang, string> = {
+  bengali: "📖 বিস্তারিত পড়ুন",
+  english: "📖 Read More",
+  hindi: "📖 और पढ़ें",
+  urdu: "📖 مزید پڑھیں",
+};
+
 const slugify = (s: string) =>
   s
     .toLowerCase()
@@ -33,6 +42,20 @@ const DuaCategoryPage = () => {
   const [duas, setDuas] = useState<DuaRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState<string>("");
+  const [language, setLanguage] = useState<DuaLang>("bengali");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem("dua_language") as DuaLang | null;
+    if (saved) setLanguage(saved);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "dua_language" && e.newValue) {
+        setLanguage(e.newValue as DuaLang);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -191,7 +214,7 @@ const DuaCategoryPage = () => {
                     className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-[hsl(45,93%,58%)]/20 text-[hsl(45,93%,58%)] text-xs font-semibold hover:bg-[hsl(45,93%,58%)]/30 transition"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    📖 বিস্তারিত পড়ুন
+                    {READ_MORE_TEXT[language] || READ_MORE_TEXT.bengali}
                   </Link>
                 ) : null}
               </article>
