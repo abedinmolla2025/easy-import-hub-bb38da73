@@ -13,10 +13,18 @@ interface DuaRow {
   slug: string | null;
   title: string | null;
   title_en: string | null;
+  title_hi: string | null;
+  title_ur: string | null;
   category: string | null;
   content_arabic: string | null;
   content_pronunciation: string | null;
+  content_pronunciation_en: string | null;
+  content_pronunciation_hi: string | null;
+  content_pronunciation_ur: string | null;
   content: string | null;
+  content_en: string | null;
+  content_hi: string | null;
+  content_ur: string | null;
   explanation_bn: string | null;
   benefits_bn: string[] | null;
   when_to_recite_bn: string | null;
@@ -25,6 +33,53 @@ interface DuaRow {
 
 const SITE_ORIGIN = "https://noorapp.in";
 const FALLBACK_OG = `${SITE_ORIGIN}/og-dua.png`;
+
+type DuaLang = "bengali" | "english" | "hindi" | "urdu";
+
+const LANGUAGE_LABELS: Record<DuaLang, string> = {
+  bengali: "বাংলা",
+  english: "English",
+  hindi: "हिंदी",
+  urdu: "اردو",
+};
+
+const LANG_SUFFIX: Record<DuaLang, "" | "_en" | "_hi" | "_ur"> = {
+  bengali: "",
+  english: "_en",
+  hindi: "_hi",
+  urdu: "_ur",
+};
+
+// Language-aware text resolver — falls back to Bengali when missing
+const getDuaText = (dua: DuaRow, language: DuaLang) => {
+  const suf = LANG_SUFFIX[language];
+  const titleKey = (suf ? `title${suf}` : "title") as keyof DuaRow;
+  const contentKey = (suf ? `content${suf}` : "content") as keyof DuaRow;
+  const pronKey = (suf
+    ? `content_pronunciation${suf}`
+    : "content_pronunciation") as keyof DuaRow;
+  return {
+    title: (dua[titleKey] as string | null) || dua.title || "",
+    meaning: (dua[contentKey] as string | null) || dua.content || "",
+    pronunciation:
+      (dua[pronKey] as string | null) || dua.content_pronunciation || "",
+  };
+};
+
+const SECTION_LABELS = {
+  pronunciation: {
+    bengali: "বাংলা উচ্চারণ",
+    english: "Transliteration",
+    hindi: "उच्चारण",
+    urdu: "تلفظ",
+  },
+  meaning: {
+    bengali: "অর্থ",
+    english: "Meaning",
+    hindi: "अर्थ",
+    urdu: "معنی",
+  },
+} as const;
 
 const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
@@ -47,6 +102,17 @@ const DuaDetailPage = () => {
   const [nextDua, setNextDua] = useState<NavSibling | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [language, setLanguage] = useState<DuaLang>(() => {
+    if (typeof window === "undefined") return "bengali";
+    const saved = window.localStorage.getItem("dua_language");
+    return (saved as DuaLang) || "bengali";
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("dua_language", language);
+    } catch {}
+  }, [language]);
 
   useEffect(() => {
     if (!slug) return;
@@ -57,7 +123,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, category, content_arabic, content_pronunciation, content, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -77,7 +143,7 @@ const DuaDetailPage = () => {
       if (cat) {
         const { data: rel } = await supabase
           .from("admin_content")
-          .select("id, slug, title, title_en, category, content_arabic, content_pronunciation, content, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference")
+          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference")
           .eq("category", cat)
           .eq("status", "published")
           .in("content_type", ["dua", "Dua"])
