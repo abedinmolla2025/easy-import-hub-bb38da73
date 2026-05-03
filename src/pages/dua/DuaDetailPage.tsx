@@ -13,10 +13,18 @@ interface DuaRow {
   slug: string | null;
   title: string | null;
   title_en: string | null;
+  title_hi: string | null;
+  title_ur: string | null;
   category: string | null;
   content_arabic: string | null;
   content_pronunciation: string | null;
+  content_pronunciation_en: string | null;
+  content_pronunciation_hi: string | null;
+  content_pronunciation_ur: string | null;
   content: string | null;
+  content_en: string | null;
+  content_hi: string | null;
+  content_ur: string | null;
   explanation_bn: string | null;
   benefits_bn: string[] | null;
   when_to_recite_bn: string | null;
@@ -25,6 +33,53 @@ interface DuaRow {
 
 const SITE_ORIGIN = "https://noorapp.in";
 const FALLBACK_OG = `${SITE_ORIGIN}/og-dua.png`;
+
+type DuaLang = "bengali" | "english" | "hindi" | "urdu";
+
+const LANGUAGE_LABELS: Record<DuaLang, string> = {
+  bengali: "বাংলা",
+  english: "English",
+  hindi: "हिंदी",
+  urdu: "اردو",
+};
+
+const LANG_SUFFIX: Record<DuaLang, "" | "_en" | "_hi" | "_ur"> = {
+  bengali: "",
+  english: "_en",
+  hindi: "_hi",
+  urdu: "_ur",
+};
+
+// Language-aware text resolver — falls back to Bengali when missing
+const getDuaText = (dua: DuaRow, language: DuaLang) => {
+  const suf = LANG_SUFFIX[language];
+  const titleKey = (suf ? `title${suf}` : "title") as keyof DuaRow;
+  const contentKey = (suf ? `content${suf}` : "content") as keyof DuaRow;
+  const pronKey = (suf
+    ? `content_pronunciation${suf}`
+    : "content_pronunciation") as keyof DuaRow;
+  return {
+    title: (dua[titleKey] as string | null) || dua.title || "",
+    meaning: (dua[contentKey] as string | null) || dua.content || "",
+    pronunciation:
+      (dua[pronKey] as string | null) || dua.content_pronunciation || "",
+  };
+};
+
+const SECTION_LABELS = {
+  pronunciation: {
+    bengali: "বাংলা উচ্চারণ",
+    english: "Transliteration",
+    hindi: "उच्चारण",
+    urdu: "تلفظ",
+  },
+  meaning: {
+    bengali: "অর্থ",
+    english: "Meaning",
+    hindi: "अर्थ",
+    urdu: "معنی",
+  },
+} as const;
 
 const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
@@ -47,6 +102,17 @@ const DuaDetailPage = () => {
   const [nextDua, setNextDua] = useState<NavSibling | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [language, setLanguage] = useState<DuaLang>(() => {
+    if (typeof window === "undefined") return "bengali";
+    const saved = window.localStorage.getItem("dua_language");
+    return (saved as DuaLang) || "bengali";
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("dua_language", language);
+    } catch {}
+  }, [language]);
 
   useEffect(() => {
     if (!slug) return;
@@ -57,7 +123,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, category, content_arabic, content_pronunciation, content, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -77,7 +143,7 @@ const DuaDetailPage = () => {
       if (cat) {
         const { data: rel } = await supabase
           .from("admin_content")
-          .select("id, slug, title, title_en, category, content_arabic, content_pronunciation, content, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference")
+          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference")
           .eq("category", cat)
           .eq("status", "published")
           .in("content_type", ["dua", "Dua"])
@@ -189,6 +255,8 @@ const DuaDetailPage = () => {
     );
   }
 
+  const text = getDuaText(dua, language);
+
   return (
     <div className="min-h-screen bg-[hsl(158,64%,18%)]">
       {seo && (
@@ -226,7 +294,26 @@ const DuaDetailPage = () => {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(45,93%,58%)] to-[hsl(45,93%,48%)] flex items-center justify-center">
             <BookOpen className="w-4 h-4 text-[hsl(158,64%,15%)]" />
           </div>
-          <h1 className="text-xl font-bold text-white truncate">{dua.title}</h1>
+          <h1 className="text-xl font-bold text-white truncate">{text.title}</h1>
+        </div>
+
+        {/* Language Selector */}
+        <div className="px-4 pb-3">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {(Object.keys(LANGUAGE_LABELS) as DuaLang[]).map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  language === lang
+                    ? "bg-gradient-to-r from-[hsl(45,93%,58%)] to-[hsl(45,93%,48%)] text-[hsl(158,64%,15%)] shadow-md"
+                    : "bg-white/10 text-white/70 hover:bg-white/20"
+                }`}
+              >
+                {LANGUAGE_LABELS[lang]}
+              </button>
+            ))}
+          </div>
         </div>
       </motion.header>
 
@@ -253,7 +340,7 @@ const DuaDetailPage = () => {
         <header>
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight flex-1">
-              {dua.title}
+              {text.title}
             </h1>
             <button
               onClick={handleShare}
@@ -291,22 +378,22 @@ const DuaDetailPage = () => {
         )}
 
         {/* Pronunciation */}
-        {dua.content_pronunciation && (
+        {text.pronunciation && (
           <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
             <h2 className="flex items-center gap-2 text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-3">
-              <Sparkles className="w-4 h-4" /> বাংলা উচ্চারণ
+              <Sparkles className="w-4 h-4" /> {SECTION_LABELS.pronunciation[language]}
             </h2>
-            <p className="text-white/90 text-lg leading-relaxed">{dua.content_pronunciation}</p>
+            <p className="text-white/90 text-lg leading-relaxed">{text.pronunciation}</p>
           </section>
         )}
 
         {/* Meaning */}
-        {dua.content && (
+        {text.meaning && (
           <section className="bg-gradient-to-br from-[hsl(45,93%,58%)]/10 to-transparent rounded-2xl p-5 border border-[hsl(45,93%,58%)]/20">
             <h2 className="flex items-center gap-2 text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-3">
-              <Heart className="w-4 h-4" /> অর্থ
+              <Heart className="w-4 h-4" /> {SECTION_LABELS.meaning[language]}
             </h2>
-            <p className="text-white text-lg leading-relaxed">{dua.content}</p>
+            <p className="text-white text-lg leading-relaxed">{text.meaning}</p>
           </section>
         )}
 
@@ -367,16 +454,19 @@ const DuaDetailPage = () => {
           <section>
             <h2 className="text-base font-semibold text-white mb-3">সম্পর্কিত দোয়া</h2>
             <div className="space-y-2">
-              {related.map((r) => (
+              {related.map((r) => {
+                const rt = getDuaText(r, language);
+                return (
                 <Link
                   key={r.id}
                   to={`/dua/${r.slug}`}
                   className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition"
                 >
-                  <span className="text-white font-medium">{r.title}</span>
+                  <span className="text-white font-medium">{rt.title}</span>
                   <ChevronRight className="w-4 h-4 text-white/50" />
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}

@@ -10,9 +10,19 @@ interface DuaRow {
   id: string;
   slug: string | null;
   title: string | null;
+  title_en: string | null;
+  title_hi: string | null;
+  title_ur: string | null;
   category: string | null;
   content_arabic: string | null;
   content: string | null;
+  content_en: string | null;
+  content_hi: string | null;
+  content_ur: string | null;
+  content_pronunciation: string | null;
+  content_pronunciation_en: string | null;
+  content_pronunciation_hi: string | null;
+  content_pronunciation_ur: string | null;
 }
 
 const SITE_ORIGIN = "https://noorapp.in";
@@ -24,6 +34,29 @@ const READ_MORE_TEXT: Record<DuaLang, string> = {
   english: "📖 Read More",
   hindi: "📖 और पढ़ें",
   urdu: "📖 مزید پڑھیں",
+};
+
+const LANG_SUFFIX: Record<DuaLang, "" | "_en" | "_hi" | "_ur"> = {
+  bengali: "",
+  english: "_en",
+  hindi: "_hi",
+  urdu: "_ur",
+};
+
+// Language-aware text resolver — falls back to Bengali when missing
+const getDuaText = (dua: DuaRow, language: DuaLang) => {
+  const suf = LANG_SUFFIX[language];
+  const titleKey = (suf ? `title${suf}` : "title") as keyof DuaRow;
+  const contentKey = (suf ? `content${suf}` : "content") as keyof DuaRow;
+  const pronKey = (suf
+    ? `content_pronunciation${suf}`
+    : "content_pronunciation") as keyof DuaRow;
+  return {
+    title: (dua[titleKey] as string | null) || dua.title || "",
+    meaning: (dua[contentKey] as string | null) || dua.content || "",
+    pronunciation:
+      (dua[pronKey] as string | null) || dua.content_pronunciation || "",
+  };
 };
 
 const slugify = (s: string) =>
@@ -64,7 +97,9 @@ const DuaCategoryPage = () => {
       setLoading(true);
       const { data } = await supabase
         .from("admin_content")
-        .select("id, slug, title, category, content_arabic, content")
+        .select(
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content, content_en, content_hi, content_ur, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur"
+        )
         .eq("status", "published")
         .in("content_type", ["dua", "Dua"])
         .order("order_index", { ascending: true });
@@ -184,7 +219,9 @@ const DuaCategoryPage = () => {
           </p>
         ) : (
           <div className="space-y-3">
-            {duas.map((d, i) => (
+            {duas.map((d, i) => {
+              const text = getDuaText(d, language);
+              return (
               <article
                 key={d.id}
                 className="p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10"
@@ -193,7 +230,7 @@ const DuaCategoryPage = () => {
                   <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
                     {i + 1}
                   </span>
-                  <h2 className="font-semibold text-white">{d.title}</h2>
+                  <h2 className="font-semibold text-white">{text.title}</h2>
                 </div>
                 {d.content_arabic && (
                   <p
@@ -203,9 +240,9 @@ const DuaCategoryPage = () => {
                     {d.content_arabic}
                   </p>
                 )}
-                {d.content && (
+                {text.meaning && (
                   <p className="text-sm text-white/70 line-clamp-2 mb-3">
-                    {d.content}
+                    {text.meaning}
                   </p>
                 )}
                 {d.slug ? (
@@ -218,7 +255,8 @@ const DuaCategoryPage = () => {
                   </Link>
                 ) : null}
               </article>
-            ))}
+              );
+            })}
           </div>
         )}
       </article>
