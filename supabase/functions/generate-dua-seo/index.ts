@@ -17,6 +17,7 @@ const SYSTEM_PROMPT = [
   "স্বাভাবিকভাবে অন্তত একবার এই phrase গুলোর কোনো একটি ব্যবহার করো: \"এই দোয়ার ফজিলত\", \"আমরা শিখি\", \"ইসলামে শিক্ষা\"।",
   "benefits_bn: ৩–৫টি ছোট bullet point, প্রতিটি ৬–১৫ শব্দ; দোয়ার আধ্যাত্মিক ও ব্যবহারিক উপকার।",
   "প্রতিটি দোয়ার জন্য কন্টেন্ট unique হতে হবে।",
+  "একই কন্টেন্টের English (en), Hindi (hi) এবং Urdu (ur) অনুবাদও দাও — explanation_en/hi/ur (১০০–১৫০ words) এবং benefits_en/hi/ur (৩–৫ bullet points each)। অনুবাদ অর্থ-বিশ্বস্ত ও স্বাভাবিক হতে হবে।",
   "শুধু tool call এর মাধ্যমে structured output দাও, free text নয়।",
 ].join("\n");
 
@@ -45,7 +46,7 @@ async function generateForDua(args: {
           type: "function",
           function: {
             name: "save_dua_seo",
-            description: "Save the Bengali SEO explanation and benefits for a dua.",
+            description: "Save the multilingual SEO explanation and benefits for a dua (Bengali + English + Hindi + Urdu).",
             parameters: {
               type: "object",
               properties: {
@@ -56,8 +57,38 @@ async function generateForDua(args: {
                   minItems: 3,
                   maxItems: 5,
                 },
+                explanation_en: { type: "string" },
+                benefits_en: {
+                  type: "array",
+                  items: { type: "string" },
+                  minItems: 3,
+                  maxItems: 5,
+                },
+                explanation_hi: { type: "string" },
+                benefits_hi: {
+                  type: "array",
+                  items: { type: "string" },
+                  minItems: 3,
+                  maxItems: 5,
+                },
+                explanation_ur: { type: "string" },
+                benefits_ur: {
+                  type: "array",
+                  items: { type: "string" },
+                  minItems: 3,
+                  maxItems: 5,
+                },
               },
-              required: ["explanation_bn", "benefits_bn"],
+              required: [
+                "explanation_bn",
+                "benefits_bn",
+                "explanation_en",
+                "benefits_en",
+                "explanation_hi",
+                "benefits_hi",
+                "explanation_ur",
+                "benefits_ur",
+              ],
               additionalProperties: false,
             },
           },
@@ -80,9 +111,17 @@ async function generateForDua(args: {
   if (!parsed.explanation_bn || !Array.isArray(parsed.benefits_bn)) {
     throw new Error("invalid tool args");
   }
+  const cleanArr = (a: unknown) =>
+    Array.isArray(a) ? a.map((s: any) => String(s).trim()).filter(Boolean) : [];
   return {
     explanation_bn: String(parsed.explanation_bn).trim(),
-    benefits_bn: parsed.benefits_bn.map((s: any) => String(s).trim()).filter(Boolean),
+    benefits_bn: cleanArr(parsed.benefits_bn),
+    explanation_en: parsed.explanation_en ? String(parsed.explanation_en).trim() : "",
+    benefits_en: cleanArr(parsed.benefits_en),
+    explanation_hi: parsed.explanation_hi ? String(parsed.explanation_hi).trim() : "",
+    benefits_hi: cleanArr(parsed.benefits_hi),
+    explanation_ur: parsed.explanation_ur ? String(parsed.explanation_ur).trim() : "",
+    benefits_ur: cleanArr(parsed.benefits_ur),
   };
 }
 
@@ -103,7 +142,9 @@ Deno.serve(async (req) => {
         .from("admin_content")
         .select("*", { count: "exact", head: true })
         .in("content_type", ["dua", "Dua"])
-        .or("explanation_bn.is.null,benefits_bn.is.null");
+        .or(
+          "explanation_bn.is.null,benefits_bn.is.null,explanation_en.is.null,benefits_en.is.null,explanation_hi.is.null,benefits_hi.is.null,explanation_ur.is.null,benefits_ur.is.null",
+        );
       return new Response(
         JSON.stringify({ total: total ?? 0, pending: pending ?? 0 }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -114,9 +155,13 @@ Deno.serve(async (req) => {
 
     const { data: rows, error } = await supabase
       .from("admin_content")
-      .select("id, title, category, content_arabic, content, explanation_bn, benefits_bn")
+      .select(
+        "id, title, category, content_arabic, content, explanation_bn, benefits_bn, explanation_en, benefits_en, explanation_hi, benefits_hi, explanation_ur, benefits_ur",
+      )
       .in("content_type", ["dua", "Dua"])
-      .or("explanation_bn.is.null,benefits_bn.is.null")
+      .or(
+        "explanation_bn.is.null,benefits_bn.is.null,explanation_en.is.null,benefits_en.is.null,explanation_hi.is.null,benefits_hi.is.null,explanation_ur.is.null,benefits_ur.is.null",
+      )
       .limit(batchSize);
 
     if (error) throw error;
@@ -147,6 +192,18 @@ Deno.serve(async (req) => {
             if (!d.explanation_bn) update.explanation_bn = out.explanation_bn;
             if (!d.benefits_bn || d.benefits_bn.length === 0)
               update.benefits_bn = out.benefits_bn;
+            if (!d.explanation_en && out.explanation_en)
+              update.explanation_en = out.explanation_en;
+            if ((!d.benefits_en || d.benefits_en.length === 0) && out.benefits_en.length > 0)
+              update.benefits_en = out.benefits_en;
+            if (!d.explanation_hi && out.explanation_hi)
+              update.explanation_hi = out.explanation_hi;
+            if ((!d.benefits_hi || d.benefits_hi.length === 0) && out.benefits_hi.length > 0)
+              update.benefits_hi = out.benefits_hi;
+            if (!d.explanation_ur && out.explanation_ur)
+              update.explanation_ur = out.explanation_ur;
+            if ((!d.benefits_ur || d.benefits_ur.length === 0) && out.benefits_ur.length > 0)
+              update.benefits_ur = out.benefits_ur;
             if (Object.keys(update).length === 0) return;
             const { error: upErr } = await supabase
               .from("admin_content")
@@ -166,7 +223,9 @@ Deno.serve(async (req) => {
       .from("admin_content")
       .select("*", { count: "exact", head: true })
       .in("content_type", ["dua", "Dua"])
-      .or("explanation_bn.is.null,benefits_bn.is.null");
+      .or(
+        "explanation_bn.is.null,benefits_bn.is.null,explanation_en.is.null,benefits_en.is.null,explanation_hi.is.null,benefits_hi.is.null,explanation_ur.is.null,benefits_ur.is.null",
+      );
 
     return new Response(
       JSON.stringify({
