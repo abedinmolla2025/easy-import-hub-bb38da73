@@ -476,23 +476,23 @@ const DuaDetailPage = () => {
         <AdSlot placement="web_dua_middle" />
 
         {/* Explanation */}
-        {dua.explanation_bn && (
+        {rich.explanation && (
           <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-              <ScrollText className="w-5 h-5 text-[hsl(45,93%,58%)]" /> বিস্তারিত ব্যাখ্যা
+              <ScrollText className="w-5 h-5 text-[hsl(45,93%,58%)]" /> {RICH_LABELS.explanation[language]}
             </h2>
-            <div className="text-white/85 leading-relaxed whitespace-pre-line">{dua.explanation_bn}</div>
+            <div className="text-white/85 leading-relaxed whitespace-pre-line">{rich.explanation}</div>
           </section>
         )}
 
         {/* Benefits */}
-        {dua.benefits_bn && dua.benefits_bn.length > 0 && (
+        {rich.benefits && rich.benefits.length > 0 && (
           <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-              <Star className="w-5 h-5 text-[hsl(45,93%,58%)]" /> ফজিলত
+              <Star className="w-5 h-5 text-[hsl(45,93%,58%)]" /> {RICH_LABELS.benefits[language]}
             </h2>
             <ul className="space-y-2 text-white/85">
-              {dua.benefits_bn.map((b, i) => (
+              {rich.benefits.map((b, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-[hsl(45,93%,58%)] mt-1">•</span>
                   <span className="leading-relaxed">{b}</span>
@@ -503,19 +503,19 @@ const DuaDetailPage = () => {
         )}
 
         {/* When to recite */}
-        {dua.when_to_recite_bn && (
+        {rich.whenToRecite && (
           <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-              <Clock className="w-5 h-5 text-[hsl(45,93%,58%)]" /> কখন পড়তে হয়
+              <Clock className="w-5 h-5 text-[hsl(45,93%,58%)]" /> {RICH_LABELS.whenToRecite[language]}
             </h2>
-            <p className="text-white/85 leading-relaxed whitespace-pre-line">{dua.when_to_recite_bn}</p>
+            <p className="text-white/85 leading-relaxed whitespace-pre-line">{rich.whenToRecite}</p>
           </section>
         )}
 
         {/* Hadith reference */}
         {dua.hadith_reference && (
           <section className="bg-[hsl(45,93%,58%)]/10 rounded-2xl p-5 border border-[hsl(45,93%,58%)]/30">
-            <h2 className="text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">হাদিস রেফারেন্স</h2>
+            <h2 className="text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">{RICH_LABELS.hadithRef[language]}</h2>
             <p className="text-white/90 italic leading-relaxed">{dua.hadith_reference}</p>
           </section>
         )}
@@ -523,7 +523,7 @@ const DuaDetailPage = () => {
         {/* Related Duas */}
         {related.length > 0 && (
           <section>
-            <h2 className="text-base font-semibold text-white mb-3">সম্পর্কিত দোয়া</h2>
+            <h2 className="text-base font-semibold text-white mb-3">{RICH_LABELS.related[language]}</h2>
             <div className="space-y-2">
               {related.map((r) => {
                 const rt = getDuaText(r, language);
