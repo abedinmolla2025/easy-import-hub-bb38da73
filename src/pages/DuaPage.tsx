@@ -103,6 +103,24 @@ const UI_LABELS = {
     hindi: "📖 और पढ़ें",
     urdu: "📖 مزید پڑھیں",
   },
+  todayDua: {
+    bengali: "আজকের দোয়া",
+    english: "Today's Dua",
+    hindi: "आज की दुआ",
+    urdu: "آج کی دعا",
+  },
+  featuredDuas: {
+    bengali: "নির্বাচিত দোয়া",
+    english: "Featured Duas",
+    hindi: "चयनित दुआ",
+    urdu: "منتخب دعائیں",
+  },
+  viewAllDuas: {
+    bengali: "সব দোয়া দেখুন →",
+    english: "View All Duas →",
+    hindi: "सभी दुआ देखें →",
+    urdu: "تمام دعائیں دیکھیں ←",
+  },
 } as const;
 
 interface DuaTranslation {
@@ -477,7 +495,7 @@ const DuaPage = () => {
                       <div className="flex items-center gap-2 mb-2">
                         <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
                         <span className="text-[11px] font-semibold uppercase tracking-wide text-[hsl(45,93%,58%)]">
-                          আজকের দোয়া
+                          {UI_LABELS.todayDua[language]}
                         </span>
                       </div>
                       <p className="text-base font-bold text-white line-clamp-1">
@@ -509,7 +527,7 @@ const DuaPage = () => {
                           {getCategoryLabel(cat, language)}
                         </p>
                         <p className="text-[11px] text-white/60 mt-0.5">
-                          সব দোয়া দেখুন →
+                          {UI_LABELS.viewAllDuas[language]}
                         </p>
                       </Link>
                     ))}
@@ -525,7 +543,7 @@ const DuaPage = () => {
                       <section className="space-y-2">
                         <h2 className="text-sm font-semibold text-white/90 flex items-center gap-2">
                           <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                          নির্বাচিত দোয়া
+                          {UI_LABELS.featuredDuas[language]}
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {featured.map((d) => (

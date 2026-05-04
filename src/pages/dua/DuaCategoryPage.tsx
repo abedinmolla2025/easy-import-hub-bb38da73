@@ -36,6 +36,41 @@ const READ_MORE_TEXT: Record<DuaLang, string> = {
   urdu: "📖 مزید پڑھیں",
 };
 
+const UI_LABELS = {
+  home: { bengali: "হোম", english: "Home", hindi: "होम", urdu: "ہوم" },
+  dua: { bengali: "দোয়া", english: "Dua", hindi: "दुआ", urdu: "دعا" },
+  categoryHeading: {
+    bengali: (n: string) => `${n} সম্পর্কিত দোয়া`,
+    english: (n: string) => `Duas related to ${n}`,
+    hindi: (n: string) => `${n} से संबंधित दुआएं`,
+    urdu: (n: string) => `${n} سے متعلق دعائیں`,
+  },
+  categoryHeader: {
+    bengali: (n: string) => `${n} দোয়া`,
+    english: (n: string) => `${n} Duas`,
+    hindi: (n: string) => `${n} दुआएं`,
+    urdu: (n: string) => `${n} دعائیں`,
+  },
+  countLine: {
+    bengali: (c: number) => `${c} টি দোয়া — আরবি, বাংলা অর্থ ও ফজিলতসহ`,
+    english: (c: number) => `${c} duas — with Arabic, meaning & benefits`,
+    hindi: (c: number) => `${c} दुआएं — अरबी, अर्थ और फ़ज़ीलत के साथ`,
+    urdu: (c: number) => `${c} دعائیں — عربی، معنی اور فضائل کے ساتھ`,
+  },
+  loading: {
+    bengali: "লোড হচ্ছে...",
+    english: "Loading...",
+    hindi: "लोड हो रहा है...",
+    urdu: "لوڈ ہو رہا ہے...",
+  },
+  emptyCategory: {
+    bengali: "এই বিভাগে কোনো দোয়া পাওয়া যায়নি।",
+    english: "No duas found in this category.",
+    hindi: "इस श्रेणी में कोई दुआ नहीं मिली।",
+    urdu: "اس زمرے میں کوئی دعا نہیں ملی۔",
+  },
+} as const;
+
 const LANG_SUFFIX: Record<DuaLang, "" | "_en" | "_hi" | "_ur"> = {
   bengali: "",
   english: "_en",
@@ -181,7 +216,7 @@ const DuaCategoryPage = () => {
             <BookOpen className="w-4 h-4 text-[hsl(158,64%,15%)]" />
           </div>
           <h1 className="text-xl font-bold text-white truncate">
-            {categoryName} দোয়া
+            {UI_LABELS.categoryHeader[language](categoryName)}
           </h1>
         </div>
       </motion.header>
@@ -190,11 +225,11 @@ const DuaCategoryPage = () => {
         {/* Breadcrumb */}
         <nav className="text-xs text-white/60 flex items-center gap-1 flex-wrap">
           <Link to="/" className="hover:text-[hsl(45,93%,58%)]">
-            হোম
+            {UI_LABELS.home[language]}
           </Link>
           <ChevronRight className="w-3 h-3" />
           <Link to="/dua" className="hover:text-[hsl(45,93%,58%)]">
-            দোয়া
+            {UI_LABELS.dua[language]}
           </Link>
           <ChevronRight className="w-3 h-3" />
           <span>{categoryName}</span>
@@ -202,20 +237,20 @@ const DuaCategoryPage = () => {
 
         <header>
           <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-            {categoryName} সম্পর্কিত দোয়া
+            {UI_LABELS.categoryHeading[language](categoryName)}
           </h1>
           <p className="mt-2 text-sm text-white/70">
-            {duas.length} টি দোয়া — আরবি, বাংলা অর্থ ও ফজিলতসহ
+            {UI_LABELS.countLine[language](duas.length)}
           </p>
         </header>
 
         <AdSlot placement="web_dua_middle" />
 
         {loading ? (
-          <p className="text-white/70 text-sm py-8 text-center">লোড হচ্ছে...</p>
+          <p className="text-white/70 text-sm py-8 text-center">{UI_LABELS.loading[language]}</p>
         ) : duas.length === 0 ? (
           <p className="text-white/70 text-sm py-8 text-center">
-            এই বিভাগে কোনো দোয়া পাওয়া যায়নি।
+            {UI_LABELS.emptyCategory[language]}
           </p>
         ) : (
           <div className="space-y-3">
