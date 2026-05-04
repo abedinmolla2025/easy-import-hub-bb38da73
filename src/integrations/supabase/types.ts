@@ -107,6 +107,9 @@ export type Database = {
           approved_by: string | null
           audio_url: string | null
           benefits_bn: string[] | null
+          benefits_en: string[] | null
+          benefits_hi: string[] | null
+          benefits_ur: string[] | null
           category: string | null
           content: string | null
           content_arabic: string | null
@@ -122,6 +125,9 @@ export type Database = {
           created_by: string | null
           current_version_id: string | null
           explanation_bn: string | null
+          explanation_en: string | null
+          explanation_hi: string | null
+          explanation_ur: string | null
           hadith_reference: string | null
           id: string
           image_url: string | null
@@ -140,6 +146,9 @@ export type Database = {
           title_ur: string | null
           updated_at: string | null
           when_to_recite_bn: string | null
+          when_to_recite_en: string | null
+          when_to_recite_hi: string | null
+          when_to_recite_ur: string | null
         }
         Insert: {
           approval_required?: boolean
@@ -147,6 +156,9 @@ export type Database = {
           approved_by?: string | null
           audio_url?: string | null
           benefits_bn?: string[] | null
+          benefits_en?: string[] | null
+          benefits_hi?: string[] | null
+          benefits_ur?: string[] | null
           category?: string | null
           content?: string | null
           content_arabic?: string | null
@@ -162,6 +174,9 @@ export type Database = {
           created_by?: string | null
           current_version_id?: string | null
           explanation_bn?: string | null
+          explanation_en?: string | null
+          explanation_hi?: string | null
+          explanation_ur?: string | null
           hadith_reference?: string | null
           id?: string
           image_url?: string | null
@@ -180,6 +195,9 @@ export type Database = {
           title_ur?: string | null
           updated_at?: string | null
           when_to_recite_bn?: string | null
+          when_to_recite_en?: string | null
+          when_to_recite_hi?: string | null
+          when_to_recite_ur?: string | null
         }
         Update: {
           approval_required?: boolean
@@ -187,6 +205,9 @@ export type Database = {
           approved_by?: string | null
           audio_url?: string | null
           benefits_bn?: string[] | null
+          benefits_en?: string[] | null
+          benefits_hi?: string[] | null
+          benefits_ur?: string[] | null
           category?: string | null
           content?: string | null
           content_arabic?: string | null
@@ -202,6 +223,9 @@ export type Database = {
           created_by?: string | null
           current_version_id?: string | null
           explanation_bn?: string | null
+          explanation_en?: string | null
+          explanation_hi?: string | null
+          explanation_ur?: string | null
           hadith_reference?: string | null
           id?: string
           image_url?: string | null
@@ -220,6 +244,9 @@ export type Database = {
           title_ur?: string | null
           updated_at?: string | null
           when_to_recite_bn?: string | null
+          when_to_recite_en?: string | null
+          when_to_recite_hi?: string | null
+          when_to_recite_ur?: string | null
         }
         Relationships: [
           {
