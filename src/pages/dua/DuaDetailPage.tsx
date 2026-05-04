@@ -29,6 +29,16 @@ interface DuaRow {
   benefits_bn: string[] | null;
   when_to_recite_bn: string | null;
   hadith_reference: string | null;
+  // Multilingual translations (fallback to *_bn when missing)
+  explanation_en: string | null;
+  explanation_hi: string | null;
+  explanation_ur: string | null;
+  benefits_en: string[] | null;
+  benefits_hi: string[] | null;
+  benefits_ur: string[] | null;
+  when_to_recite_en: string | null;
+  when_to_recite_hi: string | null;
+  when_to_recite_ur: string | null;
 }
 
 const SITE_ORIGIN = "https://noorapp.in";
@@ -81,6 +91,66 @@ const SECTION_LABELS = {
   },
 } as const;
 
+const RICH_LABELS = {
+  explanation: {
+    bengali: "বিস্তারিত ব্যাখ্যা",
+    english: "Detailed Explanation",
+    hindi: "विस्तृत व्याख्या",
+    urdu: "تفصیلی وضاحت",
+  },
+  benefits: {
+    bengali: "ফজিলত",
+    english: "Virtues & Benefits",
+    hindi: "फ़ज़ीलत",
+    urdu: "فضائل",
+  },
+  whenToRecite: {
+    bengali: "কখন পড়তে হয়",
+    english: "When to Recite",
+    hindi: "कब पढ़ें",
+    urdu: "کب پڑھیں",
+  },
+  hadithRef: {
+    bengali: "হাদিস রেফারেন্স",
+    english: "Hadith Reference",
+    hindi: "हदीस संदर्भ",
+    urdu: "حدیث حوالہ",
+  },
+  related: {
+    bengali: "সম্পর্কিত দোয়া",
+    english: "Related Duas",
+    hindi: "संबंधित दुआएं",
+    urdu: "متعلقہ دعائیں",
+  },
+} as const;
+
+// Resolve language-aware rich content with fallback to Bengali
+const getDuaRich = (dua: DuaRow, language: DuaLang) => {
+  const pick = <T,>(en: T | null, hi: T | null, ur: T | null, bn: T | null): T | null => {
+    if (language === "english") return en ?? bn;
+    if (language === "hindi") return hi ?? bn;
+    if (language === "urdu") return ur ?? bn;
+    return bn;
+  };
+  const benefits =
+    pick(dua.benefits_en, dua.benefits_hi, dua.benefits_ur, dua.benefits_bn) ?? null;
+  return {
+    explanation: pick(
+      dua.explanation_en,
+      dua.explanation_hi,
+      dua.explanation_ur,
+      dua.explanation_bn,
+    ),
+    benefits: benefits && benefits.length > 0 ? benefits : null,
+    whenToRecite: pick(
+      dua.when_to_recite_en,
+      dua.when_to_recite_hi,
+      dua.when_to_recite_ur,
+      dua.when_to_recite_bn,
+    ),
+  };
+};
+
 const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
 const slugifyCategory = (s: string) =>
@@ -123,7 +193,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -143,7 +213,7 @@ const DuaDetailPage = () => {
       if (cat) {
         const { data: rel } = await supabase
           .from("admin_content")
-          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference")
+          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference")
           .eq("category", cat)
           .eq("status", "published")
           .in("content_type", ["dua", "Dua"])
