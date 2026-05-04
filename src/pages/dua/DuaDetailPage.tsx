@@ -326,6 +326,7 @@ const DuaDetailPage = () => {
   }
 
   const text = getDuaText(dua, language);
+  const rich = getDuaRich(dua, language);
 
   return (
     <div className="min-h-screen bg-[hsl(158,64%,18%)]">
