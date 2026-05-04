@@ -29,6 +29,16 @@ interface DuaRow {
   benefits_bn: string[] | null;
   when_to_recite_bn: string | null;
   hadith_reference: string | null;
+  // Multilingual translations (fallback to *_bn when missing)
+  explanation_en: string | null;
+  explanation_hi: string | null;
+  explanation_ur: string | null;
+  benefits_en: string[] | null;
+  benefits_hi: string[] | null;
+  benefits_ur: string[] | null;
+  when_to_recite_en: string | null;
+  when_to_recite_hi: string | null;
+  when_to_recite_ur: string | null;
 }
 
 const SITE_ORIGIN = "https://noorapp.in";
@@ -81,6 +91,66 @@ const SECTION_LABELS = {
   },
 } as const;
 
+const RICH_LABELS = {
+  explanation: {
+    bengali: "বিস্তারিত ব্যাখ্যা",
+    english: "Detailed Explanation",
+    hindi: "विस्तृत व्याख्या",
+    urdu: "تفصیلی وضاحت",
+  },
+  benefits: {
+    bengali: "ফজিলত",
+    english: "Virtues & Benefits",
+    hindi: "फ़ज़ीलत",
+    urdu: "فضائل",
+  },
+  whenToRecite: {
+    bengali: "কখন পড়তে হয়",
+    english: "When to Recite",
+    hindi: "कब पढ़ें",
+    urdu: "کب پڑھیں",
+  },
+  hadithRef: {
+    bengali: "হাদিস রেফারেন্স",
+    english: "Hadith Reference",
+    hindi: "हदीस संदर्भ",
+    urdu: "حدیث حوالہ",
+  },
+  related: {
+    bengali: "সম্পর্কিত দোয়া",
+    english: "Related Duas",
+    hindi: "संबंधित दुआएं",
+    urdu: "متعلقہ دعائیں",
+  },
+} as const;
+
+// Resolve language-aware rich content with fallback to Bengali
+const getDuaRich = (dua: DuaRow, language: DuaLang) => {
+  const pick = <T,>(en: T | null, hi: T | null, ur: T | null, bn: T | null): T | null => {
+    if (language === "english") return en ?? bn;
+    if (language === "hindi") return hi ?? bn;
+    if (language === "urdu") return ur ?? bn;
+    return bn;
+  };
+  const benefits =
+    pick(dua.benefits_en, dua.benefits_hi, dua.benefits_ur, dua.benefits_bn) ?? null;
+  return {
+    explanation: pick(
+      dua.explanation_en,
+      dua.explanation_hi,
+      dua.explanation_ur,
+      dua.explanation_bn,
+    ),
+    benefits: benefits && benefits.length > 0 ? benefits : null,
+    whenToRecite: pick(
+      dua.when_to_recite_en,
+      dua.when_to_recite_hi,
+      dua.when_to_recite_ur,
+      dua.when_to_recite_bn,
+    ),
+  };
+};
+
 const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
 const slugifyCategory = (s: string) =>
@@ -123,7 +193,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -143,7 +213,7 @@ const DuaDetailPage = () => {
       if (cat) {
         const { data: rel } = await supabase
           .from("admin_content")
-          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, benefits_bn, when_to_recite_bn, hadith_reference")
+          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference")
           .eq("category", cat)
           .eq("status", "published")
           .in("content_type", ["dua", "Dua"])
@@ -256,6 +326,7 @@ const DuaDetailPage = () => {
   }
 
   const text = getDuaText(dua, language);
+  const rich = getDuaRich(dua, language);
 
   return (
     <div className="min-h-screen bg-[hsl(158,64%,18%)]">
@@ -405,23 +476,23 @@ const DuaDetailPage = () => {
         <AdSlot placement="web_dua_middle" />
 
         {/* Explanation */}
-        {dua.explanation_bn && (
+        {rich.explanation && (
           <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-              <ScrollText className="w-5 h-5 text-[hsl(45,93%,58%)]" /> বিস্তারিত ব্যাখ্যা
+              <ScrollText className="w-5 h-5 text-[hsl(45,93%,58%)]" /> {RICH_LABELS.explanation[language]}
             </h2>
-            <div className="text-white/85 leading-relaxed whitespace-pre-line">{dua.explanation_bn}</div>
+            <div className="text-white/85 leading-relaxed whitespace-pre-line">{rich.explanation}</div>
           </section>
         )}
 
         {/* Benefits */}
-        {dua.benefits_bn && dua.benefits_bn.length > 0 && (
+        {rich.benefits && rich.benefits.length > 0 && (
           <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-              <Star className="w-5 h-5 text-[hsl(45,93%,58%)]" /> ফজিলত
+              <Star className="w-5 h-5 text-[hsl(45,93%,58%)]" /> {RICH_LABELS.benefits[language]}
             </h2>
             <ul className="space-y-2 text-white/85">
-              {dua.benefits_bn.map((b, i) => (
+              {rich.benefits.map((b, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-[hsl(45,93%,58%)] mt-1">•</span>
                   <span className="leading-relaxed">{b}</span>
@@ -432,19 +503,19 @@ const DuaDetailPage = () => {
         )}
 
         {/* When to recite */}
-        {dua.when_to_recite_bn && (
+        {rich.whenToRecite && (
           <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-              <Clock className="w-5 h-5 text-[hsl(45,93%,58%)]" /> কখন পড়তে হয়
+              <Clock className="w-5 h-5 text-[hsl(45,93%,58%)]" /> {RICH_LABELS.whenToRecite[language]}
             </h2>
-            <p className="text-white/85 leading-relaxed whitespace-pre-line">{dua.when_to_recite_bn}</p>
+            <p className="text-white/85 leading-relaxed whitespace-pre-line">{rich.whenToRecite}</p>
           </section>
         )}
 
         {/* Hadith reference */}
         {dua.hadith_reference && (
           <section className="bg-[hsl(45,93%,58%)]/10 rounded-2xl p-5 border border-[hsl(45,93%,58%)]/30">
-            <h2 className="text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">হাদিস রেফারেন্স</h2>
+            <h2 className="text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">{RICH_LABELS.hadithRef[language]}</h2>
             <p className="text-white/90 italic leading-relaxed">{dua.hadith_reference}</p>
           </section>
         )}
@@ -452,7 +523,7 @@ const DuaDetailPage = () => {
         {/* Related Duas */}
         {related.length > 0 && (
           <section>
-            <h2 className="text-base font-semibold text-white mb-3">সম্পর্কিত দোয়া</h2>
+            <h2 className="text-base font-semibold text-white mb-3">{RICH_LABELS.related[language]}</h2>
             <div className="space-y-2">
               {related.map((r) => {
                 const rt = getDuaText(r, language);

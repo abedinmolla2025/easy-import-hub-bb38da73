@@ -92,11 +92,11 @@ export default function DuaSeoGeneratorPanel() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Sparkles className="h-4 w-4 text-primary" /> Generate SEO Content (Bengali)
+          <Sparkles className="h-4 w-4 text-primary" /> Generate SEO Content (BN / EN / HI / UR)
         </CardTitle>
         <CardDescription>
-          প্রতিটি দোয়ার জন্য AI দিয়ে বাংলা <code>explanation_bn</code> (১০০–১৫০ শব্দ) ও <code>benefits_bn</code> (৩–৫ পয়েন্ট) তৈরি করো।
-          বিদ্যমান কন্টেন্ট overwrite হবে না। Batch size: {BATCH_SIZE}।
+          প্রতিটি দোয়ার জন্য AI দিয়ে <code>explanation</code> (১০০–১৫০ শব্দ) ও <code>benefits</code> (৩–৫ পয়েন্ট) চারটি ভাষায় তৈরি করো — বাংলা, English, हिंदी, اردو।
+          বিদ্যমান কন্টেন্ট overwrite হবে না; শুধু missing language fields পূরণ হবে। Batch size: {BATCH_SIZE}।
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
