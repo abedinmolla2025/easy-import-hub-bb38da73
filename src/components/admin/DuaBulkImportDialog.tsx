@@ -42,6 +42,7 @@ type ImportResult = {
 
 const duaImportItemSchema = z
   .object({
+    slug: z.string().trim().min(1).max(200).optional(),
     title: z.string().trim().min(1).max(200),
     title_arabic: z.string().trim().min(1).max(200).optional(),
     title_en: z.string().trim().min(1).max(200).optional(),
@@ -62,10 +63,87 @@ const duaImportItemSchema = z
 
     source: z.string().trim().max(300).optional(),
     reference: z.string().trim().max(300).optional(),
+
+    // Optional extras stored in metadata
+    metadata_extra: z.record(z.any()).optional(),
   })
-  .strict();
+  .passthrough();
 
 type DuaImportItem = z.infer<typeof duaImportItemSchema>;
+
+/**
+ * Normalize raw JSON entry to flat DuaImportItem.
+ * Supports BOTH legacy flat format and new nested format
+ * (pronunciation: { bn,en,hi,ur }, translation_bn/en, title_bn, social, hook, og_image_data).
+ */
+const normalizeRawItem = (raw: unknown): { item: Record<string, unknown> | null; format: "old" | "new" | "unknown" } => {
+  if (!raw || typeof raw !== "object") return { item: null, format: "unknown" };
+  const r = raw as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+
+  // Title (new format may use title_bn)
+  const title =
+    (typeof r.title === "string" && r.title) ||
+    (typeof r.title_bn === "string" && (r.title_bn as string)) ||
+    (typeof r.title_en === "string" && (r.title_en as string)) ||
+    "";
+  if (title) out.title = title;
+
+  if (typeof r.title_arabic === "string") out.title_arabic = r.title_arabic;
+  if (typeof r.title_en === "string") out.title_en = r.title_en;
+  if (typeof r.title_hi === "string") out.title_hi = r.title_hi;
+  if (typeof r.title_ur === "string") out.title_ur = r.title_ur;
+
+  // Arabic body: new uses "arabic", old uses "content_arabic"
+  if (typeof r.content_arabic === "string") out.content_arabic = r.content_arabic;
+  else if (typeof r.arabic === "string") out.content_arabic = r.arabic;
+
+  // Meaning/translation: new uses translation_bn/en, old uses content_bn/en/hi/ur
+  if (typeof r.content_bn === "string") out.content_bn = r.content_bn;
+  else if (typeof r.translation_bn === "string") out.content_bn = r.translation_bn;
+
+  if (typeof r.content_en === "string") out.content_en = r.content_en;
+  else if (typeof r.translation_en === "string") out.content_en = r.translation_en;
+
+  if (typeof r.content_hi === "string") out.content_hi = r.content_hi;
+  else if (typeof r.translation_hi === "string") out.content_hi = r.translation_hi;
+
+  if (typeof r.content_ur === "string") out.content_ur = r.content_ur;
+  else if (typeof r.translation_ur === "string") out.content_ur = r.translation_ur;
+
+  // Pronunciation: new = nested object; old = flat strings
+  let isNewPron = false;
+  const pron = r.pronunciation;
+  if (pron && typeof pron === "object" && !Array.isArray(pron)) {
+    isNewPron = true;
+    const p = pron as Record<string, unknown>;
+    if (typeof p.bn === "string") out.pronunciation = p.bn;
+    if (typeof p.en === "string") out.pronunciation_en = p.en;
+    if (typeof p.hi === "string") out.pronunciation_hi = p.hi;
+    if (typeof p.ur === "string") out.pronunciation_ur = p.ur;
+  } else if (typeof pron === "string") {
+    out.pronunciation = pron;
+  }
+  if (typeof r.pronunciation_en === "string" && !out.pronunciation_en) out.pronunciation_en = r.pronunciation_en;
+  if (typeof r.pronunciation_hi === "string" && !out.pronunciation_hi) out.pronunciation_hi = r.pronunciation_hi;
+  if (typeof r.pronunciation_ur === "string" && !out.pronunciation_ur) out.pronunciation_ur = r.pronunciation_ur;
+
+  if (typeof r.slug === "string") out.slug = r.slug;
+  if (typeof r.category === "string") out.category = r.category;
+  if (typeof r.source === "string") out.source = r.source;
+  else if (typeof r.source_type === "string") out.source = r.source_type;
+  if (typeof r.reference === "string") out.reference = r.reference;
+
+  // Capture optional extras for metadata
+  const extras: Record<string, unknown> = {};
+  for (const k of ["social", "hook", "og_image_data", "share_text", "emotion", "viral_score", "virtue", "virtue_reference", "authenticity", "audio_url", "difficulty", "time_required", "benefits", "when_to_recite_bn", "when_to_recite_en"]) {
+    if (r[k] !== undefined && r[k] !== null) extras[k] = r[k];
+  }
+  if (Object.keys(extras).length) out.metadata_extra = extras;
+
+  const format: "old" | "new" | "unknown" = isNewPron || r.translation_bn || r.translation_en || r.arabic || r.social || r.hook || r.og_image_data ? "new" : "old";
+  return { item: out, format };
+};
 
 const makeKey = (title: string, titleArabic?: string) =>
   `${title.trim().toLowerCase()}||${(titleArabic ?? "").trim().toLowerCase()}`;
