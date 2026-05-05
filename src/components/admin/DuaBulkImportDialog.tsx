@@ -42,6 +42,7 @@ type ImportResult = {
 
 const duaImportItemSchema = z
   .object({
+    slug: z.string().trim().min(1).max(200).optional(),
     title: z.string().trim().min(1).max(200),
     title_arabic: z.string().trim().min(1).max(200).optional(),
     title_en: z.string().trim().min(1).max(200).optional(),
@@ -62,10 +63,87 @@ const duaImportItemSchema = z
 
     source: z.string().trim().max(300).optional(),
     reference: z.string().trim().max(300).optional(),
+
+    // Optional extras stored in metadata
+    metadata_extra: z.record(z.any()).optional(),
   })
-  .strict();
+  .passthrough();
 
 type DuaImportItem = z.infer<typeof duaImportItemSchema>;
+
+/**
+ * Normalize raw JSON entry to flat DuaImportItem.
+ * Supports BOTH legacy flat format and new nested format
+ * (pronunciation: { bn,en,hi,ur }, translation_bn/en, title_bn, social, hook, og_image_data).
+ */
+const normalizeRawItem = (raw: unknown): { item: Record<string, unknown> | null; format: "old" | "new" | "unknown" } => {
+  if (!raw || typeof raw !== "object") return { item: null, format: "unknown" };
+  const r = raw as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+
+  // Title (new format may use title_bn)
+  const title =
+    (typeof r.title === "string" && r.title) ||
+    (typeof r.title_bn === "string" && (r.title_bn as string)) ||
+    (typeof r.title_en === "string" && (r.title_en as string)) ||
+    "";
+  if (title) out.title = title;
+
+  if (typeof r.title_arabic === "string") out.title_arabic = r.title_arabic;
+  if (typeof r.title_en === "string") out.title_en = r.title_en;
+  if (typeof r.title_hi === "string") out.title_hi = r.title_hi;
+  if (typeof r.title_ur === "string") out.title_ur = r.title_ur;
+
+  // Arabic body: new uses "arabic", old uses "content_arabic"
+  if (typeof r.content_arabic === "string") out.content_arabic = r.content_arabic;
+  else if (typeof r.arabic === "string") out.content_arabic = r.arabic;
+
+  // Meaning/translation: new uses translation_bn/en, old uses content_bn/en/hi/ur
+  if (typeof r.content_bn === "string") out.content_bn = r.content_bn;
+  else if (typeof r.translation_bn === "string") out.content_bn = r.translation_bn;
+
+  if (typeof r.content_en === "string") out.content_en = r.content_en;
+  else if (typeof r.translation_en === "string") out.content_en = r.translation_en;
+
+  if (typeof r.content_hi === "string") out.content_hi = r.content_hi;
+  else if (typeof r.translation_hi === "string") out.content_hi = r.translation_hi;
+
+  if (typeof r.content_ur === "string") out.content_ur = r.content_ur;
+  else if (typeof r.translation_ur === "string") out.content_ur = r.translation_ur;
+
+  // Pronunciation: new = nested object; old = flat strings
+  let isNewPron = false;
+  const pron = r.pronunciation;
+  if (pron && typeof pron === "object" && !Array.isArray(pron)) {
+    isNewPron = true;
+    const p = pron as Record<string, unknown>;
+    if (typeof p.bn === "string") out.pronunciation = p.bn;
+    if (typeof p.en === "string") out.pronunciation_en = p.en;
+    if (typeof p.hi === "string") out.pronunciation_hi = p.hi;
+    if (typeof p.ur === "string") out.pronunciation_ur = p.ur;
+  } else if (typeof pron === "string") {
+    out.pronunciation = pron;
+  }
+  if (typeof r.pronunciation_en === "string" && !out.pronunciation_en) out.pronunciation_en = r.pronunciation_en;
+  if (typeof r.pronunciation_hi === "string" && !out.pronunciation_hi) out.pronunciation_hi = r.pronunciation_hi;
+  if (typeof r.pronunciation_ur === "string" && !out.pronunciation_ur) out.pronunciation_ur = r.pronunciation_ur;
+
+  if (typeof r.slug === "string") out.slug = r.slug;
+  if (typeof r.category === "string") out.category = r.category;
+  if (typeof r.source === "string") out.source = r.source;
+  else if (typeof r.source_type === "string") out.source = r.source_type;
+  if (typeof r.reference === "string") out.reference = r.reference;
+
+  // Capture optional extras for metadata
+  const extras: Record<string, unknown> = {};
+  for (const k of ["social", "hook", "og_image_data", "share_text", "emotion", "viral_score", "virtue", "virtue_reference", "authenticity", "audio_url", "difficulty", "time_required", "benefits", "when_to_recite_bn", "when_to_recite_en"]) {
+    if (r[k] !== undefined && r[k] !== null) extras[k] = r[k];
+  }
+  if (Object.keys(extras).length) out.metadata_extra = extras;
+
+  const format: "old" | "new" | "unknown" = isNewPron || r.translation_bn || r.translation_en || r.arabic || r.social || r.hook || r.og_image_data ? "new" : "old";
+  return { item: out, format };
+};
 
 const makeKey = (title: string, titleArabic?: string) =>
   `${title.trim().toLowerCase()}||${(titleArabic ?? "").trim().toLowerCase()}`;
@@ -142,15 +220,37 @@ export function DuaBulkImportDialog({
     const duplicatesInFile: DuaImportItem[] = [];
     const invalid: string[] = [];
     const seen = new Set<string>();
+    const seenSlugs = new Set<string>();
+    const formatCounts = { old: 0, new: 0, unknown: 0 };
 
     rawItems.forEach((item, idx) => {
-      const res = duaImportItemSchema.safeParse(item);
+      const { item: normalized, format } = normalizeRawItem(item);
+      formatCounts[format] += 1;
+      if (!normalized) {
+        invalid.push(`Row ${idx + 1}: not an object`);
+        console.warn(`[DuaImport] Row ${idx + 1} skipped: not an object`, item);
+        return;
+      }
+      const res = duaImportItemSchema.safeParse(normalized);
       if (!res.success) {
-        invalid.push(`Row ${idx + 1}: invalid format`);
+        const reason = res.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+        invalid.push(`Row ${idx + 1}: ${reason || "invalid format"}`);
+        console.warn(`[DuaImport] Row ${idx + 1} invalid (${format}):`, reason, normalized);
         return;
       }
 
       const it = res.data;
+
+      // Slug-based dedup wins when slug is present
+      if (it.slug) {
+        if (seenSlugs.has(it.slug)) {
+          duplicatesInFile.push(it);
+          console.info(`[DuaImport] Row ${idx + 1} duplicate slug in file: ${it.slug}`);
+          return;
+        }
+        seenSlugs.add(it.slug);
+      }
+
       const key = makeKey(it.title, it.title_arabic);
 
       if (seen.has(key)) {
@@ -160,12 +260,21 @@ export function DuaBulkImportDialog({
 
       if (existingKeys.has(key)) {
         duplicatesExisting.push(it);
+        console.info(`[DuaImport] Row ${idx + 1} matches existing (title/arabic): ${it.title}`);
         return;
       }
 
       seen.add(key);
       valid.push(it);
+      console.debug(`[DuaImport] Row ${idx + 1} OK [${format}] mapped:`, {
+        slug: it.slug, title: it.title,
+        pronunciation: !!it.pronunciation, pronunciation_en: !!it.pronunciation_en,
+        extras: it.metadata_extra ? Object.keys(it.metadata_extra) : [],
+      });
     });
+
+    console.info(`[DuaImport] Parsed ${rawItems.length} rows. Format counts:`, formatCounts,
+      `Valid: ${valid.length}, DupExisting: ${duplicatesExisting.length}, DupInFile: ${duplicatesInFile.length}, Invalid: ${invalid.length}`);
 
     return {
       valid,
@@ -317,9 +426,105 @@ export function DuaBulkImportDialog({
       const insertedIds: string[] = [];
       const updatedIds: string[] = [];
 
+      // ---- Slug-based path (safe update / insert) ----
+      // Split valid + duplicatesExisting items into "with slug" vs "without slug".
+      const allCandidates = [...parsed.valid, ...parsed.duplicatesExisting];
+      const withSlug = allCandidates.filter((it) => !!it.slug);
+      const slugList = Array.from(new Set(withSlug.map((it) => it.slug as string)));
+
+      const slugToRow = new Map<string, { id: string; metadata: any }>();
+      if (slugList.length) {
+        for (const part of chunk(slugList, 200)) {
+          const { data, error } = await supabase
+            .from("admin_content")
+            .select("id, slug, metadata")
+            .eq("content_type", "dua")
+            .in("slug", part);
+          if (error) throw error;
+          (data ?? []).forEach((row: any) => {
+            if (row?.slug) slugToRow.set(row.slug, { id: row.id, metadata: row.metadata });
+          });
+        }
+      }
+
+      const handledSlugs = new Set<string>();
+      let slugUpdated = 0;
+      let slugInserted = 0;
+
+      for (const it of withSlug) {
+        const slug = it.slug as string;
+        const extras = (it as any).metadata_extra as Record<string, unknown> | undefined;
+        const hit = slugToRow.get(slug);
+
+        if (hit) {
+          // SAFE UPDATE: only pronunciation + metadata. Never overwrite content/title/arabic.
+          const baseMeta = hit.metadata && typeof hit.metadata === "object" ? { ...(hit.metadata as any) } : {};
+          if (extras) Object.assign(baseMeta, extras);
+          if (it.source?.trim()) baseMeta.source = it.source.trim();
+          if (it.reference?.trim()) baseMeta.reference = it.reference.trim();
+
+          const payload: Record<string, unknown> = { metadata: Object.keys(baseMeta).length ? baseMeta : null };
+          if (it.pronunciation?.trim()) payload.content_pronunciation = it.pronunciation.trim();
+          if (it.pronunciation_en?.trim()) payload.content_pronunciation_en = it.pronunciation_en.trim();
+          if (it.pronunciation_hi?.trim()) payload.content_pronunciation_hi = it.pronunciation_hi.trim();
+          if (it.pronunciation_ur?.trim()) payload.content_pronunciation_ur = it.pronunciation_ur.trim();
+
+          const { error: updErr } = await supabase.from("admin_content").update(payload).eq("id", hit.id);
+          if (updErr) {
+            console.error(`[DuaImport] Failed to update slug=${slug}`, updErr);
+            continue;
+          }
+          slugUpdated += 1;
+          updatedIds.push(String(hit.id));
+          handledSlugs.add(slug);
+          console.info(`[DuaImport] Updated existing slug=${slug}`);
+        } else {
+          // INSERT new row from slug-based item
+          const meta: Record<string, unknown> = { ...(extras ?? {}) };
+          if (it.source?.trim()) meta.source = it.source.trim();
+          if (it.reference?.trim()) meta.reference = it.reference.trim();
+
+          const row = {
+            content_type: "dua",
+            slug,
+            title: it.title.trim(),
+            title_arabic: it.title_arabic?.trim() || null,
+            title_en: it.title_en?.trim() || null,
+            title_hi: it.title_hi?.trim() || null,
+            title_ur: it.title_ur?.trim() || null,
+            content_arabic: it.content_arabic?.trim() || null,
+            content: it.content_bn?.trim() || null,
+            content_en: it.content_en?.trim() || null,
+            content_hi: it.content_hi?.trim() || null,
+            content_ur: it.content_ur?.trim() || null,
+            content_pronunciation: it.pronunciation?.trim() || null,
+            content_pronunciation_en: it.pronunciation_en?.trim() || null,
+            content_pronunciation_hi: it.pronunciation_hi?.trim() || null,
+            content_pronunciation_ur: it.pronunciation_ur?.trim() || null,
+            category: it.category?.trim() || null,
+            metadata: Object.keys(meta).length ? meta : null,
+            status: "draft",
+            is_published: false,
+          };
+          const { data: insData, error: insErr } = await supabase.from("admin_content").insert([row as any]).select("id").single();
+          if (insErr) {
+            console.error(`[DuaImport] Failed to insert slug=${slug}`, insErr);
+            continue;
+          }
+          if (insData?.id) insertedIds.push(String(insData.id));
+          slugInserted += 1;
+          handledSlugs.add(slug);
+          console.info(`[DuaImport] Inserted new slug=${slug}`);
+        }
+      }
+
+      // Remaining candidates (no slug) — fall through to legacy logic below.
+      const validNoSlug = parsed.valid.filter((it) => !it.slug || !handledSlugs.has(it.slug));
+      const dupExistingNoSlug = parsed.duplicatesExisting.filter((it) => !it.slug || !handledSlugs.has(it.slug));
+
       // 1) Insert new items
-      if (parsed.valid.length) {
-        const rows = parsed.valid.map((it) => {
+      if (validNoSlug.length) {
+        const rows = validNoSlug.map((it) => {
           const meta: Record<string, string> = {};
           if (it.source?.trim()) meta.source = it.source.trim();
           if (it.reference?.trim()) meta.reference = it.reference.trim();
@@ -360,8 +565,8 @@ export function DuaBulkImportDialog({
       let updated = 0;
       let notFound = 0;
 
-      if (duplicateMode === "update" && parsed.duplicatesExisting.length) {
-        for (const group of chunk(parsed.duplicatesExisting, 25)) {
+      if (duplicateMode === "update" && dupExistingNoSlug.length) {
+        for (const group of chunk(dupExistingNoSlug, 25)) {
           const orFilter = buildOrFilter(group);
           const { data, error } = await supabase
             .from("admin_content")
@@ -425,8 +630,8 @@ export function DuaBulkImportDialog({
 
       const result: ImportResult = {
         total: rawItems.length,
-        inserted: parsed.valid.length,
-        updated,
+        inserted: validNoSlug.length + slugInserted,
+        updated: updated + slugUpdated,
         skipped,
         invalid: parsed.invalid.length,
         insertedIds,
