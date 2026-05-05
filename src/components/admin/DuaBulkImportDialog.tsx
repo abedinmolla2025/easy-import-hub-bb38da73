@@ -220,15 +220,37 @@ export function DuaBulkImportDialog({
     const duplicatesInFile: DuaImportItem[] = [];
     const invalid: string[] = [];
     const seen = new Set<string>();
+    const seenSlugs = new Set<string>();
+    const formatCounts = { old: 0, new: 0, unknown: 0 };
 
     rawItems.forEach((item, idx) => {
-      const res = duaImportItemSchema.safeParse(item);
+      const { item: normalized, format } = normalizeRawItem(item);
+      formatCounts[format] += 1;
+      if (!normalized) {
+        invalid.push(`Row ${idx + 1}: not an object`);
+        console.warn(`[DuaImport] Row ${idx + 1} skipped: not an object`, item);
+        return;
+      }
+      const res = duaImportItemSchema.safeParse(normalized);
       if (!res.success) {
-        invalid.push(`Row ${idx + 1}: invalid format`);
+        const reason = res.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+        invalid.push(`Row ${idx + 1}: ${reason || "invalid format"}`);
+        console.warn(`[DuaImport] Row ${idx + 1} invalid (${format}):`, reason, normalized);
         return;
       }
 
       const it = res.data;
+
+      // Slug-based dedup wins when slug is present
+      if (it.slug) {
+        if (seenSlugs.has(it.slug)) {
+          duplicatesInFile.push(it);
+          console.info(`[DuaImport] Row ${idx + 1} duplicate slug in file: ${it.slug}`);
+          return;
+        }
+        seenSlugs.add(it.slug);
+      }
+
       const key = makeKey(it.title, it.title_arabic);
 
       if (seen.has(key)) {
@@ -238,12 +260,21 @@ export function DuaBulkImportDialog({
 
       if (existingKeys.has(key)) {
         duplicatesExisting.push(it);
+        console.info(`[DuaImport] Row ${idx + 1} matches existing (title/arabic): ${it.title}`);
         return;
       }
 
       seen.add(key);
       valid.push(it);
+      console.debug(`[DuaImport] Row ${idx + 1} OK [${format}] mapped:`, {
+        slug: it.slug, title: it.title,
+        pronunciation: !!it.pronunciation, pronunciation_en: !!it.pronunciation_en,
+        extras: it.metadata_extra ? Object.keys(it.metadata_extra) : [],
+      });
     });
+
+    console.info(`[DuaImport] Parsed ${rawItems.length} rows. Format counts:`, formatCounts,
+      `Valid: ${valid.length}, DupExisting: ${duplicatesExisting.length}, DupInFile: ${duplicatesInFile.length}, Invalid: ${invalid.length}`);
 
     return {
       valid,
