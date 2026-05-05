@@ -506,7 +506,7 @@ export function DuaBulkImportDialog({
             status: "draft",
             is_published: false,
           };
-          const { data: insData, error: insErr } = await supabase.from("admin_content").insert(row).select("id").single();
+          const { data: insData, error: insErr } = await supabase.from("admin_content").insert([row as any]).select("id").single();
           if (insErr) {
             console.error(`[DuaImport] Failed to insert slug=${slug}`, insErr);
             continue;
