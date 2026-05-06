@@ -788,6 +788,70 @@ export default function AdminContent() {
         content_ur: editForm.content_ur || null,
         content_pronunciation: editForm.content_pronunciation || null,
         category: editForm.category || null,
+        ...(effectiveType === 'dua'
+          ? (() => {
+              const csv = (s: string) =>
+                s
+                  ? s
+                      .split(',')
+                      .map((x) => x.trim())
+                      .filter(Boolean)
+                  : null;
+              const parseJson = (s: string) => {
+                if (!s || !s.trim()) return null;
+                try {
+                  return JSON.parse(s);
+                } catch {
+                  return undefined; // signal invalid
+                }
+              };
+              const jsonFields: Record<string, any> = {};
+              const tryAdd = (key: string, raw: string) => {
+                const parsed = parseJson(raw);
+                if (parsed === undefined) {
+                  throw new Error(`Invalid JSON in ${key}`);
+                }
+                jsonFields[key] = parsed;
+              };
+              tryAdd('social', editForm.social_json);
+              tryAdd('og_image_data', editForm.og_image_data_json);
+              tryAdd('seo', editForm.seo_json);
+              tryAdd('quran_meta', editForm.quran_meta_json);
+              tryAdd('category_hierarchy', editForm.category_hierarchy_json);
+              tryAdd('faq', editForm.faq_json);
+              tryAdd('search_aliases', editForm.search_aliases_json);
+              return {
+                slug: editForm.slug || null,
+                subtitle: editForm.subtitle || null,
+                content_pronunciation_en: editForm.content_pronunciation_en || null,
+                content_pronunciation_hi: editForm.content_pronunciation_hi || null,
+                content_pronunciation_ur: editForm.content_pronunciation_ur || null,
+                source_type: editForm.source_type || null,
+                reference: editForm.reference || null,
+                authenticity: editForm.authenticity || null,
+                difficulty: editForm.difficulty || null,
+                time_required: editForm.time_required || null,
+                hook: editForm.hook || null,
+                share_text: editForm.share_text || null,
+                virtue: editForm.virtue || null,
+                virtue_reference: editForm.virtue_reference || null,
+                viral_score: editForm.viral_score
+                  ? Number(editForm.viral_score)
+                  : null,
+                audio_url: editForm.audio_url || null,
+                hadith_reference: editForm.hadith_reference || null,
+                emotion: csv(editForm.emotion),
+                user_intents: csv(editForm.user_intents),
+                recommendation_tags: csv(editForm.recommendation_tags),
+                recommended_moments: csv(editForm.recommended_moments),
+                semantic_entities: csv(editForm.semantic_entities),
+                normalized_surah_names: csv(editForm.normalized_surah_names),
+                related_duas: csv(editForm.related_duas),
+                hook_variants: csv(editForm.hook_variants),
+                ...jsonFields,
+              };
+            })()
+          : {}),
         ...(effectiveType === 'name'
           ? {
               metadata: buildNameMetadata(selectedContent?.metadata, {
