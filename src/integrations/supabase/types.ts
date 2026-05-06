@@ -106,11 +106,13 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           audio_url: string | null
+          authenticity: string | null
           benefits_bn: string[] | null
           benefits_en: string[] | null
           benefits_hi: string[] | null
           benefits_ur: string[] | null
           category: string | null
+          category_hierarchy: Json | null
           content: string | null
           content_arabic: string | null
           content_en: string | null
@@ -124,27 +126,52 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           current_version_id: string | null
+          difficulty: string | null
+          emotion: string[] | null
           explanation_bn: string | null
           explanation_en: string | null
           explanation_hi: string | null
           explanation_ur: string | null
+          faq: Json | null
           hadith_reference: string | null
+          hook: string | null
+          hook_variants: string[] | null
           id: string
           image_url: string | null
           is_published: boolean | null
+          legacy_slug: string | null
           metadata: Json | null
+          normalized_surah_names: string[] | null
+          og_image_data: Json | null
           order_index: number | null
           pdf_url: string | null
           published_at: string | null
+          quran_meta: Json | null
+          recommendation_tags: string[] | null
+          recommended_moments: string[] | null
+          reference: string | null
+          related_duas: string[] | null
           scheduled_at: string | null
+          search_aliases: Json | null
+          semantic_entities: string[] | null
+          seo: Json | null
+          share_text: string | null
           slug: string | null
+          social: Json | null
+          source_type: string | null
           status: string
+          subtitle: string | null
+          time_required: string | null
           title: string
           title_arabic: string | null
           title_en: string | null
           title_hi: string | null
           title_ur: string | null
           updated_at: string | null
+          user_intents: string[] | null
+          viral_score: number | null
+          virtue: string | null
+          virtue_reference: string | null
           when_to_recite_bn: string | null
           when_to_recite_en: string | null
           when_to_recite_hi: string | null
@@ -155,11 +182,13 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           audio_url?: string | null
+          authenticity?: string | null
           benefits_bn?: string[] | null
           benefits_en?: string[] | null
           benefits_hi?: string[] | null
           benefits_ur?: string[] | null
           category?: string | null
+          category_hierarchy?: Json | null
           content?: string | null
           content_arabic?: string | null
           content_en?: string | null
@@ -173,27 +202,52 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           current_version_id?: string | null
+          difficulty?: string | null
+          emotion?: string[] | null
           explanation_bn?: string | null
           explanation_en?: string | null
           explanation_hi?: string | null
           explanation_ur?: string | null
+          faq?: Json | null
           hadith_reference?: string | null
+          hook?: string | null
+          hook_variants?: string[] | null
           id?: string
           image_url?: string | null
           is_published?: boolean | null
+          legacy_slug?: string | null
           metadata?: Json | null
+          normalized_surah_names?: string[] | null
+          og_image_data?: Json | null
           order_index?: number | null
           pdf_url?: string | null
           published_at?: string | null
+          quran_meta?: Json | null
+          recommendation_tags?: string[] | null
+          recommended_moments?: string[] | null
+          reference?: string | null
+          related_duas?: string[] | null
           scheduled_at?: string | null
+          search_aliases?: Json | null
+          semantic_entities?: string[] | null
+          seo?: Json | null
+          share_text?: string | null
           slug?: string | null
+          social?: Json | null
+          source_type?: string | null
           status?: string
+          subtitle?: string | null
+          time_required?: string | null
           title: string
           title_arabic?: string | null
           title_en?: string | null
           title_hi?: string | null
           title_ur?: string | null
           updated_at?: string | null
+          user_intents?: string[] | null
+          viral_score?: number | null
+          virtue?: string | null
+          virtue_reference?: string | null
           when_to_recite_bn?: string | null
           when_to_recite_en?: string | null
           when_to_recite_hi?: string | null
@@ -204,11 +258,13 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           audio_url?: string | null
+          authenticity?: string | null
           benefits_bn?: string[] | null
           benefits_en?: string[] | null
           benefits_hi?: string[] | null
           benefits_ur?: string[] | null
           category?: string | null
+          category_hierarchy?: Json | null
           content?: string | null
           content_arabic?: string | null
           content_en?: string | null
@@ -222,27 +278,52 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           current_version_id?: string | null
+          difficulty?: string | null
+          emotion?: string[] | null
           explanation_bn?: string | null
           explanation_en?: string | null
           explanation_hi?: string | null
           explanation_ur?: string | null
+          faq?: Json | null
           hadith_reference?: string | null
+          hook?: string | null
+          hook_variants?: string[] | null
           id?: string
           image_url?: string | null
           is_published?: boolean | null
+          legacy_slug?: string | null
           metadata?: Json | null
+          normalized_surah_names?: string[] | null
+          og_image_data?: Json | null
           order_index?: number | null
           pdf_url?: string | null
           published_at?: string | null
+          quran_meta?: Json | null
+          recommendation_tags?: string[] | null
+          recommended_moments?: string[] | null
+          reference?: string | null
+          related_duas?: string[] | null
           scheduled_at?: string | null
+          search_aliases?: Json | null
+          semantic_entities?: string[] | null
+          seo?: Json | null
+          share_text?: string | null
           slug?: string | null
+          social?: Json | null
+          source_type?: string | null
           status?: string
+          subtitle?: string | null
+          time_required?: string | null
           title?: string
           title_arabic?: string | null
           title_en?: string | null
           title_hi?: string | null
           title_ur?: string | null
           updated_at?: string | null
+          user_intents?: string[] | null
+          viral_score?: number | null
+          virtue?: string | null
+          virtue_reference?: string | null
           when_to_recite_bn?: string | null
           when_to_recite_en?: string | null
           when_to_recite_hi?: string | null
