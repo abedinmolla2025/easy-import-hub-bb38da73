@@ -1714,6 +1714,129 @@ export default function AdminContent() {
                   </div>
                 </div>
 
+                {effectiveType === 'dua' && (
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3 mt-4 space-y-4">
+                    <div className="text-xs font-medium text-muted-foreground">Dua extras (humanized DB v22)</div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <Label>Slug</Label>
+                        <Input value={editForm.slug} onChange={(e) => setEditForm((p) => ({ ...p, slug: e.target.value }))} placeholder="dua-for-..." />
+                      </div>
+                      <div>
+                        <Label>Subtitle</Label>
+                        <Input value={editForm.subtitle} onChange={(e) => setEditForm((p) => ({ ...p, subtitle: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Source type</Label>
+                        <Input value={editForm.source_type} onChange={(e) => setEditForm((p) => ({ ...p, source_type: e.target.value }))} placeholder="Quran / Hadith" />
+                      </div>
+                      <div>
+                        <Label>Reference</Label>
+                        <Input value={editForm.reference} onChange={(e) => setEditForm((p) => ({ ...p, reference: e.target.value }))} placeholder="Surah Al-Faatiha 1:6" />
+                      </div>
+                      <div>
+                        <Label>Authenticity</Label>
+                        <Input value={editForm.authenticity} onChange={(e) => setEditForm((p) => ({ ...p, authenticity: e.target.value }))} placeholder="Sahih / Hasan" />
+                      </div>
+                      <div>
+                        <Label>Difficulty</Label>
+                        <Input value={editForm.difficulty} onChange={(e) => setEditForm((p) => ({ ...p, difficulty: e.target.value }))} placeholder="short / medium / long" />
+                      </div>
+                      <div>
+                        <Label>Time required</Label>
+                        <Input value={editForm.time_required} onChange={(e) => setEditForm((p) => ({ ...p, time_required: e.target.value }))} placeholder="20 sec" />
+                      </div>
+                      <div>
+                        <Label>Viral score</Label>
+                        <Input type="number" value={editForm.viral_score} onChange={(e) => setEditForm((p) => ({ ...p, viral_score: e.target.value }))} />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Audio URL</Label>
+                        <Input value={editForm.audio_url} onChange={(e) => setEditForm((p) => ({ ...p, audio_url: e.target.value }))} />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Hadith reference</Label>
+                        <Input value={editForm.hadith_reference} onChange={(e) => setEditForm((p) => ({ ...p, hadith_reference: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <Label>Pronunciation (English)</Label>
+                        <Input value={editForm.content_pronunciation_en} onChange={(e) => setEditForm((p) => ({ ...p, content_pronunciation_en: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Pronunciation (Hindi)</Label>
+                        <Input value={editForm.content_pronunciation_hi} onChange={(e) => setEditForm((p) => ({ ...p, content_pronunciation_hi: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Pronunciation (Urdu)</Label>
+                        <Input value={editForm.content_pronunciation_ur} onChange={(e) => setEditForm((p) => ({ ...p, content_pronunciation_ur: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Hook</Label>
+                      <Textarea rows={2} value={editForm.hook} onChange={(e) => setEditForm((p) => ({ ...p, hook: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label>Share text</Label>
+                      <Textarea rows={2} value={editForm.share_text} onChange={(e) => setEditForm((p) => ({ ...p, share_text: e.target.value }))} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <Label>Virtue</Label>
+                        <Textarea rows={2} value={editForm.virtue} onChange={(e) => setEditForm((p) => ({ ...p, virtue: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Virtue reference</Label>
+                        <Input value={editForm.virtue_reference} onChange={(e) => setEditForm((p) => ({ ...p, virtue_reference: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {([
+                        ['emotion', 'Emotion (comma separated)'],
+                        ['user_intents', 'User intents'],
+                        ['recommendation_tags', 'Recommendation tags'],
+                        ['recommended_moments', 'Recommended moments'],
+                        ['semantic_entities', 'Semantic entities'],
+                        ['normalized_surah_names', 'Normalized surah names'],
+                        ['related_duas', 'Related duas (slugs)'],
+                        ['hook_variants', 'Hook variants'],
+                      ] as const).map(([key, label]) => (
+                        <div key={key}>
+                          <Label>{label}</Label>
+                          <Input value={(editForm as any)[key]} onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))} />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {([
+                        ['social_json', 'Social (JSON)'],
+                        ['og_image_data_json', 'OG image data (JSON)'],
+                        ['seo_json', 'SEO (JSON)'],
+                        ['quran_meta_json', 'Quran meta (JSON)'],
+                        ['category_hierarchy_json', 'Category hierarchy (JSON)'],
+                        ['faq_json', 'FAQ (JSON)'],
+                        ['search_aliases_json', 'Search aliases (JSON)'],
+                      ] as const).map(([key, label]) => (
+                        <div key={key}>
+                          <Label>{label}</Label>
+                          <Textarea
+                            rows={4}
+                            className="font-mono text-xs"
+                            value={(editForm as any)[key]}
+                            onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="-mx-3 sticky bottom-20 z-40 mt-4 border-t border-border/70 bg-background/95 px-3 py-3 backdrop-blur sm:static sm:mx-0 sm:mt-4 sm:border-t sm:bg-transparent sm:px-0 sm:py-4 sm:backdrop-blur-0">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     {selectedContent && (
