@@ -78,6 +78,40 @@ interface AdminContentRow {
   approved_at: string | null;
   current_version_id: string | null;
   created_at: string | null;
+  // Dua extras
+  slug?: string | null;
+  legacy_slug?: string | null;
+  subtitle?: string | null;
+  source_type?: string | null;
+  reference?: string | null;
+  authenticity?: string | null;
+  difficulty?: string | null;
+  time_required?: string | null;
+  hook?: string | null;
+  share_text?: string | null;
+  virtue?: string | null;
+  virtue_reference?: string | null;
+  viral_score?: number | null;
+  audio_url?: string | null;
+  hadith_reference?: string | null;
+  content_pronunciation_en?: string | null;
+  content_pronunciation_hi?: string | null;
+  content_pronunciation_ur?: string | null;
+  emotion?: string[] | null;
+  normalized_surah_names?: string[] | null;
+  user_intents?: string[] | null;
+  recommendation_tags?: string[] | null;
+  recommended_moments?: string[] | null;
+  semantic_entities?: string[] | null;
+  related_duas?: string[] | null;
+  hook_variants?: string[] | null;
+  search_aliases?: any | null;
+  social?: any | null;
+  og_image_data?: any | null;
+  seo?: any | null;
+  quran_meta?: any | null;
+  category_hierarchy?: any | null;
+  faq?: any | null;
 }
 
 interface ContentVersionRow {
