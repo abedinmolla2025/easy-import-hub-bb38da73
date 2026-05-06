@@ -78,6 +78,40 @@ interface AdminContentRow {
   approved_at: string | null;
   current_version_id: string | null;
   created_at: string | null;
+  // Dua extras
+  slug?: string | null;
+  legacy_slug?: string | null;
+  subtitle?: string | null;
+  source_type?: string | null;
+  reference?: string | null;
+  authenticity?: string | null;
+  difficulty?: string | null;
+  time_required?: string | null;
+  hook?: string | null;
+  share_text?: string | null;
+  virtue?: string | null;
+  virtue_reference?: string | null;
+  viral_score?: number | null;
+  audio_url?: string | null;
+  hadith_reference?: string | null;
+  content_pronunciation_en?: string | null;
+  content_pronunciation_hi?: string | null;
+  content_pronunciation_ur?: string | null;
+  emotion?: string[] | null;
+  normalized_surah_names?: string[] | null;
+  user_intents?: string[] | null;
+  recommendation_tags?: string[] | null;
+  recommended_moments?: string[] | null;
+  semantic_entities?: string[] | null;
+  related_duas?: string[] | null;
+  hook_variants?: string[] | null;
+  search_aliases?: any | null;
+  social?: any | null;
+  og_image_data?: any | null;
+  seo?: any | null;
+  quran_meta?: any | null;
+  category_hierarchy?: any | null;
+  faq?: any | null;
 }
 
 interface ContentVersionRow {
@@ -226,6 +260,39 @@ export default function AdminContent() {
     meta_source: '',
     meta_origin: '',
     meta_reference: '',
+    // Dua extras
+    slug: '',
+    subtitle: '',
+    content_pronunciation_en: '',
+    content_pronunciation_hi: '',
+    content_pronunciation_ur: '',
+    source_type: '',
+    reference: '',
+    authenticity: '',
+    difficulty: '',
+    time_required: '',
+    hook: '',
+    share_text: '',
+    virtue: '',
+    virtue_reference: '',
+    viral_score: '',
+    audio_url: '',
+    hadith_reference: '',
+    emotion: '',
+    user_intents: '',
+    recommendation_tags: '',
+    recommended_moments: '',
+    semantic_entities: '',
+    normalized_surah_names: '',
+    related_duas: '',
+    hook_variants: '',
+    social_json: '',
+    og_image_data_json: '',
+    seo_json: '',
+    quran_meta_json: '',
+    category_hierarchy_json: '',
+    faq_json: '',
+    search_aliases_json: '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
@@ -561,35 +628,72 @@ export default function AdminContent() {
     }
   };
 
+  const arrToCsv = (a: any) => (Array.isArray(a) ? a.join(', ') : '');
+  const jsonToStr = (v: any) =>
+    v == null ? '' : typeof v === 'string' ? v : JSON.stringify(v, null, 2);
+
+  const buildEmptyForm = (ct: string) => ({
+    content_type: ct,
+    title: '',
+    title_arabic: '',
+    title_en: '',
+    title_hi: '',
+    title_ur: '',
+    content: '',
+    content_arabic: '',
+    content_en: '',
+    content_hi: '',
+    content_ur: '',
+    content_pronunciation: '',
+    category: '',
+    meta_bn_name: '',
+    meta_pronunciation: '',
+    meta_gender: '',
+    meta_source: '',
+    meta_origin: '',
+    meta_reference: '',
+    slug: '',
+    subtitle: '',
+    content_pronunciation_en: '',
+    content_pronunciation_hi: '',
+    content_pronunciation_ur: '',
+    source_type: '',
+    reference: '',
+    authenticity: '',
+    difficulty: '',
+    time_required: '',
+    hook: '',
+    share_text: '',
+    virtue: '',
+    virtue_reference: '',
+    viral_score: '',
+    audio_url: '',
+    hadith_reference: '',
+    emotion: '',
+    user_intents: '',
+    recommendation_tags: '',
+    recommended_moments: '',
+    semantic_entities: '',
+    normalized_surah_names: '',
+    related_duas: '',
+    hook_variants: '',
+    social_json: '',
+    og_image_data_json: '',
+    seo_json: '',
+    quran_meta_json: '',
+    category_hierarchy_json: '',
+    faq_json: '',
+    search_aliases_json: '',
+  });
+
   const resetEditForm = (item?: AdminContentRow | null) => {
     if (!item) {
-      setEditForm({
-        content_type: contentTypeContext || 'dua',
-        title: '',
-        title_arabic: '',
-        title_en: '',
-        title_hi: '',
-        title_ur: '',
-        content: '',
-        content_arabic: '',
-        content_en: '',
-        content_hi: '',
-        content_ur: '',
-        content_pronunciation: '',
-        category: '',
-        meta_bn_name: '',
-        meta_pronunciation: '',
-        meta_gender: '',
-        meta_source: '',
-        meta_origin: '',
-        meta_reference: '',
-      });
+      setEditForm(buildEmptyForm(contentTypeContext || 'dua'));
       setSelectedId(null);
       return;
     }
-
     setEditForm({
-      content_type: item.content_type,
+      ...buildEmptyForm(item.content_type),
       title: item.title,
       title_arabic: item.title_arabic ?? '',
       title_en: item.title_en ?? '',
@@ -608,6 +712,38 @@ export default function AdminContent() {
       meta_source: readMetaString(item.metadata, 'source'),
       meta_origin: readMetaString(item.metadata, 'origin'),
       meta_reference: readMetaString(item.metadata, 'reference'),
+      slug: item.slug ?? '',
+      subtitle: item.subtitle ?? '',
+      content_pronunciation_en: item.content_pronunciation_en ?? '',
+      content_pronunciation_hi: item.content_pronunciation_hi ?? '',
+      content_pronunciation_ur: item.content_pronunciation_ur ?? '',
+      source_type: item.source_type ?? '',
+      reference: item.reference ?? '',
+      authenticity: item.authenticity ?? '',
+      difficulty: item.difficulty ?? '',
+      time_required: item.time_required ?? '',
+      hook: item.hook ?? '',
+      share_text: item.share_text ?? '',
+      virtue: item.virtue ?? '',
+      virtue_reference: item.virtue_reference ?? '',
+      viral_score: item.viral_score != null ? String(item.viral_score) : '',
+      audio_url: item.audio_url ?? '',
+      hadith_reference: item.hadith_reference ?? '',
+      emotion: arrToCsv(item.emotion),
+      user_intents: arrToCsv(item.user_intents),
+      recommendation_tags: arrToCsv(item.recommendation_tags),
+      recommended_moments: arrToCsv(item.recommended_moments),
+      semantic_entities: arrToCsv(item.semantic_entities),
+      normalized_surah_names: arrToCsv(item.normalized_surah_names),
+      related_duas: arrToCsv(item.related_duas),
+      hook_variants: arrToCsv(item.hook_variants),
+      social_json: jsonToStr(item.social),
+      og_image_data_json: jsonToStr(item.og_image_data),
+      seo_json: jsonToStr(item.seo),
+      quran_meta_json: jsonToStr(item.quran_meta),
+      category_hierarchy_json: jsonToStr(item.category_hierarchy),
+      faq_json: jsonToStr(item.faq),
+      search_aliases_json: jsonToStr(item.search_aliases),
     });
     setSelectedId(item.id);
   };
@@ -652,6 +788,70 @@ export default function AdminContent() {
         content_ur: editForm.content_ur || null,
         content_pronunciation: editForm.content_pronunciation || null,
         category: editForm.category || null,
+        ...(effectiveType === 'dua'
+          ? (() => {
+              const csv = (s: string) =>
+                s
+                  ? s
+                      .split(',')
+                      .map((x) => x.trim())
+                      .filter(Boolean)
+                  : null;
+              const parseJson = (s: string) => {
+                if (!s || !s.trim()) return null;
+                try {
+                  return JSON.parse(s);
+                } catch {
+                  return undefined; // signal invalid
+                }
+              };
+              const jsonFields: Record<string, any> = {};
+              const tryAdd = (key: string, raw: string) => {
+                const parsed = parseJson(raw);
+                if (parsed === undefined) {
+                  throw new Error(`Invalid JSON in ${key}`);
+                }
+                jsonFields[key] = parsed;
+              };
+              tryAdd('social', editForm.social_json);
+              tryAdd('og_image_data', editForm.og_image_data_json);
+              tryAdd('seo', editForm.seo_json);
+              tryAdd('quran_meta', editForm.quran_meta_json);
+              tryAdd('category_hierarchy', editForm.category_hierarchy_json);
+              tryAdd('faq', editForm.faq_json);
+              tryAdd('search_aliases', editForm.search_aliases_json);
+              return {
+                slug: editForm.slug || null,
+                subtitle: editForm.subtitle || null,
+                content_pronunciation_en: editForm.content_pronunciation_en || null,
+                content_pronunciation_hi: editForm.content_pronunciation_hi || null,
+                content_pronunciation_ur: editForm.content_pronunciation_ur || null,
+                source_type: editForm.source_type || null,
+                reference: editForm.reference || null,
+                authenticity: editForm.authenticity || null,
+                difficulty: editForm.difficulty || null,
+                time_required: editForm.time_required || null,
+                hook: editForm.hook || null,
+                share_text: editForm.share_text || null,
+                virtue: editForm.virtue || null,
+                virtue_reference: editForm.virtue_reference || null,
+                viral_score: editForm.viral_score
+                  ? Number(editForm.viral_score)
+                  : null,
+                audio_url: editForm.audio_url || null,
+                hadith_reference: editForm.hadith_reference || null,
+                emotion: csv(editForm.emotion),
+                user_intents: csv(editForm.user_intents),
+                recommendation_tags: csv(editForm.recommendation_tags),
+                recommended_moments: csv(editForm.recommended_moments),
+                semantic_entities: csv(editForm.semantic_entities),
+                normalized_surah_names: csv(editForm.normalized_surah_names),
+                related_duas: csv(editForm.related_duas),
+                hook_variants: csv(editForm.hook_variants),
+                ...jsonFields,
+              };
+            })()
+          : {}),
         ...(effectiveType === 'name'
           ? {
               metadata: buildNameMetadata(selectedContent?.metadata, {
@@ -1513,6 +1713,129 @@ export default function AdminContent() {
                     )}
                   </div>
                 </div>
+
+                {effectiveType === 'dua' && (
+                  <div className="rounded-lg border border-border/70 bg-muted/20 p-3 mt-4 space-y-4">
+                    <div className="text-xs font-medium text-muted-foreground">Dua extras (humanized DB v22)</div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <Label>Slug</Label>
+                        <Input value={editForm.slug} onChange={(e) => setEditForm((p) => ({ ...p, slug: e.target.value }))} placeholder="dua-for-..." />
+                      </div>
+                      <div>
+                        <Label>Subtitle</Label>
+                        <Input value={editForm.subtitle} onChange={(e) => setEditForm((p) => ({ ...p, subtitle: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Source type</Label>
+                        <Input value={editForm.source_type} onChange={(e) => setEditForm((p) => ({ ...p, source_type: e.target.value }))} placeholder="Quran / Hadith" />
+                      </div>
+                      <div>
+                        <Label>Reference</Label>
+                        <Input value={editForm.reference} onChange={(e) => setEditForm((p) => ({ ...p, reference: e.target.value }))} placeholder="Surah Al-Faatiha 1:6" />
+                      </div>
+                      <div>
+                        <Label>Authenticity</Label>
+                        <Input value={editForm.authenticity} onChange={(e) => setEditForm((p) => ({ ...p, authenticity: e.target.value }))} placeholder="Sahih / Hasan" />
+                      </div>
+                      <div>
+                        <Label>Difficulty</Label>
+                        <Input value={editForm.difficulty} onChange={(e) => setEditForm((p) => ({ ...p, difficulty: e.target.value }))} placeholder="short / medium / long" />
+                      </div>
+                      <div>
+                        <Label>Time required</Label>
+                        <Input value={editForm.time_required} onChange={(e) => setEditForm((p) => ({ ...p, time_required: e.target.value }))} placeholder="20 sec" />
+                      </div>
+                      <div>
+                        <Label>Viral score</Label>
+                        <Input type="number" value={editForm.viral_score} onChange={(e) => setEditForm((p) => ({ ...p, viral_score: e.target.value }))} />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Audio URL</Label>
+                        <Input value={editForm.audio_url} onChange={(e) => setEditForm((p) => ({ ...p, audio_url: e.target.value }))} />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Hadith reference</Label>
+                        <Input value={editForm.hadith_reference} onChange={(e) => setEditForm((p) => ({ ...p, hadith_reference: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <Label>Pronunciation (English)</Label>
+                        <Input value={editForm.content_pronunciation_en} onChange={(e) => setEditForm((p) => ({ ...p, content_pronunciation_en: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Pronunciation (Hindi)</Label>
+                        <Input value={editForm.content_pronunciation_hi} onChange={(e) => setEditForm((p) => ({ ...p, content_pronunciation_hi: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Pronunciation (Urdu)</Label>
+                        <Input value={editForm.content_pronunciation_ur} onChange={(e) => setEditForm((p) => ({ ...p, content_pronunciation_ur: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Hook</Label>
+                      <Textarea rows={2} value={editForm.hook} onChange={(e) => setEditForm((p) => ({ ...p, hook: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label>Share text</Label>
+                      <Textarea rows={2} value={editForm.share_text} onChange={(e) => setEditForm((p) => ({ ...p, share_text: e.target.value }))} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <Label>Virtue</Label>
+                        <Textarea rows={2} value={editForm.virtue} onChange={(e) => setEditForm((p) => ({ ...p, virtue: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Virtue reference</Label>
+                        <Input value={editForm.virtue_reference} onChange={(e) => setEditForm((p) => ({ ...p, virtue_reference: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {([
+                        ['emotion', 'Emotion (comma separated)'],
+                        ['user_intents', 'User intents'],
+                        ['recommendation_tags', 'Recommendation tags'],
+                        ['recommended_moments', 'Recommended moments'],
+                        ['semantic_entities', 'Semantic entities'],
+                        ['normalized_surah_names', 'Normalized surah names'],
+                        ['related_duas', 'Related duas (slugs)'],
+                        ['hook_variants', 'Hook variants'],
+                      ] as const).map(([key, label]) => (
+                        <div key={key}>
+                          <Label>{label}</Label>
+                          <Input value={(editForm as any)[key]} onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))} />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {([
+                        ['social_json', 'Social (JSON)'],
+                        ['og_image_data_json', 'OG image data (JSON)'],
+                        ['seo_json', 'SEO (JSON)'],
+                        ['quran_meta_json', 'Quran meta (JSON)'],
+                        ['category_hierarchy_json', 'Category hierarchy (JSON)'],
+                        ['faq_json', 'FAQ (JSON)'],
+                        ['search_aliases_json', 'Search aliases (JSON)'],
+                      ] as const).map(([key, label]) => (
+                        <div key={key}>
+                          <Label>{label}</Label>
+                          <Textarea
+                            rows={4}
+                            className="font-mono text-xs"
+                            value={(editForm as any)[key]}
+                            onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="-mx-3 sticky bottom-20 z-40 mt-4 border-t border-border/70 bg-background/95 px-3 py-3 backdrop-blur sm:static sm:mx-0 sm:mt-4 sm:border-t sm:bg-transparent sm:px-0 sm:py-4 sm:backdrop-blur-0">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
