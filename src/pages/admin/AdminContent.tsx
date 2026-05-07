@@ -1335,8 +1335,11 @@ export default function AdminContent() {
           onPublish={() => applyJustImportedBulkAction('publish')}
           onSubmitForReview={() => applyJustImportedBulkAction('submit_for_review')}
           onDismiss={() => setJustImported(null)}
+          onUndoImport={undoJustImported}
           disabledReview={!canEdit}
           disabledPublish={!canApprove}
+          disabledUndo={!canApprove}
+          isUndoing={isUndoingImport}
         />
       )}
 
