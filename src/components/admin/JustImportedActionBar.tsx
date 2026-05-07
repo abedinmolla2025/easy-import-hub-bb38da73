@@ -6,8 +6,11 @@ type Props = {
   onSubmitForReview: () => void;
   onPublish: () => void;
   onDismiss: () => void;
+  onUndoImport?: () => void;
   disabledReview?: boolean;
   disabledPublish?: boolean;
+  disabledUndo?: boolean;
+  isUndoing?: boolean;
 };
 
 export function JustImportedActionBar({
@@ -15,8 +18,11 @@ export function JustImportedActionBar({
   onSubmitForReview,
   onPublish,
   onDismiss,
+  onUndoImport,
   disabledReview,
   disabledPublish,
+  disabledUndo,
+  isUndoing,
 }: Props) {
   if (!count) return null;
 
@@ -37,6 +43,17 @@ export function JustImportedActionBar({
           <Button type="button" size="sm" variant="secondary" disabled={!!disabledPublish} onClick={onPublish}>
             Publish Now
           </Button>
+          {onUndoImport && (
+            <Button
+              type="button"
+              size="sm"
+              variant="destructive"
+              disabled={!!disabledUndo || !!isUndoing}
+              onClick={onUndoImport}
+            >
+              {isUndoing ? "Undoing..." : "Undo Import (Delete)"}
+            </Button>
+          )}
           <Button type="button" size="sm" variant="ghost" onClick={onDismiss}>
             Dismiss
           </Button>
