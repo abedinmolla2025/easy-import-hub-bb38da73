@@ -314,6 +314,36 @@ export default function AdminContent() {
     requestBulkAction(action);
   };
 
+  const [isUndoingImport, setIsUndoingImport] = useState(false);
+
+  const undoJustImported = async () => {
+    if (!justImported?.ids?.length) return;
+    if (!canApprove) {
+      toast({ title: 'No permission', description: 'Only admins can delete imported content.', variant: 'destructive' });
+      return;
+    }
+    const confirmed = window.confirm(
+      `Just-imported ${justImported.ids.length} টি item ডিলিট করা হবে। চালিয়ে যাবেন?`
+    );
+    if (!confirmed) return;
+
+    setIsUndoingImport(true);
+    try {
+      const ids = [...justImported.ids];
+      const { error } = await supabase.from('admin_content').delete().in('id', ids);
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+      setBulkSelectedIds(new Set());
+      setJustImported(null);
+      toast({ title: 'Undone', description: `${ids.length} টি item ডিলিট হয়েছে।` });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Undo failed';
+      toast({ title: 'Undo failed', description: msg, variant: 'destructive' });
+    } finally {
+      setIsUndoingImport(false);
+    }
+  };
+
   const canEdit = !!user && (roles.includes('editor') || isAdmin || isSuperAdmin);
   const canApprove = !!user && (isAdmin || isSuperAdmin);
 
