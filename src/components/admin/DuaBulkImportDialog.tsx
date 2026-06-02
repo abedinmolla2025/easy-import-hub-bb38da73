@@ -219,9 +219,14 @@ export function DuaBulkImportDialog({
     const seen = new Set<string>();
 
     rawItems.forEach((item, idx) => {
-      const res = duaImportItemSchema.safeParse(item);
+      const normalized = normalizeItem(item);
+      const res = duaImportItemSchema.safeParse(normalized);
       if (!res.success) {
-        invalid.push(`Row ${idx + 1}: invalid format`);
+        const reason = res.error.issues
+          .slice(0, 2)
+          .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
+          .join("; ");
+        invalid.push(`Row ${idx + 1}: ${reason || "invalid format"}`);
         return;
       }
 
@@ -395,13 +400,16 @@ export function DuaBulkImportDialog({
       // 1) Insert new items
       if (parsed.valid.length) {
         const rows = parsed.valid.map((it) => {
-          const meta: Record<string, string> = {};
+          const meta: Record<string, any> = {};
           if (it.source?.trim()) meta.source = it.source.trim();
           if (it.reference?.trim()) meta.reference = it.reference.trim();
+          if (it.title_bn?.trim()) meta.title_bn = it.title_bn.trim();
+          if (it.extras) Object.assign(meta, it.extras);
 
           return {
             content_type: "dua",
             title: it.title.trim(),
+            slug: it.slug?.trim() || null,
             title_arabic: it.title_arabic?.trim() || null,
             title_en: it.title_en?.trim() || null,
             title_hi: it.title_hi?.trim() || null,
