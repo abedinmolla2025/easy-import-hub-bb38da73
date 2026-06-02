@@ -62,10 +62,85 @@ const duaImportItemSchema = z
 
     source: z.string().trim().max(300).optional(),
     reference: z.string().trim().max(300).optional(),
+
+    // Optional: passthrough fields kept for metadata
+    slug: z.string().trim().max(200).optional(),
+    title_bn: z.string().trim().max(200).optional(),
+    extras: z.record(z.any()).optional(),
   })
-  .strict();
+  .passthrough();
 
 type DuaImportItem = z.infer<typeof duaImportItemSchema>;
+
+// Normalize a raw JSON item (supports both legacy and v31 shapes)
+// into the schema's expected shape, preserving extras in `extras`.
+const KNOWN_KEYS = new Set([
+  "title","title_arabic","title_en","title_hi","title_ur","title_bn",
+  "content_arabic","content_bn","content_en","content_hi","content_ur",
+  "pronunciation","pronunciation_en","pronunciation_hi","pronunciation_ur",
+  "category","source","reference","slug","extras",
+  // v31 source keys we consume below
+  "arabic","translation_bn","translation_en","translation_hi","translation_ur",
+  "source_type",
+]);
+
+const normalizeItem = (raw: any): any => {
+  if (!raw || typeof raw !== "object") return raw;
+  const r = raw as Record<string, any>;
+
+  // Pronunciation can be a string or an object {bn,en,hi,ur}
+  let pBn: string | undefined;
+  let pEn: string | undefined;
+  let pHi: string | undefined;
+  let pUr: string | undefined;
+  if (typeof r.pronunciation === "string") {
+    pBn = r.pronunciation;
+  } else if (r.pronunciation && typeof r.pronunciation === "object") {
+    pBn = r.pronunciation.bn;
+    pEn = r.pronunciation.en;
+    pHi = r.pronunciation.hi;
+    pUr = r.pronunciation.ur;
+  }
+  pEn = r.pronunciation_en ?? pEn;
+  pHi = r.pronunciation_hi ?? pHi;
+  pUr = r.pronunciation_ur ?? pUr;
+
+  const title =
+    r.title ??
+    r.title_bn ??
+    r.title_en ??
+    r.title_arabic ??
+    r.title_ur ??
+    r.title_hi;
+
+  const extras: Record<string, any> = {};
+  for (const k of Object.keys(r)) {
+    if (!KNOWN_KEYS.has(k)) extras[k] = r[k];
+  }
+
+  return {
+    title,
+    title_arabic: r.title_arabic,
+    title_en: r.title_en,
+    title_hi: r.title_hi,
+    title_ur: r.title_ur,
+    title_bn: r.title_bn,
+    slug: r.slug,
+    content_arabic: r.content_arabic ?? r.arabic,
+    content_bn: r.content_bn ?? r.translation_bn,
+    content_en: r.content_en ?? r.translation_en,
+    content_hi: r.content_hi ?? r.translation_hi,
+    content_ur: r.content_ur ?? r.translation_ur,
+    pronunciation: pBn,
+    pronunciation_en: pEn,
+    pronunciation_hi: pHi,
+    pronunciation_ur: pUr,
+    category: r.category,
+    source: r.source ?? r.source_type,
+    reference: r.reference,
+    extras: Object.keys(extras).length ? extras : undefined,
+  };
+};
 
 const makeKey = (title: string, titleArabic?: string) =>
   `${title.trim().toLowerCase()}||${(titleArabic ?? "").trim().toLowerCase()}`;
