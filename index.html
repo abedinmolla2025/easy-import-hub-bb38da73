@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>NOOR - Prayer Times, Quran & More</title>
-    <meta name="description" content="Stay connected with your daily prayers. Prayer times, Quran, Dua, Qibla finder, and Islamic calendar in one beautiful app." />
+    <title>Noor — Islamic App for Quran, Hadith, Prayer Times & Dua</title>
+    <meta name="description" content="Noor is a free Islamic app for Bengali Muslims in India & Bangladesh. Read Quran with Bengali translation, authentic Hadith (Bukhari, Muslim), daily Duas, accurate Prayer Times, Qibla finder & Islamic quiz." />
+    <link rel="canonical" href="https://noorapp.in/" />
     <meta name="author" content="NOOR" />
     <meta name="theme-color" content="#0d9f6e" />
     <meta name="msvalidate.01" content="BD28A1AD6076D784011352F0CB5D0B75" />
@@ -24,8 +25,8 @@
     <!-- Static fallback OG tags so social crawlers (WhatsApp, Telegram, Slack) that don't execute JS or skip prerender still get the app's own logo, not a generic icon. Per-route values from react-helmet-async / prerender will override these when present. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Noor Islamic App" />
-    <meta property="og:title" content="NOOR — Islamic App for Quran, Hadith, Prayer Times & Dua" />
-    <meta property="og:description" content="Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz." />
+    <meta property="og:title" content="Noor — Islamic App for Quran, Hadith, Prayer Times & Dua" />
+    <meta property="og:description" content="Free Islamic app for Bengali Muslims: Quran with Bengali translation, authentic Hadith, daily Duas, Prayer Times, Qibla & Islamic quiz." />
     <meta property="og:image" content="https://noorapp.in/og-image.png" />
     <meta property="og:image:secure_url" content="https://noorapp.in/og-image.png" />
     <meta property="og:image:type" content="image/png" />
@@ -34,9 +35,39 @@
     <meta property="og:image:alt" content="Noor Islamic App" />
     <meta property="og:url" content="https://noorapp.in/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="NOOR — Islamic App for Quran, Hadith, Prayer Times & Dua" />
-    <meta name="twitter:description" content="Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz." />
+    <meta name="twitter:title" content="Noor — Islamic App for Quran, Hadith, Prayer Times & Dua" />
+    <meta name="twitter:description" content="Free Islamic app for Bengali Muslims: Quran with Bengali translation, authentic Hadith, daily Duas, Prayer Times, Qibla & Islamic quiz." />
     <meta name="twitter:image" content="https://noorapp.in/og-image.png" />
+
+    <!-- Google Consent Mode v2 — default denied until user consents -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var c = localStorage.getItem('noor_cookie_consent');
+        if (c) {
+          var parsed = c === 'accepted' ? { ad: 'granted', an: 'granted' }
+            : c === 'rejected' ? { ad: 'denied', an: 'denied' }
+            : JSON.parse(c);
+          gtag('consent', 'update', {
+            ad_storage: parsed.ad === 'granted' ? 'granted' : 'denied',
+            ad_user_data: parsed.ad === 'granted' ? 'granted' : 'denied',
+            ad_personalization: parsed.ad === 'granted' ? 'granted' : 'denied',
+            analytics_storage: parsed.an === 'granted' ? 'granted' : 'denied'
+          });
+        }
+      } catch (e) {}
+    </script>
   </head>
 
   <body>
