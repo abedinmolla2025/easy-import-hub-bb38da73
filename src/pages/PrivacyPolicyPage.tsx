@@ -109,20 +109,48 @@ const PrivacyPolicyPage = () => {
             {appName} and/or other sites on the internet.
           </p>
           <p className="text-muted-foreground">
+            Third-party vendors, including Google, use cookies (such as the DART cookie) to serve
+            personalized ads to users based on their visits to this site and other sites on the
+            internet. Personalized advertising may also be served by Google's certified partners
+            listed at{" "}
+            <a
+              href="https://support.google.com/admanager/answer/9012903"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary underline"
+            >
+              Google's ad technology providers
+            </a>
+            . You can review Google's advertising principles at{" "}
+            <a
+              href="https://policies.google.com/technologies/ads"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary underline"
+            >
+              policies.google.com/technologies/ads
+            </a>
+            .
+          </p>
+          <p className="text-muted-foreground">
             {appName} তৃতীয় পক্ষের বিজ্ঞাপন নেটওয়ার্ক (যেমন Google AdSense) এর মাধ্যমে বিজ্ঞাপন
             প্রদর্শন করতে পারে। এই পরিষেবাগুলো আপনার পূর্ববর্তী ভিজিটের উপর ভিত্তি করে বিজ্ঞাপন
             দেখানোর জন্য কুকিজ ও অনুরূপ ট্র্যাকিং প্রযুক্তি ব্যবহার করতে পারে।
           </p>
           <p className="text-muted-foreground">
-            You may opt out of personalized advertising by visiting{" "}
+            You can opt out of personalized advertising at any time by visiting{" "}
             <a href="https://www.google.com/settings/ads" target="_blank" rel="noreferrer" className="text-primary underline">
               Google Ads Settings
-            </a>{" "}
-            or{" "}
+            </a>
+            , the EU users' choices page{" "}
+            <a href="https://www.youronlinechoices.eu/" target="_blank" rel="noreferrer" className="text-primary underline">
+              youronlinechoices.eu
+            </a>
+            , or{" "}
             <a href="https://www.aboutads.info/choices/" target="_blank" rel="noreferrer" className="text-primary underline">
               www.aboutads.info
             </a>
-            .
+            . You can also withdraw or change consent any time from the cookie banner in this app.
           </p>
           <p className="text-muted-foreground">
             আপনি{" "}
