@@ -14,6 +14,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useNavigate } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
 import FooterSection from "@/components/FooterSection";
 import {
@@ -31,6 +32,7 @@ const SITE = "https://noorapp.in";
 export default function StoriesPage() {
   const { stories, loading } = useStories();
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
   const q = (params.get("q") || "").trim();
   const activeCat = params.get("category") || "all";
   const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
@@ -249,7 +251,7 @@ export default function StoriesPage() {
         </section>
       </div>
 
-      <FooterSection />
+      <FooterSection platform="web" onNavigate={(path) => navigate(path)} />
       <BottomNavigation />
     </div>
   );
