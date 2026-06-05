@@ -99,7 +99,46 @@ Deno.serve(async (req) => {
     <priority>0.85</priority>
   </url>`);
 
-    const allUrls = [...seoUrls, ...hadithLangUrls, ...contentUrls].join("\n");
+    // Add Islamic Stories URLs — fetched from /stories.json (bundled in /public)
+    const storyUrls: string[] = [];
+    try {
+      const storiesRes = await fetch(`${origin}/stories.json`, {
+        headers: { accept: "application/json" },
+      });
+      if (storiesRes.ok) {
+        const stories = (await storiesRes.json()) as Array<{ slug: string; category: string }>;
+        const categories = new Set<string>();
+        if (!existingPaths.has("/stories")) {
+          storyUrls.push(`  <url>
+    <loc>${origin}/stories</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`);
+        }
+        for (const s of stories) {
+          if (s.category) categories.add(s.category);
+          storyUrls.push(`  <url>
+    <loc>${origin}/stories/${escapeXml(s.slug)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>`);
+        }
+        for (const c of categories) {
+          storyUrls.push(`  <url>
+    <loc>${origin}/stories/category/${escapeXml(c)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+        }
+      }
+    } catch (e) {
+      console.error("Stories sitemap fetch failed:", e);
+    }
+
+    const allUrls = [...seoUrls, ...hadithLangUrls, ...storyUrls, ...contentUrls].join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

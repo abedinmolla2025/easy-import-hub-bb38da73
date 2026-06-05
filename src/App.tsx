@@ -69,6 +69,9 @@ import ContactPage from "./pages/ContactPage";
 import IslamicAppPage from "./pages/IslamicAppPage";
 import SitemapPage from "./pages/SitemapPage";
 import DownloadPage from "./pages/DownloadPage";
+import StoriesPage from "./pages/StoriesPage";
+import StoryDetailPage from "./pages/StoryDetailPage";
+import StoryCategoryPage from "./pages/StoryCategoryPage";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
@@ -115,6 +118,11 @@ const AppRoutes = () => {
       <Route path="/islamic-app" element={<IslamicAppPage />} />
       <Route path="/sitemap" element={<SitemapPage />} />
       <Route path="/download" element={<DownloadPage />} />
+
+      {/* Islamic Stories */}
+      <Route path="/stories" element={<StoriesPage />} />
+      <Route path="/stories/category/:category" element={<StoryCategoryPage />} />
+      <Route path="/stories/:slug" element={<StoryDetailPage />} />
 
       {/* Admin Routes */}
       <Route
