@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { BookOpen, Search, Sparkles, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useNavigate } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
 import FooterSection from "@/components/FooterSection";
 import {
