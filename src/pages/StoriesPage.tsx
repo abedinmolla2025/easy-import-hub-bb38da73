@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { BookOpen, Search, Sparkles, ChevronRight } from "lucide-react";
+import { BookOpen, Search, Sparkles, ChevronRight, Flame, Clock, LayoutGrid } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/pagination";
 import BottomNavigation from "@/components/BottomNavigation";
 import FooterSection from "@/components/FooterSection";
+import StoriesHeroSlider, { FEATURED_HERO_SLIDES } from "@/components/stories/StoriesHeroSlider";
 import {
   STORY_CATEGORIES,
   categoryLabel,
@@ -55,8 +56,15 @@ export default function StoriesPage() {
   }, [stories, activeCat, q]);
 
   const featured = stories[0];
+  const featuredSlugs = new Set(FEATURED_HERO_SLIDES.map((s) => s.slug));
+  const featuredGrid = stories.filter((s) => featuredSlugs.has(s.slug)).slice(0, 6);
+  const latestStories = stories.slice(0, 6);
+  const mostRead = [...stories]
+    .sort((a, b) => (b.content_en?.length ?? 0) - (a.content_en?.length ?? 0))
+    .slice(0, 6);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
+  const showLandingSections = activeCat === "all" && !q && safePage === 1;
   const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const updateParam = (key: string, value: string | null) => {
@@ -142,37 +150,38 @@ export default function StoriesPage() {
       </section>
 
       <div className="container mx-auto px-4 py-8 space-y-10">
-        {/* Featured */}
-        {featured && activeCat === "all" && !q && safePage === 1 && (
-          <section aria-labelledby="featured-heading">
-            <h2 id="featured-heading" className="text-xs uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-              <Sparkles className="h-4 w-4" /> Featured Story
-            </h2>
-            <Card className="overflow-hidden border-emerald-200">
-              <CardHeader>
-                <Badge variant="secondary" className="w-fit">{categoryLabel(featured.category)}</Badge>
-                <CardTitle className="text-2xl">
-                  <Link to={`/stories/${featured.slug}`} className="hover:underline">
-                    {featured.title_en}
-                  </Link>
-                </CardTitle>
-                <CardDescription className="text-base">{featured.seo.meta_description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between flex-wrap gap-2 text-sm text-muted-foreground">
-                  <span>{estimateReadingMinutes(featured.content_en)} min read · {featured.source_name}</span>
-                  <Button asChild size="sm">
-                    <Link to={`/stories/${featured.slug}`}>Read story <ChevronRight className="h-4 w-4" /></Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Premium Hero Slider */}
+        {showLandingSections && (
+          <section aria-labelledby="hero-slider-heading">
+            <h2 id="hero-slider-heading" className="sr-only">Featured Prophet Stories</h2>
+            <StoriesHeroSlider />
+          </section>
+        )}
+
+        {/* Featured Stories Grid */}
+        {showLandingSections && featuredGrid.length > 0 && (
+          <section aria-labelledby="featured-grid-heading">
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 id="featured-grid-heading" className="text-xl font-semibold flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-emerald-600" /> Featured Stories
+              </h2>
+              <Link to="/stories/category/prophets" className="text-sm text-emerald-700 hover:underline">
+                See all prophets →
+              </Link>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {featuredGrid.map((s) => (
+                <StoryListCard key={s.slug} story={s} />
+              ))}
+            </div>
           </section>
         )}
 
         {/* Categories */}
         <section aria-labelledby="cats-heading">
-          <h2 id="cats-heading" className="text-xl font-semibold mb-3">Browse by category</h2>
+          <h2 id="cats-heading" className="text-xl font-semibold mb-3 flex items-center gap-2">
+            <LayoutGrid className="h-5 w-5 text-emerald-600" /> Browse by Category
+          </h2>
           <div className="flex flex-wrap gap-2">
             <CategoryChip active={activeCat === "all"} onClick={() => updateParam("category", null)}>
               All ({stories.length})
@@ -193,10 +202,27 @@ export default function StoriesPage() {
           </div>
         </section>
 
+        {/* Most Read */}
+        {showLandingSections && mostRead.length > 0 && (
+          <section aria-labelledby="most-read-heading">
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 id="most-read-heading" className="text-xl font-semibold flex items-center gap-2">
+                <Flame className="h-5 w-5 text-orange-500" /> Most Read Stories
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {mostRead.map((s) => (
+                <StoryListCard key={s.slug} story={s} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Listing */}
         <section aria-labelledby="list-heading">
           <div className="flex items-baseline justify-between mb-3">
-            <h2 id="list-heading" className="text-xl font-semibold">
+            <h2 id="list-heading" className="text-xl font-semibold flex items-center gap-2">
+              {!q && activeCat === "all" && <Clock className="h-5 w-5 text-emerald-600" />}
               {q ? `Results for “${q}”` : activeCat === "all" ? "Latest Stories" : categoryLabel(activeCat)}
             </h2>
             <span className="text-sm text-muted-foreground">{filtered.length} stories</span>
