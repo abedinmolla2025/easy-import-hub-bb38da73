@@ -65,7 +65,6 @@ export default function StoriesPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const showLandingSections = activeCat === "all" && !q && safePage === 1;
-  const safePage = Math.min(page, totalPages);
   const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const updateParam = (key: string, value: string | null) => {
