@@ -28,6 +28,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQueryClient } from "@tanstack/react-query";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import StoriesHeroSlider from "@/components/stories/StoriesHeroSlider";
 
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
@@ -124,6 +125,20 @@ const Index = () => {
           ),
         },
         { section_key: "daily_hadith", el: <DailyHadith /> },
+        {
+          section_key: "stories_hero",
+          el: (
+            <div className="space-y-3">
+              <div className="flex items-baseline justify-between px-1">
+                <h2 className="text-lg font-semibold">Islamic Stories</h2>
+                <Link to="/stories" className="text-sm text-emerald-700 hover:underline">
+                  View all →
+                </Link>
+              </div>
+              <StoriesHeroSlider />
+            </div>
+          ),
+        },
         {
           section_key: "seo_intro",
           el: (
