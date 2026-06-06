@@ -93,7 +93,7 @@ export default function StoriesHeroSlider() {
   return (
     <section
       aria-label="Featured Islamic stories"
-      className="relative w-full overflow-hidden rounded-2xl shadow-xl bg-emerald-950 aspect-[16/9] md:aspect-[21/9] max-h-[560px]"
+      className="relative w-full overflow-hidden rounded-2xl shadow-xl bg-emerald-950 aspect-[3/4] sm:aspect-[16/10] md:aspect-[21/9] max-h-[620px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
