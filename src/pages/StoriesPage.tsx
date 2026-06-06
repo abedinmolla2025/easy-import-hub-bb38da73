@@ -56,7 +56,6 @@ export default function StoriesPage() {
   }, [stories, activeCat, q]);
 
   const featured = stories[0];
-  const showLandingSections = activeCat === "all" && !q && safePage === 1;
   const featuredSlugs = new Set(FEATURED_HERO_SLIDES.map((s) => s.slug));
   const featuredGrid = stories.filter((s) => featuredSlugs.has(s.slug)).slice(0, 6);
   const latestStories = stories.slice(0, 6);
@@ -64,6 +63,8 @@ export default function StoriesPage() {
     .sort((a, b) => (b.content_en?.length ?? 0) - (a.content_en?.length ?? 0))
     .slice(0, 6);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const showLandingSections = activeCat === "all" && !q && safePage === 1;
   const safePage = Math.min(page, totalPages);
   const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
