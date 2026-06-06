@@ -124,7 +124,6 @@ const Index = () => {
             </div>
           ),
         },
-        { section_key: "daily_hadith", el: <DailyHadith /> },
         {
           section_key: "stories_hero",
           el: (
@@ -139,6 +138,7 @@ const Index = () => {
             </div>
           ),
         },
+        { section_key: "daily_hadith", el: <DailyHadith /> },
         {
           section_key: "seo_intro",
           el: (
