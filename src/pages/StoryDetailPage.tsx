@@ -182,15 +182,11 @@ export default function StoryDetailPage() {
                 variant="secondary"
                 size="sm"
                 onClick={() => {
-                  const el = document.getElementById("bengali-version");
-                  if (el) {
-                    if (el instanceof HTMLDetailsElement) el.open = true;
-                    el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }
+                  setLang((prev) => (prev === "en" ? "bn" : "en"));
                 }}
                 className="font-[Noto_Sans_Bengali]"
               >
-                <Languages className="h-4 w-4 mr-1" /> বাংলায় পড়ুন
+                <Languages className="h-4 w-4 mr-1" /> {lang === "en" ? "বাংলায় পড়ুন" : "Read in English"}
               </Button>
             )}
             <Button variant="secondary" size="sm" onClick={handleShare}>
