@@ -199,32 +199,30 @@ export default function StoryDetailPage() {
       <div className="container mx-auto px-4 py-8 grid lg:grid-cols-[1fr_320px] gap-8">
         {/* Main */}
         <article className="space-y-8">
-          {/* Bengali version — surfaced near the top for Bengali readers */}
+          {/* Language toggle */}
           {story.content_bn && (
-            <details
-              id="bengali-version"
-              open
-              className="rounded-lg border border-emerald-200 bg-emerald-50/40 dark:bg-emerald-950/10 p-4"
-            >
-              <summary className="cursor-pointer font-semibold font-[Noto_Sans_Bengali] text-emerald-800 dark:text-emerald-200">
-                বাংলায় পড়ুন (Read in Bengali)
-              </summary>
-              <div className="mt-4 space-y-3 font-[Noto_Sans_Bengali] leading-relaxed">
-                {splitStoryContent(story.content_bn).map((b, i) =>
-                  b.type === "h2" ? (
-                    <h3 key={i} className="text-lg font-semibold mt-4">{b.text}</h3>
-                  ) : (
-                    <p key={i}>{b.text}</p>
-                  ),
-                )}
-                {story.moral_bn && (
-                  <div className="mt-4 pt-4 border-t border-emerald-200/60">
-                    <h3 className="text-lg font-semibold mb-2">শিক্ষা</h3>
-                    <p className="whitespace-pre-line">{story.moral_bn}</p>
-                  </div>
-                )}
-              </div>
-            </details>
+            <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/40 dark:bg-emerald-950/10 p-2">
+              <button
+                onClick={() => setLang("en")}
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  lang === "en"
+                    ? "bg-white dark:bg-emerald-900 text-emerald-800 dark:text-emerald-100 shadow-sm"
+                    : "text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/50"
+                }`}
+              >
+                English
+              </button>
+              <button
+                onClick={() => setLang("bn")}
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors font-[Noto_Sans_Bengali] ${
+                  lang === "bn"
+                    ? "bg-white dark:bg-emerald-900 text-emerald-800 dark:text-emerald-100 shadow-sm"
+                    : "text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/50"
+                }`}
+              >
+                বাংলা
+              </button>
+            </div>
           )}
 
           {/* Quran References */}
@@ -243,16 +241,34 @@ export default function StoryDetailPage() {
             </Card>
           )}
 
-          {/* Body */}
-          <div className="prose prose-emerald max-w-none dark:prose-invert">
-            {blocks.map((b, i) =>
-              b.type === "h2" ? (
-                <h2 key={i} className="text-xl md:text-2xl font-semibold mt-8 mb-3">{b.text}</h2>
-              ) : (
-                <p key={i} className="leading-relaxed mb-4 text-foreground/90">{b.text}</p>
-              ),
-            )}
-          </div>
+          {/* Body — language switched */}
+          {lang === "bn" && story.content_bn ? (
+            <div className="space-y-3 font-[Noto_Sans_Bengali] leading-relaxed">
+              {splitStoryContent(story.content_bn).map((b, i) =>
+                b.type === "h2" ? (
+                  <h2 key={i} className="text-xl md:text-2xl font-semibold mt-8 mb-3">{b.text}</h2>
+                ) : (
+                  <p key={i} className="leading-relaxed mb-4">{b.text}</p>
+                ),
+              )}
+              {story.moral_bn && (
+                <div className="mt-6 pt-4 border-t border-emerald-200/60">
+                  <h3 className="text-lg font-semibold mb-2">শিক্ষা</h3>
+                  <p className="whitespace-pre-line">{story.moral_bn}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="prose prose-emerald max-w-none dark:prose-invert">
+              {blocks.map((b, i) =>
+                b.type === "h2" ? (
+                  <h2 key={i} className="text-xl md:text-2xl font-semibold mt-8 mb-3">{b.text}</h2>
+                ) : (
+                  <p key={i} className="leading-relaxed mb-4 text-foreground/90">{b.text}</p>
+                ),
+              )}
+            </div>
+          )}
 
           {/* Key Lessons / Moral */}
           {morals.length > 0 && (
