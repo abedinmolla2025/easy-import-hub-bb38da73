@@ -6,6 +6,7 @@ import {
   BookOpen,
   ChevronRight,
   Clock,
+  Languages,
   Quote,
   Share2,
   Sparkles,
@@ -175,6 +176,22 @@ export default function StoryDetailPage() {
             <Button variant="secondary" size="sm" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Back
             </Button>
+            {story.content_bn && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  const el = document.getElementById("bengali-version");
+                  if (el) {
+                    if (el instanceof HTMLDetailsElement) el.open = true;
+                    el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+                className="font-[Noto_Sans_Bengali]"
+              >
+                <Languages className="h-4 w-4 mr-1" /> বাংলায় পড়ুন
+              </Button>
+            )}
             <Button variant="secondary" size="sm" onClick={handleShare}>
               <Share2 className="h-4 w-4 mr-1" /> Share
             </Button>
@@ -185,6 +202,34 @@ export default function StoryDetailPage() {
       <div className="container mx-auto px-4 py-8 grid lg:grid-cols-[1fr_320px] gap-8">
         {/* Main */}
         <article className="space-y-8">
+          {/* Bengali version — surfaced near the top for Bengali readers */}
+          {story.content_bn && (
+            <details
+              id="bengali-version"
+              open
+              className="rounded-lg border border-emerald-200 bg-emerald-50/40 dark:bg-emerald-950/10 p-4"
+            >
+              <summary className="cursor-pointer font-semibold font-[Noto_Sans_Bengali] text-emerald-800 dark:text-emerald-200">
+                বাংলায় পড়ুন (Read in Bengali)
+              </summary>
+              <div className="mt-4 space-y-3 font-[Noto_Sans_Bengali] leading-relaxed">
+                {splitStoryContent(story.content_bn).map((b, i) =>
+                  b.type === "h2" ? (
+                    <h3 key={i} className="text-lg font-semibold mt-4">{b.text}</h3>
+                  ) : (
+                    <p key={i}>{b.text}</p>
+                  ),
+                )}
+                {story.moral_bn && (
+                  <div className="mt-4 pt-4 border-t border-emerald-200/60">
+                    <h3 className="text-lg font-semibold mb-2">শিক্ষা</h3>
+                    <p className="whitespace-pre-line">{story.moral_bn}</p>
+                  </div>
+                )}
+              </div>
+            </details>
+          )}
+
           {/* Quran References */}
           {quranRefs.length > 0 && (
             <Card className="border-emerald-200 bg-emerald-50/40 dark:bg-emerald-950/10">
@@ -211,24 +256,6 @@ export default function StoryDetailPage() {
               ),
             )}
           </div>
-
-          {/* Bengali content collapsed below for readers */}
-          {story.content_bn && (
-            <details className="rounded-lg border bg-card p-4">
-              <summary className="cursor-pointer font-medium font-[Noto_Sans_Bengali]">
-                বাংলায় পড়ুন (Read in Bengali)
-              </summary>
-              <div className="mt-4 space-y-3 font-[Noto_Sans_Bengali] leading-relaxed">
-                {splitStoryContent(story.content_bn).map((b, i) =>
-                  b.type === "h2" ? (
-                    <h3 key={i} className="text-lg font-semibold mt-4">{b.text}</h3>
-                  ) : (
-                    <p key={i}>{b.text}</p>
-                  ),
-                )}
-              </div>
-            </details>
-          )}
 
           {/* Key Lessons / Moral */}
           {morals.length > 0 && (
