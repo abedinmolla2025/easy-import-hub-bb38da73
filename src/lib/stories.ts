@@ -32,6 +32,7 @@ export type Story = {
     category_link?: string;
   };
   ads?: unknown;
+  updated_at?: string;
   engagement?: { share_caption?: string; cta?: string };
   growth?: {
     read_next?: StoryNavRef;
