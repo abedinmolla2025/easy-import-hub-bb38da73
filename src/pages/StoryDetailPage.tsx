@@ -83,6 +83,10 @@ export default function StoryDetailPage() {
   const next = nextStory(stories, story);
   const quranRefs = parseQuranReferences(story.reference);
   const morals = parseMorals(story.moral_en);
+  const ogImagePath = STORY_OG_IMAGES[story.slug] || story.seo.open_graph?.image || ogStoriesDefault;
+  const ogImage = absoluteUrl(ogImagePath);
+  const shareTitle = story.seo.open_graph?.title || story.seo.title;
+  const shareDesc = story.seo.open_graph?.description || story.seo.meta_description;
 
   const breadcrumbs = [
     { name: "Home", url: `${SITE}/` },
@@ -109,6 +113,9 @@ export default function StoryDetailPage() {
     keywords: Array.isArray(story.seo.keywords) ? story.seo.keywords.join(", ") : story.seo.keywords,
     isBasedOn: story.source_name,
     citation: story.reference,
+    image: { "@type": "ImageObject", url: ogImage, width: 1200, height: 630 },
+    datePublished: "2024-01-01",
+    dateModified: new Date().toISOString().slice(0, 10),
   };
 
   const breadcrumbSchema = {
@@ -153,13 +160,36 @@ export default function StoryDetailPage() {
         )}
         <link rel="canonical" href={story.seo.canonical_url || url} />
         <meta property="og:type" content="article" />
-        <meta property="og:title" content={story.seo.open_graph?.title || story.seo.title} />
-        <meta property="og:description" content={story.seo.open_graph?.description || story.seo.meta_description} />
+        <meta property="og:site_name" content="NoorApp" />
+        <meta property="og:locale" content="bn_BD" />
+        <meta property="og:locale:alternate" content="en_US" />
+        <meta property="og:title" content={shareTitle} />
+        <meta property="og:description" content={shareDesc} />
         <meta property="og:url" content={url} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:secure_url" content={ogImage} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={story.title_en} />
         <meta property="article:section" content={categoryLabel(story.category)} />
+        <meta property="article:author" content="NoorApp Editorial Team" />
+        {Array.isArray(story.seo.keywords) &&
+          story.seo.keywords.slice(0, 6).map((k) => (
+            <meta key={k} property="article:tag" content={k} />
+          ))}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={story.seo.title} />
-        <meta name="twitter:description" content={story.seo.meta_description} />
+        <meta name="twitter:site" content="@noorapp" />
+        <meta name="twitter:title" content={shareTitle} />
+        <meta name="twitter:description" content={shareDesc} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:image:alt" content={story.title_en} />
+        <meta name="pinterest:description" content={shareDesc} />
+        <meta name="pinterest:media" content={ogImage} />
+        <meta name="thumbnail" content={ogImage} />
+        <meta itemProp="image" content={ogImage} />
+        <meta itemProp="name" content={shareTitle} />
+        <meta itemProp="description" content={shareDesc} />
         <link rel="alternate" hrefLang="en" href={url} />
         <link rel="alternate" hrefLang="bn" href={url} />
         <link rel="alternate" hrefLang="x-default" href={url} />
