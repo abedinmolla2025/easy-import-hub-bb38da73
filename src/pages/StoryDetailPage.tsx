@@ -27,8 +27,28 @@ import {
   type Story,
 } from "@/lib/stories";
 import { toast } from "@/hooks/use-toast";
+import ogStoriesDefault from "@/assets/stories/og-stories-default.jpg";
+import heroAdam from "@/assets/stories/hero-adam.jpg";
+import heroNuh from "@/assets/stories/hero-nuh.jpg";
+import heroIbrahim from "@/assets/stories/hero-ibrahim.jpg";
+import heroMusa from "@/assets/stories/hero-musa.jpg";
+import heroYusuf from "@/assets/stories/hero-yusuf.jpg";
 
 const SITE = "https://noorapp.in";
+
+const STORY_OG_IMAGES: Record<string, string> = {
+  "prophet-adam-story-islam": heroAdam,
+  "prophet-nuh-story-islam": heroNuh,
+  "prophet-ibrahim-story-islam": heroIbrahim,
+  "prophet-musa-story-islam": heroMusa,
+  "prophet-yusuf-story-islam": heroYusuf,
+};
+
+function absoluteUrl(path: string): string {
+  if (!path) return `${SITE}${ogStoriesDefault}`;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${SITE}${path.startsWith("/") ? "" : "/"}${path}`;
+}
 
 export default function StoryDetailPage() {
   const { slug } = useParams<{ slug: string }>();
