@@ -50,6 +50,11 @@ function absoluteUrl(path: string): string {
   return `${SITE}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
+function cacheBustUrl(url: string, version: string): string {
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${encodeURIComponent(version)}`;
+}
+
 export default function StoryDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { stories, loading } = useStories();
