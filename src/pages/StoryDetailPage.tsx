@@ -50,6 +50,11 @@ function absoluteUrl(path: string): string {
   return `${SITE}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
+function cacheBustUrl(url: string, version: string): string {
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${encodeURIComponent(version)}`;
+}
+
 export default function StoryDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { stories, loading } = useStories();
@@ -84,7 +89,8 @@ export default function StoryDetailPage() {
   const quranRefs = parseQuranReferences(story.reference);
   const morals = parseMorals(story.moral_en);
   const ogImagePath = STORY_OG_IMAGES[story.slug] || story.seo.open_graph?.image || ogStoriesDefault;
-  const ogImage = absoluteUrl(ogImagePath);
+  const ogImageBase = absoluteUrl(ogImagePath);
+  const ogImage = story.updated_at ? cacheBustUrl(ogImageBase, story.updated_at) : ogImageBase;
   const shareTitle = story.seo.open_graph?.title || story.seo.title;
   const shareDesc = story.seo.open_graph?.description || story.seo.meta_description;
 
