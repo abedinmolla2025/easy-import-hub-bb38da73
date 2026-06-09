@@ -81,10 +81,14 @@ const AdminSplashScreens = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (newBranding: BrandingSettings) => {
-      const { error } = await supabase.from("app_settings").upsert({
-        setting_key: "branding",
-        setting_value: newBranding,
-      });
+      const { error } = await supabase.from("app_settings").upsert(
+        {
+          setting_key: "branding",
+          setting_value: newBranding,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "setting_key" }
+      );
       if (error) throw error;
     },
     onSuccess: () => {

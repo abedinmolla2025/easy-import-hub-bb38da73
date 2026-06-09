@@ -34,10 +34,14 @@
        // Also update in database
        await supabase
          .from("app_settings")
-         .upsert({
-           setting_key: "branding",
-           setting_value: { ...branding, lottieSplashUrl: publicUrlData.publicUrl },
-         });
+         .upsert(
+           {
+             setting_key: "branding",
+             setting_value: { ...branding, lottieSplashUrl: publicUrlData.publicUrl },
+             updated_at: new Date().toISOString(),
+           },
+           { onConflict: "setting_key" }
+         );
  
        queryClient.invalidateQueries({ queryKey: ["app-settings"] });
        toast({ title: "Lottie animation uploaded", description: "Refresh the app to see the animated splash screen" });
@@ -129,10 +133,14 @@
                        setBranding((prev: any) => ({ ...prev, lottieSplashUrl: undefined }));
                        supabase
                          .from("app_settings")
-                         .upsert({
-                           setting_key: "branding",
-                           setting_value: { ...branding, lottieSplashUrl: undefined },
-                         });
+                         .upsert(
+                           {
+                             setting_key: "branding",
+                             setting_value: { ...branding, lottieSplashUrl: undefined },
+                             updated_at: new Date().toISOString(),
+                           },
+                           { onConflict: "setting_key" }
+                         );
                        toast({ title: "Splash removed" });
                      }}
                    >
