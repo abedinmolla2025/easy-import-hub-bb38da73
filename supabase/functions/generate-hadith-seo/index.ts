@@ -20,7 +20,7 @@ const SYSTEM_PROMPT = [
   "শুধু tool call এর মাধ্যমে structured output দাও, free text নয়।",
 ].join("\n");
 
-async function generateForHadith(arabic: string, bengali: string | null) {
+async function generateForHadith(arabic: string, bengali: string | null, attempt = 0): Promise<{ explanation_bn: string; lessons_bn: string[] }> {
   const userText = `আরবি:\n${arabic}\n\nবাংলা অনুবাদ:\n${bengali || "(অনুবাদ নেই, আরবি থেকে অর্থ বের করো)"}\n\nএই হাদিসের জন্য বাংলা explanation_bn ও lessons_bn তৈরি করো।`;
 
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -64,7 +64,14 @@ async function generateForHadith(arabic: string, bengali: string | null) {
 
   if (!resp.ok) {
     const t = await resp.text();
-    if (resp.status === 429) throw new Error("RATE_LIMIT");
+    if (resp.status === 429) {
+      if (attempt < 2) {
+        const waitMs = 1500 * Math.pow(2, attempt);
+        await new Promise((r) => setTimeout(r, waitMs));
+        return generateForHadith(arabic, bengali, attempt + 1);
+      }
+      throw new Error("RATE_LIMIT");
+    }
     if (resp.status === 402) throw new Error("PAYMENT_REQUIRED");
     throw new Error(`AI ${resp.status}: ${t.slice(0, 200)}`);
   }
