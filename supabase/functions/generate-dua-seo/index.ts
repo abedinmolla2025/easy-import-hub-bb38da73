@@ -26,7 +26,7 @@ async function generateForDua(args: {
   arabic: string | null;
   bengali: string | null;
   category: string | null;
-}) {
+}, attempt = 0): Promise<{ explanation_bn: string; benefits_bn: string[]; explanation_en: string; benefits_en: string[]; explanation_hi: string; benefits_hi: string[]; explanation_ur: string; benefits_ur: string[] }> {
   const userText = `দোয়ার নাম: ${args.title || "(নাম নেই)"}\nবিভাগ: ${args.category || "সাধারণ"}\n\nআরবি:\n${args.arabic || "(আরবি নেই)"}\n\nবাংলা অর্থ:\n${args.bengali || "(অনুবাদ নেই, আরবি থেকে বের করো)"}\n\nএই দোয়ার জন্য বাংলা explanation_bn ও benefits_bn তৈরি করো।`;
 
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -100,7 +100,14 @@ async function generateForDua(args: {
 
   if (!resp.ok) {
     const t = await resp.text();
-    if (resp.status === 429) throw new Error("RATE_LIMIT");
+    if (resp.status === 429) {
+      if (attempt < 2) {
+        const waitMs = 1500 * Math.pow(2, attempt);
+        await new Promise((r) => setTimeout(r, waitMs));
+        return generateForDua(args, attempt + 1);
+      }
+      throw new Error("RATE_LIMIT");
+    }
     if (resp.status === 402) throw new Error("PAYMENT_REQUIRED");
     throw new Error(`AI ${resp.status}: ${t.slice(0, 200)}`);
   }
