@@ -48,6 +48,7 @@ export default function HadithSeoGeneratorPanel() {
     let pending = stats?.pending ?? Infinity;
     let totalSoFar = 0;
     let failSoFar = 0;
+    let backoffMs = 500;
 
     while (!stopRef.current && pending > 0) {
       const { data, error } = await supabase.functions.invoke("generate-hadith-seo", {
@@ -68,8 +69,11 @@ export default function HadithSeoGeneratorPanel() {
       pending = res.pending;
       setStats((s) => (s ? { ...s, pending } : s));
       if (res.done) break;
-      // small pause between batches
-      await new Promise((r) => setTimeout(r, 500));
+      // adaptive backoff — slow down if the batch hit rate limits
+      const hitRateLimit = (res.errors ?? []).some((e) => e.includes("RATE_LIMIT"));
+      if (hitRateLimit) backoffMs = Math.min(backoffMs * 2, 15000);
+      else backoffMs = Math.max(500, Math.floor(backoffMs / 2));
+      await new Promise((r) => setTimeout(r, backoffMs));
     }
 
     setRunning(false);
@@ -161,7 +165,7 @@ export default function HadithSeoGeneratorPanel() {
           {!running ? (
             <Button onClick={start} disabled={loading || pending === 0} className="flex-1">
               <Sparkles className="mr-2 h-4 w-4" />
-              {pending === 0 ? "সব হাদিসের SEO content তৈরি হয়ে গেছে" : `Generate SEO Content (${pending} বাকি)`}
+              {pending === 0 ? "সব হাদিসের SEO content তৈরি হয়ে গেছে" : `Run All Missing (${pending} বাকি)`}
             </Button>
           ) : (
             <Button onClick={stop} variant="destructive" className="flex-1">
