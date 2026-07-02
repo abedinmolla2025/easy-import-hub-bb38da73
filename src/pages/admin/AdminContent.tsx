@@ -36,6 +36,7 @@ import {
 import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload, MoreVertical, Search, Download } from 'lucide-react';
 import HadithImportPanel from '@/components/admin/HadithImportPanel';
 import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel';
+import HadithExportImportPanel from '@/components/admin/HadithExportImportPanel';
 import DuaSeoGeneratorPanel from '@/components/admin/DuaSeoGeneratorPanel';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
@@ -1353,6 +1354,7 @@ export default function AdminContent() {
       {contentTypeContext === 'hadith' ? (
         <div className="space-y-6">
           <HadithSeoGeneratorPanel />
+          <HadithExportImportPanel />
           <HadithImportPanel />
         </div>
       ) : contentTypeContext ? (
