@@ -39,6 +39,7 @@ import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel'
 import HadithExportImportPanel from '@/components/admin/HadithExportImportPanel';
 import DuaSeoGeneratorPanel from '@/components/admin/DuaSeoGeneratorPanel';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
+import ContentQualityCheckPanel from '@/components/admin/ContentQualityCheckPanel';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 import { NameBulkImportDialog } from '@/components/admin/NameBulkImportDialog';
@@ -1347,6 +1348,7 @@ export default function AdminContent() {
       {contentTypeContext === 'dua' && (
         <div className="mb-6 space-y-4">
           <DuaSeoGeneratorPanel />
+          <ContentQualityCheckPanel />
           <DuaContentFixerPanel />
         </div>
       )}
@@ -1354,6 +1356,7 @@ export default function AdminContent() {
       {contentTypeContext === 'hadith' ? (
         <div className="space-y-6">
           <HadithSeoGeneratorPanel />
+          <ContentQualityCheckPanel />
           <HadithExportImportPanel />
           <HadithImportPanel />
         </div>
