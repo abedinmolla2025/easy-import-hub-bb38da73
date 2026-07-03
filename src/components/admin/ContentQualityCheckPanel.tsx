@@ -225,14 +225,16 @@ export default function ContentQualityCheckPanel() {
             .eq("id", sample.id)
             .single();
           if (fetchErr) throw fetchErr;
-          const meta = { ...(data?.metadata ?? {}) } as Record<string, unknown>;
+          const raw = data?.metadata;
+          const meta: Record<string, unknown> =
+            raw && typeof raw === "object" && !Array.isArray(raw) ? { ...(raw as Record<string, unknown>) } : {};
           delete meta.explanation_bn;
           delete meta.explanation;
           delete meta.benefits_bn;
           delete meta.benefits;
           const { error } = await supabase
             .from("admin_content")
-            .update({ metadata: meta })
+            .update({ metadata: meta as any })
             .eq("id", sample.id);
           if (error) throw error;
         }
