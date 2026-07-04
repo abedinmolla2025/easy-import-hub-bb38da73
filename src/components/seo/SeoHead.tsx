@@ -5,15 +5,56 @@ import { isAdminRoutePath } from "@/lib/ads";
 import { usePageSeo } from "@/hooks/usePageSeo";
 import { getPageSeoDefaults } from "@/lib/seoDefaults";
 
-function normalizeTitle(title?: string | null) {
-  if (!title) return undefined;
-  // Google displays ~60 chars but indexes up to ~70; avoid hard truncation
-  return title.length > 75 ? title.slice(0, 72) + "..." : title;
+const BRAND_SUFFIX = " | Noor";
+const TITLE_MAX = 60;
+const DESC_MAX = 160;
+const DESC_MIN = 120;
+const DESC_FALLBACK = " Read authentic Islamic content in Bengali.";
+
+/** Trim a string to a max length at the nearest word boundary (no ellipsis). */
+function trimAtWord(input: string, max: number): string {
+  const s = input.trim();
+  if (s.length <= max) return s;
+  const slice = s.slice(0, max + 1);
+  const lastSpace = slice.lastIndexOf(" ");
+  const cut = lastSpace > 0 ? slice.slice(0, lastSpace) : slice.slice(0, max);
+  return cut.replace(/[\s,;:\-–—|·•]+$/u, "").trim();
 }
 
-function normalizeDescription(description?: string | null) {
+function normalizeTitle(title?: string | null): string | undefined {
+  if (!title) return undefined;
+  // Strip duplicated brand fragments so we can re-append cleanly.
+  let base = title.trim().replace(/\s+/g, " ");
+  base = base.replace(/\s*[|·—–-]\s*Noor(\s+(Islamic\s+App|App))?\s*$/i, "").trim();
+  base = base.replace(/\s+\|\s+.*Noor.*$/i, "").trim();
+
+  if (base.length + BRAND_SUFFIX.length <= TITLE_MAX) {
+    return `${base}${BRAND_SUFFIX}`;
+  }
+  if (base.length <= TITLE_MAX) return base;
+  return trimAtWord(base, TITLE_MAX);
+}
+
+function normalizeDescription(description?: string | null): string | undefined {
   if (!description) return undefined;
-  return description.length > 160 ? description.slice(0, 157) + "..." : description;
+  const s = description.trim().replace(/\s+/g, " ");
+  if (s.length > DESC_MAX) return trimAtWord(s, DESC_MAX);
+  if (s.length < DESC_MIN) {
+    const padded = (s + DESC_FALLBACK).trim();
+    return padded.length > DESC_MAX ? trimAtWord(padded, DESC_MAX) : padded;
+  }
+  return s;
+}
+
+/** Strip query, hash, duplicate slashes, and trailing slash (except root). */
+function sanitizeCanonical(url: string): string {
+  let out = url.split("#")[0].split("?")[0];
+  // Preserve the "https://" double-slash, dedupe the rest.
+  out = out.replace(/([^:])\/{2,}/g, "$1/");
+  // Trim trailing slash (except when it's just the origin root).
+  out = out.replace(/(?<!:\/)\/+$/g, "");
+  if (/^https?:\/\/[^/]+$/.test(out)) out += "/";
+  return out;
 }
 
 const BREADCRUMB_NAMES: Record<string, string> = {
@@ -273,8 +314,9 @@ export function SeoHead() {
   const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
   // Canonical consolidation: /names → /baby-names
   const canonicalPath = normalizedPath === "/names" ? "/baby-names" : normalizedPath;
-  const canonical =
-    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${canonicalPath}`;
+  const canonical = sanitizeCanonical(
+    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${canonicalPath}`,
+  );
 
   const robots = pageSeo?.robots ?? "index,follow";
 

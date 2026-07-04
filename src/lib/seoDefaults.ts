@@ -15,9 +15,9 @@ export type PageSeoDefaults = {
 
 const DEFAULTS: Record<string, PageSeoDefaults> = {
   "/": {
-    title: "Noor — Islamic App for Quran, Hadith, Prayer Times & Dua",
+    title: "Noor – Quran, Hadith, Dua & Prayer Times",
     description:
-      "Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz — all in one app.",
+      "Read authentic Quran, Hadith, Dua, Prayer Times, Qibla, Islamic Stories and Baby Names in Bengali with a fast and beautiful Islamic app.",
   },
   "/islamic-app": {
     title: "Best Islamic App – Quran, Hadith, Dua & Prayer Times",
