@@ -3,6 +3,8 @@ import { Loader2, ArrowLeft, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { motion } from "framer-motion";
+import IslamicEducationalSection from "@/components/seo/IslamicEducationalSection";
+import { qiblaContent } from "@/lib/pageContent/utilityPages";
 
 const MECCA_LAT = 21.4225;
 const MECCA_LNG = 39.8262;
@@ -326,6 +328,9 @@ const QiblaPage = () => {
             </motion.div>
           </>
         )}
+      </div>
+      <div className="px-4 pb-10">
+        <IslamicEducationalSection {...qiblaContent} />
       </div>
     </div>
   );

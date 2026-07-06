@@ -18,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { hapticImpact, hapticNotification } from "@/lib/haptics";
 import { BadgeCelebration } from "@/components/BadgeCelebration";
 import { BadgeCertificate } from "@/components/BadgeCertificate";
+import IslamicEducationalSection from "@/components/seo/IslamicEducationalSection";
+import { quizContent } from "@/lib/pageContent/utilityPages";
 
 interface Question {
   question: string;
@@ -1570,6 +1572,10 @@ const QuizPage = () => {
           সম্পূর্ণ বিনামূল্যে ইসলামিক জ্ঞান অর্জন করুন Noor অ্যাপে।
         </p>
       </section>
+
+      <div className="max-w-2xl mx-auto px-4 pb-6">
+        <IslamicEducationalSection {...quizContent} />
+      </div>
 
       <BottomNavigation />
     </div>

@@ -5,6 +5,8 @@ import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { useAthanNotification } from "@/hooks/useAthanNotification";
 import { motion, AnimatePresence } from "framer-motion";
 import AthanSettingsModal from "@/components/AthanSettingsModal";
+import IslamicEducationalSection from "@/components/seo/IslamicEducationalSection";
+import { prayerTimesContent } from "@/lib/pageContent/utilityPages";
 
 interface PrayerInfo {
   name: string;
@@ -369,6 +371,8 @@ const PrayerTimesPage = () => {
             Calculation Method: ISNA (Islamic Society of North America)
           </p>
         </motion.div>
+
+        <IslamicEducationalSection {...prayerTimesContent} />
       </div>
 
       {/* Athan Settings Modal */}

@@ -3,6 +3,8 @@ import { RotateCcw, Volume2, VolumeX, ArrowLeft, Vibrate } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import TasbihBeads3D from "@/components/TasbihBeads3D";
+import IslamicEducationalSection from "@/components/seo/IslamicEducationalSection";
+import { tasbihContent } from "@/lib/pageContent/utilityPages";
 
 const dhikrList = [
   { arabic: "سُبْحَانَ اللَّهِ", transliteration: "SubhanAllah", meaning: "Glory be to Allah", target: 33, virtue: "Plants a tree in Paradise" },
@@ -319,6 +321,9 @@ const TasbihPage = () => {
           </p>
           <p className="text-xs text-amber-300/70 text-center mt-2">— Sahih Muslim</p>
         </motion.div>
+      </div>
+      <div className="px-4 pb-10">
+        <IslamicEducationalSection {...tasbihContent} />
       </div>
     </div>
   );

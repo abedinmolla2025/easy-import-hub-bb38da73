@@ -15,6 +15,7 @@ import {
   Baby,
   HelpCircle,
   Navigation,
+  BookMarked,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -50,6 +51,7 @@ const companyLinks = [
   { label: "Contact Us", path: "/contact", icon: Mail },
   { label: "Privacy Policy", path: "/privacy-policy", icon: ShieldCheck },
   { label: "Terms", path: "/terms", icon: FileText },
+  { label: "Data Sources", path: "/sources", icon: BookMarked },
   { label: "Sitemap", path: "/sitemap", icon: LayoutGrid },
 ];
 
