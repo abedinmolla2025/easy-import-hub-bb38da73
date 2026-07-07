@@ -49,6 +49,10 @@
   ],
   "rewrites": [
     {
+      "source": "/sitemap-dynamic.xml",
+      "destination": "https://oveuimwssgsadagddtef.supabase.co/functions/v1/sitemap"
+    },
+    {
       "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap\\.xml|sw\\.js|data/).*)",
       "has": [
         {
