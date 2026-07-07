@@ -1349,6 +1349,7 @@ export default function AdminContent() {
       {contentTypeContext === 'dua' && (
         <div className="mb-6 space-y-4">
           <DuaSeoGeneratorPanel />
+          <DuaEnrichmentPanel />
           <ContentQualityCheckPanel />
           <DuaContentFixerPanel />
         </div>
