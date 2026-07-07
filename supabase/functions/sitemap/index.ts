@@ -43,6 +43,21 @@ Deno.serve(async (req) => {
       console.error("Error fetching admin_content:", contentErr);
     }
 
+    // 2b. Fetch published Duas with slugs — emit /dua/:slug
+    const { data: duaSlugRows } = await supabase
+      .from("admin_content")
+      .select("slug, updated_at")
+      .eq("content_type", "dua")
+      .eq("status", "published")
+      .not("slug", "is", null);
+
+    // 2c. Fetch hadith rows with slugs — emit /hadith/h/:slug
+    const { data: hadithSlugRows } = await supabase
+      .from("hadiths")
+      .select("slug, updated_at")
+      .not("slug", "is", null)
+      .limit(50000);
+
     // Filter out noindex pages
     const indexablePages = (seoPages || []).filter((p) => {
       const robots = (p.robots || "").toLowerCase();
@@ -86,6 +101,26 @@ Deno.serve(async (req) => {
     <priority>0.6</priority>
   </url>`;
       });
+
+    const today0 = new Date().toISOString().split("T")[0];
+    const duaSlugUrls = (duaSlugRows || []).map((r: any) => {
+      const lastmod = r.updated_at ? new Date(r.updated_at).toISOString().split("T")[0] : today0;
+      return `  <url>
+    <loc>${escapeXml(`${origin}/dua/${r.slug}`)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>`;
+    });
+    const hadithSlugUrls = (hadithSlugRows || []).map((r: any) => {
+      const lastmod = r.updated_at ? new Date(r.updated_at).toISOString().split("T")[0] : today0;
+      return `  <url>
+    <loc>${escapeXml(`${origin}/hadith/h/${r.slug}`)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+    });
 
     // Add hadith language routes (static, always present)
     const hadithLangs = ["bangla", "english", "urdu"];
@@ -138,7 +173,14 @@ Deno.serve(async (req) => {
       console.error("Stories sitemap fetch failed:", e);
     }
 
-    const allUrls = [...seoUrls, ...hadithLangUrls, ...storyUrls, ...contentUrls].join("\n");
+    const allUrls = [
+      ...seoUrls,
+      ...hadithLangUrls,
+      ...storyUrls,
+      ...duaSlugUrls,
+      ...hadithSlugUrls,
+      ...contentUrls,
+    ].join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

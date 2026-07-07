@@ -15,3 +15,5 @@ Allow: /
 Disallow: /admin/
 
 Sitemap: https://noorapp.in/sitemap.xml
+Sitemap: https://noorapp.in/sitemap-index.xml
+Sitemap: https://noorapp.in/sitemap-dynamic.xml
