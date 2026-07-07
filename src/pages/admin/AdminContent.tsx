@@ -39,6 +39,7 @@ import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel'
 import HadithExportImportPanel from '@/components/admin/HadithExportImportPanel';
 import DuaSeoGeneratorPanel from '@/components/admin/DuaSeoGeneratorPanel';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
+import DuaEnrichmentPanel from '@/components/admin/DuaEnrichmentPanel';
 import ContentQualityCheckPanel from '@/components/admin/ContentQualityCheckPanel';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
