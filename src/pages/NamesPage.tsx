@@ -311,7 +311,7 @@ const NamesPage = () => {
             subtitle={
               namesQuery.isLoading
                 ? "Loading…"
-                : `${filtered.length} results • ${totalCount ?? allRows.length} total`
+                : `${totalCount ?? allRows.length} names`
             }
           />
 
