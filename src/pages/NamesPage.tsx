@@ -154,7 +154,11 @@ const NamesPage = () => {
       if (activeQuickFilter === "girl") return g === "female";
       if (activeQuickFilter === "unisex") return g === "unisex";
       if (activeQuickFilter === "quranic") return category === "quranic";
-      if (activeQuickFilter === "popular") return category === "popular";
+      if (activeQuickFilter === "popular") {
+        const fullMeta = n.metadata as Record<string, unknown> | null;
+        const popLevel = fullMeta && typeof fullMeta.popularity_level === 'string' ? fullMeta.popularity_level.toLowerCase() : '';
+        return popLevel.includes('popular');
+      }
       if (activeQuickFilter === "short") return title.length > 0 && title.length <= 5;
       if (activeQuickFilter === "beautiful") {
         const fullMeta = n.metadata as Record<string, unknown> | null;
