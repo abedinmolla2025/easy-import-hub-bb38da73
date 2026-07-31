@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Environment files with secrets
+.env.production
+.env.local
+.env.development.local
+
+# Build output
+dist/
+build/
+.next/
+.out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Migration scripts (temporary)
+run_all_migrations.py
+import_data.py
+import_data_v2.py
+import_remaining.py
+check_db.py
+run_migrations2.py
+
+# Local state
+.lovable/
