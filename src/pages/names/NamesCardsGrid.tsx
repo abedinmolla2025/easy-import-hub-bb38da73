@@ -70,7 +70,7 @@ export const NamesCardsGrid = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-0">
       {items.map((name) => (
         <NameCard
           key={name.id}

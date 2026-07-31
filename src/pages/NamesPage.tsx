@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { ComponentProps } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -105,6 +105,8 @@ const NamesPage = () => {
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
   const selectedId = searchParams.get("name");
 
@@ -112,6 +114,7 @@ const NamesPage = () => {
     const onScroll = () => {
       // Keep it subtle: raise the glass header slightly once the page is scrolled.
       setStickyHeaderRaised(window.scrollY > 8);
+      setShowBackToTop(window.scrollY > 500);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -304,6 +307,18 @@ const NamesPage = () => {
       </main>
 
       <NameSharePreviewModal open={!!selected} onOpenChange={(o) => !o && closeModal()} name={selected} />
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-24 right-4 z-50 h-10 w-10 rounded-full bg-[hsl(var(--dua-accent))] text-black shadow-lg transition-all hover:scale-110 flex items-center justify-center"
+          aria-label="Back to top"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+        </button>
+      )}
     </div>
   );
 };

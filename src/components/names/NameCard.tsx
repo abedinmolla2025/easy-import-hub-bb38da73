@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Share2, UserRound } from "lucide-react";
+import { Share2, UserRound, Heart } from "lucide-react";
 
 export type NameCardModel = {
   id: string;
@@ -44,9 +44,11 @@ export function NameCard({ name, onClick, className }: Props) {
       type="button"
       onClick={onClick}
       className={cn(
-        // Keep cards compact and list-friendly
+        // Cards with clear visual separation
         "dua-card relative w-full overflow-hidden text-left p-4 will-change-transform transition-all duration-300 ease-out",
-        "border-[hsl(var(--dua-accent)/0.26)]",
+        "border border-[hsl(var(--dua-accent)/0.30)]",
+        "rounded-xl shadow-sm",
+        "mb-3",
         "hover:-translate-y-0.5 hover:shadow-card",
         "active:translate-y-0 active:scale-[0.99]",
         className
@@ -126,7 +128,7 @@ export function NameCard({ name, onClick, className }: Props) {
                   variant="secondary"
                   className="shrink-0 rounded-full bg-[hsl(var(--dua-fg)/0.08)] px-2.5 py-0.5 text-[hsl(var(--dua-fg-muted))]"
                 >
-                  {source}
+                  {source.startsWith("Curated") ? "Curated Collection" : source}
                 </Badge>
               ) : null}
 
@@ -135,18 +137,43 @@ export function NameCard({ name, onClick, className }: Props) {
               ) : null}
             </div>
 
-            <span
-              className={cn(
-                "shrink-0 inline-flex items-center gap-1.5 rounded-full border",
-                "border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-header)/0.55)]",
-                "px-2.5 py-1 text-xs font-medium text-[hsl(var(--dua-fg))]"
-              )}
-              aria-hidden="true"
-              title="Share"
-            >
-              <Share2 className="h-3.5 w-3.5" />
-              Share
-            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Simple localStorage bookmark toggle
+                  const key = `name-bookmark-${name.id}`;
+                  const saved = localStorage.getItem(key);
+                  if (saved) {
+                    localStorage.removeItem(key);
+                  } else {
+                    localStorage.setItem(key, JSON.stringify({ id: name.id, title: name.title, bn_name: name.bn_name, savedAt: Date.now() }));
+                  }
+                }}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border transition-colors",
+                  "border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-header)/0.55)]",
+                  "px-2 py-1 text-xs font-medium text-[hsl(var(--dua-fg))]"
+                )}
+                aria-label={`Save ${name.title}`}
+                title="Save name"
+              >
+                <Heart className="h-3.5 w-3.5" />
+              </button>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border",
+                  "border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-header)/0.55)]",
+                  "px-2.5 py-1 text-xs font-medium text-[hsl(var(--dua-fg))]"
+                )}
+                aria-hidden="true"
+                title="Share"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+                Share
+              </span>
+            </div>
           </div>
         </div>
 
