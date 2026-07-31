@@ -11,7 +11,6 @@ import { NamesPageSearch } from "@/pages/names/NamesPageSearch";
 import { NamesQuickFilters } from "@/pages/names/NamesQuickFilters";
 import { NamesCardsGrid } from "@/pages/names/NamesCardsGrid";
 import { NamesAlphabetFilter } from "@/pages/names/NamesAlphabetFilter";
-import { NamesCategories } from "@/pages/names/NamesCategories";
 
 type NameContentRow = {
   id: string;
@@ -101,13 +100,13 @@ const NamesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [q, setQ] = useState("");
   const [activeQuickFilter, setActiveQuickFilter] = useState<ComponentProps<typeof NamesQuickFilters>["active"]>(
-    "all"
+    "beautiful"
   );
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
   const mainRef = useRef<HTMLElement>(null);
 
   const selectedId = searchParams.get("name");
@@ -157,6 +156,18 @@ const NamesPage = () => {
       if (activeQuickFilter === "quranic") return category === "quranic";
       if (activeQuickFilter === "popular") return category === "popular";
       if (activeQuickFilter === "short") return title.length > 0 && title.length <= 5;
+      if (activeQuickFilter === "beautiful") {
+        const fullMeta = n.metadata as Record<string, unknown> | null;
+        if (!fullMeta) return false;
+        const meaningCategories = (fullMeta.meaning_categories || []) as string[];
+        const categoryTags = (fullMeta.category_tags || []) as string[];
+        const allTags = [
+          ...meaningCategories.map(t => t.toLowerCase()),
+          ...categoryTags.map(t => t.toLowerCase()),
+          (n.category ?? "").toLowerCase(),
+        ];
+        return allTags.some(tag => tag.includes("beauty"));
+      }
       return true;
     });
 
@@ -191,58 +202,15 @@ const NamesPage = () => {
     return out;
   }, [filteredBase]);
 
-  // Category filter based on meaning_categories in metadata
-  const filteredWithCategory = useMemo(() => {
-    if (!activeCategory) return filteredBase;
-    const categoryId = activeCategory;
-    
-    return (filteredBase ?? []).filter((n) => {
-      const meta = safeParseMeta(n.metadata);
-      const fullMeta = n.metadata as Record<string, unknown> | null;
-      if (!fullMeta) return false;
-      
-      const meaningCategories = (fullMeta.meaning_categories || []) as string[];
-      const categoryTags = (fullMeta.category_tags || []) as string[];
-      
-      // Check if name belongs to the selected category
-      const allTags = [
-        ...meaningCategories.map(t => t.toLowerCase()),
-        ...categoryTags.map(t => t.toLowerCase()),
-        (n.category ?? "").toLowerCase(),
-      ];
-      
-      // Map category IDs to matching tags
-      const matchMap: Record<string, string[]> = {
-        "beauty": ["beauty"],
-        "virtue": ["virtue"],
-        "quranic": ["quranic"],
-        "prophets-family": ["prophets family"],
-        "sahabi": ["sahabi"],
-        "nature": ["nature"],
-        "strength": ["strength"],
-        "faith": ["faith"],
-        "wisdom": ["wisdom", "knowledge"],
-        "light": ["light"],
-        "love": ["love"],
-        "peace": ["mercy", "purity"],
-      };
-      
-      const targetTags = matchMap[categoryId] ?? [categoryId];
-      return targetTags.some(target =>
-        allTags.some(tag => tag.includes(target))
-      );
-    });
-  }, [activeCategory, filteredBase]);
-
   const filtered = useMemo(() => {
-    const base = activeCategory ? filteredWithCategory : filteredBase;
+    const base = filteredBase;
     if (!activeLetter) return base;
     return (base ?? []).filter((n) => {
       const t = (n.title ?? "").trim();
       const first = t ? t[0]!.toUpperCase() : "";
       return first === activeLetter;
     });
-  }, [activeLetter, filteredBase, filteredWithCategory, activeCategory]);
+  }, [activeLetter, filteredBase]);
 
   const cards = useMemo<NameCardModel[]>(() => {
     return (filtered ?? []).map((n) => {
@@ -320,14 +288,6 @@ const NamesPage = () => {
         <div className="mb-3">
           <NamesAlphabetFilter activeLetter={activeLetter} counts={alphabetCounts} onChange={setActiveLetter} />
         </div>
-        {/* Beautiful Categories Section */}
-        <section className="mb-6">
-          <NamesCategories
-            activeCategory={activeCategory}
-            onSelect={setActiveCategory}
-          />
-        </section>
-
         <NamesCardsGrid
           isLoading={namesQuery.isLoading}
           isError={namesQuery.isError}
