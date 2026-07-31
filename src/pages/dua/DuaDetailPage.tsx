@@ -39,6 +39,8 @@ interface DuaRow {
   when_to_recite_en: string | null;
   when_to_recite_hi: string | null;
   when_to_recite_ur: string | null;
+  source_type: string | null;
+  reference: string | null;
 }
 
 const SITE_ORIGIN = "https://noorapp.in";
@@ -110,12 +112,24 @@ const RICH_LABELS = {
     hindi: "कब पढ़ें",
     urdu: "کب پڑھیں",
   },
-  hadithRef: {
-    bengali: "হাদিস রেফারেন্স",
-    english: "Hadith Reference",
-    hindi: "हदीस संदर्भ",
-    urdu: "حدیث حوالہ",
-  },
+	  hadithRef: {
+	    bengali: "হাদিস রেফারেন্স",
+	    english: "Hadith Reference",
+	    hindi: "हदीस संदर्भ",
+	    urdu: "حدیث حوالہ",
+	  },
+	  source: {
+	    bengali: "উৎস",
+	    english: "Source",
+	    hindi: "स्रोत",
+	    urdu: "ماخذ",
+	  },
+	  reference: {
+	    bengali: "রেফারেন্স",
+	    english: "Reference",
+	    hindi: "संदर्भ",
+	    urdu: "حوالہ",
+	  },
   related: {
     bengali: "সম্পর্কিত দোয়া",
     english: "Related Duas",
@@ -193,7 +207,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -213,7 +227,7 @@ const DuaDetailPage = () => {
       if (cat) {
         const { data: rel } = await supabase
           .from("admin_content")
-          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference")
+          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference")
           .eq("category", cat)
           .eq("status", "published")
           .in("content_type", ["dua", "Dua"])
@@ -512,13 +526,34 @@ const DuaDetailPage = () => {
           </section>
         )}
 
-        {/* Hadith reference */}
-        {dua.hadith_reference && (
-          <section className="bg-[hsl(45,93%,58%)]/10 rounded-2xl p-5 border border-[hsl(45,93%,58%)]/30">
-            <h2 className="text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">{RICH_LABELS.hadithRef[language]}</h2>
-            <p className="text-white/90 italic leading-relaxed">{dua.hadith_reference}</p>
-          </section>
-        )}
+	        {/* Hadith reference */}
+	        {dua.hadith_reference && (
+	          <section className="bg-[hsl(45,93%,58%)]/10 rounded-2xl p-5 border border-[hsl(45,93%,58%)]/30">
+	            <h2 className="text-xs font-medium text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">{RICH_LABELS.hadithRef[language]}</h2>
+	            <p className="text-white/90 italic leading-relaxed">{dua.hadith_reference}</p>
+	          </section>
+	        )}
+
+	        {/* Source & Reference */}
+	        {(dua.source_type || dua.reference) && (
+	          <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
+	            <h2 className="text-xs font-medium text-white/50 uppercase tracking-wide mb-3">উৎস ও রেফারেন্স</h2>
+	            <ul className="space-y-2">
+	              {dua.source_type && (
+	                <li className="flex items-start gap-3">
+	                  <span className="text-xs font-semibold text-[hsl(45,93%,58%)] uppercase w-20 shrink-0 mt-0.5">{RICH_LABELS.source[language]}</span>
+	                  <span className="text-white/80 text-sm">{dua.source_type}</span>
+	                </li>
+	              )}
+	              {dua.reference && (
+	                <li className="flex items-start gap-3">
+	                  <span className="text-xs font-semibold text-[hsl(45,93%,58%)] uppercase w-20 shrink-0 mt-0.5">{RICH_LABELS.reference[language]}</span>
+	                  <span className="text-white/80 text-sm">{dua.reference}</span>
+	                </li>
+	              )}
+	            </ul>
+	          </section>
+	        )}
 
         {/* Related Duas */}
         {related.length > 0 && (

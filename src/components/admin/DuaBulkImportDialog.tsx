@@ -62,6 +62,22 @@ const duaImportItemSchema = z
 
     source: z.string().trim().max(300).optional(),
     reference: z.string().trim().max(300).optional(),
+    hadith_reference: z.string().trim().max(1000).optional(),
+
+    explanation_bn: z.string().trim().max(8000).optional(),
+    explanation_en: z.string().trim().max(8000).optional(),
+    explanation_hi: z.string().trim().max(8000).optional(),
+    explanation_ur: z.string().trim().max(8000).optional(),
+
+    benefits_bn: z.array(z.string()).optional(),
+    benefits_en: z.array(z.string()).optional(),
+    benefits_hi: z.array(z.string()).optional(),
+    benefits_ur: z.array(z.string()).optional(),
+
+    when_to_recite_bn: z.string().trim().max(4000).optional(),
+    when_to_recite_en: z.string().trim().max(4000).optional(),
+    when_to_recite_hi: z.string().trim().max(4000).optional(),
+    when_to_recite_ur: z.string().trim().max(4000).optional(),
 
     // Optional: passthrough fields kept for metadata
     slug: z.string().trim().max(200).optional(),
@@ -79,6 +95,10 @@ const KNOWN_KEYS = new Set([
   "content_arabic","content_bn","content_en","content_hi","content_ur",
   "pronunciation","pronunciation_en","pronunciation_hi","pronunciation_ur",
   "category","source","reference","slug","extras",
+  "hadith_reference",
+  "explanation_bn", "explanation_en", "explanation_hi", "explanation_ur",
+  "benefits_bn", "benefits_en", "benefits_hi", "benefits_ur",
+  "when_to_recite_bn", "when_to_recite_en", "when_to_recite_hi", "when_to_recite_ur",
   // v31 source keys we consume below
   "arabic","translation_bn","translation_en","translation_hi","translation_ur",
   "source_type",
@@ -138,6 +158,19 @@ const normalizeItem = (raw: any): any => {
     category: r.category,
     source: r.source ?? r.source_type,
     reference: r.reference,
+    hadith_reference: r.hadith_reference,
+    explanation_bn: r.explanation_bn,
+    explanation_en: r.explanation_en,
+    explanation_hi: r.explanation_hi,
+    explanation_ur: r.explanation_ur,
+    benefits_bn: r.benefits_bn,
+    benefits_en: r.benefits_en,
+    benefits_hi: r.benefits_hi,
+    benefits_ur: r.benefits_ur,
+    when_to_recite_bn: r.when_to_recite_bn,
+    when_to_recite_en: r.when_to_recite_en,
+    when_to_recite_hi: r.when_to_recite_hi,
+    when_to_recite_ur: r.when_to_recite_ur,
     extras: Object.keys(extras).length ? extras : undefined,
   };
 };
@@ -401,8 +434,6 @@ export function DuaBulkImportDialog({
       if (parsed.valid.length) {
         const rows = parsed.valid.map((it) => {
           const meta: Record<string, any> = {};
-          if (it.source?.trim()) meta.source = it.source.trim();
-          if (it.reference?.trim()) meta.reference = it.reference.trim();
           if (it.title_bn?.trim()) meta.title_bn = it.title_bn.trim();
           if (it.extras) Object.assign(meta, it.extras);
 
@@ -424,6 +455,21 @@ export function DuaBulkImportDialog({
             content_pronunciation_hi: it.pronunciation_hi?.trim() || null,
             content_pronunciation_ur: it.pronunciation_ur?.trim() || null,
             category: it.category?.trim() || null,
+            source_type: it.source?.trim() || null,
+            reference: it.reference?.trim() || null,
+            hadith_reference: it.hadith_reference?.trim() || null,
+            explanation_bn: it.explanation_bn?.trim() || null,
+            explanation_en: it.explanation_en?.trim() || null,
+            explanation_hi: it.explanation_hi?.trim() || null,
+            explanation_ur: it.explanation_ur?.trim() || null,
+            benefits_bn: it.benefits_bn || null,
+            benefits_en: it.benefits_en || null,
+            benefits_hi: it.benefits_hi || null,
+            benefits_ur: it.benefits_ur || null,
+            when_to_recite_bn: it.when_to_recite_bn?.trim() || null,
+            when_to_recite_en: it.when_to_recite_en?.trim() || null,
+            when_to_recite_hi: it.when_to_recite_hi?.trim() || null,
+            when_to_recite_ur: it.when_to_recite_ur?.trim() || null,
             metadata: Object.keys(meta).length ? meta : null,
             status: "draft",
             is_published: false,
@@ -468,8 +514,9 @@ export function DuaBulkImportDialog({
             }
 
             const baseMeta = hit.metadata && typeof hit.metadata === "object" ? { ...(hit.metadata as any) } : {};
-            if (it.source?.trim()) baseMeta.source = it.source.trim();
-            if (it.reference?.trim()) baseMeta.reference = it.reference.trim();
+            // Move source/reference to dedicated columns if they exist in metadata
+            delete baseMeta.source;
+            delete baseMeta.reference;
 
             const payload = {
               title: it.title.trim(),
@@ -487,6 +534,21 @@ export function DuaBulkImportDialog({
               content_pronunciation_hi: it.pronunciation_hi?.trim() || null,
               content_pronunciation_ur: it.pronunciation_ur?.trim() || null,
               category: it.category?.trim() || null,
+              source_type: it.source?.trim() || null,
+              reference: it.reference?.trim() || null,
+              hadith_reference: it.hadith_reference?.trim() || null,
+              explanation_bn: it.explanation_bn?.trim() || null,
+              explanation_en: it.explanation_en?.trim() || null,
+              explanation_hi: it.explanation_hi?.trim() || null,
+              explanation_ur: it.explanation_ur?.trim() || null,
+              benefits_bn: it.benefits_bn || null,
+              benefits_en: it.benefits_en || null,
+              benefits_hi: it.benefits_hi || null,
+              benefits_ur: it.benefits_ur || null,
+              when_to_recite_bn: it.when_to_recite_bn?.trim() || null,
+              when_to_recite_en: it.when_to_recite_en?.trim() || null,
+              when_to_recite_hi: it.when_to_recite_hi?.trim() || null,
+              when_to_recite_ur: it.when_to_recite_ur?.trim() || null,
               metadata: Object.keys(baseMeta).length ? baseMeta : null,
               // keep draft/unpublished to match existing import behavior
               status: "draft",

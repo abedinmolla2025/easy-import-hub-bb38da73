@@ -210,6 +210,18 @@ Deno.serve(async (req) => {
       if (error) throw error;
       const pending = (row?.metadata as any)?.enrichment_pending;
       if (!pending) throw new Error("no pending enrichment");
+
+      const toArray = (val: any) => {
+        if (!val) return null;
+        if (Array.isArray(val)) return val;
+        if (typeof val !== "string") return [String(val)];
+        // Split by newlines, bullets, or numbers
+        return val
+          .split(/\n+/)
+          .map(s => s.replace(/^[\s•\-\d\.\)\>]+/, "").trim())
+          .filter(s => s.length > 0);
+      };
+
       const merged = { ...(row.metadata as any), enrichment_status: "approved" };
       delete merged.enrichment_pending;
       const patch: Record<string, unknown> = {
@@ -218,6 +230,10 @@ Deno.serve(async (req) => {
         when_to_recite_en: pending.when_to_recite_en,
         when_to_recite_hi: pending.when_to_recite_hi,
         when_to_recite_ur: pending.when_to_recite_ur,
+        benefits_bn: toArray(pending.virtue_bn),
+        benefits_en: toArray(pending.virtue_en),
+        benefits_hi: toArray(pending.virtue_hi),
+        benefits_ur: toArray(pending.virtue_ur),
         virtue: pending.virtue_bn,
         faq: pending.faq,
       };
