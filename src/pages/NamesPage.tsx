@@ -11,6 +11,7 @@ import { NamesPageSearch } from "@/pages/names/NamesPageSearch";
 import { NamesQuickFilters } from "@/pages/names/NamesQuickFilters";
 import { NamesCardsGrid } from "@/pages/names/NamesCardsGrid";
 import { NamesAlphabetFilter } from "@/pages/names/NamesAlphabetFilter";
+import { NamesCategories } from "@/pages/names/NamesCategories";
 
 type NameContentRow = {
   id: string;
@@ -106,6 +107,7 @@ const NamesPage = () => {
   const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const mainRef = useRef<HTMLElement>(null);
 
   const selectedId = searchParams.get("name");
@@ -189,14 +191,58 @@ const NamesPage = () => {
     return out;
   }, [filteredBase]);
 
-  const filtered = useMemo(() => {
-    if (!activeLetter) return filteredBase;
+  // Category filter based on meaning_categories in metadata
+  const filteredWithCategory = useMemo(() => {
+    if (!activeCategory) return filteredBase;
+    const categoryId = activeCategory;
+    
     return (filteredBase ?? []).filter((n) => {
+      const meta = safeParseMeta(n.metadata);
+      const fullMeta = n.metadata as Record<string, unknown> | null;
+      if (!fullMeta) return false;
+      
+      const meaningCategories = (fullMeta.meaning_categories || []) as string[];
+      const categoryTags = (fullMeta.category_tags || []) as string[];
+      
+      // Check if name belongs to the selected category
+      const allTags = [
+        ...meaningCategories.map(t => t.toLowerCase()),
+        ...categoryTags.map(t => t.toLowerCase()),
+        (n.category ?? "").toLowerCase(),
+      ];
+      
+      // Map category IDs to matching tags
+      const matchMap: Record<string, string[]> = {
+        "beauty": ["beauty"],
+        "virtue": ["virtue"],
+        "quranic": ["quranic"],
+        "prophets-family": ["prophets family"],
+        "sahabi": ["sahabi"],
+        "nature": ["nature"],
+        "strength": ["strength"],
+        "faith": ["faith"],
+        "wisdom": ["wisdom", "knowledge"],
+        "light": ["light"],
+        "love": ["love"],
+        "peace": ["mercy", "purity"],
+      };
+      
+      const targetTags = matchMap[categoryId] ?? [categoryId];
+      return targetTags.some(target =>
+        allTags.some(tag => tag.includes(target))
+      );
+    });
+  }, [activeCategory, filteredBase]);
+
+  const filtered = useMemo(() => {
+    const base = activeCategory ? filteredWithCategory : filteredBase;
+    if (!activeLetter) return base;
+    return (base ?? []).filter((n) => {
       const t = (n.title ?? "").trim();
       const first = t ? t[0]!.toUpperCase() : "";
       return first === activeLetter;
     });
-  }, [activeLetter, filteredBase]);
+  }, [activeLetter, filteredBase, filteredWithCategory, activeCategory]);
 
   const cards = useMemo<NameCardModel[]>(() => {
     return (filtered ?? []).map((n) => {
@@ -274,6 +320,14 @@ const NamesPage = () => {
         <div className="mb-3">
           <NamesAlphabetFilter activeLetter={activeLetter} counts={alphabetCounts} onChange={setActiveLetter} />
         </div>
+        {/* Beautiful Categories Section */}
+        <section className="mb-6">
+          <NamesCategories
+            activeCategory={activeCategory}
+            onSelect={setActiveCategory}
+          />
+        </section>
+
         <NamesCardsGrid
           isLoading={namesQuery.isLoading}
           isError={namesQuery.isError}
