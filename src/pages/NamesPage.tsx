@@ -100,7 +100,7 @@ const NamesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [q, setQ] = useState("");
   const [activeQuickFilter, setActiveQuickFilter] = useState<ComponentProps<typeof NamesQuickFilters>["active"]>(
-    "beautiful"
+    "all"
   );
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [selected, setSelected] = useState<NameCardModel | null>(null);
@@ -206,15 +206,52 @@ const NamesPage = () => {
     return out;
   }, [filteredBase]);
 
+  // Sort: Beautiful & Popular names first, then latest names
+  const sortedRows = useMemo(() => {
+    return (filteredBase ?? []).sort((a, b) => {
+      const aMeta = a.metadata as Record<string, unknown> | null;
+      const bMeta = b.metadata as Record<string, unknown> | null;
+
+      const aMeaningCats = ((aMeta?.meaning_categories as string[]) || []).map(t => t.toLowerCase());
+      const aTags = ((aMeta?.category_tags as string[]) || []).map(t => t.toLowerCase());
+      const bMeaningCats = ((bMeta?.meaning_categories as string[]) || []).map(t => t.toLowerCase());
+      const bTags = ((bMeta?.category_tags as string[]) || []).map(t => t.toLowerCase());
+
+      const aAllTags = [...aMeaningCats, ...aTags, (a.category ?? "").toLowerCase()];
+      const bAllTags = [...bMeaningCats, ...bTags, (b.category ?? "").toLowerCase()];
+
+      const aIsBeautiful = aAllTags.some(tag => tag.includes("beauty"));
+      const bIsBeautiful = bAllTags.some(tag => tag.includes("beauty"));
+
+      const aIsPopular = (typeof aMeta?.popularity_level === 'string') ? aMeta.popularity_level.toLowerCase().includes('popular') : false;
+      const bIsPopular = (typeof bMeta?.popularity_level === 'string') ? bMeta.popularity_level.toLowerCase().includes('popular') : false;
+
+      // Beautiful names get highest priority
+      if (aIsBeautiful && !bIsBeautiful) return -1;
+      if (!aIsBeautiful && bIsBeautiful) return 1;
+
+      // Then Popular names
+      if (aIsPopular && !bIsPopular) return -1;
+      if (!aIsPopular && bIsPopular) return 1;
+
+      // Then by created_at (latest first)
+      const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+      if (aTime !== bTime) return bTime - aTime;
+
+      return 0;
+    });
+  }, [filteredBase]);
+
   const filtered = useMemo(() => {
-    const base = filteredBase;
+    const base = sortedRows;
     if (!activeLetter) return base;
     return (base ?? []).filter((n) => {
       const t = (n.title ?? "").trim();
       const first = t ? t[0]!.toUpperCase() : "";
       return first === activeLetter;
     });
-  }, [activeLetter, filteredBase]);
+  }, [activeLetter, sortedRows]);
 
   const cards = useMemo<NameCardModel[]>(() => {
     return (filtered ?? []).map((n) => {
