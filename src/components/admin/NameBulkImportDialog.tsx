@@ -182,8 +182,8 @@ export function NameBulkImportDialog({
   const handleFileSelected = async (file: File | null) => {
     if (!file) return;
     try {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({ title: "File too large", description: "Max 10MB", variant: "destructive" });
+      if (file.size > 50 * 1024 * 1024) {
+        toast({ title: "File too large", description: "Max 50MB", variant: "destructive" });
         return;
       }
       const text = await file.text();
