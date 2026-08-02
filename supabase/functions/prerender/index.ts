@@ -368,6 +368,40 @@ Deno.serve(async (req) => {
                 <p><strong>Meaning:</strong> ${escapeHtml(dua.translation_bn)}</p>
                 <p>Visit <a href="${SITE_ORIGIN}/dua/${dua.slug}">Noor App</a> to read more authentic duas.</p>
             </section>`;
+        } else {
+          // Legacy duas that are only in the database (no entry in duas.json)
+          const { data: row } = await supabase
+            .from("admin_content")
+            .select("title, content_arabic, content_pronunciation, content_translation, reference")
+            .eq("content_type", "dua")
+            .eq("slug", slug)
+            .maybeSingle();
+
+          if (row) {
+            seo = {
+              title: row.title,
+              description: `${row.title}${row.reference ? ` (${row.reference})` : ""} — আরবি, উচ্চারণ ও বাংলা অর্থসহ পড়ুন Noor App-এ।`,
+            };
+            bodyContent = `
+            <section>
+                <h2>${escapeHtml(row.title ?? "")}</h2>
+                ${row.reference ? `<p><strong>Reference:</strong> ${escapeHtml(row.reference)}</p>` : ""}
+                ${row.content_arabic ? `<p dir="rtl" lang="ar" class="arabic">${escapeHtml(row.content_arabic)}</p>` : ""}
+                ${row.content_pronunciation ? `<p><strong>Pronunciation:</strong> ${escapeHtml(row.content_pronunciation)}</p>` : ""}
+                ${row.content_translation ? `<p><strong>Meaning:</strong> ${escapeHtml(row.content_translation)}</p>` : ""}
+                <p>Visit <a href="${SITE_ORIGIN}/dua/${slug}">Noor App</a> to read more authentic duas.</p>
+            </section>`;
+          }
+        }
+
+        // Only advertise a per-dua OG image when the file actually exists,
+        // otherwise Facebook/WhatsApp get a 404 and show no preview at all.
+        const candidate = `${SITE_ORIGIN}/assets/og-images/${slug}.png`;
+        try {
+          const head = await fetch(candidate, { method: "HEAD" });
+          customOgImage = head.ok ? candidate : `${SITE_ORIGIN}/og-dua.png`;
+        } catch {
+          customOgImage = `${SITE_ORIGIN}/og-dua.png`;
         }
       } catch (err) {
         console.error("Error fetching dua for prerender:", err);
