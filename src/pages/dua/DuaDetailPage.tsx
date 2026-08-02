@@ -309,7 +309,7 @@ const DuaDetailPage = () => {
       inLanguage: "bn",
       mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_ORIGIN}/dua/${dua.slug}` },
       description: seo?.description,
-      image: FALLBACK_OG,
+      image: `${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`,
       author: { "@type": "Organization", name: "Noor" },
       publisher: {
         "@type": "Organization",
