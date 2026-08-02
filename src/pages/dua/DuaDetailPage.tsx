@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DuaAudioPlayer from "@/components/DuaAudioPlayer";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { useToast } from "@/hooks/use-toast";
+import SocialOgVerifyPanel from "@/components/dua/SocialOgVerifyPanel";
 
 interface DuaRow {
   id: string;
@@ -449,6 +450,9 @@ const DuaDetailPage = () => {
             </Link>
           )}
         </header>
+
+        {/* Social OG verification */}
+        <SocialOgVerifyPanel path={`/dua/${dua.slug}`} />
 
         {/* Arabic */}
         {dua.content_arabic && (
