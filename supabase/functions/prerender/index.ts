@@ -372,7 +372,7 @@ Deno.serve(async (req) => {
           // Legacy duas that are only in the database (no entry in duas.json)
           const { data: row } = await supabase
             .from("admin_content")
-            .select("title, content_arabic, content_pronunciation, content_translation, reference")
+            .select("title, content, content_arabic, content_pronunciation, reference")
             .eq("content_type", "dua")
             .eq("slug", slug)
             .maybeSingle();
@@ -388,7 +388,7 @@ Deno.serve(async (req) => {
                 ${row.reference ? `<p><strong>Reference:</strong> ${escapeHtml(row.reference)}</p>` : ""}
                 ${row.content_arabic ? `<p dir="rtl" lang="ar" class="arabic">${escapeHtml(row.content_arabic)}</p>` : ""}
                 ${row.content_pronunciation ? `<p><strong>Pronunciation:</strong> ${escapeHtml(row.content_pronunciation)}</p>` : ""}
-                ${row.content_translation ? `<p><strong>Meaning:</strong> ${escapeHtml(row.content_translation)}</p>` : ""}
+                ${row.content ? `<p><strong>Meaning:</strong> ${escapeHtml(row.content)}</p>` : ""}
                 <p>Visit <a href="${SITE_ORIGIN}/dua/${slug}">Noor App</a> to read more authentic duas.</p>
             </section>`;
           }
@@ -396,10 +396,13 @@ Deno.serve(async (req) => {
 
         // Only advertise a per-dua OG image when the file actually exists,
         // otherwise Facebook/WhatsApp get a 404 and show no preview at all.
+        // NOTE: missing files fall through to the SPA catch-all and still return 200 HTML,
+        // so the content-type must be checked, not just the status.
         const candidate = `${SITE_ORIGIN}/assets/og-images/${slug}.png`;
         try {
           const head = await fetch(candidate, { method: "HEAD" });
-          customOgImage = head.ok ? candidate : `${SITE_ORIGIN}/og-dua.png`;
+          const isImage = head.ok && (head.headers.get("content-type") || "").startsWith("image/");
+          customOgImage = isImage ? candidate : `${SITE_ORIGIN}/og-dua.png`;
         } catch {
           customOgImage = `${SITE_ORIGIN}/og-dua.png`;
         }
