@@ -140,11 +140,13 @@ function getChapterSeo(lang: string, chapterNum: string) {
   return langLabels[lang] || langLabels.english;
 }
 
-function getOgImage(path: string): string {
+function getOgImage(path: string, customImage?: string): string {
+  if (customImage) return customImage;
   if (path.startsWith("/hadith")) return `${SITE_ORIGIN}/og-bukhari.png`;
   if (path.startsWith("/quran")) return `${SITE_ORIGIN}/og-quran.png`;
   if (path.startsWith("/prayer-times")) return `${SITE_ORIGIN}/og-prayer-times.png`;
-  if (path.startsWith("/dua")) return `${SITE_ORIGIN}/og-dua.png`;
+  if (path.startsWith("/dua/")) return `${SITE_ORIGIN}/og-dua.png`; // Fallback for specific dua
+  if (path === "/dua") return `${SITE_ORIGIN}/og-dua.png`;
   if (path.startsWith("/quiz")) return `${SITE_ORIGIN}/og-quiz.png`;
   if (path.startsWith("/tasbih")) return `${SITE_ORIGIN}/og-tasbih.png`;
   if (path.startsWith("/qibla")) return `${SITE_ORIGIN}/og-qibla.png`;
@@ -321,6 +323,10 @@ Deno.serve(async (req) => {
     let seo = SEO_DEFAULTS[path];
     let bodyContent = "";
     let jsonLd = "";
+    let customOgImage = "";
+
+    // Check for specific Dua page pattern
+    const duaMatch = path.match(/^\/dua\/([a-zA-Z0-9-]+)$/);
 
     // Check for chapter page pattern
     const chapterMatch = path.match(
@@ -332,7 +338,36 @@ Deno.serve(async (req) => {
       /^\/hadith\/sahih-bukhari\/(bangla|english|urdu)$/,
     );
 
-    if (chapterMatch) {
+    if (duaMatch) {
+      const slug = duaMatch[1];
+      try {
+        // Fetch the Duas JSON
+        const response = await fetch(`${SITE_ORIGIN}/data/duas.json`);
+        const duas = await response.json();
+        const dua = duas.find((d: any) => d.slug === slug);
+        
+        if (dua) {
+          seo = {
+            title: dua.title_bn || dua.title_en,
+            description: `${dua.title_bn || dua.title_en} (${dua.reference})। এই দুয়াটি বিস্তারিত পড়ার জন্য নিচের লিঙ্কে ক্লিক করুন।`
+          };
+          // The images are hosted at /assets/og-images/
+          customOgImage = `${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`;
+          
+          bodyContent = `
+            <section>
+                <h2>${escapeHtml(dua.title_bn)}</h2>
+                <p><strong>Reference:</strong> ${escapeHtml(dua.reference)}</p>
+                <p dir="rtl" lang="ar" class="arabic">${escapeHtml(dua.arabic)}</p>
+                <p><strong>Pronunciation:</strong> ${escapeHtml(dua.pronunciation.bn)}</p>
+                <p><strong>Meaning:</strong> ${escapeHtml(dua.translation_bn)}</p>
+                <p>Visit <a href="${SITE_ORIGIN}/dua/${dua.slug}">Noor App</a> to read more authentic duas.</p>
+            </section>`;
+        }
+      } catch (err) {
+        console.error("Error fetching dua for prerender:", err);
+      }
+    } else if (chapterMatch) {
       const [, lang, chapterNum] = chapterMatch;
       seo = getChapterSeo(lang, chapterNum);
 
@@ -624,11 +659,10 @@ Deno.serve(async (req) => {
         </section>`;
     }
 
-    if (!seo) {
+        if (!seo) {
       seo = SEO_DEFAULTS["/"];
     }
-
-    const ogImage = getOgImage(path);
+    const ogImage = getOgImage(path, customOgImage);
     const html = buildFullHtml(path, seo.title, seo.description, ogImage, bodyContent, jsonLd);
 
     return new Response(html, {

@@ -103,6 +103,25 @@ Deno.serve(async (req) => {
       });
 
     const today0 = new Date().toISOString().split("T")[0];
+    // Add Duas from /data/duas.json
+    const duaUrls: string[] = [];
+    try {
+      const duasRes = await fetch(`${origin}/data/duas.json`);
+      if (duasRes.ok) {
+        const duas = await duasRes.json();
+        for (const d of duas) {
+          duaUrls.push(`  <url>
+    <loc>${origin}/dua/${escapeXml(d.slug)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`);
+        }
+      }
+    } catch (e) {
+      console.error("Duas sitemap fetch failed:", e);
+    }
+
     const duaSlugUrls = (duaSlugRows || []).map((r: any) => {
       const lastmod = r.updated_at ? new Date(r.updated_at).toISOString().split("T")[0] : today0;
       return `  <url>
@@ -177,6 +196,7 @@ Deno.serve(async (req) => {
       ...seoUrls,
       ...hadithLangUrls,
       ...storyUrls,
+      ...duaUrls,
       ...duaSlugUrls,
       ...hadithSlugUrls,
       ...contentUrls,
