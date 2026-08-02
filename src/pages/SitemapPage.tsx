@@ -22,6 +22,7 @@ const sections = [
       { label: "Sahih Muslim", href: "/hadith/muslim" },
       { label: "Jami at-Tirmidhi", href: "/hadith/tirmidhi" },
       { label: "Sunan Abu Dawud", href: "/hadith/abu-dawud" },
+      // Placeholder collections — links kept for user navigation but these pages are noindex
     ],
   },
   {
@@ -61,6 +62,7 @@ export default function SitemapPage() {
         <title>Sitemap — Noor Islamic App</title>
         <meta name="description" content="Browse all pages on Noor — Quran, Hadith, Dua, Prayer Times, Islamic Quiz, Baby Names and more." />
         <link rel="canonical" href="https://noorapp.in/sitemap" />
+        <meta name="robots" content="noindex,follow" />
       </Helmet>
 
       <main className="mx-auto max-w-3xl px-4 pt-8 pb-24">

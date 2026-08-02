@@ -184,58 +184,225 @@ const DuaPage = () => {
   const categoryParam = searchParams.get("category");
   const duaParam = searchParams.get("dua");
 
+  // Static fallback Duas — ensures the page always has content for Google & SEO
+  // even if the Supabase API fails or times out
+  const FALLBACK_DUAS: Dua[] = [
+    {
+      id: "fallback-1",
+      slug: null,
+      arabic: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+      bengaliTransliteration: "বিসমিল্লাহির রাহমানির রাহীম",
+      pronunciationEn: "Bismillaahir Rahmaanir Raheem",
+      pronunciationHi: "बिस्मिल्लाहिर रहमानिर रहीम",
+      pronunciationUr: "بسم اللہ الرحمن الرحیم",
+      translations: {
+        bengali: { title: "বিসমিল্লাহ", category: "Daily", translation: "শুরু করছি আল্লাহর নামে, যিনি পরম করুণাময়, অতি দয়ালু।" },
+        english: { title: "Bismillah", category: "Daily", translation: "In the name of Allah, the Most Gracious, the Most Merciful." },
+        hindi: { title: "बिस्मिल्लाह", category: "Daily", translation: "अल्लाह के नाम से जो रहमान और रहीम है।" },
+        urdu: { title: "بسم اللہ", category: "Daily", translation: "اللہ کے نام سے جو بہت مہربان اور رحم کرنے والا ہے۔" },
+      },
+    },
+    {
+      id: "fallback-2",
+      slug: null,
+      arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
+      bengaliTransliteration: "আলহামদুলিল্লাহি রাব্বিল আআলামীন",
+      pronunciationEn: "Alhamdu lillaahi Rabbil Aa'lameen",
+      pronunciationHi: "अलहम्दु लिल्लाहि रब्बिल आलामीन",
+      pronunciationUr: "الحمد للہ رب العلمین",
+      translations: {
+        bengali: { title: "আলহামদুলিল্লাহ", category: "Daily", translation: "সব প্রশংসা আল্লাহর, যিনি সমগ্র বিশ্বের রব।" },
+        english: { title: "Alhamdulillah", category: "Daily", translation: "All praise is due to Allah, Lord of the worlds." },
+        hindi: { title: "अलहम्दुलिल्लाह", category: "Daily", translation: "सारी तारीफ अल्लाह के लिए है जो सारी दुनियाओं का पालनहार है।" },
+        urdu: { title: "الحمد للہ", category: "Daily", translation: "تمام تعریفیں اللہ کے لیے ہیں جو تمام جہانوں کا رب ہے۔" },
+      },
+    },
+    {
+      id: "fallback-3",
+      slug: null,
+      arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
+      bengaliTransliteration: "সুবহানাল্লাহি ওয়া বিহামদিহি",
+      pronunciationEn: "SubhaanAllaahi wa bihamdihi",
+      pronunciationHi: "सुब्हानअल्लाहि व बिहम्दिहि",
+      pronunciationUr: "سبحان اللہ وبحمدہ",
+      translations: {
+        bengali: { title: "তাসবীহ", category: "Daily", translation: "আল্লাহ তাআলা সকল দোষ থেকে পবিত্র এবং তার প্রশংসার সাথে।" },
+        english: { title: "SubhanAllahi wa bihamdihi", category: "Daily", translation: "Glory be to Allah and His is the praise." },
+        hindi: { title: "सुब्हानअल्लाह", category: "Daily", translation: "अल्लाह पवित्र है और उसकी तारीफ़ है।" },
+        urdu: { title: "سبحان اللہ", category: "Daily", translation: "اللہ پاک ہے اور اس کی تمام تعریفیں اس کے لیے ہیں۔" },
+      },
+    },
+    {
+      id: "fallback-4",
+      slug: null,
+      arabic: "اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ",
+      bengaliTransliteration: "আল্লাহুম্মা সাল্লি আ'লা মুহাম্মাদিন ওয়া আ'লা আ'লি মুহাম্মাদ",
+      pronunciationEn: "Allaahumma salli 'alaa Muhammadin wa 'alaa aali Muhammad",
+      pronunciationHi: "अल्लाहुम्मा सल्ली अला मुहम्मदिन व अला आलि मुहम्मद",
+      pronunciationUr: "اللہم صل علیٰ محمد و علیٰ آل محمد",
+      translations: {
+        bengali: { title: "দরূদ শরীফ", category: "Daily", translation: "হে আল্লাহ! মুহাম্মদ (সা.)-এর উপর এবং মুহাম্মদ (সা.)-এর পরিবারের উপর রহমত বর্ষণ করুন।" },
+        english: { title: "Durood Shareef", category: "Daily", translation: "O Allah, send Your blessings upon Muhammad and upon the family of Muhammad." },
+        hindi: { title: "दरूद शरीफ", category: "Daily", translation: "ऐ अल्लाह! मुहम्मद और मुहम्मद की उम्मत पर रहमतें भेज।" },
+        urdu: { title: "درود شریف", category: "Daily", translation: "اے اللہ! محمدﷺ اور محمدﷺ کی آل پر رحمتیں بھیج۔" },
+      },
+    },
+    {
+      id: "fallback-5",
+      slug: null,
+      arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+      bengaliTransliteration: "আ'ঊযুবিল্লাহি মিনাশ শাইতানির রাজীম",
+      pronunciationEn: "A'uudhu billaahi minash Shaitaanir Rajiim",
+      pronunciationHi: "अऊज़ु बिल्लाहि मिनश शैतानिर रजीम",
+      pronunciationUr: "اعوذ باللہ من الشیطان الرجیم",
+      translations: {
+        bengali: { title: "ইসতি'আযা", category: "Daily", translation: "আমি আল্লাহর কাছে আশ্রয় চাই অভিশপ্ত শয়তান থেকে।" },
+        english: { title: "Istiaadha", category: "Daily", translation: "I seek refuge in Allah from Satan, the accursed." },
+        hindi: { title: "इसतियाज़ा", category: "Daily", translation: "मैं अल्लाह की पनाह माँगता हूँ शैतान से जो मारा गया।" },
+        urdu: { title: "استعاذہ", category: "Daily", translation: "میں اللہ کی پناہ مانگتا ہوں شیطان مردود سے۔" },
+      },
+    },
+    {
+      id: "fallback-6",
+      slug: null,
+      arabic: "رَبِّ زِدْنِي عِلْمًا",
+      bengaliTransliteration: "রাব্বি যিদনী ইলমা",
+      pronunciationEn: "Rabbi zidnee 'ilman",
+      pronunciationHi: "रब्बि ज़िदनी इल्मा",
+      pronunciationUr: "رب زدني علما",
+      translations: {
+        bengali: { title: "ইলমের দোয়া", category: "Knowledge", translation: "হে আমার রব! আমার জ্ঞান বৃদ্ধি করুন। (সূরা ত্বোহা: ১১৪)" },
+        english: { title: "Dua for Knowledge", category: "Knowledge", translation: "My Lord, increase me in knowledge. (Quran 20:114)" },
+        hindi: { title: "इल्म की दुआ", category: "Knowledge", translation: "ऐ मेरे रब! मेरा इल्म बढ़ा दे। (सूरह त्वाहा: 114)" },
+        urdu: { title: "علم کی دعا", category: "Knowledge", translation: "اے میرے رب! میرا علم بڑھا دے۔ (سورۃ طہ: 114)" },
+      },
+    },
+    {
+      id: "fallback-7",
+      slug: null,
+      arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَٰذَا الْيَوْمِ",
+      bengaliTransliteration: "আল্লাহুম্মা ইন্নী আসআলুকা খাইরা হাযাল ইয়াওমি",
+      pronunciationEn: "Allaahumma innee as-aluka khaira haadhal yawmi",
+      pronunciationHi: "अल्लाहुम्मा इन्नी असअलुका खैर हज़ल याव्मि",
+      pronunciationUr: "اللہم إنی أسألک خیر ہذا الیوم",
+      translations: {
+        bengali: { title: "সকালের দোয়া", category: "Morning", translation: "হে আল্লাহ! আমি এই দিনের কল্যাণ আপনার কাছে চাই।" },
+        english: { title: "Morning Dua", category: "Morning", translation: "O Allah, I ask You for the good of this day." },
+        hindi: { title: "सुबह की दुआ", category: "Morning", translation: "ऐ अल्लाह! मैं इस दिन की भलाई माँगता हूँ।" },
+        urdu: { title: "صبح کی دعا", category: "Morning", translation: "اے اللہ! میں اس دن کی بھلائی مانگتا ہوں۔" },
+      },
+    },
+    {
+      id: "fallback-8",
+      slug: null,
+      arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ جَهَنَّمَ",
+      bengaliTransliteration: "আল্লাহুম্মা ইন্নী আ'ঊযুবিকা মিন আ'যাবি জাহান্নাম",
+      pronunciationEn: "Allaahumma innee a'oodhu bika min 'adhaabi Jahannam",
+      pronunciationHi: "अल्लाहुम्मा इन्नी अऊज़ु बिका मिन अज़ाबि जहन्नम",
+      pronunciationUr: "اللہم إنی أعوذ بک من عذاب جہنم",
+      translations: {
+        bengali: { title: "জাহান্নাম থেকে রক্ষার দোয়া", category: "Protection", translation: "হে আল্লাহ! আমি জাহান্নামের আযাব থেকে আপনার কাছে আশ্রয় চাই।" },
+        english: { title: "Dua for Protection", category: "Protection", translation: "O Allah, I seek refuge in You from the punishment of Hell." },
+        hindi: { title: "जहन्नुम से बचाव की दुआ", category: "Protection", translation: "ऐ अल्लाह! मैं जहन्नुम के अज़ाब से तेरी पनाह माँगता हूँ।" },
+        urdu: { title: "جہنم سے پناہ کی دعا", category: "Protection", translation: "اے اللہ! میں جہنم کے عذاب سے تیری پناہ مانگتا ہوں۔" },
+      },
+    },
+    {
+      id: "fallback-9",
+      slug: null,
+      arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+      bengaliTransliteration: "রাব্বানা আ'তিনা ফিদ্দুনিয়া হাসানাতান ওয়া ফিল আ'খিরাতি হাসানাতান ওয়া ক্বিনা আ'যাবান্নার",
+      pronunciationEn: "Rabbanaa aatinaa fid-dunyaa hasanatan wa fil-Aakhirati hasanatan wa qinaa 'adhaaban-Naar",
+      pronunciationHi: "रब्बना आतिना फिद्दुनिया हसनतन व फिल आखिरति हसनतन व क़िना अज़ाबन्-नार",
+      pronunciationUr: "ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار",
+      translations: {
+        bengali: { title: "কুরআনের দোয়া (সূরা বাকারা: ২০১)", category: "Quran", translation: "হে আমাদের রব! আমাদের দুনিয়ায় কল্যাণ দিন, আখিরাতেও কল্যাণ দিন এবং আমাদের জাহান্নামের আযাব থেকে রক্ষা করুন।" },
+        english: { title: "Quran Dua (Al-Baqarah 2:201)", category: "Quran", translation: "Our Lord, give us in this world good and in the Hereafter good, and protect us from the punishment of the Fire." },
+        hindi: { title: "क़ुरआन की दुआ (सूरह बक़रह: 201)", category: "Quran", translation: "ऐ हमारे रब! हमें दुनिया में भलाई दे और आख़िरत में भी भलाई दे, और हमें आग के अज़ाब से बचा।" },
+        urdu: { title: "قرآن کی دعا (سورۃ البقرہ: 201)", category: "Quran", translation: "اے ہمارے رب! ہمیں دنیا میں بھلائی دے اور آخرت میں بھی بھلائی دے، اور ہمیں آگ کے عذاب سے بچا۔" },
+      },
+    },
+    {
+      id: "fallback-10",
+      slug: null,
+      arabic: "سُبْحَانَ اللَّهِ الْحَظِيمِ",
+      bengaliTransliteration: "আসতাগফিরুল্লাহ",
+      pronunciationEn: "Astaghfirullaah",
+      pronunciationHi: "अस्तग़फ़िरुल्लाह",
+      pronunciationUr: "استغفر اللہ",
+      translations: {
+        bengali: { title: "ক্ষমার দোয়া", category: "Forgiveness", translation: "আমি আল্লাহর কাছে ক্ষমা চাই।" },
+        english: { title: "Dua for Forgiveness", category: "Forgiveness", translation: "I seek forgiveness from Allah." },
+        hindi: { title: "माफ़ी की दुआ", category: "Forgiveness", translation: "मैं अल्लाह से माफ़ी माँगता हूँ।" },
+        urdu: { title: "معافی کی دعا", category: "Forgiveness", translation: "میں اللہ سے معافی مانگتا ہوں۔" },
+      },
+    },
+  ];
+
   useEffect(() => {
     const fetchDuas = async () => {
       setLoading(true);
       setError(null);
-      const { data, error } = await supabase
-        .from("admin_content")
-        .select("*")
-        .eq("status", "published")
-        .in("content_type", ["dua", "Dua"]) // Support both lowercase and capitalized types
-        .order("published_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("admin_content")
+          .select("*")
+          .eq("status", "published")
+          .in("content_type", ["dua", "Dua"])
+          .order("published_at", { ascending: false });
 
-      if (error) {
-        console.error("Error loading duas", error);
-        setError("Failed to load duas. Please try again.");
+        if (error) {
+          console.error("Error loading duas", error);
+          // Use fallback instead of showing error — ensures content is always visible
+          setDuas(FALLBACK_DUAS);
+          setLoading(false);
+          return;
+        }
+
+        const mapped: Dua[] = (data as unknown as AdminContentDuaRow[]).map((row) => ({
+          id: row.id,
+          slug: row.slug ?? null,
+          arabic: row.content_arabic || "",
+          bengaliTransliteration: row.content_pronunciation || undefined,
+          pronunciationEn: row.content_pronunciation_en || undefined,
+          pronunciationHi: row.content_pronunciation_hi || undefined,
+          pronunciationUr: row.content_pronunciation_ur || undefined,
+          translations: {
+            bengali: {
+              title: row.title || "দোয়া",
+              category: row.category || "দোয়া",
+              translation: row.content || "",
+            },
+            english: {
+              title: row.title_en || row.title || "Dua",
+              category: row.category || "Dua",
+              translation: row.content_en || row.content || "",
+            },
+            hindi: {
+              title: row.title_hi || row.title || "दुआ",
+              category: row.category || "دुआ",
+              translation: row.content_hi || row.content || "",
+            },
+            urdu: {
+              title: row.title_ur || row.title || "دعا",
+              category: row.category || "دعا",
+              translation: row.content_ur || row.content || "",
+            },
+          },
+        }));
+
+        // If API returns empty data, use fallback
+        if (!mapped || mapped.length === 0) {
+          setDuas(FALLBACK_DUAS);
+        } else {
+          setDuas(mapped);
+        }
         setLoading(false);
-        return;
+      } catch (err) {
+        console.error("Dua fetch failed", err);
+        setDuas(FALLBACK_DUAS);
+        setLoading(false);
       }
-
-      const mapped: Dua[] = (data as unknown as AdminContentDuaRow[]).map((row) => ({
-        id: row.id,
-        slug: row.slug ?? null,
-        arabic: row.content_arabic || "",
-        bengaliTransliteration: row.content_pronunciation || undefined,
-        pronunciationEn: row.content_pronunciation_en || undefined,
-        pronunciationHi: row.content_pronunciation_hi || undefined,
-        pronunciationUr: row.content_pronunciation_ur || undefined,
-        translations: {
-          bengali: {
-            title: row.title || "দোয়া",
-            category: row.category || "দোয়া",
-            translation: row.content || "",
-          },
-          english: {
-            title: row.title_en || row.title || "Dua",
-            category: row.category || "Dua",
-            translation: row.content_en || row.content || "",
-          },
-          hindi: {
-            title: row.title_hi || row.title || "दुआ",
-            category: row.category || "दुआ",
-            translation: row.content_hi || row.content || "",
-          },
-          urdu: {
-            title: row.title_ur || row.title || "دعا",
-            category: row.category || "دعا",
-            translation: row.content_ur || row.content || "",
-          },
-        },
-      }));
-
-      setDuas(mapped);
-      setLoading(false);
     };
 
     fetchDuas();

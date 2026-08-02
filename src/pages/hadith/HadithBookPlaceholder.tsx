@@ -336,7 +336,12 @@ export default function HadithBookPlaceholder() {
             <meta property="og:description" content={meta.metaDescription} />
           )}
           <link rel="canonical" href={`https://noorapp.in/hadith/${bookId}`} />
-          <meta name="robots" content="index,follow" />
+          {/* Only index Sahih Bukhari (fully implemented). Placeholder pages get noindex. */}
+          {bookId === "bukhari" ? (
+            <meta name="robots" content="index,follow" />
+          ) : (
+            <meta name="robots" content="noindex,follow" />
+          )}
           <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
         </Helmet>
       )}
