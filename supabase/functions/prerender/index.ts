@@ -368,6 +368,43 @@ Deno.serve(async (req) => {
                 <p><strong>Meaning:</strong> ${escapeHtml(dua.translation_bn)}</p>
                 <p>Visit <a href="${SITE_ORIGIN}/dua/${dua.slug}">Noor App</a> to read more authentic duas.</p>
             </section>`;
+        } else {
+          // Legacy duas that are only in the database (no entry in duas.json)
+          const { data: row } = await supabase
+            .from("admin_content")
+            .select("title, content, content_arabic, content_pronunciation, reference")
+            .eq("content_type", "dua")
+            .eq("slug", slug)
+            .maybeSingle();
+
+          if (row) {
+            seo = {
+              title: row.title,
+              description: `${row.title}${row.reference ? ` (${row.reference})` : ""} — আরবি, উচ্চারণ ও বাংলা অর্থসহ পড়ুন Noor App-এ।`,
+            };
+            bodyContent = `
+            <section>
+                <h2>${escapeHtml(row.title ?? "")}</h2>
+                ${row.reference ? `<p><strong>Reference:</strong> ${escapeHtml(row.reference)}</p>` : ""}
+                ${row.content_arabic ? `<p dir="rtl" lang="ar" class="arabic">${escapeHtml(row.content_arabic)}</p>` : ""}
+                ${row.content_pronunciation ? `<p><strong>Pronunciation:</strong> ${escapeHtml(row.content_pronunciation)}</p>` : ""}
+                ${row.content ? `<p><strong>Meaning:</strong> ${escapeHtml(row.content)}</p>` : ""}
+                <p>Visit <a href="${SITE_ORIGIN}/dua/${slug}">Noor App</a> to read more authentic duas.</p>
+            </section>`;
+          }
+        }
+
+        // Only advertise a per-dua OG image when the file actually exists,
+        // otherwise Facebook/WhatsApp get a 404 and show no preview at all.
+        // NOTE: missing files fall through to the SPA catch-all and still return 200 HTML,
+        // so the content-type must be checked, not just the status.
+        const candidate = `${SITE_ORIGIN}/assets/og-images/${slug}.png`;
+        try {
+          const head = await fetch(candidate, { method: "HEAD" });
+          const isImage = head.ok && (head.headers.get("content-type") || "").startsWith("image/");
+          customOgImage = isImage ? candidate : `${SITE_ORIGIN}/og-dua.png`;
+        } catch {
+          customOgImage = `${SITE_ORIGIN}/og-dua.png`;
         }
       } catch (err) {
         console.error("Error fetching dua for prerender:", err);
