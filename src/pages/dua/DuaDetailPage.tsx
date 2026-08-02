@@ -309,7 +309,7 @@ const DuaDetailPage = () => {
       inLanguage: "bn",
       mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_ORIGIN}/dua/${dua.slug}` },
       description: seo?.description,
-      image: FALLBACK_OG,
+      image: `${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`,
       author: { "@type": "Organization", name: "Noor" },
       publisher: {
         "@type": "Organization",
@@ -353,11 +353,16 @@ const DuaDetailPage = () => {
           <meta property="og:title" content={seo.title} />
           <meta property="og:description" content={seo.description} />
           <meta property="og:url" content={seo.url} />
-          <meta property="og:image" content={FALLBACK_OG} />
+          <meta property="og:image" content={`${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`} />
+          <meta property="og:image:secure_url" content={`${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`} />
+          <meta property="og:image:type" content="image/png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={seo.title} />
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={seo.title} />
           <meta name="twitter:description" content={seo.description} />
-          <meta name="twitter:image" content={FALLBACK_OG} />
+          <meta name="twitter:image" content={`${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`} />
           {jsonLd && <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>}
         </Helmet>
       )}
