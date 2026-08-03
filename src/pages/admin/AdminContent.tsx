@@ -43,6 +43,7 @@ import {
   DuaOgImageManagerDialog,
   DuaOgThumbnail,
 } from '@/components/admin/dua/DuaOgImageManager';
+import { DuaOgBulkGeneratePanel } from '@/components/admin/dua/DuaOgBulkGeneratePanel';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
 import DuaEnrichmentPanel from '@/components/admin/DuaEnrichmentPanel';
 import ContentQualityCheckPanel from '@/components/admin/ContentQualityCheckPanel';
@@ -1356,6 +1357,7 @@ export default function AdminContent() {
       {contentTypeContext === 'dua' && (
         <div className="mb-6 space-y-4">
           <DuaSeoGeneratorPanel />
+          <DuaOgBulkGeneratePanel canEdit={canEdit} />
           <DuaEnrichmentPanel />
           <ContentQualityCheckPanel />
           <DuaContentFixerPanel />
