@@ -952,6 +952,46 @@ export default function AdminContent() {
               };
             })()
           : {}),
+        ...(effectiveType === 'story'
+          ? (() => {
+              const csv = (s: string) =>
+                s
+                  ? s
+                      .split(',')
+                      .map((x) => x.trim())
+                      .filter(Boolean)
+                  : null;
+              const parseJson = (key: string, s: string) => {
+                if (!s || !s.trim()) return null;
+                try {
+                  return JSON.parse(s);
+                } catch {
+                  throw new Error(`Invalid JSON in ${key}`);
+                }
+              };
+              return {
+                slug: editForm.slug || null,
+                subtitle: editForm.subtitle || null,
+                moral_bn: editForm.moral_bn || null,
+                moral_en: editForm.moral_en || null,
+                moral_ur: editForm.moral_ur || null,
+                source_name: editForm.source_name || null,
+                source_detail: editForm.source_detail || null,
+                reference: editForm.reference || null,
+                author: editForm.author || null,
+                reading_time_minutes: editForm.reading_time_minutes
+                  ? Number(editForm.reading_time_minutes)
+                  : null,
+                tags: csv(editForm.tags),
+                related_stories: csv(editForm.related_stories),
+                is_featured: Boolean(editForm.is_featured),
+                seo: parseJson('seo', editForm.seo_json),
+                navigation: parseJson('navigation', editForm.navigation_json),
+                engagement: parseJson('engagement', editForm.engagement_json),
+                growth: parseJson('growth', editForm.growth_json),
+              };
+            })()
+          : {}),
         ...(effectiveType === 'name'
           ? {
               metadata: buildNameMetadata(selectedContent?.metadata, {
