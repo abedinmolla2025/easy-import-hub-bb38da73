@@ -1,4 +1,4 @@
-export type AdminContentType = "name" | "dua" | "hadith";
+export type AdminContentType = "name" | "dua" | "hadith" | "story";
 
 export const ADMIN_CONTENT_TYPE_OPTIONS: Array<{
   value: AdminContentType;
@@ -8,6 +8,7 @@ export const ADMIN_CONTENT_TYPE_OPTIONS: Array<{
   { value: "name", label: "Islamic Names" },
   { value: "dua", label: "Dua" },
   { value: "hadith", label: "Hadith" },
+  { value: "story", label: "Islamic Story" },
 ];
 
 export const adminContentTypeLabel = (t: AdminContentType) => {
