@@ -1939,7 +1939,10 @@ export default function AdminContent() {
                           slug={selectedContent.slug ?? editForm.slug}
                           url={selectedContent.og_image_url}
                           folder={effectiveType === 'story' ? 'story-og' : 'dua-og'}
-                          onChanged={() => queryClient.invalidateQueries({ queryKey: ['admin-content'] })}
+                          onChanged={() => {
+                            queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+                            queryClient.invalidateQueries({ queryKey: ['og-storage-index'] });
+                          }}
                         />
                       ) : (
                         <p className="text-xs text-muted-foreground">
@@ -2728,6 +2731,7 @@ export default function AdminContent() {
           url={ogManagerItem.og_image_url}
           folder={ogManagerItem.content_type === 'story' ? 'story-og' : 'dua-og'}
           onChanged={async () => {
+            queryClient.invalidateQueries({ queryKey: ['og-storage-index'] });
             const { data } = await queryClient.invalidateQueries({ queryKey: ['admin-content'] }).then(
               async () => await supabase.from('admin_content').select('*').eq('id', ogManagerItem.id).maybeSingle()
             );
