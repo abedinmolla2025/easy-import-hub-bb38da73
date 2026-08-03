@@ -39,6 +39,11 @@ export type Story = {
     related?: StoryNavRef[];
     category?: string;
   };
+  tags?: string[];
+  author?: string;
+  reading_time_minutes?: number;
+  is_featured?: boolean;
+  og_image_url?: string;
 };
 
 export const STORY_CATEGORIES: Record<string, { label: string; description: string }> = {
@@ -76,26 +81,83 @@ export function categorySlug(raw: string): string {
   return raw;
 }
 
+function rowToStory(row: any, index: number): Story {
+  return {
+    id: index + 1,
+    slug: row.slug,
+    category: row.category ?? "",
+    title_bn: row.title ?? "",
+    title_en: row.title_en ?? "",
+    title_ur: row.title_ur ?? undefined,
+    content_bn: row.content ?? "",
+    content_en: row.content_en ?? "",
+    content_ur: row.content_ur ?? undefined,
+    moral_bn: row.moral_bn ?? undefined,
+    moral_en: row.moral_en ?? undefined,
+    moral_ur: row.moral_ur ?? undefined,
+    source_name: row.source_name ?? undefined,
+    source_detail: row.source_detail ?? undefined,
+    reference: row.reference ?? undefined,
+    seo: (row.seo as Story["seo"]) ?? { title: row.title ?? "", meta_description: "" },
+    navigation: row.navigation ?? undefined,
+    engagement: row.engagement ?? undefined,
+    growth: row.growth ?? undefined,
+    tags: row.tags ?? undefined,
+    author: row.author ?? undefined,
+    reading_time_minutes: row.reading_time_minutes ?? undefined,
+    is_featured: row.is_featured ?? undefined,
+    og_image_url: row.og_image_url ?? undefined,
+    updated_at: row.updated_at ?? undefined,
+  };
+}
+
+async function loadStoriesFromDb(): Promise<Story[] | null> {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data, error } = await supabase
+      .from("admin_content")
+      .select("*")
+      .eq("content_type", "story")
+      .eq("status", "published")
+      .order("created_at", { ascending: true });
+    if (error || !data?.length) return null;
+    return (data as any[]).filter((r) => r.slug).map(rowToStory);
+  } catch {
+    return null;
+  }
+}
+
 let cache: Story[] | null = null;
 let pending: Promise<Story[]> | null = null;
 
 export async function loadStories(): Promise<Story[]> {
   if (cache) return cache;
   if (pending) return pending;
-  pending = fetch("/stories.json", { cache: "force-cache" })
-    .then((r) => r.json() as Promise<Story[]>)
-    .then((data) => {
-      cache = data;
+  pending = (async () => {
+    // 1) Admin-managed stories (database) win when present
+    const fromDb = await loadStoriesFromDb();
+    if (fromDb?.length) {
+      cache = fromDb;
       pending = null;
-      return data;
-    })
-    .catch(async (err) => {
-      pending = null;
-      // Fallback to bundled copy
+      return fromDb;
+    }
+    // 2) Static JSON, 3) bundled copy
+    try {
+      const res = await fetch("/stories.json", { cache: "force-cache" });
+      const data = (await res.json()) as Story[];
+      if (Array.isArray(data) && data.length) {
+        cache = data;
+        pending = null;
+        return data;
+      }
+      throw new Error("empty stories.json");
+    } catch {
       const mod = await import("@/data/stories.json");
       cache = mod.default as unknown as Story[];
+      pending = null;
       return cache;
-    });
+    }
+  })();
   return pending;
 }
 
