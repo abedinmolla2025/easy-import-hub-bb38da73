@@ -16,16 +16,21 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Copy, ExternalLink, ImageIcon, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
 
-export const OG_BUCKET = 'media';
-export const OG_FOLDER = 'dua-og';
-export const STORY_OG_FOLDER = 'story-og';
+import {
+  OG_BUCKET,
+  OG_FOLDER,
+  STORY_OG_FOLDER,
+  ogPublicUrlForSlug,
+  ogStoragePath,
+  resolveOgImageUrl,
+} from '@/lib/admin/content/ogImage';
+
+export { OG_BUCKET, OG_FOLDER, STORY_OG_FOLDER, ogStoragePath };
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPTED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-
-export const ogStoragePath = (slug: string, folder: string = OG_FOLDER) => `${folder}/${slug}.webp`;
 
 export function formatBytes(bytes?: number | null) {
   if (!bytes && bytes !== 0) return '—';
@@ -81,8 +86,43 @@ type Props = {
   folder?: string;
 };
 
-export function ContentOgImageControls({ contentId, slug, url, onChanged, layout = 'card', folder = OG_FOLDER }: Props) {
+export function ContentOgImageControls({
+  contentId,
+  slug,
+  url: rawUrl,
+  onChanged,
+  layout = 'card',
+  folder = OG_FOLDER,
+}: Props) {
   const { toast } = useToast();
+  const [broken, setBroken] = useState(false);
+  const [storageUrl, setStorageUrl] = useState<string | null>(null);
+
+  // Stored value may be an absolute URL or a legacy storage path.
+  const dbUrl = resolveOgImageUrl(rawUrl, folder);
+  // Fallback: an image may exist in storage even when the column is empty
+  // (legacy rows / interrupted uploads). We only read — never write.
+  const url = dbUrl ?? storageUrl;
+
+  useEffect(() => {
+    let cancelled = false;
+    setBroken(false);
+    if (dbUrl || !slug) {
+      setStorageUrl(null);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase.storage
+        .from(OG_BUCKET)
+        .list(folder, { limit: 1, search: `${slug}.webp` });
+      if (cancelled) return;
+      const found = (data ?? []).some((f) => f.name === `${slug}.webp`);
+      setStorageUrl(found ? ogPublicUrlForSlug(slug, folder) : null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [dbUrl, slug, folder]);
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -147,6 +187,8 @@ export function ContentOgImageControls({ contentId, slug, url, onChanged, layout
         .eq('id', contentId);
       if (dbErr) throw dbErr;
 
+      setBroken(false);
+      setStorageUrl(publicUrl);
       setInfo({ size: webp.size, width: OG_WIDTH, height: OG_HEIGHT });
       toast({ title: 'OG image updated', description: `${OG_WIDTH}×${OG_HEIGHT} WebP · ${formatBytes(webp.size)}` });
       onChanged?.();
@@ -168,6 +210,8 @@ export function ContentOgImageControls({ contentId, slug, url, onChanged, layout
       const { error } = await supabase.from('admin_content').update({ og_image_url: null }).eq('id', contentId);
       if (error) throw error;
       setInfo(null);
+      setStorageUrl(null);
+      setBroken(false);
       toast({ title: 'OG image deleted' });
       onChanged?.();
     } catch (e) {
@@ -193,12 +237,18 @@ export function ContentOgImageControls({ contentId, slug, url, onChanged, layout
         }`}
         style={{ aspectRatio: '1200 / 630' }}
       >
-        {url ? (
-          <img src={url} alt="OG preview" className="h-full w-full object-cover" loading="lazy" />
+        {url && !broken ? (
+          <img
+            src={url}
+            alt="OG preview"
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={() => setBroken(true)}
+          />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-muted-foreground">
             <ImageIcon className="h-6 w-6" />
-            <span className="text-[11px]">No OG image</span>
+            <span className="text-[11px]">{url ? 'Image unavailable in storage' : 'No OG image'}</span>
           </div>
         )}
         {busy && (
@@ -307,7 +357,30 @@ export function ContentOgImageManagerDialog({
   );
 }
 
-export function ContentOgThumbnail({ url, onClick }: { url?: string | null; onClick: () => void }) {
+export function ContentOgThumbnail({
+  url: rawUrl,
+  onClick,
+  slug,
+  folder = OG_FOLDER,
+  storageIndex,
+}: {
+  url?: string | null;
+  onClick: () => void;
+  slug?: string | null;
+  folder?: string;
+  /** Set of file names present in the OG folder, used as a fallback source. */
+  storageIndex?: Set<string>;
+}) {
+  const [broken, setBroken] = useState(false);
+  const dbUrl = resolveOgImageUrl(rawUrl, folder);
+  const fallbackUrl =
+    !dbUrl && slug && storageIndex?.has(`${slug}.webp`) ? ogPublicUrlForSlug(slug, folder) : null;
+  const url = dbUrl ?? fallbackUrl;
+
+  useEffect(() => {
+    setBroken(false);
+  }, [url]);
+
   return (
     <button
       type="button"
@@ -315,12 +388,18 @@ export function ContentOgThumbnail({ url, onClick }: { url?: string | null; onCl
       className="group relative block h-[63px] w-[120px] overflow-hidden rounded-md border border-border bg-muted transition-all hover:ring-2 hover:ring-primary/40"
       aria-label="Manage OG image"
     >
-      {url ? (
-        <img src={url} alt="OG" className="h-full w-full object-cover" loading="lazy" />
+      {url && !broken ? (
+        <img
+          src={url}
+          alt="OG"
+          className="h-full w-full object-cover"
+          loading="lazy"
+          onError={() => setBroken(true)}
+        />
       ) : (
         <span className="flex h-full w-full flex-col items-center justify-center gap-0.5 text-muted-foreground">
           <ImageIcon className="h-4 w-4" />
-          <span className="text-[9px]">No image</span>
+          <span className="text-[9px]">{url ? 'Unavailable' : 'No image'}</span>
         </span>
       )}
     </button>
