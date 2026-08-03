@@ -44,6 +44,10 @@ import {
   DuaOgThumbnail,
 } from '@/components/admin/dua/DuaOgImageManager';
 import { DuaOgBulkGeneratePanel } from '@/components/admin/dua/DuaOgBulkGeneratePanel';
+import { ContentOgBulkGeneratePanel } from '@/components/admin/content/og/ContentOgBulkGeneratePanel';
+import { StoryImportPanel } from '@/components/admin/story/StoryImportPanel';
+import { STORY_CATEGORIES } from '@/lib/stories';
+import { Switch } from '@/components/ui/switch';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
 import DuaEnrichmentPanel from '@/components/admin/DuaEnrichmentPanel';
 import ContentQualityCheckPanel from '@/components/admin/ContentQualityCheckPanel';
@@ -122,6 +126,20 @@ interface AdminContentRow {
   category_hierarchy?: any | null;
   faq?: any | null;
   og_image_url?: string | null;
+  // Story extras
+  moral_bn?: string | null;
+  moral_en?: string | null;
+  moral_ur?: string | null;
+  source_name?: string | null;
+  source_detail?: string | null;
+  author?: string | null;
+  reading_time_minutes?: number | null;
+  tags?: string[] | null;
+  is_featured?: boolean | null;
+  related_stories?: string[] | null;
+  navigation?: any | null;
+  engagement?: any | null;
+  growth?: any | null;
 }
 
 interface ContentVersionRow {
