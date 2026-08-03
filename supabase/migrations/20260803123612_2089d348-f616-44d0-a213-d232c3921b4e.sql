@@ -1,0 +1,1 @@
+ALTER TABLE public.admin_content ADD COLUMN IF NOT EXISTS og_image_url TEXT;

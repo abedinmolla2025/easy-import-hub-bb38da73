@@ -38,6 +38,11 @@ import HadithImportPanel from '@/components/admin/HadithImportPanel';
 import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel';
 import HadithExportImportPanel from '@/components/admin/HadithExportImportPanel';
 import DuaSeoGeneratorPanel from '@/components/admin/DuaSeoGeneratorPanel';
+import {
+  DuaOgImageControls,
+  DuaOgImageManagerDialog,
+  DuaOgThumbnail,
+} from '@/components/admin/dua/DuaOgImageManager';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
 import DuaEnrichmentPanel from '@/components/admin/DuaEnrichmentPanel';
 import ContentQualityCheckPanel from '@/components/admin/ContentQualityCheckPanel';
@@ -115,6 +120,7 @@ interface AdminContentRow {
   quran_meta?: any | null;
   category_hierarchy?: any | null;
   faq?: any | null;
+  og_image_url?: string | null;
 }
 
 interface ContentVersionRow {
@@ -299,6 +305,7 @@ export default function AdminContent() {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
+  const [ogManagerItem, setOgManagerItem] = useState<AdminContentRow | null>(null);
 
   const effectiveType = (contentTypeContext ?? (editForm.content_type as AdminContentType)) as AdminContentType;
 
@@ -1755,6 +1762,28 @@ export default function AdminContent() {
                 </div>
 
                 {effectiveType === 'dua' && (
+                  <Card className="mt-4">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">OG Image</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {selectedContent ? (
+                        <DuaOgImageControls
+                          contentId={selectedContent.id}
+                          slug={selectedContent.slug ?? editForm.slug}
+                          url={selectedContent.og_image_url}
+                          onChanged={() => queryClient.invalidateQueries({ queryKey: ['admin-content'] })}
+                        />
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Save this dua first, then upload its OG image.
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {effectiveType === 'dua' && (
                   <div className="rounded-lg border border-border/70 bg-muted/20 p-3 mt-4 space-y-4">
                     <div className="text-xs font-medium text-muted-foreground">Dua extras (humanized DB v22)</div>
 
@@ -2197,6 +2226,9 @@ export default function AdminContent() {
                             </>
                           )}
                           <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
+                          {contentTypeContext === 'dua' ? (
+                            <TableHead className="w-[140px] whitespace-nowrap">OG Image</TableHead>
+                          ) : null}
                           <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -2266,6 +2298,14 @@ export default function AdminContent() {
                                 {STATUS_LABELS[item.status] || item.status}
                               </Badge>
                             </TableCell>
+                            {contentTypeContext === 'dua' ? (
+                              <TableCell className="align-middle">
+                                <DuaOgThumbnail
+                                  url={item.og_image_url}
+                                  onClick={() => setOgManagerItem(item)}
+                                />
+                              </TableCell>
+                            ) : null}
                             <TableCell className="text-right align-middle">
                               <div className="inline-flex gap-2">
                                 <Button
@@ -2327,6 +2367,23 @@ export default function AdminContent() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {ogManagerItem ? (
+        <DuaOgImageManagerDialog
+          open={!!ogManagerItem}
+          onOpenChange={(v) => !v && setOgManagerItem(null)}
+          title={ogManagerItem.title}
+          contentId={ogManagerItem.id}
+          slug={ogManagerItem.slug}
+          url={ogManagerItem.og_image_url}
+          onChanged={async () => {
+            const { data } = await queryClient.invalidateQueries({ queryKey: ['admin-content'] }).then(
+              async () => await supabase.from('admin_content').select('*').eq('id', ogManagerItem.id).maybeSingle()
+            );
+            if (data) setOgManagerItem(data as AdminContentRow);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

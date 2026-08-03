@@ -143,6 +143,7 @@ export type Database = {
           metadata: Json | null
           normalized_surah_names: string[] | null
           og_image_data: Json | null
+          og_image_url: string | null
           order_index: number | null
           pdf_url: string | null
           published_at: string | null
@@ -219,6 +220,7 @@ export type Database = {
           metadata?: Json | null
           normalized_surah_names?: string[] | null
           og_image_data?: Json | null
+          og_image_url?: string | null
           order_index?: number | null
           pdf_url?: string | null
           published_at?: string | null
@@ -295,6 +297,7 @@ export type Database = {
           metadata?: Json | null
           normalized_surah_names?: string[] | null
           og_image_data?: Json | null
+          og_image_url?: string | null
           order_index?: number | null
           pdf_url?: string | null
           published_at?: string | null
