@@ -2346,7 +2346,7 @@ export default function AdminContent() {
                             </>
                           )}
                           <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
-                          {contentTypeContext === 'dua' ? (
+                          {contentTypeContext === 'dua' || contentTypeContext === 'story' ? (
                             <TableHead className="w-[140px] whitespace-nowrap">OG Image</TableHead>
                           ) : null}
                           <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
