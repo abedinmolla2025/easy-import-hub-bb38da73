@@ -46,7 +46,7 @@ import {
 import { DuaOgBulkGeneratePanel } from '@/components/admin/dua/DuaOgBulkGeneratePanel';
 import { ContentOgBulkGeneratePanel } from '@/components/admin/content/og/ContentOgBulkGeneratePanel';
 import { StoryImportPanel } from '@/components/admin/story/StoryImportPanel';
-import { STORY_CATEGORIES } from '@/lib/stories';
+import { STORY_CATEGORIES, estimateReadingMinutes } from '@/lib/stories';
 import { Switch } from '@/components/ui/switch';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
 import DuaEnrichmentPanel from '@/components/admin/DuaEnrichmentPanel';
@@ -1634,7 +1634,7 @@ export default function AdminContent() {
                     <div>
                       <Label>Category</Label>
 
-                      {effectiveType === 'dua' ? (
+                      {effectiveType === 'dua' || effectiveType === 'story' ? (
                         <Select
                           value={(editForm.category || '').trim() || 'none'}
                           onValueChange={(v) =>
@@ -1882,7 +1882,7 @@ export default function AdminContent() {
                   </div>
                 </div>
 
-                {effectiveType === 'dua' && (
+                {(effectiveType === 'dua' || effectiveType === 'story') && (
                   <Card className="mt-4">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm">OG Image</CardTitle>
@@ -1893,15 +1893,196 @@ export default function AdminContent() {
                           contentId={selectedContent.id}
                           slug={selectedContent.slug ?? editForm.slug}
                           url={selectedContent.og_image_url}
+                          folder={effectiveType === 'story' ? 'story-og' : 'dua-og'}
                           onChanged={() => queryClient.invalidateQueries({ queryKey: ['admin-content'] })}
                         />
                       ) : (
                         <p className="text-xs text-muted-foreground">
-                          Save this dua first, then upload its OG image.
+                          Save this item first, then upload its OG image.
                         </p>
                       )}
                     </CardContent>
                   </Card>
+                )}
+
+                {effectiveType === 'story' && (
+                  <div className="mt-4 space-y-4 rounded-lg border border-border/70 bg-muted/20 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-xs font-medium text-muted-foreground">Islamic Story details</div>
+                      <label className="flex items-center gap-2 text-xs">
+                        <Switch
+                          checked={Boolean(editForm.is_featured)}
+                          onCheckedChange={(v) => setEditForm((p) => ({ ...p, is_featured: Boolean(v) }))}
+                        />
+                        Featured
+                      </label>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div>
+                        <Label>Slug</Label>
+                        <Input
+                          value={editForm.slug}
+                          onChange={(e) => setEditForm((p) => ({ ...p, slug: e.target.value }))}
+                          placeholder="story-of-..."
+                        />
+                        {editForm.slug ? (
+                          <p className="mt-1 text-[11px] text-muted-foreground">/stories/{editForm.slug}</p>
+                        ) : (
+                          <p className="mt-1 text-[11px] text-destructive">Slug is required for a public story URL.</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label>Subtitle</Label>
+                        <Input
+                          value={editForm.subtitle}
+                          onChange={(e) => setEditForm((p) => ({ ...p, subtitle: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label>Author</Label>
+                        <Input
+                          value={editForm.author}
+                          onChange={(e) => setEditForm((p) => ({ ...p, author: e.target.value }))}
+                          placeholder="NoorApp Editorial"
+                        />
+                      </div>
+                      <div>
+                        <Label>Reading time (minutes)</Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={editForm.reading_time_minutes}
+                          onChange={(e) =>
+                            setEditForm((p) => ({ ...p, reading_time_minutes: e.target.value }))
+                          }
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="mt-2 h-7 rounded-full px-3 text-[11px]"
+                          onClick={() =>
+                            setEditForm((p) => ({
+                              ...p,
+                              reading_time_minutes: String(
+                                estimateReadingMinutes(p.content || p.content_en || '')
+                              ),
+                            }))
+                          }
+                        >
+                          Auto-calculate
+                        </Button>
+                      </div>
+                      <div>
+                        <Label>Source name</Label>
+                        <Input
+                          value={editForm.source_name}
+                          onChange={(e) => setEditForm((p) => ({ ...p, source_name: e.target.value }))}
+                          placeholder="Quran / Sahih al-Bukhari"
+                        />
+                      </div>
+                      <div>
+                        <Label>Source detail</Label>
+                        <Input
+                          value={editForm.source_detail}
+                          onChange={(e) => setEditForm((p) => ({ ...p, source_detail: e.target.value }))}
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Reference</Label>
+                        <Input
+                          value={editForm.reference}
+                          onChange={(e) => setEditForm((p) => ({ ...p, reference: e.target.value }))}
+                          placeholder="Surah Yusuf 12:4-6"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Tags (comma separated)</Label>
+                        <Input
+                          value={editForm.tags}
+                          onChange={(e) => setEditForm((p) => ({ ...p, tags: e.target.value }))}
+                          placeholder="prophets, patience, tawakkul"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label>Related story slugs (comma separated)</Label>
+                        <Input
+                          value={editForm.related_stories}
+                          onChange={(e) => setEditForm((p) => ({ ...p, related_stories: e.target.value }))}
+                          placeholder="story-of-yusuf, story-of-ayyub"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div>
+                        <Label>Moral / Lesson (Bangla)</Label>
+                        <Textarea
+                          rows={3}
+                          value={editForm.moral_bn}
+                          onChange={(e) => setEditForm((p) => ({ ...p, moral_bn: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label>Moral / Lesson (English)</Label>
+                        <Textarea
+                          rows={3}
+                          value={editForm.moral_en}
+                          onChange={(e) => setEditForm((p) => ({ ...p, moral_en: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label>Moral / Lesson (Urdu)</Label>
+                        <Textarea
+                          rows={3}
+                          dir="rtl"
+                          value={editForm.moral_ur}
+                          onChange={(e) => setEditForm((p) => ({ ...p, moral_ur: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div>
+                        <Label>SEO (JSON)</Label>
+                        <Textarea
+                          rows={6}
+                          className="font-mono text-xs"
+                          value={editForm.seo_json}
+                          onChange={(e) => setEditForm((p) => ({ ...p, seo_json: e.target.value }))}
+                          placeholder='{"title":"...","meta_description":"...","keywords":["..."]}'
+                        />
+                      </div>
+                      <div>
+                        <Label>Navigation (JSON)</Label>
+                        <Textarea
+                          rows={6}
+                          className="font-mono text-xs"
+                          value={editForm.navigation_json}
+                          onChange={(e) => setEditForm((p) => ({ ...p, navigation_json: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label>Engagement (JSON)</Label>
+                        <Textarea
+                          rows={5}
+                          className="font-mono text-xs"
+                          value={editForm.engagement_json}
+                          onChange={(e) => setEditForm((p) => ({ ...p, engagement_json: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label>Growth (JSON)</Label>
+                        <Textarea
+                          rows={5}
+                          className="font-mono text-xs"
+                          value={editForm.growth_json}
+                          onChange={(e) => setEditForm((p) => ({ ...p, growth_json: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {effectiveType === 'dua' && (
