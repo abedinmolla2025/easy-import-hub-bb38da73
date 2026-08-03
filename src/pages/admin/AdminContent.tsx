@@ -38,6 +38,11 @@ import HadithImportPanel from '@/components/admin/HadithImportPanel';
 import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel';
 import HadithExportImportPanel from '@/components/admin/HadithExportImportPanel';
 import DuaSeoGeneratorPanel from '@/components/admin/DuaSeoGeneratorPanel';
+import {
+  DuaOgImageControls,
+  DuaOgImageManagerDialog,
+  DuaOgThumbnail,
+} from '@/components/admin/dua/DuaOgImageManager';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
 import DuaEnrichmentPanel from '@/components/admin/DuaEnrichmentPanel';
 import ContentQualityCheckPanel from '@/components/admin/ContentQualityCheckPanel';
@@ -115,6 +120,7 @@ interface AdminContentRow {
   quran_meta?: any | null;
   category_hierarchy?: any | null;
   faq?: any | null;
+  og_image_url?: string | null;
 }
 
 interface ContentVersionRow {
@@ -299,6 +305,7 @@ export default function AdminContent() {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
+  const [ogManagerItem, setOgManagerItem] = useState<AdminContentRow | null>(null);
 
   const effectiveType = (contentTypeContext ?? (editForm.content_type as AdminContentType)) as AdminContentType;
 
