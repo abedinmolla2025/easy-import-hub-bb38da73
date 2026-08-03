@@ -2204,6 +2204,9 @@ export default function AdminContent() {
                             </>
                           )}
                           <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
+                          {contentTypeContext === 'dua' ? (
+                            <TableHead className="w-[140px] whitespace-nowrap">OG Image</TableHead>
+                          ) : null}
                           <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -2273,6 +2276,14 @@ export default function AdminContent() {
                                 {STATUS_LABELS[item.status] || item.status}
                               </Badge>
                             </TableCell>
+                            {contentTypeContext === 'dua' ? (
+                              <TableCell className="align-middle">
+                                <DuaOgThumbnail
+                                  url={item.og_image_url}
+                                  onClick={() => setOgManagerItem(item)}
+                                />
+                              </TableCell>
+                            ) : null}
                             <TableCell className="text-right align-middle">
                               <div className="inline-flex gap-2">
                                 <Button
