@@ -2489,7 +2489,7 @@ export default function AdminContent() {
                               <span className="h-1.5 w-1.5 rounded-full bg-current" />
                               {STATUS_LABELS[item.status] || item.status}
                             </Badge>
-                            {contentTypeContext === 'dua' ? (
+                            {contentTypeContext === 'dua' || contentTypeContext === 'story' ? (
                               <span className="truncate">{item.category || '-'}</span>
                             ) : null}
                           </div>
