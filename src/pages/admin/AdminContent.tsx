@@ -438,7 +438,8 @@ export default function AdminContent() {
   const availableDuaCategories = useMemo(() => {
     const set = new Set<string>();
 
-    const presets = contentTypeContext === 'story' ? STORY_CATEGORIES : DUA_CATEGORY_PRESETS;
+    const presets =
+      contentTypeContext === 'story' ? Object.keys(STORY_CATEGORIES) : DUA_CATEGORY_PRESETS;
     for (const preset of presets) set.add(preset);
 
     for (const item of content ?? []) {
