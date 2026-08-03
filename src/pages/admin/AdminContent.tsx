@@ -47,6 +47,7 @@ import { DuaOgBulkGeneratePanel } from '@/components/admin/dua/DuaOgBulkGenerate
 import { ContentOgBulkGeneratePanel } from '@/components/admin/content/og/ContentOgBulkGeneratePanel';
 import { StoryImportPanel } from '@/components/admin/story/StoryImportPanel';
 import { ContentSeoGeneratorPanel } from '@/components/admin/content/shared/ContentSeoGeneratorPanel';
+import { useOgStorageIndex } from '@/hooks/admin/content/useOgStorageIndex';
 import { STORY_CATEGORIES, estimateReadingMinutes } from '@/lib/stories';
 import { Switch } from '@/components/ui/switch';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
@@ -404,6 +405,12 @@ export default function AdminContent() {
       return data as AdminContentRow[];
     },
   });
+
+  const ogFolder = contentTypeContext === 'story' ? 'story-og' : 'dua-og';
+  const { data: ogStorageIndex } = useOgStorageIndex(
+    ogFolder,
+    contentTypeContext === 'dua' || contentTypeContext === 'story',
+  );
 
   const selectedContent = useMemo(
     () => content?.find((item) => item.id === selectedId) ?? null,
@@ -1932,7 +1939,10 @@ export default function AdminContent() {
                           slug={selectedContent.slug ?? editForm.slug}
                           url={selectedContent.og_image_url}
                           folder={effectiveType === 'story' ? 'story-og' : 'dua-og'}
-                          onChanged={() => queryClient.invalidateQueries({ queryKey: ['admin-content'] })}
+                          onChanged={() => {
+                            queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+                            queryClient.invalidateQueries({ queryKey: ['og-storage-index'] });
+                          }}
                         />
                       ) : (
                         <p className="text-xs text-muted-foreground">
@@ -2642,6 +2652,9 @@ export default function AdminContent() {
                               <TableCell className="align-middle">
                                 <DuaOgThumbnail
                                   url={item.og_image_url}
+                                  slug={item.slug}
+                                  folder={ogFolder}
+                                  storageIndex={ogStorageIndex}
                                   onClick={() => setOgManagerItem(item)}
                                 />
                               </TableCell>
@@ -2718,6 +2731,7 @@ export default function AdminContent() {
           url={ogManagerItem.og_image_url}
           folder={ogManagerItem.content_type === 'story' ? 'story-og' : 'dua-og'}
           onChanged={async () => {
+            queryClient.invalidateQueries({ queryKey: ['og-storage-index'] });
             const { data } = await queryClient.invalidateQueries({ queryKey: ['admin-content'] }).then(
               async () => await supabase.from('admin_content').select('*').eq('id', ogManagerItem.id).maybeSingle()
             );
