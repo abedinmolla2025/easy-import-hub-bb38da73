@@ -10,6 +10,17 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+const STORY_SYSTEM_PROMPT = [
+  "তুমি একজন ইসলামিক স্কলার এবং বাংলা SEO কন্টেন্ট লেখক।",
+  "প্রতিটি ইসলামিক গল্পের জন্য সহজ, প্রাঞ্জল বাংলায় ব্যাখ্যা ও শিক্ষা লিখবে।",
+  "explanation_bn: ১০০–১৫০ শব্দ; গল্পের প্রেক্ষাপট, ঘটনা ও নৈতিক বার্তা ব্যাখ্যা করো।",
+  "benefits_bn: ৩–৫টি ছোট bullet point, প্রতিটি ৬–১৫ শব্দ; গল্প থেকে পাওয়া শিক্ষা ও উপকার।",
+  "কোনো বানোয়াট বর্ণনা বা দুর্বল রেওয়ায়াত যোগ করবে না।",
+  "প্রতিটি গল্পের জন্য কন্টেন্ট unique হতে হবে।",
+  "একই কন্টেন্টের English (en), Hindi (hi) এবং Urdu (ur) অনুবাদও দাও — explanation_en/hi/ur (১০০–১৫০ words) এবং benefits_en/hi/ur (৩–৫ bullet points each)।",
+  "শুধু tool call এর মাধ্যমে structured output দাও, free text নয়।",
+].join("\n");
+
 const SYSTEM_PROMPT = [
   "তুমি একজন ইসলামিক স্কলার এবং বাংলা SEO কন্টেন্ট লেখক।",
   "প্রতিটি দোয়ার জন্য সহজ, প্রাঞ্জল বাংলায় ব্যাখ্যা ও ফজিলত লিখবে।",
@@ -26,8 +37,12 @@ async function generateForDua(args: {
   arabic: string | null;
   bengali: string | null;
   category: string | null;
+  kind?: "dua" | "story";
 }, attempt = 0): Promise<{ explanation_bn: string; benefits_bn: string[]; explanation_en: string; benefits_en: string[]; explanation_hi: string; benefits_hi: string[]; explanation_ur: string; benefits_ur: string[] }> {
-  const userText = `দোয়ার নাম: ${args.title || "(নাম নেই)"}\nবিভাগ: ${args.category || "সাধারণ"}\n\nআরবি:\n${args.arabic || "(আরবি নেই)"}\n\nবাংলা অর্থ:\n${args.bengali || "(অনুবাদ নেই, আরবি থেকে বের করো)"}\n\nএই দোয়ার জন্য বাংলা explanation_bn ও benefits_bn তৈরি করো।`;
+  const isStory = args.kind === "story";
+  const userText = isStory
+    ? `গল্পের নাম: ${args.title || "(নাম নেই)"}\nবিভাগ: ${args.category || "সাধারণ"}\n\nগল্পের বাংলা টেক্সট:\n${(args.bengali || "(টেক্সট নেই)").slice(0, 4000)}\n\nএই গল্পের জন্য explanation ও benefits (শিক্ষা) তৈরি করো।`
+    : `দোয়ার নাম: ${args.title || "(নাম নেই)"}\nবিভাগ: ${args.category || "সাধারণ"}\n\nআরবি:\n${args.arabic || "(আরবি নেই)"}\n\nবাংলা অর্থ:\n${args.bengali || "(অনুবাদ নেই, আরবি থেকে বের করো)"}\n\nএই দোয়ার জন্য বাংলা explanation_bn ও benefits_bn তৈরি করো।`;
 
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -38,7 +53,7 @@ async function generateForDua(args: {
     body: JSON.stringify({
       model: "google/gemini-3-flash-preview",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: isStory ? STORY_SYSTEM_PROMPT : SYSTEM_PROMPT },
         { role: "user", content: userText },
       ],
       tools: [
@@ -138,17 +153,19 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const action = body.action || "process";
+    const kind: "dua" | "story" = body.contentType === "story" ? "story" : "dua";
+    const typeFilter = kind === "story" ? ["story", "Story"] : ["dua", "Dua"];
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
     if (action === "stats") {
       const { count: total } = await supabase
         .from("admin_content")
         .select("*", { count: "exact", head: true })
-        .in("content_type", ["dua", "Dua"]);
+        .in("content_type", typeFilter);
       const { count: pending } = await supabase
         .from("admin_content")
         .select("*", { count: "exact", head: true })
-        .in("content_type", ["dua", "Dua"])
+        .in("content_type", typeFilter)
         .or(
           "explanation_bn.is.null,benefits_bn.is.null,explanation_en.is.null,benefits_en.is.null,explanation_hi.is.null,benefits_hi.is.null,explanation_ur.is.null,benefits_ur.is.null",
         );
@@ -165,7 +182,7 @@ Deno.serve(async (req) => {
       .select(
         "id, title, category, content_arabic, content, explanation_bn, benefits_bn, explanation_en, benefits_en, explanation_hi, benefits_hi, explanation_ur, benefits_ur",
       )
-      .in("content_type", ["dua", "Dua"])
+      .in("content_type", typeFilter)
       .or(
         "explanation_bn.is.null,benefits_bn.is.null,explanation_en.is.null,benefits_en.is.null,explanation_hi.is.null,benefits_hi.is.null,explanation_ur.is.null,benefits_ur.is.null",
       )
@@ -194,6 +211,7 @@ Deno.serve(async (req) => {
               arabic: d.content_arabic,
               bengali: d.content,
               category: d.category,
+              kind,
             });
             const update: Record<string, unknown> = {};
             if (!d.explanation_bn) update.explanation_bn = out.explanation_bn;
@@ -229,7 +247,7 @@ Deno.serve(async (req) => {
     const { count: pending } = await supabase
       .from("admin_content")
       .select("*", { count: "exact", head: true })
-      .in("content_type", ["dua", "Dua"])
+      .in("content_type", typeFilter)
       .or(
         "explanation_bn.is.null,benefits_bn.is.null,explanation_en.is.null,benefits_en.is.null,explanation_hi.is.null,benefits_hi.is.null,explanation_ur.is.null,benefits_ur.is.null",
       );
