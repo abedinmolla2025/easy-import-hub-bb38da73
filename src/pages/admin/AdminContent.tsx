@@ -421,8 +421,8 @@ export default function AdminContent() {
       const typeOk = !contentTypeContext || item.content_type === contentTypeContext;
       if (!typeOk) continue;
 
-      // Category filter is intended for Dua, so we only count Dua items
-      if (item.content_type !== 'dua') continue;
+      // Category filter applies to Dua and Story
+      if (item.content_type !== (contentTypeContext ?? 'dua')) continue;
 
       const statusOk = statusFilter === 'all' || item.status === statusFilter;
       if (!statusOk) continue;
@@ -438,16 +438,17 @@ export default function AdminContent() {
   const availableDuaCategories = useMemo(() => {
     const set = new Set<string>();
 
-    for (const preset of DUA_CATEGORY_PRESETS) set.add(preset);
+    const presets = contentTypeContext === 'story' ? STORY_CATEGORIES : DUA_CATEGORY_PRESETS;
+    for (const preset of presets) set.add(preset);
 
     for (const item of content ?? []) {
-      if (item.content_type !== 'dua') continue;
+      if (item.content_type !== (contentTypeContext ?? 'dua')) continue;
       const cat = (item.category ?? '').trim();
       if (cat) set.add(cat);
     }
 
     return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [content]);
+  }, [content, contentTypeContext]);
 
   const filteredContent = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -456,8 +457,7 @@ export default function AdminContent() {
       if (statusFilter !== 'all' && item.status !== statusFilter) return false;
 
       if (duaCategoryFilter !== 'all') {
-        // If a Dua category filter is active, only show Dua items for that category
-        if (item.content_type !== 'dua') return false;
+        if (item.content_type !== (contentTypeContext ?? 'dua')) return false;
         if ((item.category ?? '').trim() !== duaCategoryFilter) return false;
       }
 
@@ -476,7 +476,7 @@ export default function AdminContent() {
 
       if (!q) return true;
 
-      const hay = [item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur]
+      const hay = [item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur, item.slug, item.category]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -504,7 +504,7 @@ export default function AdminContent() {
         if ((g || 'unknown') !== nameGenderFilter) return false;
       }
       if (!q) return true;
-      const hay = [item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur]
+      const hay = [item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur, item.slug, item.category]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -1463,6 +1463,25 @@ export default function AdminContent() {
         </div>
       )}
 
+      {contentTypeContext === 'story' && (
+        <div className="mb-6 space-y-4">
+          <StoryImportPanel
+            canEdit={canEdit}
+            onImported={(result) => {
+              const ids = Array.from(new Set([...(result.insertedIds ?? []), ...(result.updatedIds ?? [])]));
+              if (ids.length) setJustImported({ type: 'story', ids });
+            }}
+          />
+          <ContentOgBulkGeneratePanel
+            canEdit={canEdit}
+            contentType="story"
+            folder="story-og"
+            brandLabel="NoorApp · Islamic Story"
+          />
+          <ContentQualityCheckPanel />
+        </div>
+      )}
+
       {contentTypeContext === 'hadith' ? (
         <div className="space-y-6">
           <HadithSeoGeneratorPanel />
@@ -1496,7 +1515,7 @@ export default function AdminContent() {
                 </SelectContent>
               </Select>
 
-              {contentTypeContext === 'dua' && (
+              {(contentTypeContext === 'dua' || contentTypeContext === 'story') && (
                 <Select value={duaCategoryFilter} onValueChange={setDuaCategoryFilter}>
                   <SelectTrigger className="w-[150px]">
                     <SelectValue placeholder="Category" />
@@ -2399,7 +2418,7 @@ export default function AdminContent() {
                                 {STATUS_LABELS[item.status] || item.status}
                               </Badge>
                             </TableCell>
-                            {contentTypeContext === 'dua' ? (
+                            {contentTypeContext === 'dua' || contentTypeContext === 'story' ? (
                               <TableCell className="align-middle">
                                 <DuaOgThumbnail
                                   url={item.og_image_url}
