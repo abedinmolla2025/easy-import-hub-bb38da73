@@ -107,6 +107,7 @@ export type Database = {
           approved_by: string | null
           audio_url: string | null
           authenticity: string | null
+          author: string | null
           benefits_bn: string[] | null
           benefits_en: string[] | null
           benefits_hi: string[] | null
@@ -128,19 +129,26 @@ export type Database = {
           current_version_id: string | null
           difficulty: string | null
           emotion: string[] | null
+          engagement: Json | null
           explanation_bn: string | null
           explanation_en: string | null
           explanation_hi: string | null
           explanation_ur: string | null
           faq: Json | null
+          growth: Json | null
           hadith_reference: string | null
           hook: string | null
           hook_variants: string[] | null
           id: string
           image_url: string | null
+          is_featured: boolean
           is_published: boolean | null
           legacy_slug: string | null
           metadata: Json | null
+          moral_bn: string | null
+          moral_en: string | null
+          moral_ur: string | null
+          navigation: Json | null
           normalized_surah_names: string[] | null
           og_image_data: Json | null
           og_image_url: string | null
@@ -148,10 +156,12 @@ export type Database = {
           pdf_url: string | null
           published_at: string | null
           quran_meta: Json | null
+          reading_time_minutes: number | null
           recommendation_tags: string[] | null
           recommended_moments: string[] | null
           reference: string | null
           related_duas: string[] | null
+          related_stories: string[] | null
           scheduled_at: string | null
           search_aliases: Json | null
           semantic_entities: string[] | null
@@ -159,9 +169,12 @@ export type Database = {
           share_text: string | null
           slug: string | null
           social: Json | null
+          source_detail: string | null
+          source_name: string | null
           source_type: string | null
           status: string
           subtitle: string | null
+          tags: string[] | null
           time_required: string | null
           title: string
           title_arabic: string | null
@@ -184,6 +197,7 @@ export type Database = {
           approved_by?: string | null
           audio_url?: string | null
           authenticity?: string | null
+          author?: string | null
           benefits_bn?: string[] | null
           benefits_en?: string[] | null
           benefits_hi?: string[] | null
@@ -205,19 +219,26 @@ export type Database = {
           current_version_id?: string | null
           difficulty?: string | null
           emotion?: string[] | null
+          engagement?: Json | null
           explanation_bn?: string | null
           explanation_en?: string | null
           explanation_hi?: string | null
           explanation_ur?: string | null
           faq?: Json | null
+          growth?: Json | null
           hadith_reference?: string | null
           hook?: string | null
           hook_variants?: string[] | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean
           is_published?: boolean | null
           legacy_slug?: string | null
           metadata?: Json | null
+          moral_bn?: string | null
+          moral_en?: string | null
+          moral_ur?: string | null
+          navigation?: Json | null
           normalized_surah_names?: string[] | null
           og_image_data?: Json | null
           og_image_url?: string | null
@@ -225,10 +246,12 @@ export type Database = {
           pdf_url?: string | null
           published_at?: string | null
           quran_meta?: Json | null
+          reading_time_minutes?: number | null
           recommendation_tags?: string[] | null
           recommended_moments?: string[] | null
           reference?: string | null
           related_duas?: string[] | null
+          related_stories?: string[] | null
           scheduled_at?: string | null
           search_aliases?: Json | null
           semantic_entities?: string[] | null
@@ -236,9 +259,12 @@ export type Database = {
           share_text?: string | null
           slug?: string | null
           social?: Json | null
+          source_detail?: string | null
+          source_name?: string | null
           source_type?: string | null
           status?: string
           subtitle?: string | null
+          tags?: string[] | null
           time_required?: string | null
           title: string
           title_arabic?: string | null
@@ -261,6 +287,7 @@ export type Database = {
           approved_by?: string | null
           audio_url?: string | null
           authenticity?: string | null
+          author?: string | null
           benefits_bn?: string[] | null
           benefits_en?: string[] | null
           benefits_hi?: string[] | null
@@ -282,19 +309,26 @@ export type Database = {
           current_version_id?: string | null
           difficulty?: string | null
           emotion?: string[] | null
+          engagement?: Json | null
           explanation_bn?: string | null
           explanation_en?: string | null
           explanation_hi?: string | null
           explanation_ur?: string | null
           faq?: Json | null
+          growth?: Json | null
           hadith_reference?: string | null
           hook?: string | null
           hook_variants?: string[] | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean
           is_published?: boolean | null
           legacy_slug?: string | null
           metadata?: Json | null
+          moral_bn?: string | null
+          moral_en?: string | null
+          moral_ur?: string | null
+          navigation?: Json | null
           normalized_surah_names?: string[] | null
           og_image_data?: Json | null
           og_image_url?: string | null
@@ -302,10 +336,12 @@ export type Database = {
           pdf_url?: string | null
           published_at?: string | null
           quran_meta?: Json | null
+          reading_time_minutes?: number | null
           recommendation_tags?: string[] | null
           recommended_moments?: string[] | null
           reference?: string | null
           related_duas?: string[] | null
+          related_stories?: string[] | null
           scheduled_at?: string | null
           search_aliases?: Json | null
           semantic_entities?: string[] | null
@@ -313,9 +349,12 @@ export type Database = {
           share_text?: string | null
           slug?: string | null
           social?: Json | null
+          source_detail?: string | null
+          source_name?: string | null
           source_type?: string | null
           status?: string
           subtitle?: string | null
+          tags?: string[] | null
           time_required?: string | null
           title?: string
           title_arabic?: string | null
