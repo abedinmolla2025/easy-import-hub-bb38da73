@@ -42,6 +42,8 @@ interface DuaRow {
   when_to_recite_ur: string | null;
   source_type: string | null;
   reference: string | null;
+  og_image_data: any | null;
+  seo: any | null;
 }
 
 const SITE_ORIGIN = "https://noorapp.in";
@@ -208,7 +210,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, og_image_data, seo"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -228,7 +230,7 @@ const DuaDetailPage = () => {
       if (cat) {
         const { data: rel } = await supabase
           .from("admin_content")
-          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference")
+          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, og_image_data, seo")
           .eq("category", cat)
           .eq("status", "published")
           .in("content_type", ["dua", "Dua"])
@@ -263,6 +265,23 @@ const DuaDetailPage = () => {
       cancelled = true;
     };
   }, [slug]);
+
+  // Get OG image URL from og_image_data
+  const ogImageUrl = useMemo(() => {
+    if (!dua) return FALLBACK_OG;
+    const ogData = (dua as any).og_image_data;
+    if (ogData && typeof ogData === "object") {
+      return ogData.url || ogData.og_url || ogData.storage_path 
+        ? `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/media/${ogData.storage_path}` 
+        : ogData.url || FALLBACK_OG;
+    }
+    // Also check seo.og_image
+    const seoData = (dua as any).seo;
+    if (seoData && seoData.og_image && !seoData.og_image.includes("yourwebsite")) {
+      return seoData.og_image;
+    }
+    return FALLBACK_OG;
+  }, [dua]);
 
   const seo = useMemo(() => {
     if (!dua) return null;
@@ -310,7 +329,7 @@ const DuaDetailPage = () => {
       inLanguage: "bn",
       mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_ORIGIN}/dua/${dua.slug}` },
       description: seo?.description,
-      image: `${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`,
+      image: ogImageUrl,
       author: { "@type": "Organization", name: "Noor" },
       publisher: {
         "@type": "Organization",
@@ -354,8 +373,8 @@ const DuaDetailPage = () => {
           <meta property="og:title" content={seo.title} />
           <meta property="og:description" content={seo.description} />
           <meta property="og:url" content={seo.url} />
-          <meta property="og:image" content={FALLBACK_OG} />
-          <meta property="og:image:secure_url" content={FALLBACK_OG} />
+          <meta property="og:image" content={ogImageUrl} />
+          <meta property="og:image:secure_url" content={ogImageUrl} />
           <meta property="og:image:type" content="image/png" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
@@ -363,7 +382,7 @@ const DuaDetailPage = () => {
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={seo.title} />
           <meta name="twitter:description" content={seo.description} />
-          <meta name="twitter:image" content={FALLBACK_OG} />
+          <meta name="twitter:image" content={ogImageUrl} />
           {jsonLd && <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>}
         </Helmet>
       )}
