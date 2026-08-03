@@ -321,6 +321,20 @@ export default function AdminContent() {
     category_hierarchy_json: '',
     faq_json: '',
     search_aliases_json: '',
+    // Story extras
+    moral_bn: '',
+    moral_en: '',
+    moral_ur: '',
+    source_name: '',
+    source_detail: '',
+    author: '',
+    reading_time_minutes: '',
+    tags: '',
+    related_stories: '',
+    is_featured: false,
+    navigation_json: '',
+    engagement_json: '',
+    growth_json: '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
@@ -743,6 +757,20 @@ export default function AdminContent() {
     category_hierarchy_json: '',
     faq_json: '',
     search_aliases_json: '',
+    // Story extras
+    moral_bn: '',
+    moral_en: '',
+    moral_ur: '',
+    source_name: '',
+    source_detail: '',
+    author: '',
+    reading_time_minutes: '',
+    tags: '',
+    related_stories: '',
+    is_featured: false,
+    navigation_json: '',
+    engagement_json: '',
+    growth_json: '',
   });
 
   const resetEditForm = (item?: AdminContentRow | null) => {
@@ -803,6 +831,19 @@ export default function AdminContent() {
       category_hierarchy_json: jsonToStr(item.category_hierarchy),
       faq_json: jsonToStr(item.faq),
       search_aliases_json: jsonToStr(item.search_aliases),
+      moral_bn: item.moral_bn ?? '',
+      moral_en: item.moral_en ?? '',
+      moral_ur: item.moral_ur ?? '',
+      source_name: item.source_name ?? '',
+      source_detail: item.source_detail ?? '',
+      author: item.author ?? '',
+      reading_time_minutes: item.reading_time_minutes != null ? String(item.reading_time_minutes) : '',
+      tags: arrToCsv(item.tags),
+      related_stories: arrToCsv(item.related_stories),
+      is_featured: Boolean(item.is_featured),
+      navigation_json: jsonToStr(item.navigation),
+      engagement_json: jsonToStr(item.engagement),
+      growth_json: jsonToStr(item.growth),
     });
     setSelectedId(item.id);
   };
