@@ -1762,6 +1762,28 @@ export default function AdminContent() {
                 </div>
 
                 {effectiveType === 'dua' && (
+                  <Card className="mt-4">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">OG Image</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {selectedContent ? (
+                        <DuaOgImageControls
+                          contentId={selectedContent.id}
+                          slug={selectedContent.slug ?? editForm.slug}
+                          url={selectedContent.og_image_url}
+                          onChanged={() => queryClient.invalidateQueries({ queryKey: ['admin-content'] })}
+                        />
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Save this dua first, then upload its OG image.
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {effectiveType === 'dua' && (
                   <div className="rounded-lg border border-border/70 bg-muted/20 p-3 mt-4 space-y-4">
                     <div className="text-xs font-medium text-muted-foreground">Dua extras (humanized DB v22)</div>
 
