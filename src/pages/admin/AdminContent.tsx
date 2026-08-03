@@ -2345,6 +2345,23 @@ export default function AdminContent() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {ogManagerItem ? (
+        <DuaOgImageManagerDialog
+          open={!!ogManagerItem}
+          onOpenChange={(v) => !v && setOgManagerItem(null)}
+          title={ogManagerItem.title}
+          contentId={ogManagerItem.id}
+          slug={ogManagerItem.slug}
+          url={ogManagerItem.og_image_url}
+          onChanged={async () => {
+            const { data } = await queryClient.invalidateQueries({ queryKey: ['admin-content'] }).then(
+              async () => await supabase.from('admin_content').select('*').eq('id', ogManagerItem.id).maybeSingle()
+            );
+            if (data) setOgManagerItem(data as AdminContentRow);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
