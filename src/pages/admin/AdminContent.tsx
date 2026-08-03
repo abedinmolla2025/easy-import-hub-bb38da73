@@ -1457,6 +1457,23 @@ export default function AdminContent() {
         }}
       />
 
+      <Dialog open={isStoryImportOpen} onOpenChange={setIsStoryImportOpen}>
+        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Import Islamic Stories (JSON)</DialogTitle>
+          </DialogHeader>
+          <StoryImportPanel
+            canEdit={canEdit}
+            onImported={(result) => {
+              queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+              const ids = Array.from(new Set([...(result.insertedIds ?? []), ...(result.updatedIds ?? [])]));
+              if (ids.length) setJustImported({ type: 'story', ids });
+              setIsStoryImportOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
       {justImported && (
         <JustImportedActionBar
           count={justImported.ids.length}
