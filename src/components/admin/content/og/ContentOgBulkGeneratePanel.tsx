@@ -90,7 +90,7 @@ async function renderOgImage(dua: PendingDua, brandLabel: string): Promise<Blob>
   // title
   ctx.fillStyle = '#ffffff';
   ctx.font = '700 62px "Noto Sans Bengali", system-ui, sans-serif';
-  const titleLines = wrapText(ctx, dua.title || 'Dua', OG_WIDTH - 220, 3);
+  const titleLines = wrapText(ctx, dua.title || 'Untitled', OG_WIDTH - 220, 3);
   let y = dua.category ? 250 : 220;
   for (const line of titleLines) {
     ctx.fillText(line, 104, y);
