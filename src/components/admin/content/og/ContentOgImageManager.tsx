@@ -18,13 +18,14 @@ import { Copy, ExternalLink, ImageIcon, Loader2, RefreshCw, Trash2, Upload } fro
 
 export const OG_BUCKET = 'media';
 export const OG_FOLDER = 'dua-og';
+export const STORY_OG_FOLDER = 'story-og';
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPTED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-export const ogStoragePath = (slug: string) => `${OG_FOLDER}/${slug}.webp`;
+export const ogStoragePath = (slug: string, folder: string = OG_FOLDER) => `${folder}/${slug}.webp`;
 
 export function formatBytes(bytes?: number | null) {
   if (!bytes && bytes !== 0) return '—';
@@ -76,9 +77,11 @@ type Props = {
   onChanged?: () => void;
   /** compact = inline card body inside the edit form */
   layout?: 'card' | 'modal';
+  /** storage folder inside the media bucket (dua-og, story-og, ...) */
+  folder?: string;
 };
 
-export function DuaOgImageControls({ contentId, slug, url, onChanged, layout = 'card' }: Props) {
+export function ContentOgImageControls({ contentId, slug, url, onChanged, layout = 'card', folder = OG_FOLDER }: Props) {
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -127,7 +130,7 @@ export function DuaOgImageControls({ contentId, slug, url, onChanged, layout = '
     setBusy(true);
     try {
       const webp = await toOgWebp(file);
-      const path = ogStoragePath(slug);
+      const path = ogStoragePath(slug, folder);
       const { error: upErr } = await supabase.storage.from(OG_BUCKET).upload(path, webp, {
         contentType: 'image/webp',
         cacheControl: '3600',
@@ -160,7 +163,7 @@ export function DuaOgImageControls({ contentId, slug, url, onChanged, layout = '
     setBusy(true);
     try {
       if (slug) {
-        await supabase.storage.from(OG_BUCKET).remove([ogStoragePath(slug)]);
+        await supabase.storage.from(OG_BUCKET).remove([ogStoragePath(slug, folder)]);
       }
       const { error } = await supabase.from('admin_content').update({ og_image_url: null }).eq('id', contentId);
       if (error) throw error;
@@ -257,7 +260,7 @@ export function DuaOgImageControls({ contentId, slug, url, onChanged, layout = '
         </div>
         <div className="col-span-2">
           <span className="text-muted-foreground/70">Storage path:</span>{' '}
-          {slug ? `${OG_BUCKET}/${ogStoragePath(slug)}` : 'slug required'}
+          {slug ? `${OG_BUCKET}/${ogStoragePath(slug, folder)}` : 'slug required'}
         </div>
       </div>
 
@@ -286,7 +289,7 @@ export function DuaOgImageControls({ contentId, slug, url, onChanged, layout = '
   );
 }
 
-export function DuaOgImageManagerDialog({
+export function ContentOgImageManagerDialog({
   open,
   onOpenChange,
   title,
@@ -298,13 +301,13 @@ export function DuaOgImageManagerDialog({
         <DialogHeader>
           <DialogTitle className="truncate text-base">OG Image Manager{title ? ` — ${title}` : ''}</DialogTitle>
         </DialogHeader>
-        <DuaOgImageControls {...rest} layout="modal" />
+        <ContentOgImageControls {...rest} layout="modal" />
       </DialogContent>
     </Dialog>
   );
 }
 
-export function DuaOgThumbnail({ url, onClick }: { url?: string | null; onClick: () => void }) {
+export function ContentOgThumbnail({ url, onClick }: { url?: string | null; onClick: () => void }) {
   return (
     <button
       type="button"

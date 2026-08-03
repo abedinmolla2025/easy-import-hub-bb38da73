@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ImageIcon, Loader2, RefreshCw, StopCircle } from 'lucide-react';
-import { OG_BUCKET, ogStoragePath } from './DuaOgImageManager';
+import { OG_BUCKET, OG_FOLDER, ogStoragePath } from './ContentOgImageManager';
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
@@ -46,7 +46,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number,
   return lines;
 }
 
-async function renderOgImage(dua: PendingDua): Promise<Blob> {
+async function renderOgImage(dua: PendingDua, brandLabel: string): Promise<Blob> {
   const canvas = document.createElement('canvas');
   canvas.width = OG_WIDTH;
   canvas.height = OG_HEIGHT;
@@ -78,7 +78,7 @@ async function renderOgImage(dua: PendingDua): Promise<Blob> {
   // brand
   ctx.fillStyle = '#a7f3d0';
   ctx.font = '600 30px system-ui, sans-serif';
-  ctx.fillText('NoorApp · Dua', 72, 92);
+  ctx.fillText(brandLabel, 72, 92);
 
   // category
   if (dua.category) {
@@ -119,7 +119,22 @@ async function renderOgImage(dua: PendingDua): Promise<Blob> {
   return blob;
 }
 
-export function DuaOgBulkGeneratePanel({ canEdit = true }: { canEdit?: boolean }) {
+type BulkPanelProps = {
+  canEdit?: boolean;
+  /** admin_content.content_type to target */
+  contentType?: string;
+  /** storage folder inside the media bucket */
+  folder?: string;
+  /** brand line printed on the generated image */
+  brandLabel?: string;
+};
+
+export function ContentOgBulkGeneratePanel({
+  canEdit = true,
+  contentType = 'dua',
+  folder = OG_FOLDER,
+  brandLabel = 'NoorApp · Dua',
+}: BulkPanelProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const stopRef = useRef(false);
@@ -137,7 +152,7 @@ export function DuaOgBulkGeneratePanel({ canEdit = true }: { canEdit?: boolean }
       const { data, error } = await supabase
         .from('admin_content')
         .select('id, slug, title, title_arabic, content_arabic, category')
-        .eq('content_type', 'dua')
+        .eq('content_type', contentType)
         .is('og_image_url', null)
         .order('title');
       if (error) throw error;
@@ -151,7 +166,7 @@ export function DuaOgBulkGeneratePanel({ canEdit = true }: { canEdit?: boolean }
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, contentType]);
 
   useEffect(() => {
     loadPending();
@@ -172,8 +187,8 @@ export function DuaOgBulkGeneratePanel({ canEdit = true }: { canEdit?: boolean }
       setCurrent(dua.title);
       try {
         if (!dua.slug) throw new Error('Missing slug');
-        const blob = await renderOgImage(dua);
-        const path = ogStoragePath(dua.slug);
+        const blob = await renderOgImage(dua, brandLabel);
+        const path = ogStoragePath(dua.slug, folder);
         const { error: upErr } = await supabase.storage.from(OG_BUCKET).upload(path, blob, {
           contentType: 'image/webp',
           cacheControl: '3600',
@@ -218,7 +233,7 @@ export function DuaOgBulkGeneratePanel({ canEdit = true }: { canEdit?: boolean }
               Bulk OG Image Generation
             </CardTitle>
             <CardDescription>
-              Generates branded 1200×630 WebP previews for every dua missing an OG image.
+              Generates branded 1200×630 WebP previews for every item missing an OG image.
             </CardDescription>
           </div>
           <Badge variant={total ? 'secondary' : 'outline'} className="rounded-full">
@@ -266,11 +281,11 @@ export function DuaOgBulkGeneratePanel({ canEdit = true }: { canEdit?: boolean }
         )}
 
         {!loading && !total && (
-          <p className="text-[11px] text-muted-foreground sm:text-xs">All duas already have an OG image. 🎉</p>
+          <p className="text-[11px] text-muted-foreground sm:text-xs">Everything already has an OG image. 🎉</p>
         )}
       </CardContent>
     </Card>
   );
 }
 
-export default DuaOgBulkGeneratePanel;
+export default ContentOgBulkGeneratePanel;
