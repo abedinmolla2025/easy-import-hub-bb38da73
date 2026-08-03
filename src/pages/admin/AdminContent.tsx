@@ -2496,6 +2496,7 @@ export default function AdminContent() {
           contentId={ogManagerItem.id}
           slug={ogManagerItem.slug}
           url={ogManagerItem.og_image_url}
+          folder={ogManagerItem.content_type === 'story' ? 'story-og' : 'dua-og'}
           onChanged={async () => {
             const { data } = await queryClient.invalidateQueries({ queryKey: ['admin-content'] }).then(
               async () => await supabase.from('admin_content').select('*').eq('id', ogManagerItem.id).maybeSingle()
