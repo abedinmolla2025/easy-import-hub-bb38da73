@@ -46,6 +46,7 @@ import {
 import { DuaOgBulkGeneratePanel } from '@/components/admin/dua/DuaOgBulkGeneratePanel';
 import { ContentOgBulkGeneratePanel } from '@/components/admin/content/og/ContentOgBulkGeneratePanel';
 import { StoryImportPanel } from '@/components/admin/story/StoryImportPanel';
+import { ContentSeoGeneratorPanel } from '@/components/admin/content/shared/ContentSeoGeneratorPanel';
 import { STORY_CATEGORIES, estimateReadingMinutes } from '@/lib/stories';
 import { Switch } from '@/components/ui/switch';
 import DuaContentFixerPanel from '@/components/admin/DuaContentFixerPanel';
@@ -246,6 +247,7 @@ export default function AdminContent() {
   const [activeTab, setActiveTab] = useState<'edit' | 'workflow' | 'versions' | 'audit'>('edit');
   const [isNameImportOpen, setIsNameImportOpen] = useState(false);
   const [isDuaImportOpen, setIsDuaImportOpen] = useState(false);
+  const [isStoryImportOpen, setIsStoryImportOpen] = useState(false);
 
   const [justImported, setJustImported] = useState<{
     type: AdminContentType;
@@ -1376,6 +1378,21 @@ export default function AdminContent() {
               </Button>
             ) : null}
 
+            {contentTypeContext === 'story' ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="shrink-0 whitespace-nowrap"
+                onClick={() => setIsStoryImportOpen(true)}
+                disabled={!canEdit}
+                title={!canEdit ? 'No permission' : undefined}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Import Story (JSON)
+              </Button>
+            ) : null}
+
             <Button variant="outline" size="sm" onClick={handleExport} className="shrink-0 whitespace-nowrap">
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -1466,12 +1483,16 @@ export default function AdminContent() {
 
       {contentTypeContext === 'story' && (
         <div className="mb-6 space-y-4">
-          <StoryImportPanel
-            canEdit={canEdit}
-            onImported={(result) => {
-              const ids = Array.from(new Set([...(result.insertedIds ?? []), ...(result.updatedIds ?? [])]));
-              if (ids.length) setJustImported({ type: 'story', ids });
-            }}
+          <ContentSeoGeneratorPanel
+            contentType="story"
+            totalLabel="মোট গল্প"
+            description={
+              <>
+                প্রতিটি ইসলামিক গল্পের জন্য AI দিয়ে <code>explanation</code> (১০০–১৫০ শব্দ) ও{' '}
+                <code>benefits</code> (৩–৫ পয়েন্ট) চারটি ভাষায় তৈরি করো — বাংলা, English, हिंदी, اردو।
+                বিদ্যমান কন্টেন্ট overwrite হবে না।
+              </>
+            }
           />
           <ContentOgBulkGeneratePanel
             canEdit={canEdit}
