@@ -2475,7 +2475,7 @@ export default function AdminContent() {
                             aria-label="Select row"
                           />
                           {(item.content_type === 'dua' || item.content_type === 'story') && (
-                            <div className="shrink-0">
+                            <div className="shrink-0 pt-1">
                               <DuaOgThumbnail
                                 url={item.og_image_url || item.og_image_data?.og_image || item.og_image_data?.og_image_url}
                                 slug={item.slug}

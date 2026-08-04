@@ -20,6 +20,12 @@ export function resolveOgImageUrl(raw?: string | null, folder: string = OG_FOLDE
   if (!value) return null;
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
 
+  // If it's a local asset path (starts with /assets/), return it as is
+  if (value.startsWith('/assets/')) {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://noorapp.in';
+    return `${origin}${value}`;
+  }
+
   let path = value.replace(/^\/+/, '');
   if (path.startsWith(`${OG_BUCKET}/`)) path = path.slice(OG_BUCKET.length + 1);
   if (!path.includes('/')) path = `${folder}/${path}`;
