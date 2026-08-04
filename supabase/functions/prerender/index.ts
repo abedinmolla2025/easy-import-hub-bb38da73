@@ -428,7 +428,7 @@ Deno.serve(async (req) => {
             };
             
             // Try to get OG image from database
-            const dbImageUrl = row.og_image_url || row.image_url || row.og_image_data?.og_image || row.og_image_data?.og_image_url;
+            const dbImageUrl = row.image_url || row.og_image_data?.og_image;
             
             if (dbImageUrl && !dbImageUrl.includes("yourwebsite.com")) {
               customOgImage = resolvePublicOgUrl(dbImageUrl, supabaseUrl);

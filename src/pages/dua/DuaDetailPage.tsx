@@ -274,13 +274,13 @@ const DuaDetailPage = () => {
   const ogImageUrl = useMemo(() => {
     if (!dua) return FALLBACK_OG;
 
-    // 1. Check direct og_image_url field (used by Admin Panel uploads)
+    // 1. Check direct image_url field (used by Admin Panel uploads)
     if (
-      dua.og_image_url &&
-      !dua.og_image_url.includes("yourwebsite.com") &&
-      !isLegacyMissingSlugImage(dua.og_image_url)
+      dua.image_url &&
+      !dua.image_url.includes("yourwebsite.com") &&
+      !isLegacyMissingSlugImage(dua.image_url)
     ) {
-      return dua.og_image_url;
+      return dua.image_url;
     }
 
     // 2. Check og_image_data (used by JSON/Bulk data)

@@ -183,7 +183,7 @@ export function ContentOgImageControls({
 
       const { error: dbErr } = await supabase
         .from('admin_content')
-        .update({ og_image_url: publicUrl })
+        .update({ image_url: publicUrl })
         .eq('id', contentId);
       if (dbErr) throw dbErr;
 
@@ -207,7 +207,7 @@ export function ContentOgImageControls({
       if (slug) {
         await supabase.storage.from(OG_BUCKET).remove([ogStoragePath(slug, folder)]);
       }
-      const { error } = await supabase.from('admin_content').update({ og_image_url: null }).eq('id', contentId);
+      const { error } = await supabase.from('admin_content').update({ image_url: null }).eq('id', contentId);
       if (error) throw error;
       setInfo(null);
       setStorageUrl(null);
