@@ -42,6 +42,7 @@ interface DuaRow {
   when_to_recite_ur: string | null;
   source_type: string | null;
   reference: string | null;
+  og_image_url: string | null;
   og_image_data: any | null;
   seo: any | null;
 }
@@ -210,7 +211,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, og_image_data, seo"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, og_image_url, og_image_data, seo"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -390,7 +391,7 @@ const DuaDetailPage = () => {
           <meta property="og:url" content={seo.url} />
           <meta property="og:image" content={ogImageUrl} />
           <meta property="og:image:secure_url" content={ogImageUrl} />
-          <meta property="og:image:type" content="image/webp" />
+          <meta property="og:image:type" content={/\.png(?:\?|$)/i.test(ogImageUrl) ? "image/png" : /\.jpe?g(?:\?|$)/i.test(ogImageUrl) ? "image/jpeg" : "image/webp"} />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           <meta property="og:image:alt" content={seo.title} />
