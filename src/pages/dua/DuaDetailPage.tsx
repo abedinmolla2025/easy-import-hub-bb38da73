@@ -266,21 +266,35 @@ const DuaDetailPage = () => {
     };
   }, [slug]);
 
-  // Get OG image URL from og_image_data
+  // Get OG image URL from database or JSON
   const ogImageUrl = useMemo(() => {
     if (!dua) return FALLBACK_OG;
+
+    // 1. Check direct og_image_url field (used by Admin Panel uploads)
+    if (dua.og_image_url && !dua.og_image_url.includes("yourwebsite.com")) {
+      return dua.og_image_url;
+    }
+
+    // 2. Check og_image_data (used by JSON/Bulk data)
     const ogData = (dua as any).og_image_data;
     if (ogData && typeof ogData === "object") {
       const storageBase = import.meta.env.VITE_SUPABASE_URL + "/storage/v1/object/public/media/";
-      return ogData.url || ogData.og_url || ogData.storage_path 
-        ? (ogData.storage_path.startsWith("http") ? ogData.storage_path : `${storageBase}${ogData.storage_path}`)
-        : ogData.url || FALLBACK_OG;
+      const path = ogData.og_image || ogData.storage_path || ogData.og_url || ogData.url;
+      
+      if (path) {
+        if (path.startsWith("http")) return path;
+        const cleanPath = path.replace(/^\/+/, "");
+        return `${storageBase}${cleanPath}`;
+      }
     }
-    // Also check seo.og_image
+
+    // 3. Check seo.og_image
     const seoData = (dua as any).seo;
-    if (seoData && seoData.og_image && !seoData.og_image.includes("yourwebsite")) {
+    if (seoData && seoData.og_image && !seoData.og_image.includes("yourwebsite.com")) {
       return seoData.og_image;
     }
+
+    // 4. Fallback to generic image
     return FALLBACK_OG;
   }, [dua]);
 
