@@ -10,6 +10,7 @@ export type PageSeoRow = {
   canonical_url: string | null;
   robots: string | null;
   json_ld: any | null;
+  og_image_url: string | null;
   created_at: string;
   updated_at: string;
 };

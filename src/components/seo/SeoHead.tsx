@@ -358,7 +358,7 @@ export function SeoHead() {
   } else if (normalizedPath.startsWith("/dua/")) {
     // For specific dua pages, try to use the dynamic OG image from DB
     const slug = normalizedPath.split("/").pop();
-    const dbOgUrl = pageSeo?.og_image_url || pageSeo?.og_image;
+    const dbOgUrl = pageSeo?.og_image_url;
     
     if (dbOgUrl && !dbOgUrl.includes("yourwebsite.com")) {
       ogImage = dbOgUrl;
