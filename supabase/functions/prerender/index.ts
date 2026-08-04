@@ -372,7 +372,7 @@ Deno.serve(async (req) => {
           // Legacy duas that are only in the database (no entry in duas.json)
           const { data: row } = await supabase
             .from("admin_content")
-            .select("title, content, content_arabic, content_pronunciation, reference")
+            .select("title, content, content_arabic, content_pronunciation, reference, image_url, og_image_data")
             .eq("content_type", "dua")
             .eq("slug", slug)
             .maybeSingle();
@@ -382,6 +382,16 @@ Deno.serve(async (req) => {
               title: row.title,
               description: `${row.title}${row.reference ? ` (${row.reference})` : ""} — আরবি, উচ্চারণ ও বাংলা অর্থসহ পড়ুন Noor App-এ।`,
             };
+            
+            if (row.image_url) {
+              customOgImage = row.image_url;
+            } else if (row.og_image_data?.og_image_url) {
+              customOgImage = row.og_image_data.og_image_url;
+            } else {
+              // Try direct storage path
+              customOgImage = `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/media/dua-og/${slug}.webp`;
+            }
+
             bodyContent = `
             <section>
                 <h2>${escapeHtml(row.title ?? "")}</h2>
