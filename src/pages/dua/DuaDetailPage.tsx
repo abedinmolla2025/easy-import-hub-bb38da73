@@ -271,8 +271,9 @@ const DuaDetailPage = () => {
     if (!dua) return FALLBACK_OG;
     const ogData = (dua as any).og_image_data;
     if (ogData && typeof ogData === "object") {
+      const storageBase = import.meta.env.VITE_SUPABASE_URL + "/storage/v1/object/public/media/";
       return ogData.url || ogData.og_url || ogData.storage_path 
-        ? `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/media/${ogData.storage_path}` 
+        ? (ogData.storage_path.startsWith("http") ? ogData.storage_path : `${storageBase}${ogData.storage_path}`)
         : ogData.url || FALLBACK_OG;
     }
     // Also check seo.og_image
@@ -375,7 +376,7 @@ const DuaDetailPage = () => {
           <meta property="og:url" content={seo.url} />
           <meta property="og:image" content={ogImageUrl} />
           <meta property="og:image:secure_url" content={ogImageUrl} />
-          <meta property="og:image:type" content="image/png" />
+          <meta property="og:image:type" content="image/webp" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           <meta property="og:image:alt" content={seo.title} />

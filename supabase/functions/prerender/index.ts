@@ -261,7 +261,7 @@ function buildFullHtml(
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta property="og:image" content="${ogImage}" />
     <meta property="og:image:secure_url" content="${ogImage}" />
-    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:type" content="image/webp" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="${escapeHtml(title)}" />
@@ -357,7 +357,7 @@ Deno.serve(async (req) => {
             description: `${dua.title_bn || dua.title_en} (${dua.reference})। এই দুয়াটি বিস্তারিত পড়ার জন্য নিচের লিঙ্কে ক্লিক করুন।`
           };
           // The images are hosted at /assets/og-images/
-          customOgImage = `${SITE_ORIGIN}/assets/og-images/${dua.slug}.png`;
+          customOgImage = `${SITE_ORIGIN}/assets/og-images/${dua.slug}.webp`;
           
           bodyContent = `
             <section>
@@ -398,11 +398,11 @@ Deno.serve(async (req) => {
         // otherwise Facebook/WhatsApp get a 404 and show no preview at all.
         // NOTE: missing files fall through to the SPA catch-all and still return 200 HTML,
         // so the content-type must be checked, not just the status.
-        const candidate = `${SITE_ORIGIN}/assets/og-images/${slug}.png`;
+        const candidate = `${SITE_ORIGIN}/assets/og-images/${slug}.webp`;
         try {
           const head = await fetch(candidate, { method: "HEAD" });
           const isImage = head.ok && (head.headers.get("content-type") || "").startsWith("image/");
-          customOgImage = isImage ? candidate : `${SITE_ORIGIN}/og-dua.png`;
+          customOgImage = isImage ? candidate : `${SITE_ORIGIN}/og-dua.png`; // Fallback to generic dua OG
         } catch {
           customOgImage = `${SITE_ORIGIN}/og-dua.png`;
         }
