@@ -178,6 +178,11 @@ function resolvePublicOgUrl(value: unknown, supabaseUrl: string): string {
   return `${supabaseUrl}/storage/v1/object/public/media/${storagePath}`;
 }
 
+function isLegacyMissingSlugImage(value: unknown): boolean {
+  return typeof value === "string" &&
+    /^https:\/\/noorapp\.in\/assets\/og-images\/[^/?]+\.png(?:\?|$)/i.test(value.trim());
+}
+
 // Build hreflang alternate links for hadith pages
 function buildHreflangTags(path: string): string {
   const chapterMatch = path.match(/^\/hadith\/sahih-bukhari\/(bangla|english|urdu)(\/chapter-\d+)?$/);
@@ -388,7 +393,8 @@ Deno.serve(async (req) => {
           };
           
           // Resolve OG image from dua data - CRITICAL: Use exact path from duas.json
-          const ogImagePath = dbDua?.og_image_url || dbDua?.og_image_data?.og_image || dbDua?.image_url || dua.og_image_data?.og_image || dua.og_image;
+          const databaseOgImage = isLegacyMissingSlugImage(dbDua?.og_image_url) ? "" : dbDua?.og_image_url;
+          const ogImagePath = databaseOgImage || dbDua?.og_image_data?.og_image || dbDua?.image_url || dua.og_image_data?.og_image || dua.og_image;
           
           if (ogImagePath && !ogImagePath.includes("yourwebsite.com")) {
             customOgImage = resolvePublicOgUrl(ogImagePath, supabaseUrl);

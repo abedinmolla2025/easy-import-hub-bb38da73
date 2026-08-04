@@ -50,6 +50,9 @@ interface DuaRow {
 const SITE_ORIGIN = "https://noorapp.in";
 const FALLBACK_OG = `${SITE_ORIGIN}/og-dua.png`;
 
+const isLegacyMissingSlugImage = (url: string) =>
+  /^https:\/\/noorapp\.in\/assets\/og-images\/[^/?]+\.png(?:\?|$)/i.test(url);
+
 type DuaLang = "bengali" | "english" | "hindi" | "urdu";
 
 const LANGUAGE_LABELS: Record<DuaLang, string> = {
@@ -272,7 +275,11 @@ const DuaDetailPage = () => {
     if (!dua) return FALLBACK_OG;
 
     // 1. Check direct og_image_url field (used by Admin Panel uploads)
-    if (dua.og_image_url && !dua.og_image_url.includes("yourwebsite.com")) {
+    if (
+      dua.og_image_url &&
+      !dua.og_image_url.includes("yourwebsite.com") &&
+      !isLegacyMissingSlugImage(dua.og_image_url)
+    ) {
       return dua.og_image_url;
     }
 
@@ -285,6 +292,7 @@ const DuaDetailPage = () => {
       if (path) {
         if (path.startsWith("http")) return path;
         const cleanPath = path.replace(/^\/+/, "");
+        if (cleanPath.startsWith("assets/")) return `${SITE_ORIGIN}/${cleanPath}`;
         return `${storageBase}${cleanPath}`;
       }
     }
