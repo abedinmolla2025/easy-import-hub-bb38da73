@@ -3,6 +3,7 @@ import { ArrowLeft, Search, Sparkles, Crown, Volume2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
 
 interface NameOfAllah {
   id: number;
