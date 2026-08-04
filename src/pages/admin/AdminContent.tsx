@@ -2467,13 +2467,27 @@ export default function AdminContent() {
                           (isSelected ? 'ring-2 ring-ring/40' : '')
                         }
                       >
-                        <div className="pt-1">
+                        <div className="flex items-start gap-3 pt-1">
                           <Checkbox
                             checked={isChecked}
                             onCheckedChange={(v) => toggleBulkSelected(item.id, Boolean(v))}
                             onClick={(e) => e.stopPropagation()}
                             aria-label="Select row"
                           />
+                          {(item.content_type === 'dua' || item.content_type === 'story') && (
+                            <div className="shrink-0">
+                              <DuaOgThumbnail
+                                url={item.og_image_url || item.og_image_data?.og_image || item.og_image_data?.og_image_url}
+                                slug={item.slug}
+                                folder={item.content_type === 'story' ? 'story-og' : 'dua-og'}
+                                storageIndex={ogStorageIndex}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOgManagerItem(item);
+                                }}
+                              />
+                            </div>
+                          )}
                         </div>
                         <button
                           type="button"
