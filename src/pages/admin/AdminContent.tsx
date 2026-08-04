@@ -1937,7 +1937,7 @@ export default function AdminContent() {
                         <DuaOgImageControls
                           contentId={selectedContent.id}
                           slug={selectedContent.slug ?? editForm.slug}
-                          url={selectedContent.og_image_url}
+                          url={selectedContent.og_image_url || selectedContent.og_image_data?.og_image || selectedContent.og_image_data?.og_image_url}
                           folder={effectiveType === 'story' ? 'story-og' : 'dua-og'}
                           onChanged={() => {
                             queryClient.invalidateQueries({ queryKey: ['admin-content'] });
@@ -2651,7 +2651,7 @@ export default function AdminContent() {
                             {contentTypeContext === 'dua' || contentTypeContext === 'story' ? (
                               <TableCell className="align-middle">
                                 <DuaOgThumbnail
-                                  url={item.og_image_url}
+                                  url={item.og_image_url || item.og_image_data?.og_image || item.og_image_data?.og_image_url}
                                   slug={item.slug}
                                   folder={ogFolder}
                                   storageIndex={ogStorageIndex}
@@ -2728,7 +2728,7 @@ export default function AdminContent() {
           title={ogManagerItem.title}
           contentId={ogManagerItem.id}
           slug={ogManagerItem.slug}
-          url={ogManagerItem.og_image_url}
+          url={ogManagerItem.og_image_url || ogManagerItem.og_image_data?.og_image || ogManagerItem.og_image_data?.og_image_url}
           folder={ogManagerItem.content_type === 'story' ? 'story-og' : 'dua-og'}
           onChanged={async () => {
             queryClient.invalidateQueries({ queryKey: ['og-storage-index'] });
