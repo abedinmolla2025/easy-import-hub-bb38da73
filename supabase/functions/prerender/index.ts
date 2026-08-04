@@ -363,23 +363,27 @@ Deno.serve(async (req) => {
             description: `${dua.title_bn || dua.title_en} (${dua.reference})। এই দুয়াটি বিস্তারিত পড়ার জন্য নিচের লিঙ্কে ক্লিক করুন।`
           };
           
-          // Resolve OG image from dua data
-          const ogData = dua.og_image_data;
-          if (ogData && (ogData.storage_path || ogData.og_url || ogData.url)) {
-            const storagePath = ogData.storage_path || ogData.og_url || ogData.url;
-            if (storagePath.startsWith("http")) {
-              customOgImage = storagePath;
-            } else {
-              // Standard Supabase storage path resolution
+          // Resolve OG image from dua data - CRITICAL: Use exact path from duas.json
+          const ogImagePath = dua.og_image_data?.og_image || dua.og_image;
+          
+          if (ogImagePath && !ogImagePath.includes("yourwebsite.com")) {
+            if (ogImagePath.startsWith("http")) {
+              // Already a full URL
+              customOgImage = ogImagePath;
+            } else if (ogImagePath.startsWith("/")) {
+              // Relative path like /assets/og-images/batch12_3.webp
+              // Convert to Supabase storage URL
               const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
-              customOgImage = `${storageUrl}/storage/v1/object/public/media/${storagePath.replace(/^\/+/, "")}`;
+              const cleanPath = ogImagePath.replace(/^\/+/, ""); // Remove leading slashes
+              customOgImage = `${storageUrl}/storage/v1/object/public/media/${cleanPath}`;
+            } else {
+              // Just a filename or relative path without leading slash
+              const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
+              customOgImage = `${storageUrl}/storage/v1/object/public/media/${ogImagePath}`;
             }
-          } else if (dua.seo?.og_image && !dua.seo.og_image.includes("yourwebsite.com")) {
-            customOgImage = dua.seo.og_image;
           } else {
-            // Fallback to slug-based hosted image if exists, else generic
-            const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
-            customOgImage = `${storageUrl}/storage/v1/object/public/media/dua-og/${slug}.webp?v=2`;
+            // Fallback to generic dua OG image
+            customOgImage = `${SITE_ORIGIN}/og-dua.png`;
           }
           
           bodyContent = `
@@ -406,13 +410,22 @@ Deno.serve(async (req) => {
               description: `${row.title}${row.reference ? ` (${row.reference})` : ""} — আরবি, উচ্চারণ ও বাংলা অর্থসহ পড়ুন Noor App-এ।`,
             };
             
-            const dbImageUrl = row.image_url || row.og_image_data?.og_image_url;
+            // Try to get OG image from database
+            const dbImageUrl = row.image_url || row.og_image_data?.og_image || row.og_image_data?.og_image_url;
+            
             if (dbImageUrl && !dbImageUrl.includes("yourwebsite.com")) {
-              customOgImage = dbImageUrl;
+              if (dbImageUrl.startsWith("http")) {
+                customOgImage = dbImageUrl;
+              } else if (dbImageUrl.startsWith("/")) {
+                const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
+                const cleanPath = dbImageUrl.replace(/^\/+/, "");
+                customOgImage = `${storageUrl}/storage/v1/object/public/media/${cleanPath}`;
+              } else {
+                const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
+                customOgImage = `${storageUrl}/storage/v1/object/public/media/${dbImageUrl}`;
+              }
             } else {
-              // Try direct storage path
-              const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
-              customOgImage = `${storageUrl}/storage/v1/object/public/media/dua-og/${slug}.webp`;
+              customOgImage = `${SITE_ORIGIN}/og-dua.png`;
             }
 
             bodyContent = `
