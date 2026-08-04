@@ -3,6 +3,7 @@ import { Loader2, ArrowLeft, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 import IslamicEducationalSection from "@/components/seo/IslamicEducationalSection";
 import { qiblaContent } from "@/lib/pageContent/utilityPages";
 
@@ -109,8 +110,22 @@ const QiblaPage = () => {
     return qiblaDirection;
   };
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/qibla`;
+  const pageTitle = "Qibla Finder — কিবলা কম্পাস | NOOR";
+  const pageDescription = "Find the accurate Qibla direction from your location — আপনার অবস্থান থেকে সঠিক কিবলা দিক খুঁজে নিন। Works offline with compass support.";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-800 via-emerald-700 to-teal-900 relative overflow-hidden">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-qibla.png`} />
+      </Helmet>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{

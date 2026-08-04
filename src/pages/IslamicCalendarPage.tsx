@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Star, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -191,8 +192,22 @@ const IslamicCalendarPage = () => {
   const gregorianMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", 
                           "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/calendar`;
+  const pageTitle = "Islamic Calendar — হিজরি ক্যালেন্ডার | NOOR";
+  const pageDescription = "View today's Hijri date and important Islamic events — আজকের হিজরি তারিখ ও গুরুত্বপূর্ণ ইসলামিক দিবসগুলো জানুন। Complete Hijri calendar for Muslims.";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-24">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-calendar.png`} />
+      </Helmet>
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-4">

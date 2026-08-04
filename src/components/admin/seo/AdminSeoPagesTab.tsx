@@ -112,6 +112,20 @@ export default function AdminSeoPagesTab() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-1">
+                <Label>Canonical URL (Optional override)</Label>
+                <Input value={editPage.canonical_url ?? ""} onChange={(e) => setEditPage({ ...editPage, canonical_url: e.target.value })} placeholder="https://noorapp.in/..." />
+                <p className="text-[10px] text-muted-foreground italic">Caution: Stale homepage URLs here cause indexing issues.</p>
+              </div>
+              <div className="space-y-1">
+                <Label>JSON-LD (Optional override)</Label>
+                <textarea 
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={editPage.json_ld ?? ""} 
+                  onChange={(e) => setEditPage({ ...editPage, json_ld: e.target.value })} 
+                  placeholder='{"@context": "https://schema.org", ...}'
+                />
+              </div>
               <Button onClick={handleSave} disabled={upsertMutation.isPending} className="w-full">
                 {upsertMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save

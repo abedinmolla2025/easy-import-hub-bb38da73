@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, MapPin, Bell, Clock, Sun, Moon, Sunrise, Sunset, Volume2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { useAthanNotification } from "@/hooks/useAthanNotification";
 import { motion, AnimatePresence } from "framer-motion";
@@ -135,8 +136,22 @@ const PrayerTimesPage = () => {
   const dayName = today.toLocaleDateString("en-US", { weekday: "long" });
   const dateStr = today.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/prayer-times`;
+  const pageTitle = "Prayer Times — নামাজের সময়সূচী | NOOR";
+  const pageDescription = "Accurate daily Salah times for your location — ফজর, যোহর, আসর, মাগরিব ও এশার সঠিক সময় জানুন। Athan alerts & countdown timer included.";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-700 via-teal-700 to-cyan-800">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-prayer-times.png`} />
+      </Helmet>
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}

@@ -314,8 +314,14 @@ export function SeoHead() {
   const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
   // Canonical consolidation: /names → /baby-names
   const canonicalPath = normalizedPath === "/names" ? "/baby-names" : normalizedPath;
+  // IMPORTANT: We ignore pageSeo?.canonical_url if it points to the homepage while the current route is NOT the homepage.
+  // This prevents the "Crawled - currently not indexed" issue caused by stale DB overrides.
+  const rawDbCanonical = pageSeo?.canonical_url;
+  const isHomepageCanonical = rawDbCanonical === SITE_ORIGIN || rawDbCanonical === `${SITE_ORIGIN}/`;
+  const shouldUseDbCanonical = rawDbCanonical && (!isHomepageCanonical || normalizedPath === "/");
+
   const canonical = sanitizeCanonical(
-    pageSeo?.canonical_url ?? `${SITE_ORIGIN}${canonicalPath}`,
+    shouldUseDbCanonical ? rawDbCanonical : `${SITE_ORIGIN}${canonicalPath}`,
   );
 
   const robots = pageSeo?.robots ?? "index,follow";

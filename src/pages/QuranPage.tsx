@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BookOpen, Search, Loader2, Star, BookMarked, Clock, Sparkles } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuranData, Surah } from "@/hooks/useQuranData";
 import SurahReader from "@/components/SurahReader";
@@ -79,8 +80,24 @@ const QuranPage = () => {
     );
   }
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/quran`;
+  const pageTitle = "Quran Reader — পবিত্র কুরআন | NOOR";
+  const pageDescription = "Read the Holy Quran with Arabic text, Bengali translation & audio recitation — সূরা তিলাওয়াত, তাফসীর ও অডিও সহ সম্পূর্ণ কুরআন পাঠ করুন।";
+
   return (
     <div className="min-h-screen bg-[hsl(158,64%,18%)] text-white">
+      {!selectedSurah && (
+        <Helmet>
+          <title>{pageTitle}</title>
+          <meta name="description" content={pageDescription} />
+          <link rel="canonical" href={canonicalUrl} />
+          <meta property="og:title" content={pageTitle} />
+          <meta property="og:description" content={pageDescription} />
+          <meta property="og:url" content={canonicalUrl} />
+          <meta property="og:image" content={`${SITE_ORIGIN}/og-quran.png`} />
+        </Helmet>
+      )}
       <AnimatePresence mode="wait">
         {selectedSurah ? (
           <motion.div

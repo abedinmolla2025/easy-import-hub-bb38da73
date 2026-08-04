@@ -2,6 +2,7 @@ import { useState, useEffect, Suspense } from "react";
 import { RotateCcw, Volume2, VolumeX, ArrowLeft, Vibrate } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 import TasbihBeads3D from "@/components/TasbihBeads3D";
 import IslamicEducationalSection from "@/components/seo/IslamicEducationalSection";
 import { tasbihContent } from "@/lib/pageContent/utilityPages";
@@ -96,8 +97,22 @@ const TasbihPage = () => {
     setCount(0);
   };
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/tasbih`;
+  const pageTitle = "Digital Tasbih Counter — তসবিহ গণনা | NOOR";
+  const pageDescription = "Use our digital Tasbih counter for your daily Dhikr — প্রতিদিনের জিকির ও তসবিহ গণনার জন্য ডিজিটাল তসবিহ ব্যবহার করুন। Simple, fast and works offline.";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-900">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-tasbih.png`} />
+      </Helmet>
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}

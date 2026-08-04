@@ -20,6 +20,7 @@ export default function IslamicAppPage() {
         />
         <meta property="og:url" content="https://noorapp.in/islamic-app" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://noorapp.in/og-image.png" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",

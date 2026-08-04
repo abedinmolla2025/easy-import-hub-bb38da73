@@ -29,6 +29,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useQueryClient } from "@tanstack/react-query";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 import StoriesHeroSlider from "@/components/stories/StoriesHeroSlider";
+import { Helmet } from "react-helmet-async";
 
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
@@ -303,6 +304,10 @@ const Index = () => {
         .filter((s) => s.el !== undefined)
     : defaultSections.map((s, idx) => ({ key: String(idx), el: s.el, pad: "space-y-4" }));
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const pageTitle = "Noor – Quran, Hadith, Dua & Prayer Times";
+  const pageDescription = "Read authentic Quran, Hadith, Dua, Prayer Times, Qibla, Islamic Stories and Baby Names in Bengali with a fast and beautiful Islamic app.";
+
   return (
     <PullToRefresh
       disabled={!isMobile}
@@ -313,6 +318,15 @@ const Index = () => {
       }}
     >
       <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
+        <Helmet>
+          <title>{pageTitle}</title>
+          <meta name="description" content={pageDescription} />
+          <link rel="canonical" href={`${SITE_ORIGIN}/`} />
+          <meta property="og:title" content={pageTitle} />
+          <meta property="og:description" content={pageDescription} />
+          <meta property="og:url" content={`${SITE_ORIGIN}/`} />
+          <meta property="og:image" content={`${SITE_ORIGIN}/og-image.png`} />
+        </Helmet>
         <NotificationOptInPrompt />
 
 

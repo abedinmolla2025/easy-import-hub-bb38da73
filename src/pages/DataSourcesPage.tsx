@@ -56,6 +56,7 @@ const DataSourcesPage = () => {
           content="Learn where Noor's Islamic content comes from — Qur'an, Sahih Bukhari, Sahih Muslim, Tafsir Ibn Kathir and classical scholars."
         />
         <meta property="og:url" content="https://noorapp.in/sources" />
+        <meta property="og:image" content="https://noorapp.in/og-image.png" />
         <script type="application/ld+json">{JSON.stringify(faqLd)}</script>
       </Helmet>
 

@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdSlot } from "@/components/ads/AdSlot";
+import BottomNavigation from "@/components/BottomNavigation";
 
 interface HadithRow {
   id: string;
@@ -209,6 +210,9 @@ const HadithDetailPage = () => {
           <meta name="twitter:title" content={seo.title} />
           <meta name="twitter:description" content={seo.description} />
           <meta name="twitter:image" content={FALLBACK_OG} />
+          <link rel="alternate" hrefLang="bn" href={seo.url} />
+          <link rel="alternate" hrefLang="en" href={seo.url} />
+          <link rel="alternate" hrefLang="x-default" href={seo.url} />
           {jsonLd && (
             <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
           )}
@@ -498,6 +502,7 @@ const HadithDetailPage = () => {
           </Link>
         </div>
       </article>
+      <BottomNavigation />
     </div>
   );
 };

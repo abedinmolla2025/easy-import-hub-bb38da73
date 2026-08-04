@@ -501,6 +501,10 @@ const QuizPage = () => {
         <title>Daily Islamic Quiz — ইসলামিক কুইজ | NOOR</title>
         <meta name="description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।" />
         <link rel="canonical" href="https://noorapp.in/quiz" />
+        <meta property="og:title" content="Daily Islamic Quiz — ইসলামিক কুইজ | NOOR" />
+        <meta property="og:description" content="Test & improve your Islamic knowledge daily — প্রতিদিন ৫টি কুইজে অংশ নিন, স্কোর অর্জন করুন, streak বজায় রাখুন ও নতুন কিছু শিখুন।" />
+        <meta property="og:url" content="https://noorapp.in/quiz" />
+        <meta property="og:image" content="https://noorapp.in/og-quiz.png" />
       </Helmet>
       {/* Badge Celebration */}
       {celebratingBadge && (

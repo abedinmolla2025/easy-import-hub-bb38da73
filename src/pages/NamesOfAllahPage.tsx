@@ -177,8 +177,22 @@ const NamesOfAllahPage = () => {
       (name.bengaliMeaning && name.bengaliMeaning.includes(searchQuery))
   );
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/99-names`;
+  const pageTitle = "99 Names of Allah — আল্লাহর ৯৯টি নাম | NOOR";
+  const pageDescription = "Learn the 99 beautiful names of Allah (Asma ul Husna) with meanings and benefits — আল্লাহর ৯৯টি গুণবাচক নাম, অর্থ ও ফজিলত জানুন। Audio pronunciation included.";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 relative overflow-hidden">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-99-names.png`} />
+      </Helmet>
       {/* Premium Royal Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Gold radial gradient */}

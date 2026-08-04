@@ -66,6 +66,10 @@ export default function HadithPage() {
         <meta name="description" content="Browse authentic Hadith collections including Sahih Bukhari, Sahih Muslim, Jami at-Tirmidhi & Sunan Abu Dawud with Arabic text and translations." />
         <link rel="canonical" href="https://noorapp.in/hadith" />
         <meta name="robots" content="index,follow" />
+        <meta property="og:title" content="Authentic Hadith Collections – Noor App" />
+        <meta property="og:description" content="Browse authentic Hadith collections including Sahih Bukhari, Sahih Muslim, Jami at-Tirmidhi & Sunan Abu Dawud with Arabic text and translations." />
+        <meta property="og:url" content="https://noorapp.in/hadith" />
+        <meta property="og:image" content="https://noorapp.in/og-hadith.png" />
       </Helmet>
 
       {/* Hero section */}

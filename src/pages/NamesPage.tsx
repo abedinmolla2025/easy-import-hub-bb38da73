@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { ComponentProps } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import { supabase } from "@/integrations/supabase/client";
 import { NameCard, type NameCardModel } from "@/components/names/NameCard";
@@ -302,8 +303,22 @@ const NamesPage = () => {
     setSelected(null);
   };
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/baby-names`;
+  const pageTitle = "Muslim Baby Names with Meaning – Islamic Boys & Girls Names (1000+) | Noor App";
+  const pageDescription = "Find beautiful Muslim baby names for boys and girls with Arabic spelling and meanings. Browse thousands of Islamic names in Bangla and English on Noor App. ইসলামিক ছেলে ও মেয়েদের সুন্দর নাম অর্থসহ দেখুন।";
+
   return (
     <div className="min-h-screen dua-page pb-20">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-baby-names.png`} />
+      </Helmet>
       <header className="sticky top-0 z-40 border-b dua-header">
         <div className="mx-auto w-full max-w-none px-3 py-3 md:px-6 xl:px-10">
           <NamesPageHeader

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Volume2, BookOpen, Heart, Footprints, HandHeart, Sparkles, ChevronRight, ArrowLeft } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Helmet } from "react-helmet-async";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -822,8 +823,24 @@ export default function PrayerGuidePage() {
     );
   }, [searchQuery]);
 
+  const SITE_ORIGIN = "https://noorapp.in";
+  const canonicalUrl = `${SITE_ORIGIN}/prayer-guide`;
+  const pageTitle = isBengali ? "নামাজ শিক্ষা — ধাপে ধাপে নামাজ শিখুন | Noor" : "Prayer Guide — Learn How to Pray Step by Step | Noor";
+  const pageDescription = isBengali 
+    ? "ওযু, নামাজের নিয়ম, সূরা, দোয়া ও তাশাহহুদ সহ সম্পূর্ণ নামাজ শিক্ষা গাইড। ধাপে ধাপে নামাজ শিখুন।" 
+    : "Step-by-step Salah tutorial with illustrations covering Wudu, prayer steps, Surahs, and Duas.";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0a1f1c] via-[#0f2922] to-[#071510] pb-24">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-prayer-guide.png`} />
+      </Helmet>
       {/* Header */}
       <div className="sticky top-0 z-20 bg-gradient-to-b from-[#0a1f1c] to-transparent backdrop-blur-md pt-safe-top">
         <div className="px-4 py-4">

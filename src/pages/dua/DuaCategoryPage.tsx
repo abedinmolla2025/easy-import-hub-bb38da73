@@ -196,6 +196,16 @@ const DuaCategoryPage = () => {
         <meta property="og:title" content={seo.title} />
         <meta property="og:description" content={seo.description} />
         <meta property="og:url" content={seo.url} />
+        <meta property="og:image" content={`${SITE_ORIGIN}/og-dua.png`} />
+        <meta property="og:image:secure_url" content={`${SITE_ORIGIN}/og-dua.png`} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={seo.title} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
+        <meta name="twitter:image" content={`${SITE_ORIGIN}/og-dua.png`} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
