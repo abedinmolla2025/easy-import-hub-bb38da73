@@ -141,11 +141,16 @@ function getChapterSeo(lang: string, chapterNum: string) {
 }
 
 function getOgImage(path: string, customImage?: string): string {
-  if (customImage) return customImage;
+  // If we have a valid custom image from DB (absolute URL), use it
+  if (customImage && customImage.startsWith("http") && !customImage.includes("yourwebsite.com")) {
+    return customImage;
+  }
+  
+  // Fallbacks for specific routes
   if (path.startsWith("/hadith")) return `${SITE_ORIGIN}/og-bukhari.png`;
   if (path.startsWith("/quran")) return `${SITE_ORIGIN}/og-quran.png`;
   if (path.startsWith("/prayer-times")) return `${SITE_ORIGIN}/og-prayer-times.png`;
-  if (path.startsWith("/dua/")) return `${SITE_ORIGIN}/og-dua.png`; // Fallback for specific dua
+  if (path.startsWith("/dua/")) return `${SITE_ORIGIN}/og-dua.png`; 
   if (path === "/dua") return `${SITE_ORIGIN}/og-dua.png`;
   if (path.startsWith("/quiz")) return `${SITE_ORIGIN}/og-quiz.png`;
   if (path.startsWith("/tasbih")) return `${SITE_ORIGIN}/og-tasbih.png`;
@@ -154,6 +159,7 @@ function getOgImage(path: string, customImage?: string): string {
   if (path.startsWith("/baby-names") || path.startsWith("/names")) return `${SITE_ORIGIN}/og-baby-names.png`;
   if (path.startsWith("/calendar")) return `${SITE_ORIGIN}/og-calendar.png`;
   if (path.startsWith("/prayer-guide")) return `${SITE_ORIGIN}/og-prayer-guide.png`;
+  
   return `${SITE_ORIGIN}/og-image.png`;
 }
 
@@ -261,7 +267,7 @@ function buildFullHtml(
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta property="og:image" content="${ogImage}" />
     <meta property="og:image:secure_url" content="${ogImage}" />
-    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:type" content="${ogImage.includes('.webp') ? 'image/webp' : 'image/png'}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="${escapeHtml(title)}" />
@@ -356,8 +362,9 @@ Deno.serve(async (req) => {
             title: dua.title_bn || dua.title_en,
             description: `${dua.title_bn || dua.title_en} (${dua.reference})। এই দুয়াটি বিস্তারিত পড়ার জন্য নিচের লিঙ্কে ক্লিক করুন।`
           };
-          // The images are hosted at /assets/og-images/
-          customOgImage = `${SITE_ORIGIN}/assets/og-images/${dua.slug}.webp`;
+          
+          // Prioritize hosted Supabase images
+          customOgImage = `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/media/dua-og/${slug}.webp?v=2`;
           
           bodyContent = `
             <section>
@@ -383,10 +390,9 @@ Deno.serve(async (req) => {
               description: `${row.title}${row.reference ? ` (${row.reference})` : ""} — আরবি, উচ্চারণ ও বাংলা অর্থসহ পড়ুন Noor App-এ।`,
             };
             
-            if (row.image_url) {
-              customOgImage = row.image_url;
-            } else if (row.og_image_data?.og_image_url) {
-              customOgImage = row.og_image_data.og_image_url;
+            const dbImageUrl = row.image_url || row.og_image_data?.og_image_url;
+            if (dbImageUrl && !dbImageUrl.includes("yourwebsite.com")) {
+              customOgImage = dbImageUrl;
             } else {
               // Try direct storage path
               customOgImage = `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/media/dua-og/${slug}.webp`;
@@ -404,16 +410,8 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Only advertise a per-dua OG image when the file actually exists,
-        // otherwise Facebook/WhatsApp get a 404 and show no preview at all.
-        // NOTE: missing files fall through to the SPA catch-all and still return 200 HTML,
-        // so the content-type must be checked, not just the status.
-        const candidate = `${SITE_ORIGIN}/assets/og-images/${slug}.webp`;
-        try {
-          const head = await fetch(candidate, { method: "HEAD" });
-          const isImage = head.ok && (head.headers.get("content-type") || "").startsWith("image/");
-          customOgImage = isImage ? candidate : `${SITE_ORIGIN}/og-dua.png`; // Fallback to generic dua OG
-        } catch {
+        // customOgImage is already set above from DB or storage path
+        if (!customOgImage || customOgImage.includes("yourwebsite.com")) {
           customOgImage = `${SITE_ORIGIN}/og-dua.png`;
         }
       } catch (err) {
@@ -715,6 +713,7 @@ Deno.serve(async (req) => {
       seo = SEO_DEFAULTS["/"];
     }
     const ogImage = getOgImage(path, customOgImage);
+    console.log(`Prerender path: ${path}, customOgImage: ${customOgImage}, final ogImage: ${ogImage}`);
     const html = buildFullHtml(path, seo.title, seo.description, ogImage, bodyContent, jsonLd);
 
     return new Response(html, {
