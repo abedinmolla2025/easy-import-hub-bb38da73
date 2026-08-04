@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SITE_ORIGIN = "https://noorapp.in";
 
@@ -161,6 +161,26 @@ function getOgImage(path: string, customImage?: string): string {
   if (path.startsWith("/prayer-guide")) return `${SITE_ORIGIN}/og-prayer-guide.png`;
   
   return `${SITE_ORIGIN}/og-image.png`;
+}
+
+function resolvePublicOgUrl(value: unknown, supabaseUrl: string): string {
+  if (typeof value !== "string") return "";
+  const raw = value.trim();
+  if (!raw || raw.includes("yourwebsite.com")) return "";
+  if (/^https:\/\//i.test(raw)) return raw;
+
+  const clean = raw.replace(/^\/+/, "");
+  // Paths under public are site assets, not Storage object keys.
+  if (clean.startsWith("assets/") || clean.startsWith("og-")) {
+    return `${SITE_ORIGIN}/${clean}`;
+  }
+  const storagePath = clean.startsWith("media/") ? clean.slice("media/".length) : clean;
+  return `${supabaseUrl}/storage/v1/object/public/media/${storagePath}`;
+}
+
+function isLegacyMissingSlugImage(value: unknown): boolean {
+  return typeof value === "string" &&
+    /^https:\/\/noorapp\.in\/assets\/og-images\/[^/?]+\.png(?:\?|$)/i.test(value.trim());
 }
 
 // Build hreflang alternate links for hadith pages
@@ -352,6 +372,15 @@ Deno.serve(async (req) => {
     if (duaMatch) {
       const slug = duaMatch[1];
       try {
+        // The database is authoritative because admin uploads and replacements
+        // update og_image_url without changing the bundled JSON dataset.
+        const { data: dbDua } = await supabase
+          .from("admin_content")
+          .select("title, content, content_arabic, content_pronunciation, reference, og_image_url, image_url, og_image_data, seo")
+          .ilike("content_type", "dua")
+          .eq("slug", slug)
+          .maybeSingle();
+
         // Fetch the Duas JSON
         const response = await fetch(`${SITE_ORIGIN}/data/duas.json`);
         const duas = await response.json();
@@ -364,23 +393,11 @@ Deno.serve(async (req) => {
           };
           
           // Resolve OG image from dua data - CRITICAL: Use exact path from duas.json
-          const ogImagePath = dua.og_image_data?.og_image || dua.og_image;
+          const databaseOgImage = isLegacyMissingSlugImage(dbDua?.og_image_url) ? "" : dbDua?.og_image_url;
+          const ogImagePath = databaseOgImage || dbDua?.og_image_data?.og_image || dbDua?.image_url || dua.og_image_data?.og_image || dua.og_image;
           
           if (ogImagePath && !ogImagePath.includes("yourwebsite.com")) {
-            if (ogImagePath.startsWith("http")) {
-              // Already a full URL
-              customOgImage = ogImagePath;
-            } else if (ogImagePath.startsWith("/")) {
-              // Relative path like /assets/og-images/batch12_3.webp
-              // Convert to Supabase storage URL
-              const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
-              const cleanPath = ogImagePath.replace(/^\/+/, ""); // Remove leading slashes
-              customOgImage = `${storageUrl}/storage/v1/object/public/media/${cleanPath}`;
-            } else {
-              // Just a filename or relative path without leading slash
-              const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
-              customOgImage = `${storageUrl}/storage/v1/object/public/media/${ogImagePath}`;
-            }
+            customOgImage = resolvePublicOgUrl(ogImagePath, supabaseUrl);
           } else {
             // Fallback to generic dua OG image
             customOgImage = `${SITE_ORIGIN}/og-dua.png`;
@@ -399,8 +416,8 @@ Deno.serve(async (req) => {
           // Legacy duas that are only in the database (no entry in duas.json)
           const { data: row } = await supabase
             .from("admin_content")
-            .select("title, content, content_arabic, content_pronunciation, reference, image_url, og_image_data")
-            .eq("content_type", "dua")
+            .select("title, content, content_arabic, content_pronunciation, reference, og_image_url, image_url, og_image_data")
+            .ilike("content_type", "dua")
             .eq("slug", slug)
             .maybeSingle();
 
@@ -411,19 +428,10 @@ Deno.serve(async (req) => {
             };
             
             // Try to get OG image from database
-            const dbImageUrl = row.image_url || row.og_image_data?.og_image || row.og_image_data?.og_image_url;
+            const dbImageUrl = row.og_image_url || row.image_url || row.og_image_data?.og_image || row.og_image_data?.og_image_url;
             
             if (dbImageUrl && !dbImageUrl.includes("yourwebsite.com")) {
-              if (dbImageUrl.startsWith("http")) {
-                customOgImage = dbImageUrl;
-              } else if (dbImageUrl.startsWith("/")) {
-                const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
-                const cleanPath = dbImageUrl.replace(/^\/+/, "");
-                customOgImage = `${storageUrl}/storage/v1/object/public/media/${cleanPath}`;
-              } else {
-                const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
-                customOgImage = `${storageUrl}/storage/v1/object/public/media/${dbImageUrl}`;
-              }
+              customOgImage = resolvePublicOgUrl(dbImageUrl, supabaseUrl);
             } else {
               customOgImage = `${SITE_ORIGIN}/og-dua.png`;
             }

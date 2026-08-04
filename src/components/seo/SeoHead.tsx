@@ -358,14 +358,14 @@ export function SeoHead() {
   } else if (normalizedPath.startsWith("/dua/")) {
     // For specific dua pages, try to use the dynamic OG image from DB
     const slug = normalizedPath.split("/").pop();
-    const dbOgUrl = pageSeo?.og_image_url || pageSeo?.og_image;
+    const dbOgUrl = pageSeo?.og_image_url;
     
     if (dbOgUrl && !dbOgUrl.includes("yourwebsite.com")) {
       ogImage = dbOgUrl;
     } else {
-      // Fallback to slug-based storage path
-      const storageUrl = branding.logoUrl?.split("/storage/v1")[0] || "https://llicfiepatzgllmjhzbw.supabase.co";
-      ogImage = `${storageUrl}/storage/v1/object/public/media/dua-og/${slug}.webp`;
+      // Never advertise an unverified deterministic storage path. Detail pages
+      // replace this with their database-backed URL after loading.
+      ogImage = `${SITE_ORIGIN}/og-dua.png`;
     }
   } else {
     ogImage = `${SITE_ORIGIN}/og-image.png`;

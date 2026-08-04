@@ -88,7 +88,7 @@ export default function StoryDetailPage() {
   const next = nextStory(stories, story);
   const quranRefs = parseQuranReferences(story.reference);
   const morals = parseMorals(story.moral_en);
-  const ogImagePath = STORY_OG_IMAGES[story.slug] || story.seo.open_graph?.image || ogStoriesDefault;
+  const ogImagePath = story.og_image_url || STORY_OG_IMAGES[story.slug] || ogStoriesDefault;
   const ogImageBase = absoluteUrl(ogImagePath);
   const ogImage = story.updated_at ? cacheBustUrl(ogImageBase, story.updated_at) : ogImageBase;
   const shareTitle = story.seo.open_graph?.title || story.seo.title;
@@ -174,7 +174,7 @@ export default function StoryDetailPage() {
         <meta property="og:url" content={url} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:secure_url" content={ogImage} />
-        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:type" content={/\.png(?:\?|$)/i.test(ogImage) ? "image/png" : /\.webp(?:\?|$)/i.test(ogImage) ? "image/webp" : "image/jpeg"} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={story.title_en} />

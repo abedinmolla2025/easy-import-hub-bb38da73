@@ -50,7 +50,7 @@
   "rewrites": [
     {
       "source": "/sitemap-dynamic.xml",
-      "destination": "https://llicfiepatzgllmjhzbw.supabase.co/functions/v1/sitemap"
+      "destination": "https://oveuimwssgsadagddtef.supabase.co/functions/v1/sitemap"
     },
     {
       "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap\\.xml|sw\\.js|data/).*)",
@@ -61,7 +61,7 @@
           "value": ".*(Googlebot|bingbot|Baiduspider|yandex|facebookexternalhit|Twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|Applebot|AhrefsBot|SemrushBot|DotBot|MJ12bot|PetalBot|Discordbot|TelegramBot).*"
         }
       ],
-      "destination": "https://llicfiepatzgllmjhzbw.supabase.co/functions/v1/prerender?path=/$1"
+      "destination": "https://oveuimwssgsadagddtef.supabase.co/functions/v1/prerender?path=/$1"
     },
     {
       "source": "/",
@@ -72,7 +72,7 @@
           "value": ".*(Googlebot|Mediapartners-Google|AdsBot-Google|bingbot|Baiduspider|yandex|facebookexternalhit|Twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|Applebot|AhrefsBot|SemrushBot|DotBot|MJ12bot|PetalBot|Discordbot|TelegramBot).*"
         }
       ],
-      "destination": "https://llicfiepatzgllmjhzbw.supabase.co/functions/v1/prerender?path=/"
+      "destination": "https://oveuimwssgsadagddtef.supabase.co/functions/v1/prerender?path=/"
     },
     { "source": "/(.*)", "destination": "/" }
   ]

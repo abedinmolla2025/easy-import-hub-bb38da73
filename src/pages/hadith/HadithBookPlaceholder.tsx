@@ -336,7 +336,7 @@ export default function HadithBookPlaceholder() {
             <meta property="og:description" content={meta.metaDescription} />
           )}
           <meta property="og:url" content={`https://noorapp.in/hadith/${bookId}`} />
-          <meta property="og:image" content="https://noorapp.in/og-hadith.png" />
+          <meta property="og:image" content="https://noorapp.in/og-bukhari.png" />
           <link rel="canonical" href={`https://noorapp.in/hadith/${bookId}`} />
           <link rel="alternate" hrefLang="bn" href={`https://noorapp.in/hadith/${bookId}`} />
           <link rel="alternate" hrefLang="en" href={`https://noorapp.in/hadith/${bookId}`} />
