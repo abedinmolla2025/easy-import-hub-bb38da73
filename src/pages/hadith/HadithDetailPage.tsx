@@ -33,7 +33,7 @@ interface HadithRow {
 }
 
 const SITE_ORIGIN = "https://noorapp.in";
-const FALLBACK_OG = `${SITE_ORIGIN}/og-hadith.png`;
+const FALLBACK_OG = `${SITE_ORIGIN}/og-bukhari.png`;
 
 const BOOK_LABEL_BN: Record<string, string> = {
   bukhari: "সহীহ বুখারী",
