@@ -363,8 +363,24 @@ Deno.serve(async (req) => {
             description: `${dua.title_bn || dua.title_en} (${dua.reference})। এই দুয়াটি বিস্তারিত পড়ার জন্য নিচের লিঙ্কে ক্লিক করুন।`
           };
           
-          // Prioritize hosted Supabase images
-          customOgImage = `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/media/dua-og/${slug}.webp?v=2`;
+          // Resolve OG image from dua data
+          const ogData = dua.og_image_data;
+          if (ogData && (ogData.storage_path || ogData.og_url || ogData.url)) {
+            const storagePath = ogData.storage_path || ogData.og_url || ogData.url;
+            if (storagePath.startsWith("http")) {
+              customOgImage = storagePath;
+            } else {
+              // Standard Supabase storage path resolution
+              const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
+              customOgImage = `${storageUrl}/storage/v1/object/public/media/${storagePath.replace(/^\/+/, "")}`;
+            }
+          } else if (dua.seo?.og_image && !dua.seo.og_image.includes("yourwebsite.com")) {
+            customOgImage = dua.seo.og_image;
+          } else {
+            // Fallback to slug-based hosted image if exists, else generic
+            const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
+            customOgImage = `${storageUrl}/storage/v1/object/public/media/dua-og/${slug}.webp?v=2`;
+          }
           
           bodyContent = `
             <section>
@@ -395,7 +411,8 @@ Deno.serve(async (req) => {
               customOgImage = dbImageUrl;
             } else {
               // Try direct storage path
-              customOgImage = `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/media/dua-og/${slug}.webp`;
+              const storageUrl = Deno.env.get("SUPABASE_URL") || "https://llicfiepatzgllmjhzbw.supabase.co";
+              customOgImage = `${storageUrl}/storage/v1/object/public/media/dua-og/${slug}.webp`;
             }
 
             bodyContent = `

@@ -348,9 +348,28 @@ export function SeoHead() {
     "/prayer-guide": "/og-prayer-guide.png",
   };
   // For hadith chapter pages, use bukhari OG image
-  const ogImagePath = OG_IMAGES[normalizedPath] || OG_IMAGES[pathname]
-    || (normalizedPath.startsWith("/hadith/sahih-bukhari") ? "/og-bukhari.png" : "/og-image.png");
-  const ogImage = `${SITE_ORIGIN}${ogImagePath}`;
+  let ogImage = `${SITE_ORIGIN}/og-image.png`;
+  const ogImagePath = OG_IMAGES[normalizedPath] || OG_IMAGES[pathname];
+  
+  if (ogImagePath) {
+    ogImage = `${SITE_ORIGIN}${ogImagePath}`;
+  } else if (normalizedPath.startsWith("/hadith/sahih-bukhari")) {
+    ogImage = `${SITE_ORIGIN}/og-bukhari.png`;
+  } else if (normalizedPath.startsWith("/dua/")) {
+    // For specific dua pages, try to use the dynamic OG image from DB
+    const slug = normalizedPath.split("/").pop();
+    const dbOgUrl = pageSeo?.og_image_url || pageSeo?.og_image;
+    
+    if (dbOgUrl && !dbOgUrl.includes("yourwebsite.com")) {
+      ogImage = dbOgUrl;
+    } else {
+      // Fallback to slug-based storage path
+      const storageUrl = branding.logoUrl?.split("/storage/v1")[0] || "https://llicfiepatzgllmjhzbw.supabase.co";
+      ogImage = `${storageUrl}/storage/v1/object/public/media/dua-og/${slug}.webp`;
+    }
+  } else {
+    ogImage = `${SITE_ORIGIN}/og-image.png`;
+  }
 
   // Use page-specific JSON-LD if set, otherwise inject Organization+WebSite on homepage
   const isHomepage = pathname === "/";
