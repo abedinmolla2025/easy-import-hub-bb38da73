@@ -394,7 +394,8 @@ Deno.serve(async (req) => {
           
           // Resolve OG image from dua data - CRITICAL: Use exact path from duas.json
           const databaseOgImage = isLegacyMissingSlugImage(dbDua?.og_image_url) ? "" : dbDua?.og_image_url;
-          const ogImagePath = databaseOgImage || dbDua?.og_image_data?.og_image || dbDua?.image_url || dua.og_image_data?.og_image || dua.og_image;
+          const seoOgImage = dbDua?.seo?.og_image || dbDua?.seo?.og_image_url;
+          const ogImagePath = databaseOgImage || seoOgImage || dbDua?.og_image_data?.og_image || dbDua?.image_url || dua.og_image_data?.og_image || dua.og_image;
           
           if (ogImagePath && !ogImagePath.includes("yourwebsite.com")) {
             customOgImage = resolvePublicOgUrl(ogImagePath, supabaseUrl);
@@ -416,7 +417,7 @@ Deno.serve(async (req) => {
           // Legacy duas that are only in the database (no entry in duas.json)
           const { data: row } = await supabase
             .from("admin_content")
-            .select("title, content, content_arabic, content_pronunciation, reference, og_image_url, image_url, og_image_data")
+            .select("title, content, content_arabic, content_pronunciation, reference, og_image_url, image_url, og_image_data, seo")
             .ilike("content_type", "dua")
             .eq("slug", slug)
             .maybeSingle();
@@ -428,7 +429,7 @@ Deno.serve(async (req) => {
             };
             
             // Try to get OG image from database
-            const dbImageUrl = row.image_url || row.og_image_data?.og_image;
+            const dbImageUrl = row.image_url || row?.seo?.og_image || row?.seo?.og_image_url || row.og_image_data?.og_image;
             
             if (dbImageUrl && !dbImageUrl.includes("yourwebsite.com")) {
               customOgImage = resolvePublicOgUrl(dbImageUrl, supabaseUrl);

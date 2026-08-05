@@ -4,6 +4,8 @@ import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import { isAdminRoutePath } from "@/lib/ads";
 import { usePageSeo } from "@/hooks/usePageSeo";
 import { getPageSeoDefaults } from "@/lib/seoDefaults";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const BRAND_SUFFIX = " | Noor";
 const TITLE_MAX = 60;
@@ -356,15 +358,14 @@ export function SeoHead() {
   } else if (normalizedPath.startsWith("/hadith/sahih-bukhari")) {
     ogImage = `${SITE_ORIGIN}/og-bukhari.png`;
   } else if (normalizedPath.startsWith("/dua/")) {
-    // For specific dua pages, try to use the dynamic OG image from DB
+    // For specific dua pages, use DB-backed OG image
     const slug = normalizedPath.split("/").pop();
     const dbOgUrl = pageSeo?.og_image_url;
     
     if (dbOgUrl && !dbOgUrl.includes("yourwebsite.com")) {
       ogImage = dbOgUrl;
     } else {
-      // Never advertise an unverified deterministic storage path. Detail pages
-      // replace this with their database-backed URL after loading.
+      // Fallback to generic dua OG image
       ogImage = `${SITE_ORIGIN}/og-dua.png`;
     }
   } else {
