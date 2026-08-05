@@ -400,12 +400,21 @@ export default function AdminContent() {
   const canApprove = !!user && (isAdmin || isSuperAdmin);
 
   const { data: content, isLoading } = useQuery<AdminContentRow[]>({
-    queryKey: ['admin-content'],
+    queryKey: ['admin-content', contentTypeContext],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('admin_content')
         .select('*')
         .order('created_at', { ascending: false });
+      
+      if (contentTypeContext) {
+        query = query.eq('content_type', contentTypeContext);
+      } else {
+        // If no type selected, limit to 1000 to avoid performance issues
+        query = query.limit(1000);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return data as AdminContentRow[];
