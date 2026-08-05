@@ -42,7 +42,7 @@ interface DuaRow {
   when_to_recite_ur: string | null;
   source_type: string | null;
   reference: string | null;
-  og_image_url: string | null;
+  image_url: string | null;
   og_image_data: any | null;
   seo: any | null;
 }
@@ -214,7 +214,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, og_image_url, og_image_data, seo"
+          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, image_url, og_image_data, seo"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -287,7 +287,7 @@ const DuaDetailPage = () => {
     const ogData = (dua as any).og_image_data;
     if (ogData && typeof ogData === "object") {
       const storageBase = import.meta.env.VITE_SUPABASE_URL + "/storage/v1/object/public/media/";
-      // Check og_image_url first (already a full URL in DB)
+      // Check og_image_url in og_image_data (full URL stored in JSON)
       if (ogData.og_image_url) return ogData.og_image_url;
       const path = ogData.og_image || ogData.storage_path || ogData.og_url || ogData.url;
       
