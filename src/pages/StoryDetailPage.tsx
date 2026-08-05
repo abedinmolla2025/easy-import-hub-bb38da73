@@ -59,7 +59,7 @@ export default function StoryDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { stories, loading } = useStories();
   const navigate = useNavigate();
-  const [lang, setLang] = useState<"en" | "bn">("en");
+  const [lang, setLang] = useState<"en" | "bn">("bn");
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
