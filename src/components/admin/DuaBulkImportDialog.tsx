@@ -598,7 +598,7 @@ export function DuaBulkImportDialog({
               <DialogTitle className="text-xl">Bulk Import/Export Duas</DialogTitle>
               <DialogDescription>JSON ফরম্যাটে দোয়া ইমপোর্ট বা এক্সপোর্ট করুন</DialogDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 type="file"
                 ref={imageZipInputRef}
@@ -614,7 +614,7 @@ export function DuaBulkImportDialog({
                 className="gap-2"
               >
                 <FileArchive className="h-4 w-4" />
-                {isImportingImages ? `Importing (${imageImportProgress?.current}/${imageImportProgress?.total})` : "Import OG Images (ZIP)"}
+                {isImportingImages ? `Importing...` : "Import OG Images (ZIP)"}
               </Button>
               <Button
                 variant="outline"
