@@ -1389,9 +1389,7 @@ export default function AdminContent() {
                 <Upload className="mr-2 h-4 w-4" />
                 Bulk Import/Export Duas
               </Button>
-            ) : null}
-
-            {contentTypeContext === 'story' ? (
+            ) : contentTypeContext === 'story' ? (
               <Button
                 type="button"
                 size="sm"
