@@ -599,16 +599,13 @@ export function DuaBulkImportDialog({
               <DialogDescription>JSON ফরম্যাটে দোয়া ইমপোর্ট বা এক্সপোর্ট করুন</DialogDescription>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportOgImages}
-                disabled={isExportingImages}
-                className="gap-2"
-              >
-                <ImageIcon className="h-4 w-4" />
-                {isExportingImages ? "Exporting..." : "Export OG Images (ZIP)"}
-              </Button>
+              <input
+                type="file"
+                ref={imageZipInputRef}
+                className="hidden"
+                accept=".zip"
+                onChange={(e) => handleImportOgImages(e.target.files?.[0] || null)}
+              />
               <Button
                 variant="outline"
                 size="sm"
@@ -619,13 +616,16 @@ export function DuaBulkImportDialog({
                 <FileArchive className="h-4 w-4" />
                 {isImportingImages ? `Importing (${imageImportProgress?.current}/${imageImportProgress?.total})` : "Import OG Images (ZIP)"}
               </Button>
-              <input
-                type="file"
-                ref={imageZipInputRef}
-                className="hidden"
-                accept=".zip"
-                onChange={(e) => handleImportOgImages(e.target.files?.[0] || null)}
-              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportOgImages}
+                disabled={isExportingImages}
+                className="gap-2"
+              >
+                <ImageIcon className="h-4 w-4" />
+                {isExportingImages ? "Exporting..." : "Export OG Images (ZIP)"}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
