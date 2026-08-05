@@ -386,10 +386,11 @@ Deno.serve(async (req) => {
         const duas = await response.json();
         const dua = duas.find((d: any) => d.slug === slug);
         
-        if (dua) {
+          if (dua) {
+          const mainCaption = dua.social?.facebook || `${dua.title_bn || dua.title_en}${dua.reference ? ` (${dua.reference})` : ""}। এই দুয়াটি বিস্তারিত পড়ার জন্য নিচের লিঙ্কে ক্লিক করুন।`;
           seo = {
             title: dua.title_bn || dua.title_en,
-            description: `${dua.title_bn || dua.title_en} (${dua.reference})। এই দুয়াটি বিস্তারিত পড়ার জন্য নিচের লিঙ্কে ক্লিক করুন।`
+            description: mainCaption
           };
           
           // Resolve OG image from dua data - CRITICAL: Use exact path from duas.json
