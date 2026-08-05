@@ -107,7 +107,7 @@ function rowToStory(row: any, index: number): Story {
     author: row.author ?? meta.author ?? undefined,
     reading_time_minutes: row.reading_time_minutes ?? meta.reading_time_minutes ?? undefined,
     is_featured: row.is_featured ?? meta.is_featured ?? undefined,
-    og_image_url: row.og_image_url ?? undefined,
+    og_image_url: row.image_url ?? row.og_image_url ?? undefined,
     updated_at: row.updated_at ?? undefined,
   };
 }
