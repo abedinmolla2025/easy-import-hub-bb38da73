@@ -12,12 +12,12 @@ import { estimateReadingMinutes, type Story } from '@/lib/stories';
 export type StoryImportResult = { insertedIds: string[]; updatedIds: string[] };
 
 export function storyRowFromJson(story: Story, publish: boolean) {
-  const bn = story.content_bn ?? '';
+  const bn = story.content_bn ?? story.content ?? '';
   const en = story.content_en ?? '';
   return {
     content_type: 'story',
     slug: story.slug,
-    title: story.title_bn || story.title_en || story.slug,
+    title: story.title_bn || story.title || story.title_en || story.slug,
     title_en: story.title_en ?? null,
     title_ur: story.title_ur ?? null,
     content: bn || null,
@@ -26,18 +26,18 @@ export function storyRowFromJson(story: Story, publish: boolean) {
     moral_bn: story.moral_bn ?? null,
     moral_en: story.moral_en ?? null,
     moral_ur: story.moral_ur ?? null,
-    category: story.category ?? null,
+    category: story.category || 'General',
     source_name: story.source_name ?? null,
     source_detail: story.source_detail ?? null,
     reference: story.reference ?? null,
-    reading_time_minutes: estimateReadingMinutes(bn || en),
+    reading_time_minutes: story.reading_time_minutes || estimateReadingMinutes(bn || en),
     seo: (story.seo ?? null) as any,
     navigation: (story.navigation ?? null) as any,
     engagement: (story.engagement ?? null) as any,
     growth: (story.growth ?? null) as any,
     related_stories:
-      (story.navigation?.related_stories ?? story.growth?.related ?? []).map((r) => r.slug) || null,
-    tags: Array.isArray(story.seo?.keywords) ? (story.seo?.keywords as string[]) : null,
+      (story.navigation?.related_stories ?? story.growth?.related ?? []).map((r: any) => r.slug || r) || null,
+    tags: Array.isArray(story.seo?.keywords) ? (story.seo?.keywords as string[]) : (story.tags || null),
     status: publish ? 'published' : 'draft',
     is_published: publish,
     ...(publish ? { published_at: new Date().toISOString() } : {}),
