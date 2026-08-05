@@ -287,6 +287,8 @@ const DuaDetailPage = () => {
     const ogData = (dua as any).og_image_data;
     if (ogData && typeof ogData === "object") {
       const storageBase = import.meta.env.VITE_SUPABASE_URL + "/storage/v1/object/public/media/";
+      // Check og_image_url first (already a full URL in DB)
+      if (ogData.og_image_url) return ogData.og_image_url;
       const path = ogData.og_image || ogData.storage_path || ogData.og_url || ogData.url;
       
       if (path) {
