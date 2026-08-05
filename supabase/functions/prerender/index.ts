@@ -376,7 +376,7 @@ Deno.serve(async (req) => {
         // update og_image_url without changing the bundled JSON dataset.
         const { data: dbDua } = await supabase
           .from("admin_content")
-          .select("title, content, content_arabic, content_pronunciation, reference, og_image_url, image_url, og_image_data, seo")
+          .select("title, content, content_arabic, content_pronunciation, reference, image_url, og_image_data, seo")
           .ilike("content_type", "dua")
           .eq("slug", slug)
           .maybeSingle();
@@ -393,7 +393,7 @@ Deno.serve(async (req) => {
           };
           
           // Resolve OG image from dua data - CRITICAL: Use exact path from duas.json
-          const databaseOgImage = isLegacyMissingSlugImage(dbDua?.og_image_url) ? "" : dbDua?.og_image_url;
+          const databaseOgImage = isLegacyMissingSlugImage(dbDua?.image_url) ? "" : dbDua?.image_url;
           const seoOgImage = dbDua?.seo?.og_image || dbDua?.seo?.og_image_url;
           const ogImagePath = databaseOgImage || seoOgImage || dbDua?.og_image_data?.og_image || dbDua?.image_url || dua.og_image_data?.og_image || dua.og_image;
           
@@ -417,7 +417,7 @@ Deno.serve(async (req) => {
           // Legacy duas that are only in the database (no entry in duas.json)
           const { data: row } = await supabase
             .from("admin_content")
-            .select("title, content, content_arabic, content_pronunciation, reference, og_image_url, image_url, og_image_data, seo")
+            .select("title, content, content_arabic, content_pronunciation, reference, image_url, og_image_data, seo")
             .ilike("content_type", "dua")
             .eq("slug", slug)
             .maybeSingle();

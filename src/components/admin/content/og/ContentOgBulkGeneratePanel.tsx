@@ -153,7 +153,7 @@ export function ContentOgBulkGeneratePanel({
         .from('admin_content')
         .select('id, slug, title, title_arabic, content_arabic, category')
         .eq('content_type', contentType)
-        .is('og_image_url', null)
+        .is('image_url', null)
         .order('title');
       if (error) throw error;
       setPending((data ?? []) as PendingDua[]);
@@ -198,7 +198,7 @@ export function ContentOgBulkGeneratePanel({
         const { data: pub } = supabase.storage.from(OG_BUCKET).getPublicUrl(path);
         const { error: dbErr } = await supabase
           .from('admin_content')
-          .update({ og_image_url: `${pub.publicUrl}?v=${Date.now()}` })
+          .update({ image_url: `${pub.publicUrl}?v=${Date.now()}` })
           .eq('id', dua.id);
         if (dbErr) throw dbErr;
         ok += 1;

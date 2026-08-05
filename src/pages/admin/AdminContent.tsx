@@ -2477,7 +2477,7 @@ export default function AdminContent() {
                           {(item.content_type === 'dua' || item.content_type === 'story') && (
                             <div className="shrink-0 pt-1">
                               <DuaOgThumbnail
-                                url={item.og_image_url || item.og_image_data?.og_image || item.og_image_data?.og_image_url}
+                                url={item.image_url || item.og_image_url || item.og_image_data?.og_image || item.og_image_data?.og_image_url}
                                 slug={item.slug}
                                 folder={item.content_type === 'story' ? 'story-og' : 'dua-og'}
                                 storageIndex={ogStorageIndex}
