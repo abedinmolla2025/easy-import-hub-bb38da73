@@ -798,7 +798,7 @@ export default function AdminContent() {
     growth_json: '',
   });
 
-  const resetEditForm = (item?: AdminContentRow | null) => {
+      const resetEditForm = (item?: AdminContentRow | null) => {
     if (!item) {
       setEditForm(buildEmptyForm(contentTypeContext || 'dua'));
       setSelectedId(null);
@@ -856,19 +856,21 @@ export default function AdminContent() {
       category_hierarchy_json: jsonToStr(item.category_hierarchy),
       faq_json: jsonToStr(item.faq),
       search_aliases_json: jsonToStr(item.search_aliases),
-      moral_bn: item.moral_bn ?? '',
-      moral_en: item.moral_en ?? '',
-      moral_ur: item.moral_ur ?? '',
-      source_name: item.source_name ?? '',
-      source_detail: item.source_detail ?? '',
-      author: item.author ?? '',
-      reading_time_minutes: item.reading_time_minutes != null ? String(item.reading_time_minutes) : '',
-      tags: arrToCsv(item.tags),
-      related_stories: arrToCsv(item.related_stories),
-      is_featured: Boolean(item.is_featured),
-      navigation_json: jsonToStr(item.navigation),
-      engagement_json: jsonToStr(item.engagement),
-      growth_json: jsonToStr(item.growth),
+      // Story fields with metadata fallback
+      moral_bn: item.moral_bn ?? readMetaString(item.metadata, 'moral_bn'),
+      moral_en: item.moral_en ?? readMetaString(item.metadata, 'moral_en'),
+      moral_ur: item.moral_ur ?? readMetaString(item.metadata, 'moral_ur'),
+      source_name: item.source_name ?? readMetaString(item.metadata, 'source_name'),
+      source_detail: item.source_detail ?? readMetaString(item.metadata, 'source_detail'),
+      author: item.author ?? readMetaString(item.metadata, 'author'),
+      reading_time_minutes: (item.reading_time_minutes != null ? String(item.reading_time_minutes) : '') || 
+                           (item.metadata?.reading_time_minutes != null ? String(item.metadata.reading_time_minutes) : ''),
+      tags: arrToCsv(item.tags || item.metadata?.tags),
+      related_stories: arrToCsv(item.related_stories || item.metadata?.related_stories),
+      is_featured: Boolean(item.is_featured ?? item.metadata?.is_featured),
+      navigation_json: jsonToStr(item.navigation ?? item.metadata?.navigation),
+      engagement_json: jsonToStr(item.engagement ?? item.metadata?.engagement),
+      growth_json: jsonToStr(item.growth ?? item.metadata?.growth),
     });
     setSelectedId(item.id);
   };
@@ -994,26 +996,30 @@ export default function AdminContent() {
                   throw new Error(`Invalid JSON in ${key}`);
                 }
               };
+              // Use metadata for fields that might be missing from DB columns
               return {
                 slug: editForm.slug || null,
                 subtitle: editForm.subtitle || null,
-                moral_bn: editForm.moral_bn || null,
-                moral_en: editForm.moral_en || null,
-                moral_ur: editForm.moral_ur || null,
-                source_name: editForm.source_name || null,
-                source_detail: editForm.source_detail || null,
                 reference: editForm.reference || null,
-                author: editForm.author || null,
-                reading_time_minutes: editForm.reading_time_minutes
-                  ? Number(editForm.reading_time_minutes)
-                  : null,
-                tags: csv(editForm.tags),
-                related_stories: csv(editForm.related_stories),
-                is_featured: Boolean(editForm.is_featured),
                 seo: parseJson('seo', editForm.seo_json),
-                navigation: parseJson('navigation', editForm.navigation_json),
-                engagement: parseJson('engagement', editForm.engagement_json),
-                growth: parseJson('growth', editForm.growth_json),
+                metadata: {
+                  ...(selectedContent?.metadata || {}),
+                  moral_bn: editForm.moral_bn || null,
+                  moral_en: editForm.moral_en || null,
+                  moral_ur: editForm.moral_ur || null,
+                  source_name: editForm.source_name || null,
+                  source_detail: editForm.source_detail || null,
+                  author: editForm.author || null,
+                  reading_time_minutes: editForm.reading_time_minutes
+                    ? Number(editForm.reading_time_minutes)
+                    : null,
+                  tags: csv(editForm.tags),
+                  related_stories: csv(editForm.related_stories),
+                  is_featured: Boolean(editForm.is_featured),
+                  navigation: parseJson('navigation', editForm.navigation_json),
+                  engagement: parseJson('engagement', editForm.engagement_json),
+                  growth: parseJson('growth', editForm.growth_json),
+                }
               };
             })()
           : {}),
