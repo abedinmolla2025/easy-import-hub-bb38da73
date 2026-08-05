@@ -1381,7 +1381,7 @@ export default function AdminContent() {
                 title={!canEdit ? 'No permission' : undefined}
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Import Dua (JSON)
+                Bulk Import/Export Duas
               </Button>
             ) : null}
 
