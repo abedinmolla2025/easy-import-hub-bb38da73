@@ -1404,12 +1404,12 @@ export default function AdminContent() {
                 <Upload className="mr-2 h-4 w-4" />
                 Bulk Import/Export Stories
               </Button>
-            ) : null}
-
-            <Button variant="outline" size="sm" onClick={handleExport} className="shrink-0 whitespace-nowrap">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={handleExport} className="shrink-0 whitespace-nowrap">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            )}
           </div>
         }
       />
