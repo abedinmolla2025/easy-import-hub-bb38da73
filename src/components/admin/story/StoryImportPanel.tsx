@@ -14,6 +14,11 @@ export type StoryImportResult = { insertedIds: string[]; updatedIds: string[] };
 export function storyRowFromJson(story: Story, publish: boolean) {
   const bn = story.content_bn ?? story.content ?? '';
   const en = story.content_en ?? '';
+  
+  // Extract OG Image info from various possible fields
+  const ogImageUrl = story.og_image_url || story.og_image_data?.og_image || story.og_image_data?.og_image_url;
+  const ogImageData = story.og_image_data || (ogImageUrl ? { og_image: ogImageUrl } : null);
+
   return {
     content_type: 'story',
     slug: story.slug,
@@ -35,12 +40,30 @@ export function storyRowFromJson(story: Story, publish: boolean) {
     navigation: (story.navigation ?? null) as any,
     engagement: (story.engagement ?? null) as any,
     growth: (story.growth ?? null) as any,
+    og_image_url: ogImageUrl || null,
+    og_image_data: ogImageData as any,
     related_stories:
       (story.navigation?.related_stories ?? story.growth?.related ?? []).map((r: any) => r.slug || r) || null,
     tags: Array.isArray(story.seo?.keywords) ? (story.seo?.keywords as string[]) : (story.tags || null),
     status: publish ? 'published' : 'draft',
     is_published: publish,
     ...(publish ? { published_at: new Date().toISOString() } : {}),
+    // Use metadata as fallback for columns that might not exist in the DB schema
+    metadata: {
+      moral_bn: story.moral_bn || null,
+      moral_en: story.moral_en || null,
+      moral_ur: story.moral_ur || null,
+      source_name: story.source_name || null,
+      source_detail: story.source_detail || null,
+      author: story.author || null,
+      reading_time_minutes: story.reading_time_minutes || null,
+      tags: story.tags || null,
+      is_featured: story.is_featured || false,
+      navigation: story.navigation || null,
+      engagement: story.engagement || null,
+      growth: story.growth || null,
+      og_image_url: ogImageUrl || null
+    }
   };
 }
 
