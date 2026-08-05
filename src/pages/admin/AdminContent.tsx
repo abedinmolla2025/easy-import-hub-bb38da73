@@ -352,6 +352,12 @@ export default function AdminContent() {
     setActiveTab('edit');
     setEditForm((prev) => ({ ...prev, content_type: contentTypeContext }));
     setJustImported(null);
+    // Reset filters when switching content types to avoid empty lists
+    setSearchQuery('');
+    setStatusFilter('all');
+    setDuaCategoryFilter('all');
+    setNameGenderFilter('all');
+    setNameAlphaFilter(null);
   }, [contentTypeContext]);
 
   const applyJustImportedBulkAction = (action: BulkContentAction) => {
@@ -1503,28 +1509,9 @@ export default function AdminContent() {
         </div>
       )}
 
-      {contentTypeContext === 'story' && (
-        <div className="mb-6 space-y-4">
-          <ContentSeoGeneratorPanel
-            contentType="story"
-            totalLabel="মোট গল্প"
-            description={
-              <>
-                প্রতিটি ইসলামিক গল্পের জন্য AI দিয়ে <code>explanation</code> (১০০–১৫০ শব্দ) ও{' '}
-                <code>benefits</code> (৩–৫ পয়েন্ট) চারটি ভাষায় তৈরি করো — বাংলা, English, हिंदी, اردو।
-                বিদ্যমান কন্টেন্ট overwrite হবে না।
-              </>
-            }
-          />
-          <ContentOgBulkGeneratePanel
-            canEdit={canEdit}
-            contentType="story"
-            folder="story-og"
-            brandLabel="NoorApp · Islamic Story"
-          />
-          <ContentQualityCheckPanel />
-        </div>
-      )}
+      {/* Removed SEO, OG, and Quality Check panels for Story as per user request */}
+      {/* Story module specific tools (currently none as per user request) */}
+      {contentTypeContext === 'story' && null}
 
       {contentTypeContext === 'hadith' ? (
         <div className="space-y-6">
