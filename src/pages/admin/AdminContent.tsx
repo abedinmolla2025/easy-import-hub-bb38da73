@@ -33,7 +33,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload, MoreVertical, Search, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload, MoreVertical, Search, Download, RefreshCw } from 'lucide-react';
 import HadithImportPanel from '@/components/admin/HadithImportPanel';
 import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel';
 import HadithExportImportPanel from '@/components/admin/HadithExportImportPanel';
