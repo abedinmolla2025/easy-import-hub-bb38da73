@@ -308,11 +308,23 @@ function CategoryChip({
 }
 
 function StoryListCard({ story }: { story: Story }) {
+  const thumbnail = story.og_image_url || "/assets/stories/og-stories-default.jpg";
+  
   return (
-    <Card className="h-full flex flex-col hover:shadow-md transition-shadow">
-      <CardHeader>
+    <Card className="h-full flex flex-col hover:shadow-md transition-shadow overflow-hidden">
+      <div className="aspect-video w-full overflow-hidden bg-muted">
+        <Link to={`/stories/${story.slug}`}>
+          <img 
+            src={thumbnail} 
+            alt={story.title_en}
+            className="h-full w-full object-cover transition-transform hover:scale-105"
+            loading="lazy"
+          />
+        </Link>
+      </div>
+      <CardHeader className="pt-4">
         <Badge variant="outline" className="w-fit text-xs">{categoryLabel(story.category)}</Badge>
-        <CardTitle className="text-lg leading-snug">
+        <CardTitle className="text-lg leading-snug mt-2">
           <Link to={`/stories/${story.slug}`} className="hover:text-emerald-700">
             {story.title_en}
           </Link>

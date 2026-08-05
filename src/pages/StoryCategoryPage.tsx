@@ -74,21 +74,34 @@ export default function StoryCategoryPage() {
           <Card><CardContent className="py-10 text-center text-muted-foreground">No stories in this category.</CardContent></Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((s) => (
-              <Card key={s.slug} className="h-full flex flex-col hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <Badge variant="outline" className="w-fit text-xs">{categoryLabel(s.category)}</Badge>
-                  <CardTitle className="text-lg leading-snug">
-                    <Link to={`/stories/${s.slug}`} className="hover:text-emerald-700">{s.title_en}</Link>
-                  </CardTitle>
-                  <CardDescription>{plainExcerpt(s.seo.meta_description, 140)}</CardDescription>
-                </CardHeader>
-                <CardContent className="mt-auto text-xs text-muted-foreground flex items-center justify-between">
-                  <span>{estimateReadingMinutes(s.content_en)} min read</span>
-                  <Link to={`/stories/${s.slug}`} className="text-emerald-700 hover:underline">Read →</Link>
-                </CardContent>
-              </Card>
-            ))}
+            {items.map((s) => {
+              const thumbnail = s.og_image_url || "/assets/stories/og-stories-default.jpg";
+              return (
+                <Card key={s.slug} className="h-full flex flex-col hover:shadow-md transition-shadow overflow-hidden">
+                  <div className="aspect-video w-full overflow-hidden bg-muted">
+                    <Link to={`/stories/${s.slug}`}>
+                      <img 
+                        src={thumbnail} 
+                        alt={s.title_en}
+                        className="h-full w-full object-cover transition-transform hover:scale-105"
+                        loading="lazy"
+                      />
+                    </Link>
+                  </div>
+                  <CardHeader className="pt-4">
+                    <Badge variant="outline" className="w-fit text-xs">{categoryLabel(s.category)}</Badge>
+                    <CardTitle className="text-lg leading-snug mt-2">
+                      <Link to={`/stories/${s.slug}`} className="hover:text-emerald-700">{s.title_en}</Link>
+                    </CardTitle>
+                    <CardDescription>{plainExcerpt(s.seo.meta_description, 140)}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="mt-auto text-xs text-muted-foreground flex items-center justify-between">
+                    <span>{estimateReadingMinutes(s.content_en)} min read</span>
+                    <Link to={`/stories/${s.slug}`} className="text-emerald-700 hover:underline">Read →</Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </main>
