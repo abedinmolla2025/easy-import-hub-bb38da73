@@ -311,29 +311,46 @@ function StoryListCard({ story }: { story: Story }) {
   const thumbnail = story.og_image_url || "/assets/stories/og-stories-default.jpg";
   
   return (
-    <Card className="h-full flex flex-col hover:shadow-md transition-shadow overflow-hidden">
-      <div className="aspect-video w-full overflow-hidden bg-muted">
+    <Card className="group h-full flex flex-col border-none bg-card hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden rounded-2xl ring-1 ring-border hover:ring-emerald-200 dark:hover:ring-emerald-800">
+      <div className="relative aspect-[16/9] w-full overflow-hidden">
         <Link to={`/stories/${story.slug}`}>
+          <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors z-10" />
           <img 
             src={thumbnail} 
-            alt={story.title_en}
-            className="h-full w-full object-cover transition-transform hover:scale-105"
+            alt={story.title_bn || story.title_en}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
           />
+          <div className="absolute top-3 left-3 z-20">
+            <Badge className="bg-white/90 dark:bg-black/80 text-emerald-700 dark:text-emerald-400 backdrop-blur-sm border-none shadow-sm font-medium">
+              {categoryLabel(story.category)}
+            </Badge>
+          </div>
         </Link>
       </div>
-      <CardHeader className="pt-4">
-        <Badge variant="outline" className="w-fit text-xs">{categoryLabel(story.category)}</Badge>
-        <CardTitle className="text-lg leading-snug mt-2">
-          <Link to={`/stories/${story.slug}`} className="hover:text-emerald-700">
-            {story.title_en}
+      
+      <CardHeader className="flex-1 pt-5 px-5 space-y-3">
+        <CardTitle className="text-xl font-bold leading-tight text-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 font-[Noto_Sans_Bengali]">
+          <Link to={`/stories/${story.slug}`}>
+            {story.title_bn || story.title_en}
           </Link>
         </CardTitle>
-        <CardDescription>{plainExcerpt(story.seo.meta_description, 140)}</CardDescription>
+        <CardDescription className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          {plainExcerpt(story.seo.meta_description || "", 120)}
+        </CardDescription>
       </CardHeader>
-      <CardContent className="mt-auto text-xs text-muted-foreground flex items-center justify-between">
-        <span>{estimateReadingMinutes(story.content_en)} min read</span>
-        <Link to={`/stories/${story.slug}`} className="text-emerald-700 hover:underline">Read →</Link>
+      
+      <CardContent className="pt-0 pb-5 px-5 flex items-center justify-between border-t border-emerald-50 dark:border-emerald-900/30 mt-4 pt-4">
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          <Clock className="h-3.5 w-3.5 text-emerald-600" />
+          <span>{estimateReadingMinutes(story.content_bn || story.content_en)} মিনিট পাঠ</span>
+        </div>
+        <Link 
+          to={`/stories/${story.slug}`} 
+          className="inline-flex items-center gap-1 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:gap-2 transition-all"
+        >
+          পড়ুন <ChevronRight className="h-4 w-4" />
+        </Link>
       </CardContent>
     </Card>
   );
