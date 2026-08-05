@@ -113,7 +113,13 @@ export function StoryImportPanel({
           }
         } catch (e) {
           failed += 1;
-          console.error('Story import failed for', story.slug, e);
+          const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+          console.error('Story import failed for', story.slug, errorMsg);
+          toast({ 
+            title: `Import failed: ${story.slug}`, 
+            description: errorMsg, 
+            variant: 'destructive' 
+          });
         }
         setProgress(Math.round(((i + 1) / stories.length) * 100));
       }
@@ -139,9 +145,21 @@ export function StoryImportPanel({
   const importFile = async (file?: File | null) => {
     if (!file) return;
     try {
-      const parsed = JSON.parse(await file.text());
-      const list: Story[] = Array.isArray(parsed) ? parsed : parsed?.stories;
-      if (!Array.isArray(list)) throw new Error('Expected a JSON array of stories');
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      let list: Story[] | null = null;
+      
+      if (Array.isArray(parsed)) {
+        list = parsed;
+      } else if (Array.isArray(parsed.stories)) {
+        list = parsed.stories;
+      } else if (Array.isArray(parsed.data)) {
+        list = parsed.data;
+      } else if (Array.isArray(parsed.items)) {
+        list = parsed.items;
+      }
+
+      if (!list) throw new Error('JSON ফাইলে গল্পের কোনো লিস্ট (Array) পাওয়া যায়নি। দয়া করে সঠিক ফরম্যাট ব্যবহার করুন।');
       await importStories(list, false);
     } catch (e) {
       toast({

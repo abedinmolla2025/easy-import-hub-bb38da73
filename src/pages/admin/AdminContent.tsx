@@ -2428,8 +2428,17 @@ export default function AdminContent() {
       {/* Content List */}
       {contentTypeContext ? (
         <Card className="shadow-sm border-border/80">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Content List ({filteredContent.length})</CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => queryClient.invalidateQueries({ queryKey: ['admin-content'] })}
+              className="h-8 px-2 lg:px-3"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh List
+            </Button>
           </CardHeader>
           <CardContent>
             {isLoading ? (
