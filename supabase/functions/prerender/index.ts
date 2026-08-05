@@ -393,9 +393,12 @@ Deno.serve(async (req) => {
           };
           
           // Resolve OG image from dua data - CRITICAL: Use exact path from duas.json
+          // Prioritize facebook_share.og_image_url from JSON, then database image_url
+          const jsonOgImage = dua.facebook_share?.og_image_url || dua.og_image_data?.og_image || dua.og_image;
           const databaseOgImage = isLegacyMissingSlugImage(dbDua?.image_url) ? "" : dbDua?.image_url;
           const seoOgImage = dbDua?.seo?.og_image || dbDua?.seo?.og_image_url;
-          const ogImagePath = databaseOgImage || seoOgImage || dbDua?.og_image_data?.og_image || dbDua?.image_url || dua.og_image_data?.og_image || dua.og_image;
+          
+          const ogImagePath = jsonOgImage || databaseOgImage || seoOgImage || dbDua?.og_image_data?.og_image || dbDua?.image_url;
           
           if (ogImagePath && !ogImagePath.includes("yourwebsite.com")) {
             customOgImage = resolvePublicOgUrl(ogImagePath, supabaseUrl);
