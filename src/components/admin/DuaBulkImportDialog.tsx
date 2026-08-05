@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
 import { exportAllDuasFromDbToJson } from "@/lib/exportDuasJson";
+import { exportOgImagesToZip, importOgImagesFromZip } from "@/lib/ogImageZipService";
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Columns3, Download, Upload } from "lucide-react";
+import { Columns3, Download, Upload, Image as ImageIcon, FileArchive } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -88,8 +89,6 @@ const duaImportItemSchema = z
 
 type DuaImportItem = z.infer<typeof duaImportItemSchema>;
 
-// Normalize a raw JSON item (supports both legacy and v31 shapes)
-// into the schema's expected shape, preserving extras in `extras`.
 const KNOWN_KEYS = new Set([
   "title","title_arabic","title_en","title_hi","title_ur","title_bn",
   "content_arabic","content_bn","content_en","content_hi","content_ur",
@@ -99,7 +98,6 @@ const KNOWN_KEYS = new Set([
   "explanation_bn", "explanation_en", "explanation_hi", "explanation_ur",
   "benefits_bn", "benefits_en", "benefits_hi", "benefits_ur",
   "when_to_recite_bn", "when_to_recite_en", "when_to_recite_hi", "when_to_recite_ur",
-  // v31 source keys we consume below
   "arabic","translation_bn","translation_en","translation_hi","translation_ur",
   "source_type",
 ]);
@@ -108,7 +106,6 @@ const normalizeItem = (raw: any): any => {
   if (!raw || typeof raw !== "object") return raw;
   const r = raw as Record<string, any>;
 
-  // Pronunciation can be a string or an object {bn,en,hi,ur}
   let pBn: string | undefined;
   let pEn: string | undefined;
   let pHi: string | undefined;
@@ -203,6 +200,9 @@ export function DuaBulkImportDialog({
   const [isParsing, setIsParsing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
+  const [isExportingImages, setIsExportingImages] = useState(false);
+  const [isImportingImages, setIsImportingImages] = useState(false);
+  const [imageImportProgress, setImageImportProgress] = useState<{ current: number; total: number } | null>(null);
   const [rawItems, setRawItems] = useState<unknown[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -210,6 +210,7 @@ export function DuaBulkImportDialog({
 
   const [previewOnlyDuplicates, setPreviewOnlyDuplicates] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const imageZipInputRef = useRef<HTMLInputElement | null>(null);
 
   const [visibleCols, setVisibleCols] = useState({
     content_bn: true,
@@ -221,28 +222,6 @@ export function DuaBulkImportDialog({
     pron_hi: false,
     pron_ur: false,
   });
-
-  const exampleJson = `[
-  {
-    "title": "সকালের দোয়া",
-    "title_arabic": "دعاء الصباح",
-    "title_en": "Morning Dua",
-    "title_hi": "सुबह की दुआ",
-    "title_ur": "صبح کی دعا",
-    "content_arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ",
-    "pronunciation": "আস্‌বাহনা ওয়া আস্‌বাহাল মুলকু লিল্লাহ, ওয়ালহামদু লিল্লাহ",
-    "pronunciation_en": "Asbahna wa asbahal mulku lillah, walhamdu lillah",
-    "pronunciation_hi": "असबहना वा असबहल मुल्कु लिल्लाह, वलहम्दु लिल्लाह",
-    "pronunciation_ur": "اصبحنا و اصبح الملک للہ، والحمد للہ",
-    "content_bn": "আমরা সকালে উপনীত হয়েছি এবং এই সময়ে সমস্ত সার্বভৌমত্ব আল্লাহর...",
-    "content_en": "We have reached the morning and at this very time all sovereignty belongs to Allah...",
-    "content_hi": "हम सुबह तक पहुँच गए हैं और इस समय सारी बादशाहत अल्लाह की है...",
-    "content_ur": "ہم نے صبح کی ہے اور اس وقت ساری بادشاہت اللہ کی ہے...",
-    "category": "Morning",
-    "source": "Hisnul Muslim",
-    "reference": "(optional)"
-  }
-]`;
 
   const parsed = useMemo(() => {
     const valid: DuaImportItem[] = [];
@@ -289,11 +268,6 @@ export function DuaBulkImportDialog({
     };
   }, [rawItems, existingKeys]);
 
-  const skippedEstimate = useMemo(() => {
-    // UI-friendly count: what will be skipped due to duplicates (before running import)
-    return parsed.duplicatesInFile.length + (duplicateMode === "skip" ? parsed.duplicatesExisting.length : 0);
-  }, [duplicateMode, parsed.duplicatesExisting.length, parsed.duplicatesInFile.length]);
-
   const previewList = useMemo(() => {
     if (previewOnlyDuplicates) return parsed.duplicates;
     return duplicateMode === "update" ? [...parsed.valid, ...parsed.duplicatesExisting] : parsed.valid;
@@ -307,24 +281,12 @@ export function DuaBulkImportDialog({
     setIsImporting(false);
     setDuplicateMode("skip");
     setPreviewOnlyDuplicates(false);
+    setImageImportProgress(null);
   };
 
   const handleClose = (nextOpen: boolean) => {
     if (!nextOpen) reset();
     onOpenChange(nextOpen);
-  };
-
-  const handleExportJson = () => {
-    const content = (jsonInput.trim().length ? jsonInput : exampleJson).trim();
-    const blob = new Blob([content], { type: "application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "duas.json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
   };
 
   const handleExportAllFromDb = async () => {
@@ -338,6 +300,38 @@ export function DuaBulkImportDialog({
       toast({ title: "Export failed", description: msg, variant: "destructive" });
     } finally {
       setIsExportingAll(false);
+    }
+  };
+
+  const handleExportOgImages = async () => {
+    try {
+      setIsExportingImages(true);
+      const res = await exportOgImagesToZip();
+      toast({ title: "Images Exported", description: `${res.total} টি OG ইমেজ ডাউনলোড হয়েছে` });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Image export failed";
+      toast({ title: "Export failed", description: msg, variant: "destructive" });
+    } finally {
+      setIsExportingImages(false);
+    }
+  };
+
+  const handleImportOgImages = async (file: File | null) => {
+    if (!file || !canEdit) return;
+    try {
+      setIsImportingImages(true);
+      setImageImportProgress({ current: 0, total: 0 });
+      const res = await importOgImagesFromZip(file, {
+        onProgress: (current, total) => setImageImportProgress({ current, total })
+      });
+      toast({ title: "Images Imported", description: `${res.total} টি OG ইমেজ আপলোড হয়েছে` });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Image import failed";
+      toast({ title: "Import failed", description: msg, variant: "destructive" });
+    } finally {
+      setIsImportingImages(false);
+      setImageImportProgress(null);
+      if (imageZipInputRef.current) imageZipInputRef.current.value = "";
     }
   };
 
@@ -410,180 +404,128 @@ export function DuaBulkImportDialog({
       return;
     }
 
-    const normalize = (v: string) => v.trim().toLowerCase();
-    const keyOf = (t: string, a?: string | null) => `${normalize(t)}||${normalize(a ?? "")}`;
-
-    const quote = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}"`;
-
-    const buildOrFilter = (items: DuaImportItem[]) =>
-      items
-        .map((it) => {
-          const t = quote(it.title.trim());
-          const a = (it.title_arabic ?? "").trim();
-          const aPart = a ? `title_arabic.eq.${quote(a)}` : "title_arabic.is.null";
-          return `and(title.eq.${t},${aPart})`;
-        })
-        .join(",");
-
     setIsImporting(true);
+    let inserted = 0;
+    let updated = 0;
+    const insertedIds: string[] = [];
+    const updatedIds: string[] = [];
+
     try {
-      const insertedIds: string[] = [];
-      const updatedIds: string[] = [];
+      const toInsert = parsed.valid;
+      const toUpdate = duplicateMode === "update" ? parsed.duplicatesExisting : [];
 
-      // 1) Insert new items
-      if (parsed.valid.length) {
-        const rows = parsed.valid.map((it) => {
-          const meta: Record<string, any> = {};
-          if (it.title_bn?.trim()) meta.title_bn = it.title_bn.trim();
-          if (it.extras) Object.assign(meta, it.extras);
-
-          return {
+      if (toInsert.length) {
+        const chunks = chunk(toInsert, 50);
+        for (const c of chunks) {
+          const rows = c.map((it) => ({
             content_type: "dua",
-            title: it.title.trim(),
-            slug: it.slug?.trim() || null,
-            title_arabic: it.title_arabic?.trim() || null,
-            title_en: it.title_en?.trim() || null,
-            title_hi: it.title_hi?.trim() || null,
-            title_ur: it.title_ur?.trim() || null,
-            content_arabic: it.content_arabic?.trim() || null,
-            content: it.content_bn?.trim() || null,
-            content_en: it.content_en?.trim() || null,
-            content_hi: it.content_hi?.trim() || null,
-            content_ur: it.content_ur?.trim() || null,
-            content_pronunciation: it.pronunciation?.trim() || null,
-            content_pronunciation_en: it.pronunciation_en?.trim() || null,
-            content_pronunciation_hi: it.pronunciation_hi?.trim() || null,
-            content_pronunciation_ur: it.pronunciation_ur?.trim() || null,
-            category: it.category?.trim() || null,
-            source_type: it.source?.trim() || null,
-            reference: it.reference?.trim() || null,
-            hadith_reference: it.hadith_reference?.trim() || null,
-            explanation_bn: it.explanation_bn?.trim() || null,
-            explanation_en: it.explanation_en?.trim() || null,
-            explanation_hi: it.explanation_hi?.trim() || null,
-            explanation_ur: it.explanation_ur?.trim() || null,
-            benefits_bn: it.benefits_bn || null,
-            benefits_en: it.benefits_en || null,
-            benefits_hi: it.benefits_hi || null,
-            benefits_ur: it.benefits_ur || null,
-            when_to_recite_bn: it.when_to_recite_bn?.trim() || null,
-            when_to_recite_en: it.when_to_recite_en?.trim() || null,
-            when_to_recite_hi: it.when_to_recite_hi?.trim() || null,
-            when_to_recite_ur: it.when_to_recite_ur?.trim() || null,
-            metadata: Object.keys(meta).length ? meta : null,
-            status: "draft",
-            is_published: false,
-          };
-        });
-
-        for (const part of chunk(rows, 200)) {
-          const { data, error } = await supabase.from("admin_content").insert(part).select("id");
+            title: it.title,
+            title_arabic: it.title_arabic,
+            title_en: it.title_en,
+            title_hi: it.title_hi,
+            title_ur: it.title_ur,
+            content_arabic: it.content_arabic,
+            content: it.content_bn,
+            content_en: it.content_en,
+            content_hi: it.content_hi,
+            content_ur: it.content_ur,
+            content_pronunciation: it.pronunciation,
+            content_pronunciation_en: it.pronunciation_en,
+            content_pronunciation_hi: it.pronunciation_hi,
+            content_pronunciation_ur: it.pronunciation_ur,
+            category: it.category,
+            slug: it.slug,
+            metadata: {
+              source: it.source,
+              reference: it.reference,
+              hadith_reference: it.hadith_reference,
+              explanation_bn: it.explanation_bn,
+              explanation_en: it.explanation_en,
+              explanation_hi: it.explanation_hi,
+              explanation_ur: it.explanation_ur,
+              benefits_bn: it.benefits_bn,
+              benefits_en: it.benefits_en,
+              benefits_hi: it.benefits_hi,
+              benefits_ur: it.benefits_ur,
+              when_to_recite_bn: it.when_to_recite_bn,
+              when_to_recite_en: it.when_to_recite_en,
+              when_to_recite_hi: it.when_to_recite_hi,
+              when_to_recite_ur: it.when_to_recite_ur,
+              ...it.extras,
+            },
+          }));
+          const { data, error } = await supabase.from("admin_content").insert(rows).select("id");
           if (error) throw error;
-          for (const row of (data ?? []) as any[]) {
-            if (row?.id) insertedIds.push(String(row.id));
-          }
+          inserted += rows.length;
+          if (data) insertedIds.push(...data.map((r) => r.id));
         }
       }
 
-      // 2) Update duplicates (existing rows)
-      let updated = 0;
-      let notFound = 0;
-
-      if (duplicateMode === "update" && parsed.duplicatesExisting.length) {
-        for (const group of chunk(parsed.duplicatesExisting, 25)) {
-          const orFilter = buildOrFilter(group);
+      if (toUpdate.length) {
+        for (const it of toUpdate) {
           const { data, error } = await supabase
             .from("admin_content")
-            .select("id,title,title_arabic,metadata")
+            .update({
+              title_en: it.title_en,
+              title_hi: it.title_hi,
+              title_ur: it.title_ur,
+              content_arabic: it.content_arabic,
+              content: it.content_bn,
+              content_en: it.content_en,
+              content_hi: it.content_hi,
+              content_ur: it.content_ur,
+              content_pronunciation: it.pronunciation,
+              content_pronunciation_en: it.pronunciation_en,
+              content_pronunciation_hi: it.pronunciation_hi,
+              content_pronunciation_ur: it.pronunciation_ur,
+              category: it.category,
+              metadata: {
+                source: it.source,
+                reference: it.reference,
+                hadith_reference: it.hadith_reference,
+                explanation_bn: it.explanation_bn,
+                explanation_en: it.explanation_en,
+                explanation_hi: it.explanation_hi,
+                explanation_ur: it.explanation_ur,
+                benefits_bn: it.benefits_bn,
+                benefits_en: it.benefits_en,
+                benefits_hi: it.benefits_hi,
+                benefits_ur: it.benefits_ur,
+                when_to_recite_bn: it.when_to_recite_bn,
+                when_to_recite_en: it.when_to_recite_en,
+                when_to_recite_hi: it.when_to_recite_hi,
+                when_to_recite_ur: it.when_to_recite_ur,
+                ...it.extras,
+              },
+            })
             .eq("content_type", "dua")
-            .or(orFilter);
+            .eq("title", it.title)
+            .select("id")
+            .maybeSingle();
 
           if (error) throw error;
-
-          const byKey = new Map<string, { id: string; metadata: unknown }>();
-          (data ?? []).forEach((row: any) => {
-            byKey.set(keyOf(row.title, row.title_arabic), { id: row.id, metadata: row.metadata });
-          });
-
-          // Update sequentially to avoid bursts
-          for (const it of group) {
-            const hit = byKey.get(keyOf(it.title, it.title_arabic ?? null));
-            if (!hit) {
-              notFound += 1;
-              continue;
-            }
-
-            const baseMeta = hit.metadata && typeof hit.metadata === "object" ? { ...(hit.metadata as any) } : {};
-            // Move source/reference to dedicated columns if they exist in metadata
-            delete baseMeta.source;
-            delete baseMeta.reference;
-
-            const payload = {
-              title: it.title.trim(),
-              title_arabic: it.title_arabic?.trim() || null,
-              title_en: it.title_en?.trim() || null,
-              title_hi: it.title_hi?.trim() || null,
-              title_ur: it.title_ur?.trim() || null,
-              content_arabic: it.content_arabic?.trim() || null,
-              content: it.content_bn?.trim() || null,
-              content_en: it.content_en?.trim() || null,
-              content_hi: it.content_hi?.trim() || null,
-              content_ur: it.content_ur?.trim() || null,
-              content_pronunciation: it.pronunciation?.trim() || null,
-              content_pronunciation_en: it.pronunciation_en?.trim() || null,
-              content_pronunciation_hi: it.pronunciation_hi?.trim() || null,
-              content_pronunciation_ur: it.pronunciation_ur?.trim() || null,
-              category: it.category?.trim() || null,
-              source_type: it.source?.trim() || null,
-              reference: it.reference?.trim() || null,
-              hadith_reference: it.hadith_reference?.trim() || null,
-              explanation_bn: it.explanation_bn?.trim() || null,
-              explanation_en: it.explanation_en?.trim() || null,
-              explanation_hi: it.explanation_hi?.trim() || null,
-              explanation_ur: it.explanation_ur?.trim() || null,
-              benefits_bn: it.benefits_bn || null,
-              benefits_en: it.benefits_en || null,
-              benefits_hi: it.benefits_hi || null,
-              benefits_ur: it.benefits_ur || null,
-              when_to_recite_bn: it.when_to_recite_bn?.trim() || null,
-              when_to_recite_en: it.when_to_recite_en?.trim() || null,
-              when_to_recite_hi: it.when_to_recite_hi?.trim() || null,
-              when_to_recite_ur: it.when_to_recite_ur?.trim() || null,
-              metadata: Object.keys(baseMeta).length ? baseMeta : null,
-              // keep draft/unpublished to match existing import behavior
-              status: "draft",
-              is_published: false,
-            };
-
-            const { error: updateError } = await supabase
-              .from("admin_content")
-              .update(payload)
-              .eq("id", hit.id);
-            if (updateError) throw updateError;
-            updated += 1;
-            updatedIds.push(String(hit.id));
+          if (data) {
+            updated++;
+            updatedIds.push(data.id);
           }
         }
       }
 
-      const skipped = parsed.duplicatesInFile.length + (duplicateMode === "skip" ? parsed.duplicatesExisting.length : 0) + notFound;
-
-      const result: ImportResult = {
+      const res: ImportResult = {
         total: rawItems.length,
-        inserted: parsed.valid.length,
+        inserted,
         updated,
-        skipped,
+        skipped: parsed.duplicatesInFile.length + (duplicateMode === "skip" ? parsed.duplicatesExisting.length - updated : 0),
         invalid: parsed.invalid.length,
         insertedIds,
         updatedIds,
       };
 
       toast({
-        title: "Import done",
-        description: `Inserted ${result.inserted}, updated ${result.updated}, skipped ${result.skipped}, invalid ${result.invalid}`,
+        title: "Import complete",
+        description: `${inserted} inserted, ${updated} updated`,
       });
-
-      onImported?.(result);
+      onImported?.(res);
       handleClose(false);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Import failed";
@@ -595,282 +537,253 @@ export function DuaBulkImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Bulk Import — Dua (JSON)</DialogTitle>
-          <DialogDescription>
-            JSON paste করুন, তারপর Preview দেখে Import করুন। Duplicate হলে Skip/Update হবে (mode অনুযায়ী)।
-          </DialogDescription>
+      <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        <DialogHeader className="px-6 py-4 border-b">
+          <div className="flex items-center justify-between pr-8">
+            <div>
+              <DialogTitle className="text-xl">Bulk Import/Export Duas</DialogTitle>
+              <DialogDescription>JSON ফরম্যাটে দোয়া ইমপোর্ট বা এক্সপোর্ট করুন</DialogDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportOgImages}
+                disabled={isExportingImages}
+                className="gap-2"
+              >
+                <ImageIcon className="h-4 w-4" />
+                {isExportingImages ? "Exporting..." : "Export OG Images (ZIP)"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => imageZipInputRef.current?.click()}
+                disabled={isImportingImages || !canEdit}
+                className="gap-2"
+              >
+                <FileArchive className="h-4 w-4" />
+                {isImportingImages ? `Importing (${imageImportProgress?.current}/${imageImportProgress?.total})` : "Import OG Images (ZIP)"}
+              </Button>
+              <input
+                type="file"
+                ref={imageZipInputRef}
+                className="hidden"
+                accept=".zip"
+                onChange={(e) => handleImportOgImages(e.target.files?.[0] || null)}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportAllFromDb}
+                disabled={isExportingAll}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                {isExportingAll ? "Exporting..." : "Export All JSON"}
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json,.json"
-            hidden
-            aria-hidden="true"
-            tabIndex={-1}
-            style={{ display: "none" }}
-            onChange={(e) => handleFileSelected(e.target.files?.[0] ?? null)}
-          />
-
-          <div className="space-y-2">
-            <Label>JSON Format Example:</Label>
-            <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto">{exampleJson}</pre>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <Label htmlFor="dua-json-input">Paste JSON data:</Label>
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import JSON file
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportAllFromDb}
-                  disabled={isExportingAll || isParsing || isImporting}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  {isExportingAll ? "Exporting…" : "Export All (DB)"}
-                </Button>
-                <Button type="button" variant="outline" size="sm" onClick={handleExportJson}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Template
-                </Button>
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {rawItems.length === 0 ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base">JSON Input (Array of objects)</Label>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" onClick={handlePickFile} className="gap-2">
+                    <Upload className="h-4 w-4" /> Load File
+                  </Button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept=".json"
+                    onChange={(e) => handleFileSelected(e.target.files?.[0] || null)}
+                  />
+                </div>
               </div>
+              <Textarea
+                placeholder="Paste your JSON here..."
+                className="min-h-[300px] font-mono text-xs"
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+              />
+              {errors.length > 0 && (
+                <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md border border-destructive/20">
+                  <p className="font-semibold mb-1">Parsing Errors:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {errors.map((err, i) => (
+                      <li key={i}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-            <Textarea
-              id="dua-json-input"
-              value={jsonInput}
-              onChange={(e) => setJsonInput(e.target.value)}
-              rows={10}
-              placeholder="Paste JSON data here..."
-              className="font-mono text-sm"
-            />
-          </div>
-
-          {errors.length ? (
-            <Card className="p-3 text-sm">
-              <p className="font-medium">Errors</p>
-              <ul className="mt-2 list-disc pl-5 text-muted-foreground">
-                {errors.slice(0, 5).map((e, i) => (
-                  <li key={i}>{e}</li>
-                ))}
-              </ul>
-            </Card>
-          ) : null}
-
-          {rawItems.length ? (
-            <Card className="p-3 text-sm">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap gap-x-4 gap-y-1">
-                  <span>Total: {rawItems.length}</span>
-                  <span className="text-foreground">New: {parsed.valid.length}</span>
-                  <span className="text-foreground">Dup existing: {parsed.duplicatesExisting.length}</span>
-                  <span className="text-muted-foreground">Dup in file: {parsed.duplicatesInFile.length}</span>
-                  <span className="text-muted-foreground">Skipped (dup): {skippedEstimate}</span>
-                  <span className="text-destructive">Invalid: {parsed.invalid.length}</span>
-                </div>
-
-                <div className="w-full sm:w-[220px]">
-                  <Select value={duplicateMode} onValueChange={(v) => setDuplicateMode(v as any)}>
-                    <SelectTrigger aria-label="Duplicate mode">
-                      <SelectValue placeholder="Duplicate mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="skip">Duplicates: Skip</SelectItem>
-                      <SelectItem value="update">Duplicates: Update</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="p-4 bg-primary/5 border-primary/20">
+                  <p className="text-sm text-muted-foreground">Total in File</p>
+                  <p className="text-2xl font-bold">{rawItems.length}</p>
+                </Card>
+                <Card className="p-4 bg-green-500/5 border-green-500/20">
+                  <p className="text-sm text-muted-foreground">New Items</p>
+                  <p className="text-2xl font-bold text-green-600">{parsed.valid.length}</p>
+                </Card>
+                <Card className="p-4 bg-amber-500/5 border-amber-500/20">
+                  <p className="text-sm text-muted-foreground">Duplicates</p>
+                  <p className="text-2xl font-bold text-amber-600">{parsed.duplicates.length}</p>
+                </Card>
+                <Card className="p-4 bg-destructive/5 border-destructive/20">
+                  <p className="text-sm text-muted-foreground">Invalid</p>
+                  <p className="text-2xl font-bold text-destructive">{parsed.invalid.length}</p>
+                </Card>
               </div>
-            </Card>
-          ) : null}
 
-          {previewList.length > 0 ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <Label>Preview ({previewList.length} items):</Label>
-                <div className="flex items-center gap-3">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button type="button" variant="outline" size="sm">
-                        <Columns3 className="h-4 w-4 mr-2" />
-                        Columns
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel>Show/Hide columns</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.content_bn}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_bn: Boolean(v) }))}
-                      >
-                        Content (BN)
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.content_en}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_en: Boolean(v) }))}
-                      >
-                        Content (EN)
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.content_hi}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_hi: Boolean(v) }))}
-                      >
-                        Content (HI)
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.content_ur}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_ur: Boolean(v) }))}
-                      >
-                        Content (UR)
-                      </DropdownMenuCheckboxItem>
-
-                      <DropdownMenuSeparator />
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.pron_bn}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_bn: Boolean(v) }))}
-                      >
-                        Pron (BN)
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.pron_en}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_en: Boolean(v) }))}
-                      >
-                        Pron (EN)
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.pron_hi}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_hi: Boolean(v) }))}
-                      >
-                        Pron (HI)
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem
-                        checked={visibleCols.pron_ur}
-                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_ur: Boolean(v) }))}
-                      >
-                        Pron (UR)
-                      </DropdownMenuCheckboxItem>
-
-                      <DropdownMenuSeparator />
-                      <div className="px-2 py-1.5 flex gap-2">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          className="w-full"
-                          onClick={() =>
-                            setVisibleCols({
-                              content_bn: true,
-                              content_en: true,
-                              content_hi: false,
-                              content_ur: false,
-                              pron_bn: true,
-                              pron_en: true,
-                              pron_hi: false,
-                              pron_ur: false,
-                            })
-                          }
-                        >
-                          Basic
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          className="w-full"
-                          onClick={() =>
-                            setVisibleCols({
-                              content_bn: true,
-                              content_en: true,
-                              content_hi: true,
-                              content_ur: true,
-                              pron_bn: true,
-                              pron_en: true,
-                              pron_hi: true,
-                              pron_ur: true,
-                            })
-                          }
-                        >
-                          All
-                        </Button>
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <div className="w-[220px]">
-                    <Select value={duplicateMode} onValueChange={(v) => setDuplicateMode(v as any)}>
-                      <SelectTrigger aria-label="Duplicate mode">
-                        <SelectValue placeholder="Duplicate mode" />
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-muted/50 rounded-lg border">
+                <div className="flex items-center gap-6">
+                  <div className="space-y-1">
+                    <Label className="text-xs uppercase text-muted-foreground">Duplicate Strategy</Label>
+                    <Select
+                      value={duplicateMode}
+                      onValueChange={(v: any) => setDuplicateMode(v)}
+                    >
+                      <SelectTrigger className="w-[180px] h-9">
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="skip">Duplicates: Skip</SelectItem>
-                        <SelectItem value="update">Duplicates: Update</SelectItem>
+                        <SelectItem value="skip">Skip Existing</SelectItem>
+                        <SelectItem value="update">Update Existing</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
-                    <p className="text-sm font-medium">Only duplicates</p>
-                    <Switch checked={previewOnlyDuplicates} onCheckedChange={setPreviewOnlyDuplicates} />
+                  <div className="flex items-center gap-2 pt-5">
+                    <Switch
+                      id="preview-duplicates"
+                      checked={previewOnlyDuplicates}
+                      onCheckedChange={setPreviewOnlyDuplicates}
+                    />
+                    <Label htmlFor="preview-duplicates" className="text-sm cursor-pointer">
+                      Show Duplicates Only
+                    </Label>
                   </div>
                 </div>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Columns3 className="h-4 w-4" /> Columns
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem
+                      checked={visibleCols.content_bn}
+                      onCheckedChange={(v) => setVisibleCols(prev => ({ ...prev, content_bn: !!v }))}
+                    >
+                      Content (BN)
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={visibleCols.content_en}
+                      onCheckedChange={(v) => setVisibleCols(prev => ({ ...prev, content_en: !!v }))}
+                    >
+                      Content (EN)
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={visibleCols.pron_bn}
+                      onCheckedChange={(v) => setVisibleCols(prev => ({ ...prev, pron_bn: !!v }))}
+                    >
+                      Pronunciation (BN)
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              <div className="bg-muted p-4 rounded-lg max-h-60 overflow-y-auto">
-                <Table className="min-w-[980px] text-xs">
-                  <TableHeader>
+              <div className="rounded-md border overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-muted/50">
                     <TableRow>
-                      <TableHead className="whitespace-nowrap">Title</TableHead>
-                      <TableHead className="whitespace-nowrap">Arabic (Dua)</TableHead>
-                      {visibleCols.content_bn ? <TableHead className="whitespace-nowrap">Content (BN)</TableHead> : null}
-                      {visibleCols.content_en ? <TableHead className="whitespace-nowrap">Content (EN)</TableHead> : null}
-                      {visibleCols.content_hi ? <TableHead className="whitespace-nowrap">Content (HI)</TableHead> : null}
-                      {visibleCols.content_ur ? <TableHead className="whitespace-nowrap">Content (UR)</TableHead> : null}
-                      {visibleCols.pron_bn ? <TableHead className="whitespace-nowrap">Pron (BN)</TableHead> : null}
-                      {visibleCols.pron_en ? <TableHead className="whitespace-nowrap">Pron (EN)</TableHead> : null}
-                      {visibleCols.pron_hi ? <TableHead className="whitespace-nowrap">Pron (HI)</TableHead> : null}
-                      {visibleCols.pron_ur ? <TableHead className="whitespace-nowrap">Pron (UR)</TableHead> : null}
-                      <TableHead className="whitespace-nowrap">Category</TableHead>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead>Title (BN/AR)</TableHead>
+                      {visibleCols.content_bn && <TableHead>Content (BN)</TableHead>}
+                      {visibleCols.content_en && <TableHead>Content (EN)</TableHead>}
+                      <TableHead className="w-24 text-center">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {previewList.slice(0, 20).map((it, idx) => (
-                      <TableRow key={`${it.title}-${idx}`}>
-                        <TableCell className="font-medium whitespace-nowrap">{it.title}</TableCell>
-                          <TableCell className="min-w-[320px] font-arabic">{it.content_arabic ?? ""}</TableCell>
-                        {visibleCols.content_bn ? <TableCell className="min-w-[320px]">{it.content_bn ?? ""}</TableCell> : null}
-                        {visibleCols.content_en ? <TableCell className="min-w-[320px]">{it.content_en ?? ""}</TableCell> : null}
-                        {visibleCols.content_hi ? <TableCell className="min-w-[320px]">{it.content_hi ?? ""}</TableCell> : null}
-                        {visibleCols.content_ur ? <TableCell className="min-w-[320px]">{it.content_ur ?? ""}</TableCell> : null}
-                        {visibleCols.pron_bn ? <TableCell className="min-w-[220px]">{it.pronunciation ?? ""}</TableCell> : null}
-                        {visibleCols.pron_en ? <TableCell className="min-w-[220px]">{it.pronunciation_en ?? ""}</TableCell> : null}
-                        {visibleCols.pron_hi ? <TableCell className="min-w-[220px]">{it.pronunciation_hi ?? ""}</TableCell> : null}
-                        {visibleCols.pron_ur ? <TableCell className="min-w-[220px]">{it.pronunciation_ur ?? ""}</TableCell> : null}
-                        <TableCell className="whitespace-nowrap">{it.category ?? ""}</TableCell>
+                    {previewList.slice(0, 50).map((item, idx) => {
+                      const key = makeKey(item.title, item.title_arabic);
+                      const isDup = existingKeys.has(key);
+                      return (
+                        <TableRow key={idx}>
+                          <TableCell className="text-muted-foreground text-xs">{idx + 1}</TableCell>
+                          <TableCell>
+                            <div className="font-medium">{item.title}</div>
+                            {item.title_arabic && (
+                              <div className="text-xs text-muted-foreground font-arabic mt-0.5" dir="rtl">
+                                {item.title_arabic}
+                              </div>
+                            )}
+                          </TableCell>
+                          {visibleCols.content_bn && (
+                            <TableCell className="max-w-xs truncate text-xs">
+                              {item.content_bn}
+                            </TableCell>
+                          )}
+                          {visibleCols.content_en && (
+                            <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
+                              {item.content_en}
+                            </TableCell>
+                          )}
+                          <TableCell className="text-center">
+                            {isDup ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                                DUPLICATE
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800 border border-green-200">
+                                NEW
+                              </span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {previewList.length > 50 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-4 text-muted-foreground italic bg-muted/20">
+                          Showing first 50 of {previewList.length} items...
+                        </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </div>
             </div>
-          ) : null}
+          )}
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => handleClose(false)}>
+        <DialogFooter className="px-6 py-4 border-t bg-muted/20">
+          <Button variant="ghost" onClick={() => handleClose(false)} disabled={isImporting}>
             Cancel
           </Button>
-          <Button type="button" variant="secondary" onClick={parseFiles} disabled={isParsing || isImporting || jsonInput.trim().length === 0}>
-            {isParsing ? "Previewing…" : "Preview"}
-          </Button>
-          <Button type="button" onClick={doImport} disabled={isImporting || isParsing || !rawItems.length}>
-            {isImporting ? "Importing…" : "Import"}
-          </Button>
+          {rawItems.length === 0 ? (
+            <Button onClick={parseFiles} disabled={isParsing || !jsonInput.trim()}>
+              {isParsing ? "Parsing..." : "Analyze JSON"}
+            </Button>
+          ) : (
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => setRawItems([])} disabled={isImporting}>
+                Back to Input
+              </Button>
+              <Button onClick={doImport} disabled={isImporting || !canEdit}>
+                {isImporting ? "Importing..." : `Import ${previewList.length} Items`}
+              </Button>
+            </div>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
