@@ -3,11 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Exports all OG images from Supabase storage into a single ZIP file.
+ * Uses parallel downloads for speed and provides progress feedback.
  */
 export async function exportOgImagesToZip(opts?: { 
   bucket?: string; 
   folder?: string;
   filename?: string;
+  onProgress?: (current: number, total: number) => void;
 }): Promise<{ total: number }> {
   const bucket = opts?.bucket ?? "media";
   const folder = opts?.folder ?? "dua-og";
@@ -25,24 +27,35 @@ export async function exportOgImagesToZip(opts?: {
     throw new Error("No images found in storage.");
   }
 
-  // 2. Download each file and add to ZIP
+  const validFiles = files.filter(f => f.name !== ".emptyKeep");
+  const total = validFiles.length;
   let count = 0;
-  for (const file of files) {
-    if (file.name === ".emptyKeep") continue;
+
+  // 2. Download files in batches to prevent browser hang and speed up
+  const batchSize = 10;
+  for (let i = 0; i < total; i += batchSize) {
+    const batch = validFiles.slice(i, i + batchSize);
     
-    const { data: blob, error: downloadError } = await supabase.storage
-      .from(bucket)
-      .download(`${folder}/${file.name}`);
+    await Promise.all(batch.map(async (file) => {
+      try {
+        const { data: blob, error: downloadError } = await supabase.storage
+          .from(bucket)
+          .download(`${folder}/${file.name}`);
 
-    if (downloadError) {
-      console.error(`Failed to download ${file.name}:`, downloadError);
-      continue;
-    }
-
-    if (blob) {
-      zip.file(file.name, blob);
-      count++;
-    }
+        if (downloadError) throw downloadError;
+        
+        if (blob) {
+          zip.file(file.name, blob);
+        }
+      } catch (err) {
+        console.error(`Failed to download ${file.name}:`, err);
+      } finally {
+        count++;
+        if (opts?.onProgress) {
+          opts.onProgress(count, total);
+        }
+      }
+    }));
   }
 
   // 3. Generate and download the ZIP
@@ -90,27 +103,36 @@ export async function importOgImagesFromZip(
     throw new Error("No valid image files found in the ZIP.");
   }
 
+  const total = imageFiles.length;
   let count = 0;
-  for (const name of imageFiles) {
-    const blob = await zipContent.files[name].async("blob");
-    const fileName = name.split("/").pop() || name;
+
+  // Upload in batches
+  const batchSize = 5;
+  for (let i = 0; i < total; i += batchSize) {
+    const batch = imageFiles.slice(i, i + batchSize);
     
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(`${folder}/${fileName}`, blob, {
-        upsert: true,
-        contentType: `image/${fileName.split(".").pop() === "webp" ? "webp" : "png"}`
-      });
+    await Promise.all(batch.map(async (name) => {
+      try {
+        const blob = await zipContent.files[name].async("blob");
+        const fileName = name.split("/").pop() || name;
+        
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(`${folder}/${fileName}`, blob, {
+            upsert: true,
+            contentType: `image/${fileName.split(".").pop() === "webp" ? "webp" : "png"}`
+          });
 
-    if (uploadError) {
-      console.error(`Failed to upload ${fileName}:`, uploadError);
-      continue;
-    }
-
-    count++;
-    if (opts?.onProgress) {
-      opts.onProgress(count, imageFiles.length);
-    }
+        if (uploadError) throw uploadError;
+      } catch (err) {
+        console.error(`Failed to upload ${name}:`, err);
+      } finally {
+        count++;
+        if (opts?.onProgress) {
+          opts.onProgress(count, total);
+        }
+      }
+    }));
   }
 
   return { total: count };

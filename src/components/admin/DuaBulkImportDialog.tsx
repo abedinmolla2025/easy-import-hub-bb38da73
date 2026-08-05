@@ -202,7 +202,7 @@ export function DuaBulkImportDialog({
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isExportingImages, setIsExportingImages] = useState(false);
   const [isImportingImages, setIsImportingImages] = useState(false);
-  const [imageImportProgress, setImageImportProgress] = useState<{ current: number; total: number } | null>(null);
+  const [imageOperationProgress, setImageOperationProgress] = useState<{ current: number; total: number } | null>(null);
   const [rawItems, setRawItems] = useState<unknown[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -281,7 +281,7 @@ export function DuaBulkImportDialog({
     setIsImporting(false);
     setDuplicateMode("skip");
     setPreviewOnlyDuplicates(false);
-    setImageImportProgress(null);
+    setImageOperationProgress(null);
   };
 
   const handleClose = (nextOpen: boolean) => {
@@ -306,13 +306,17 @@ export function DuaBulkImportDialog({
   const handleExportOgImages = async () => {
     try {
       setIsExportingImages(true);
-      const res = await exportOgImagesToZip();
+      setImageOperationProgress({ current: 0, total: 0 });
+      const res = await exportOgImagesToZip({
+        onProgress: (current, total) => setImageOperationProgress({ current, total })
+      });
       toast({ title: "Images Exported", description: `${res.total} টি OG ইমেজ ডাউনলোড হয়েছে` });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Image export failed";
       toast({ title: "Export failed", description: msg, variant: "destructive" });
     } finally {
       setIsExportingImages(false);
+      setImageOperationProgress(null);
     }
   };
 
@@ -320,9 +324,9 @@ export function DuaBulkImportDialog({
     if (!file || !canEdit) return;
     try {
       setIsImportingImages(true);
-      setImageImportProgress({ current: 0, total: 0 });
+      setImageOperationProgress({ current: 0, total: 0 });
       const res = await importOgImagesFromZip(file, {
-        onProgress: (current, total) => setImageImportProgress({ current, total })
+        onProgress: (current, total) => setImageOperationProgress({ current, total })
       });
       toast({ title: "Images Imported", description: `${res.total} টি OG ইমেজ আপলোড হয়েছে` });
     } catch (e) {
@@ -330,7 +334,7 @@ export function DuaBulkImportDialog({
       toast({ title: "Import failed", description: msg, variant: "destructive" });
     } finally {
       setIsImportingImages(false);
-      setImageImportProgress(null);
+      setImageOperationProgress(null);
       if (imageZipInputRef.current) imageZipInputRef.current.value = "";
     }
   };
@@ -614,7 +618,9 @@ export function DuaBulkImportDialog({
                 className="gap-2"
               >
                 <FileArchive className="h-4 w-4" />
-                {isImportingImages ? `Importing...` : "Import OG Images (ZIP)"}
+                {isImportingImages 
+                  ? `Importing (${imageOperationProgress?.current}/${imageOperationProgress?.total})` 
+                  : "Import OG Images (ZIP)"}
               </Button>
               <Button
                 variant="outline"
@@ -624,7 +630,9 @@ export function DuaBulkImportDialog({
                 className="gap-2"
               >
                 <ImageIcon className="h-4 w-4" />
-                {isExportingImages ? "Exporting..." : "Export OG Images (ZIP)"}
+                {isExportingImages 
+                  ? `Exporting (${imageOperationProgress?.current}/${imageOperationProgress?.total})` 
+                  : "Export OG Images (ZIP)"}
               </Button>
               <Button
                 variant="outline"
