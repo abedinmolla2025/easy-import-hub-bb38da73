@@ -1402,7 +1402,7 @@ export default function AdminContent() {
                 title={!canEdit ? 'No permission' : undefined}
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Import Story (JSON)
+                Bulk Import/Export Stories
               </Button>
             ) : null}
 
@@ -1473,7 +1473,7 @@ export default function AdminContent() {
       <Dialog open={isStoryImportOpen} onOpenChange={setIsStoryImportOpen}>
         <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Import Islamic Stories (JSON)</DialogTitle>
+            <DialogTitle>Bulk Import/Export Islamic Stories</DialogTitle>
           </DialogHeader>
           <StoryImportPanel
             canEdit={canEdit}

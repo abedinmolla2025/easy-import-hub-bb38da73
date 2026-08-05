@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Loader2, RefreshCw, Upload } from 'lucide-react';
+import { BookOpen, Loader2, RefreshCw, Upload, Download } from 'lucide-react';
 import { estimateReadingMinutes, type Story } from '@/lib/stories';
 
 export type StoryImportResult = { insertedIds: string[]; updatedIds: string[] };
@@ -154,48 +154,112 @@ export function StoryImportPanel({
     }
   };
 
+  const exportStories = async () => {
+    try {
+      setBusy(true);
+      const { data, error } = await supabase
+        .from('admin_content')
+        .select('*')
+        .eq('content_type', 'story')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        toast({ title: 'No stories found to export', variant: 'destructive' });
+        return;
+      }
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `islamic-stories-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({ title: 'Export Successful', description: `${data.length} stories exported.` });
+    } catch (e) {
+      toast({
+        title: 'Export Failed',
+        description: e instanceof Error ? e.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <Card className="shadow-sm border-border/80">
+    <Card className="shadow-sm border-border/80 mb-6">
       <CardHeader className="pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <CardTitle className="flex items-center gap-2 text-base">
               <BookOpen className="h-4 w-4" />
-              Story Import &amp; Sync
+              Islamic Story Bulk Management
             </CardTitle>
             <CardDescription>
-              Sync the bundled stories dataset into the database, or upload your own stories JSON.
-              Existing stories are matched by slug and updated — never duplicated.
+              Import new stories or export your existing collection as a JSON file.
             </CardDescription>
           </div>
           <Badge variant="secondary" className="rounded-full">
-            {dbCount ?? '…'} in DB · {bundledCount ?? '…'} bundled
+            {dbCount ?? '…'} Stories in Database
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={importBundled} disabled={!canEdit || busy}>
-            {busy ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <BookOpen className="mr-1 h-3.5 w-3.5" />}
-            Sync bundled stories
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={!canEdit || busy}>
-            <Upload className="mr-1 h-3.5 w-3.5" />
-            Import Stories (JSON)
-          </Button>
-          <Button size="sm" variant="outline" onClick={refresh} disabled={busy}>
-            <RefreshCw className="mr-1 h-3.5 w-3.5" />
-            Refresh
-          </Button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json"
-            className="hidden"
-            onChange={(e) => importFile(e.target.files?.[0])}
-          />
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 border rounded-lg bg-muted/30 space-y-3">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Upload className="h-4 w-4 text-primary" />
+              Import Stories
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              Upload a JSON file to add or update stories in bulk.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={() => fileRef.current?.click()} disabled={!canEdit || busy}>
+                <Upload className="mr-2 h-3.5 w-3.5" />
+                Import JSON
+              </Button>
+              <Button size="sm" variant="ghost" className="w-full sm:w-auto" onClick={importBundled} disabled={!canEdit || busy}>
+                Sync Bundled
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-4 border rounded-lg bg-muted/30 space-y-3">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Download className="h-4 w-4 text-primary" />
+              Export Stories
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              Download all stories from the database as a JSON backup.
+            </p>
+            <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={exportStories} disabled={busy}>
+              <Download className="mr-2 h-3.5 w-3.5" />
+              Export JSON
+            </Button>
+          </div>
         </div>
-        {busy && <Progress value={progress} />}
+
+        <div className="flex justify-end">
+          <Button size="xs" variant="ghost" className="text-[10px] h-6" onClick={refresh} disabled={busy}>
+            <RefreshCw className={`mr-1 h-3 w-3 ${busy ? 'animate-spin' : ''}`} />
+            Refresh Count
+          </Button>
+        </div>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={(e) => importFile(e.target.files?.[0])}
+        />
+        {busy && <Progress value={progress} className="h-1" />}
       </CardContent>
     </Card>
   );
