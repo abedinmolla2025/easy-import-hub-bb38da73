@@ -41,6 +41,13 @@ const NoorShare = {
             // Open WhatsApp directly
             window.open(`https://wa.me/?text=${encodeURIComponent(fullMessage)}`, '_blank');
         } else {
+            // Desktop: Copy to clipboard as a smart workaround for Facebook's restriction
+            try {
+                await navigator.clipboard.writeText(fullMessage);
+                alert("ক্যাপশনটি কপি করা হয়েছে! ফেসবুকে পেস্ট (Paste) করে দিন।");
+            } catch (err) {
+                console.error("Failed to copy caption:", err);
+            }
             // Open Facebook Sharer for Desktop
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
         }
