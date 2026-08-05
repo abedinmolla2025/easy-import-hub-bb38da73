@@ -187,7 +187,38 @@ export function StoryImportPanel({
         return;
       }
 
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      // Transform data to match the frontend Story structure for clean usage elsewhere
+      const transformedData = data.map((row: any) => {
+        const meta = row.metadata || {};
+        return {
+          slug: row.slug,
+          category: row.category || "",
+          title_bn: row.title || "",
+          title_en: row.title_en || "",
+          title_ur: row.title_ur || undefined,
+          content_bn: row.content || "",
+          content_en: row.content_en || "",
+          content_ur: row.content_ur || undefined,
+          moral_bn: row.moral_bn || meta.moral_bn || undefined,
+          moral_en: row.moral_en || meta.moral_en || undefined,
+          moral_ur: row.moral_ur || meta.moral_ur || undefined,
+          source_name: row.source_name || meta.source_name || undefined,
+          source_detail: row.source_detail || meta.source_detail || undefined,
+          reference: row.reference || undefined,
+          seo: row.seo || { title: row.title || "", meta_description: "" },
+          navigation: row.navigation || meta.navigation || undefined,
+          engagement: row.engagement || meta.engagement || undefined,
+          growth: row.growth || meta.growth || undefined,
+          tags: row.tags || meta.tags || undefined,
+          author: row.author || meta.author || undefined,
+          reading_time_minutes: row.reading_time_minutes || meta.reading_time_minutes || undefined,
+          is_featured: row.is_featured ?? meta.is_featured ?? undefined,
+          og_image_url: row.og_image_url || undefined,
+          updated_at: row.updated_at || undefined,
+        };
+      });
+
+      const blob = new Blob([JSON.stringify(transformedData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
