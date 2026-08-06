@@ -556,21 +556,33 @@ export default function StoryDetailPage() {
                 </div>
               </div>
 
-              {/* Share Trailer Button */}
+              {/* Share Trailer Button - Universal Share */}
               {story.audio_trailer_url && (
                 <div className="mt-8 flex justify-center">
-                  <a 
-                    href={shareLinks.trailerFacebook} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="group/share relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-blue-600 text-white font-bold shadow-xl transition-all hover:bg-blue-500 hover:scale-105 active:scale-95"
+                  <button 
+                    onClick={async () => {
+                      try {
+                        if (navigator.share) {
+                          await navigator.share({
+                            title: `🎬 ${storyTitle} (Audio Trailer)`,
+                            text: trailerShareText,
+                            url: trailerUrl,
+                          });
+                        } else {
+                          window.open(shareLinks.trailerFacebook, '_blank');
+                        }
+                      } catch (err) {
+                        console.log("Trailer share failed", err);
+                      }
+                    }}
+                    className="group/share relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-emerald-600 text-white font-bold shadow-xl transition-all hover:bg-emerald-500 hover:scale-105 active:scale-95"
                   >
-                    <Facebook className="h-5 w-5" />
-                    <span>Share Audio Trailer on Facebook</span>
+                    <Share2 className="h-5 w-5" />
+                    <span>Share Audio</span>
                     <div className="absolute -top-2 -right-2 bg-red-500 text-[10px] px-2 py-0.5 rounded-full animate-bounce shadow-lg">
                       30s Clip
                     </div>
-                  </a>
+                  </button>
                 </div>
               )}
 
