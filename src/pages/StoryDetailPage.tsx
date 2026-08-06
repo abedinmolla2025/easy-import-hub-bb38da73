@@ -280,15 +280,21 @@ export default function StoryDetailPage() {
 
           {/* Audio Player */}
           {story.audio_embed_code && (
-            <div className="rounded-xl overflow-hidden shadow-lg border border-border bg-card p-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
-                  <BookOpen className="h-5 w-5 text-emerald-600" /> এই গল্পটি শুনুন
-                </h3>
-                <p className="text-sm text-muted-foreground">পেশাদার কণ্ঠশিল্পীর সুন্দর উপস্থাপনায় এই গল্পটি শুনুন।</p>
+            <div className="rounded-2xl overflow-hidden shadow-2xl border border-emerald-200/50 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50/50 to-emerald-100/30 dark:from-emerald-950/20 dark:to-emerald-900/10 p-8 transition-all duration-300 hover:shadow-3xl hover:border-emerald-300/70 dark:hover:border-emerald-800/70">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-emerald-600 rounded-full blur-md opacity-50 animate-pulse"></div>
+                    <BookOpen className="h-6 w-6 text-emerald-600 relative z-10" />
+                  </div>
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-700 to-emerald-600 dark:from-emerald-400 dark:to-emerald-300 bg-clip-text text-transparent">
+                    এই গল্পটি শুনুন
+                  </h3>
+                </div>
+                <p className="text-sm text-muted-foreground/80 leading-relaxed pl-9">পেশাদার কণ্ঠশিল্পীর সুন্দর উপস্থাপনায় এই আকর্ষণীয় গল্পটি শুনুন এবং অনুপ্রাণিত হন।</p>
               </div>
               <div 
-                className="w-full"
+                className="w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md [&_iframe]:border [&_iframe]:border-emerald-200/30 dark:[&_iframe]:border-emerald-800/30 transition-all duration-300 hover:[&_iframe]:shadow-lg"
                 dangerouslySetInnerHTML={{ __html: story.audio_embed_code }}
               />
             </div>
