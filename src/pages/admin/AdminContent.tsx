@@ -1312,6 +1312,11 @@ export default function AdminContent() {
     URL.revokeObjectURL(url);
   };
 
+  // Debug: Log when story is selected
+  if (contentTypeContext === 'story' && !isLoading) {
+    console.log('Story context loaded. Content count:', content?.length);
+  }
+
   return (
     <div className="space-y-6">
       <AlertDialog open={bulkConfirmOpen} onOpenChange={setBulkConfirmOpen}>
@@ -1526,6 +1531,14 @@ export default function AdminContent() {
       {/* Removed SEO, OG, and Quality Check panels for Story as per user request */}
       {/* Story module specific tools (currently none as per user request) */}
 
+      {isLoading && contentTypeContext === 'story' && (
+        <Card className="shadow-sm border-border/80">
+          <CardContent className="pt-6">
+            <div className="text-center text-sm text-muted-foreground">Loading stories...</div>
+          </CardContent>
+        </Card>
+      )}
+
       {contentTypeContext === 'hadith' ? (
         <div className="space-y-6">
           <HadithSeoGeneratorPanel />
@@ -1533,7 +1546,7 @@ export default function AdminContent() {
           <HadithExportImportPanel />
           <HadithImportPanel />
         </div>
-      ) : contentTypeContext ? (
+      ) : contentTypeContext && !isLoading ? (
         <Card className="shadow-sm border-border/80">
           <CardContent className="pt-6">
             {/* Filters */}
