@@ -10,6 +10,8 @@ import {
   Quote,
   Share2,
   Sparkles,
+  RotateCcw,
+  RotateCw,
   Facebook,
   Twitter,
   MessageCircle,
@@ -92,7 +94,18 @@ export default function StoryDetailPage() {
     if (!iframe) return;
     const widget = (window as any).SC.Widget(iframe);
     widget.toggle();
-    setIsPlaying(!isPlaying);
+    widget.isPaused((paused: boolean) => {
+      setIsPlaying(!paused);
+    });
+  };
+
+  const seek = (seconds: number) => {
+    const iframe = document.getElementById("sc-player") as HTMLIFrameElement;
+    if (!iframe) return;
+    const widget = (window as any).SC.Widget(iframe);
+    widget.getPosition((pos: number) => {
+      widget.seekTo(pos + seconds * 1000);
+    });
   };
 
   if (!loading && !story) {
@@ -369,8 +382,16 @@ export default function StoryDetailPage() {
                         </div>
                       </div>
 
-                      {/* Right: Play Button (Compact but bold) */}
-                      <div className="flex-shrink-0">
+                      {/* Right: Controls (Rewind, Play, Forward) */}
+                      <div className="flex-shrink-0 flex items-center gap-3 sm:gap-5">
+                        <button 
+                          onClick={() => seek(-10)}
+                          className="p-2 text-emerald-100/60 hover:text-emerald-400 transition-colors"
+                          title="Rewind 10s"
+                        >
+                          <RotateCcw className="h-6 w-6 sm:h-8 sm:w-8" />
+                        </button>
+
                         <button 
                           onClick={togglePlay}
                           className="group/btn relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full bg-emerald-500 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-emerald-400 active:scale-95"
@@ -384,6 +405,14 @@ export default function StoryDetailPage() {
                           ) : (
                             <div className="ml-1 w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent sm:border-t-[12px] sm:border-l-[22px] sm:border-b-[12px]"></div>
                           )}
+                        </button>
+
+                        <button 
+                          onClick={() => seek(10)}
+                          className="p-2 text-emerald-100/60 hover:text-emerald-400 transition-colors"
+                          title="Forward 10s"
+                        >
+                          <RotateCw className="h-6 w-6 sm:h-8 sm:w-8" />
                         </button>
                       </div>
                     </div>
