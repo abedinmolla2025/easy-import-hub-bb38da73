@@ -45,6 +45,7 @@ export function storyRowFromJson(story: Story, publish: boolean) {
     related_stories:
       (story.navigation?.related_stories ?? story.growth?.related ?? []).map((r: any) => r.slug || r) || null,
     tags: Array.isArray(story.seo?.keywords) ? (story.seo?.keywords as string[]) : (story.tags || null),
+    audio_embed_code: story.audio_embed_code ?? null,
     status: publish ? 'published' : 'draft',
     is_published: publish,
     ...(publish ? { published_at: new Date().toISOString() } : {}),

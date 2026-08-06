@@ -278,6 +278,22 @@ export default function StoryDetailPage() {
             />
           </div>
 
+          {/* Audio Player */}
+          {story.audio_embed_code && (
+            <div className="rounded-xl overflow-hidden shadow-lg border border-border bg-card p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+                  <BookOpen className="h-5 w-5 text-emerald-600" /> এই গল্পটি শুনুন
+                </h3>
+                <p className="text-sm text-muted-foreground">পেশাদার কণ্ঠশিল্পীর সুন্দর উপস্থাপনায় এই গল্পটি শুনুন।</p>
+              </div>
+              <div 
+                className="w-full"
+                dangerouslySetInnerHTML={{ __html: story.audio_embed_code }}
+              />
+            </div>
+          )}
+
           {/* Social Share Buttons - Top */}
           <div className="space-y-3">
             <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">

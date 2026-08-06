@@ -46,6 +46,7 @@ import {
 import { DuaOgBulkGeneratePanel } from '@/components/admin/dua/DuaOgBulkGeneratePanel';
 import { ContentOgBulkGeneratePanel } from '@/components/admin/content/og/ContentOgBulkGeneratePanel';
 import { StoryImportPanel } from '@/components/admin/story/StoryImportPanel';
+import { StoryAudioEmbedInput } from '@/components/admin/story/StoryAudioEmbedInput';
 import { ContentSeoGeneratorPanel } from '@/components/admin/content/shared/ContentSeoGeneratorPanel';
 import { useOgStorageIndex } from '@/hooks/admin/content/useOgStorageIndex';
 import { STORY_CATEGORIES, estimateReadingMinutes } from '@/lib/stories';
@@ -2128,6 +2129,15 @@ export default function AdminContent() {
                         />
                       </div>
                     </div>
+
+                    {effectiveType === 'story' && (
+                      <div className="sm:col-span-2">
+                        <StoryAudioEmbedInput
+                          value={editForm.audio_embed_code}
+                          onChange={(v) => setEditForm((p) => ({ ...p, audio_embed_code: v }))}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
