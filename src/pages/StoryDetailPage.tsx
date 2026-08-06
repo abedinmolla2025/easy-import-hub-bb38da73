@@ -327,64 +327,65 @@ export default function StoryDetailPage() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-[100px] rounded-full -mr-32 -mt-32"></div>
                 
                 <div className="relative z-10 p-6 sm:p-10">
-                  <div className="flex flex-col lg:flex-row items-center gap-8">
-                    {/* Left: Thumbnail (Increased Size) */}
-                    <div className="relative flex-shrink-0">
-                      <div className="absolute -inset-2 bg-emerald-500/30 rounded-[2rem] blur-xl"></div>
-                      <div className="relative w-56 h-56 sm:w-80 sm:h-80 rounded-[2rem] overflow-hidden border-2 border-white/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]">
-                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover transition-transform duration-1000 group-hover/player:scale-110" />
+                  <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+                    {/* Left: Thumbnail (Maximized in Layout) */}
+                    <div className="relative flex-shrink-0 w-full lg:w-auto flex justify-center lg:block">
+                      <div className="absolute -inset-2 bg-emerald-500/20 rounded-3xl blur-xl"></div>
+                      <div className="relative w-full aspect-video lg:w-80 lg:h-52 rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl">
+                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover transition-transform duration-1000 group-hover/player:scale-105" />
                       </div>
                     </div>
 
-                    {/* Middle: Title & Waveform */}
-                    <div className="flex-1 text-center lg:text-left space-y-6 w-full">
-                      <h4 className="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight">
-                        {lang === "bn" ? story.title_bn : story.title_en}
-                      </h4>
-                      
-                      {/* Waveform Visualization */}
-                      <div className="flex items-end justify-center lg:justify-start gap-1 h-12 w-full max-w-md mx-auto lg:mx-0">
-                        {[...Array(30)].map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`flex-1 bg-emerald-400/60 rounded-full transition-all duration-300 ${isPlaying ? 'animate-pulse' : ''}`} 
-                            style={{ 
-                              height: isPlaying ? `${20 + Math.random() * 80}%` : '20%',
-                              animationDelay: `${i * 0.05}s`,
-                              animationDuration: '0.5s'
-                            }}
-                          ></div>
-                        ))}
-                      </div>
-
-                      {/* Progress Bar Mockup */}
-                      <div className="space-y-2">
-                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                          <div className={`h-full bg-emerald-500 transition-all duration-1000 ${isPlaying ? 'w-1/3' : 'w-0'}`}></div>
+                    {/* Middle & Right Combined for better space utilization */}
+                    <div className="flex-1 flex flex-col sm:flex-row items-center gap-6 w-full">
+                      <div className="flex-1 text-center sm:text-left space-y-4 w-full">
+                        <h4 className="text-xl sm:text-3xl font-black text-white leading-tight tracking-tight line-clamp-2">
+                          {lang === "bn" ? story.title_bn : story.title_en}
+                        </h4>
+                        
+                        {/* Waveform Visualization (More compact) */}
+                        <div className="flex items-end justify-center sm:justify-start gap-1 h-8 w-full max-w-xs mx-auto sm:mx-0 opacity-60">
+                          {[...Array(20)].map((_, i) => (
+                            <div 
+                              key={i} 
+                              className={`flex-1 bg-emerald-400 rounded-full transition-all duration-300 ${isPlaying ? 'animate-pulse' : ''}`} 
+                              style={{ 
+                                height: isPlaying ? `${30 + Math.random() * 70}%` : '30%',
+                                animationDelay: `${i * 0.05}s`
+                              }}
+                            ></div>
+                          ))}
                         </div>
-                        <div className="flex justify-between text-[10px] font-bold text-emerald-400/60 tracking-widest uppercase">
-                          <span>05:18</span>
-                          <span>21:47</span>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Right: Play Button */}
-                    <div className="flex-shrink-0">
-                      <button 
-                        onClick={togglePlay}
-                        className="group/btn relative w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center rounded-full bg-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-110 hover:bg-emerald-400 active:scale-95"
-                      >
-                        <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-20"></div>
-                        {isPlaying ? (
-                          <div className="flex gap-2">
-                            <div className="w-2 h-8 sm:w-3 sm:h-10 bg-white rounded-full"></div>
-                            <div className="w-2 h-8 sm:w-3 sm:h-10 bg-white rounded-full"></div>
+                        {/* Progress Bar */}
+                        <div className="space-y-1.5">
+                          <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div className={`h-full bg-emerald-500 transition-all duration-1000 ${isPlaying ? 'w-1/3' : 'w-0'}`}></div>
                           </div>
-                        ) : (
-                          <div className="ml-2 w-0 h-0 border-t-[15px] border-t-transparent border-l-[25px] border-l-white border-b-[15px] border-b-transparent sm:border-t-[20px] sm:border-l-[35px] sm:border-b-[20px]"></div>
-                        )}
-                      </button>
+                          <div className="flex justify-between text-[9px] font-bold text-emerald-400/40 tracking-widest">
+                            <span>05:18</span>
+                            <span>21:47</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Play Button (Compact but bold) */}
+                      <div className="flex-shrink-0">
+                        <button 
+                          onClick={togglePlay}
+                          className="group/btn relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full bg-emerald-500 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-emerald-400 active:scale-95"
+                        >
+                          <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-10"></div>
+                          {isPlaying ? (
+                            <div className="flex gap-1.5">
+                              <div className="w-1.5 h-6 sm:w-2 sm:h-8 bg-white rounded-full"></div>
+                              <div className="w-1.5 h-6 sm:w-2 sm:h-8 bg-white rounded-full"></div>
+                            </div>
+                          ) : (
+                            <div className="ml-1 w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent sm:border-t-[12px] sm:border-l-[22px] sm:border-b-[12px]"></div>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
