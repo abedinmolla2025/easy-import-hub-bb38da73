@@ -296,53 +296,79 @@ export default function StoryDetailPage() {
             )}
           </div>
 
-          {/* Smooth Integrated Audio Player */}
+          {/* Premium Mockup Integrated Audio Player */}
           {story.audio_embed_code && (
-            <div className="relative -mt-20 mx-2 sm:mx-8 z-10">
-              <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 bg-black/40 backdrop-blur-xl transition-all duration-500 hover:shadow-emerald-500/20">
-                {/* Blurred Background Image */}
-                <div className="absolute inset-0 z-0">
-                  <img src={ogImage} alt="" className="w-full h-full object-cover blur-2xl opacity-40 scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                </div>
-
-                <div className="relative z-10 p-5 sm:p-8">
-                  <div className="flex flex-col items-center mb-6">
-                    <div className="relative mb-4 group">
-                      <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-                      <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="relative -mt-24 mx-2 sm:mx-8 z-20">
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] border border-emerald-500/30 bg-emerald-950/40 backdrop-blur-2xl transition-all duration-500 hover:border-emerald-400/50 group/player">
+                {/* Animated Glow Effect */}
+                <div className="absolute -inset-24 bg-emerald-500/10 blur-[100px] rounded-full opacity-0 group-hover/player:opacity-100 transition-opacity duration-1000"></div>
+                
+                <div className="relative z-10 p-6 sm:p-10">
+                  <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
+                    {/* Thumbnail with Glow */}
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute -inset-1 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-3xl blur-md opacity-40 animate-pulse"></div>
+                      <div className="relative w-32 h-32 sm:w-44 sm:h-44 rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
+                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover transition-transform duration-700 group-hover/player:scale-110" />
                       </div>
                     </div>
-                    
-                    <div className="text-center space-y-2">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                        <span className="text-[10px] uppercase tracking-[0.2em] font-black">Audio Experience</span>
+
+                    {/* Title and Info */}
+                    <div className="flex-1 text-center md:text-left space-y-4">
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300">
+                        <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span className="text-[11px] uppercase tracking-[0.25em] font-black">Audio Experience</span>
                       </div>
-                      <h4 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
+                      <h4 className="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-2xl">
                         {lang === "bn" ? story.title_bn : story.title_en}
                       </h4>
+                      {/* Waveform Visualization Mockup (Visual SoundCloud handles this) */}
+                      <div className="hidden md:block w-full h-8 opacity-40">
+                        <div className="flex items-end gap-1 h-full">
+                          {[...Array(20)].map((_, i) => (
+                            <div key={i} className="flex-1 bg-emerald-400 rounded-full animate-pulse" style={{ height: `${Math.random() * 100}%`, animationDelay: `${i * 0.1}s` }}></div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
+                  {/* SoundCloud Player in Visual Mode */}
                   <div 
-                    className="w-full [&_iframe]:rounded-2xl [&_iframe]:shadow-2xl [&_iframe]:h-[300px] sm:[&_iframe]:h-[450px] transition-all duration-500"
+                    className="w-full [&_iframe]:rounded-3xl [&_iframe]:shadow-inner [&_iframe]:h-[166px] sm:[&_iframe]:h-[200px] transition-all duration-500 hover:scale-[1.01]"
                     dangerouslySetInnerHTML={{ 
                       __html: story.audio_embed_code
-                        .replace(/visual=false/g, 'visual=true')
-                        .replace(/height="166"/g, 'height="450"')
-                        .includes('visual=true') 
-                          ? story.audio_embed_code.replace(/height="166"/g, 'height="450"')
-                          : story.audio_embed_code.replace('?', '?visual=true&').replace(/height="166"/g, 'height="450"')
+                        .replace(/visual=true/g, 'visual=false') // Force classic mode for cleaner control inside our custom card
+                        .replace(/height="\d+"/g, 'height="166"')
+                        .replace(/color=%23[a-fA-F0-0]+/g, 'color=%2310b981') // Force emerald color
                     }}
                   />
                   
-                  <div className="mt-6 flex items-center justify-center gap-4 text-white/40 text-[10px] font-medium tracking-widest uppercase">
-                    <div className="h-px w-8 bg-white/10"></div>
-                    <span>NoorApp Audio Player</span>
-                    <div className="h-px w-8 bg-white/10"></div>
+                  <div className="mt-8 flex items-center justify-between text-emerald-100/40 text-[10px] font-bold tracking-[0.3em] uppercase">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-emerald-500/20"></div>
+                    <span className="px-6">NoorApp Premium Player</span>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-emerald-500/20"></div>
                   </div>
+                </div>
+              </div>
+
+              {/* Metadata Badges from Mockup */}
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
+                  <BookOpen className="h-4 w-4 text-emerald-400" />
+                  {categoryLabel(story.category)}
+                </div>
+                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
+                  <Clock className="h-4 w-4 text-emerald-400" />
+                  {readingMin} মিনিট
+                </div>
+                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
+                  <Sparkles className="h-4 w-4 text-emerald-400" />
+                  আবু হাসান
+                </div>
+                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
+                  <span className="text-emerald-400 font-bold">★</span>
+                  4.9
                 </div>
               </div>
             </div>
