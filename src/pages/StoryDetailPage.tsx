@@ -74,6 +74,8 @@ export default function StoryDetailPage() {
 
   const story = stories.find((s) => s.slug === slug);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const location = useLocation();
   const isTrailerMode = new URLSearchParams(location.search).get("trailer") === "true";
 
@@ -84,30 +86,66 @@ export default function StoryDetailPage() {
     script.async = true;
     document.body.appendChild(script);
 
+    script.onload = () => {
+      const iframe = document.getElementById("sc-player") as HTMLIFrameElement;
+      if (iframe && (window as any).SC) {
+        const widget = (window as any).SC.Widget(iframe);
+        
+        widget.bind((window as any).SC.Widget.Events.READY, () => {
+          widget.getDuration((d: number) => setDuration(d));
+        });
+
+        widget.bind((window as any).SC.Widget.Events.PLAY_PROGRESS, (event: any) => {
+          setCurrentTime(event.currentPosition);
+        });
+
+        widget.bind((window as any).SC.Widget.Events.PLAY, () => setIsPlaying(true));
+        widget.bind((window as any).SC.Widget.Events.PAUSE, () => setIsPlaying(false));
+        widget.bind((window as any).SC.Widget.Events.FINISH, () => {
+          setIsPlaying(false);
+          setCurrentTime(0);
+        });
+      }
+    };
+
     return () => {
       if (document.body.contains(script)) {
         document.body.removeChild(script);
       }
     };
-  }, []);
+  }, [story?.audio_embed_code]);
 
   const togglePlay = () => {
     const iframe = document.getElementById("sc-player") as HTMLIFrameElement;
     if (!iframe) return;
     const widget = (window as any).SC.Widget(iframe);
     widget.toggle();
-    widget.isPaused((paused: boolean) => {
-      setIsPlaying(!paused);
-    });
   };
 
-  const seek = (seconds: number) => {
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    const iframe = document.getElementById("sc-player") as HTMLIFrameElement;
+    if (!iframe) return;
+    const widget = (window as any).SC.Widget(iframe);
+    widget.seekTo(time);
+    setCurrentTime(time);
+  };
+
+  const seekOffset = (seconds: number) => {
     const iframe = document.getElementById("sc-player") as HTMLIFrameElement;
     if (!iframe) return;
     const widget = (window as any).SC.Widget(iframe);
     widget.getPosition((pos: number) => {
       widget.seekTo(pos + seconds * 1000);
     });
+  };
+
+  const formatTime = (ms: number) => {
+    if (!ms) return "0:00";
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   if (!loading && !story) {
@@ -448,12 +486,23 @@ export default function StoryDetailPage() {
 
                         {/* Progress Bar */}
                         <div className="space-y-1.5">
-                          <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div className={`h-full bg-emerald-500 transition-all duration-1000 ${isPlaying ? 'w-1/3' : 'w-0'}`}></div>
+                          <div className="relative group/slider h-6 flex items-center">
+                            <input
+                              type="range"
+                              min="0"
+                              max={duration || 100}
+                              value={currentTime}
+                              onChange={handleSeek}
+                              className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500 focus:outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:opacity-0 group-hover/slider:[&::-webkit-slider-thumb]:opacity-100 transition-all"
+                            />
+                            <div 
+                              className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-emerald-500 rounded-full pointer-events-none" 
+                              style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                            ></div>
                           </div>
-                          <div className="flex justify-between text-[9px] font-bold text-emerald-400/40 tracking-widest">
-                            <span>05:18</span>
-                            <span>21:47</span>
+                          <div className="flex justify-between text-[10px] font-black text-emerald-400/60 tracking-widest">
+                            <span>{formatTime(currentTime)}</span>
+                            <span>{formatTime(duration)}</span>
                           </div>
                         </div>
                       </div>
@@ -461,7 +510,7 @@ export default function StoryDetailPage() {
                       {/* Right: Controls (Rewind, Play, Forward) - Increased Gaps */}
                       <div className="flex-shrink-0 flex items-center gap-6 sm:gap-10">
                         <button 
-                          onClick={() => seek(-10)}
+                          onClick={() => seekOffset(-10)}
                           className="p-2 text-emerald-100/60 hover:text-emerald-400 transition-colors"
                           title="Rewind 10s"
                         >
@@ -484,7 +533,7 @@ export default function StoryDetailPage() {
                         </button>
 
                         <button 
-                          onClick={() => seek(10)}
+                          onClick={() => seekOffset(10)}
                           className="p-2 text-emerald-100/60 hover:text-emerald-400 transition-colors"
                           title="Forward 10s"
                         >
