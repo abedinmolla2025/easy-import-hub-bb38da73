@@ -267,6 +267,8 @@ function buildFullHtml(
   ogImage: string,
   bodyContent: string,
   jsonLd?: string,
+  extraTags?: string,
+  ogType: string = "website",
 ): string {
   const canonical = `${SITE_ORIGIN}${path}`;
   const hreflangTags = buildHreflangTags(path);
@@ -292,8 +294,9 @@ function buildFullHtml(
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="${escapeHtml(title)}" />
     <meta property="og:url" content="${canonical}" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="${ogType}" />
     <meta property="og:site_name" content="Noor Islamic App" />
+    ${extraTags || ""}
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -369,7 +372,79 @@ Deno.serve(async (req) => {
       /^\/hadith\/sahih-bukhari\/(bangla|english|urdu)$/,
     );
 
-    if (duaMatch) {
+    // Check for story page pattern
+    const storyMatch = path.match(/^\/stories\/([a-zA-Z0-9-]+)$/);
+    const isTrailerMode = url.searchParams.get("trailer") === "true";
+
+    if (storyMatch) {
+      const slug = storyMatch[1];
+      try {
+        const { data: story } = await supabase
+          .from("admin_content")
+          .select("*")
+          .ilike("content_type", "story")
+          .eq("slug", slug)
+          .maybeSingle();
+
+        if (story) {
+          const title = story.title_bn || story.title;
+          const description = isTrailerMode 
+            ? "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" 
+            : (story.seo?.meta_description || `${title} — পড়ুন নূর ইসলামিক অ্যাপে।`);
+          
+          seo = {
+            title: isTrailerMode ? `🎬 Trailer: ${title}` : title,
+            description: description,
+          };
+
+          const ogImagePath = story.image_url || story.og_image_url || story.seo?.og_image || story.og_image_data?.og_image;
+          if (ogImagePath) {
+            customOgImage = resolvePublicOgUrl(ogImagePath, supabaseUrl);
+          }
+
+          if (isTrailerMode) {
+            let extraTags = "";
+            if (story.audio_trailer_url) {
+              extraTags += `\n    <meta property="og:audio" content="${story.audio_trailer_url}" />`;
+              extraTags += `\n    <meta property="og:audio:type" content="audio/mpeg" />`;
+              extraTags += `\n    <meta property="og:video" content="${story.audio_trailer_url}" />`;
+              extraTags += `\n    <meta property="og:video:type" content="video/mp4" />`;
+            }
+            
+            bodyContent = `
+              <section>
+                <h2>🎬 ${escapeHtml(title)} (Audio Trailer)</h2>
+                <p>${escapeHtml(description)}</p>
+                <p>Visit <a href="${SITE_ORIGIN}/stories/${slug}">Noor App</a> to read the full story.</p>
+              </section>`;
+            
+            return new Response(
+              buildFullHtml(
+                path + (isTrailerMode ? "?trailer=true" : ""),
+                seo.title,
+                seo.description,
+                customOgImage || getOgImage(path),
+                bodyContent,
+                undefined,
+                extraTags,
+                "video.other"
+              ),
+              { headers: { ...corsHeaders, "Content-Type": "text/html" } }
+            );
+          }
+
+          bodyContent = `
+            <section>
+                <h2>${escapeHtml(title)}</h2>
+                ${story.author ? `<p><strong>Author:</strong> ${escapeHtml(story.author)}</p>` : ""}
+                ${story.content ? `<div class="content">${escapeHtml(story.content)}</div>` : ""}
+                <p>Visit <a href="${SITE_ORIGIN}/stories/${slug}">Noor App</a> to read more authentic Islamic stories.</p>
+            </section>`;
+        }
+      } catch (err) {
+        console.error("Error fetching story for prerender:", err);
+      }
+    } else if (duaMatch) {
       const slug = duaMatch[1];
       try {
         // The database is authoritative because admin uploads and replacements

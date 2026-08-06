@@ -77,7 +77,7 @@ export default function StoryDetailPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const location = useLocation();
-  const isTrailerMode = new URLSearchParams(location.search).get("trailer") === "true";
+  const isTrailerMode = new URLSearchParams(location.search).get("trailer") === "true" || location.pathname.endsWith("/trailer");
 
   useEffect(() => {
     // Load SoundCloud Widget API
@@ -264,7 +264,7 @@ export default function StoryDetailPage() {
   const storyTitle = story.title_bn || story.title_en;
   const viralShareText = `🌟 ${storyTitle}\n\nএই হৃদয়স্পর্শী ইসলামিক গল্পটি পড়ে আমার খুব ভালো লেগেছে। আপনিও পড়ুন এবং অন্যদের সাথে শেয়ার করে সদকা-এ-জারিয়ার সওয়াব হাসিল করুন। 🤲✨\n\nপড়ুন এখানে: ${url}`;
   
-  const trailerUrl = `${url}?trailer=true`;
+  const trailerUrl = `${url}/trailer`;
   const trailerShareText = `🎬 ${storyTitle} (Audio Trailer)\n\nএই ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন। ভালো লাগলে সবার সাথে শেয়ার করুন। ✨\n\nশুনুন এখানে: ${trailerUrl}`;
 
   const shareLinks = {

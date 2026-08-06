@@ -125,6 +125,7 @@ const AppRoutes = () => {
       <Route path="/stories" element={<StoriesPage />} />
       <Route path="/stories/category/:category" element={<StoryCategoryPage />} />
       <Route path="/stories/:slug" element={<StoryDetailPage />} />
+      <Route path="/stories/:slug/trailer" element={<StoryDetailPage />} />
 
       {/* Admin Routes */}
       <Route
