@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/pagination";
 import BottomNavigation from "@/components/BottomNavigation";
 import FooterSection from "@/components/FooterSection";
-import StoriesHeroSlider, { FEATURED_HERO_SLIDES } from "@/components/stories/StoriesHeroSlider";
+import StoriesHeroSlider from "@/components/stories/StoriesHeroSlider";
 import {
   STORY_CATEGORIES,
   categoryLabel,
