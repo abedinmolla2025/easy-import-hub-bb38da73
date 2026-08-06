@@ -1525,7 +1525,6 @@ export default function AdminContent() {
 
       {/* Removed SEO, OG, and Quality Check panels for Story as per user request */}
       {/* Story module specific tools (currently none as per user request) */}
-      {contentTypeContext === 'story' && null}
 
       {contentTypeContext === 'hadith' ? (
         <div className="space-y-6">
