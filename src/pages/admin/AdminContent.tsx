@@ -143,6 +143,8 @@ interface AdminContentRow {
   navigation?: any | null;
   engagement?: any | null;
   growth?: any | null;
+  audio_embed_code?: string | null;
+  audio_trailer_url?: string | null;
 }
 
 interface ContentVersionRow {

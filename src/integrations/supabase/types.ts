@@ -196,6 +196,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           audio_url?: string | null
+          audio_embed_code?: string | null
+          audio_trailer_url?: string | null
           authenticity?: string | null
           author?: string | null
           benefits_bn?: string[] | null
@@ -286,6 +288,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           audio_url?: string | null
+          audio_embed_code?: string | null
+          audio_trailer_url?: string | null
           authenticity?: string | null
           author?: string | null
           benefits_bn?: string[] | null
