@@ -372,9 +372,9 @@ Deno.serve(async (req) => {
       /^\/hadith\/sahih-bukhari\/(bangla|english|urdu)$/,
     );
 
-    // Check for story page pattern
-    const storyMatch = path.match(/^\/stories\/([a-zA-Z0-9-]+)$/);
-    const isTrailerMode = url.searchParams.get("trailer") === "true";
+    // Check for story page pattern (supports both /stories/slug and /stories/slug/trailer)
+    const storyMatch = path.match(/^\/stories\/([a-zA-Z0-9-]+)(?:\/trailer)?$/);
+    const isTrailerMode = url.searchParams.get("trailer") === "true" || path.endsWith("/trailer");
 
     if (storyMatch) {
       const slug = storyMatch[1];
@@ -405,9 +405,13 @@ Deno.serve(async (req) => {
           if (isTrailerMode) {
             let extraTags = "";
             if (story.audio_trailer_url) {
-              extraTags += `\n    <meta property="og:audio" content="${story.audio_trailer_url}" />`;
+              // Ensure absolute URL for audio
+              const audioUrl = story.audio_trailer_url.startsWith("http") ? story.audio_trailer_url : `${SITE_ORIGIN}${story.audio_trailer_url}`;
+              extraTags += `\n    <meta property="og:audio" content="${audioUrl}" />`;
               extraTags += `\n    <meta property="og:audio:type" content="audio/mpeg" />`;
-              extraTags += `\n    <meta property="og:video" content="${story.audio_trailer_url}" />`;
+              extraTags += `\n    <meta property="og:audio:secure_url" content="${audioUrl}" />`;
+              // Some platforms use og:video for audio previews
+              extraTags += `\n    <meta property="og:video" content="${audioUrl}" />`;
               extraTags += `\n    <meta property="og:video:type" content="video/mp4" />`;
             }
             
