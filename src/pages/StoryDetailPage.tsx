@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   BookOpen,
@@ -74,6 +74,8 @@ export default function StoryDetailPage() {
 
   const story = stories.find((s) => s.slug === slug);
   const [isPlaying, setIsPlaying] = useState(false);
+  const location = useLocation();
+  const isTrailerMode = new URLSearchParams(location.search).get("trailer") === "true";
 
   useEffect(() => {
     // Load SoundCloud Widget API
@@ -122,6 +124,73 @@ export default function StoryDetailPage() {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
   }
 
+  // Trailer Mode UI (Simplified for social sharing landing page)
+  if (isTrailerMode) {
+    return (
+      <div className="min-h-screen bg-[#0a1a1a] flex flex-col items-center justify-center p-4">
+        <Helmet>
+          <title>🎬 Trailer: {storyTitle}</title>
+          <meta property="og:title" content={`🎬 ${storyTitle} (Audio Trailer)`} />
+          <meta property="og:description" content="এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" />
+          <meta property="og:image" content={ogImage} />
+        </Helmet>
+        
+        <div className="w-full max-w-2xl space-y-8">
+          <div className="text-center space-y-4">
+            <Link to="/" className="inline-block mb-8">
+              <h2 className="text-3xl font-black text-emerald-500 tracking-tighter italic">NOOR</h2>
+            </Link>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span className="text-[11px] uppercase tracking-[0.25em] font-black">Playing Audio Trailer</span>
+            </div>
+          </div>
+
+          <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] border border-emerald-500/30 bg-emerald-950/20 backdrop-blur-3xl p-6 sm:p-10 text-center space-y-8">
+            <div className="relative mx-auto w-48 h-48 sm:w-64 sm:h-64 rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl">
+              <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-emerald-500/80 flex items-center justify-center animate-pulse">
+                  <BookOpen className="h-10 w-10 text-white" />
+                </div>
+              </div>
+            </div>
+
+            <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight">
+              {storyTitle}
+            </h1>
+
+            {story.audio_trailer_url ? (
+              <div className="space-y-6">
+                <audio 
+                  controls 
+                  autoPlay 
+                  className="w-full h-14 rounded-full bg-emerald-500"
+                  src={story.audio_trailer_url}
+                >
+                  Your browser does not support the audio element.
+                </audio>
+                <p className="text-emerald-100/60 text-sm italic">
+                  গল্পটির পূর্ণাঙ্গ অংশ শুনতে নিচের বাটনে ক্লিক করুন
+                </p>
+              </div>
+            ) : (
+              <p className="text-red-400">Trailer audio not available.</p>
+            )}
+
+            <Button asChild size="lg" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-8 text-xl font-bold">
+              <Link to={url}>সম্পূর্ণ গল্পটি পড়ুন ও শুনুন</Link>
+            </Button>
+          </div>
+          
+          <p className="text-center text-white/20 text-xs tracking-widest uppercase">
+            © 2026 NoorApp Islamic Companion
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const readingMin = estimateReadingMinutes(story.content_en);
   const url = `${SITE}/stories/${story.slug}`;
   const blocks = splitStoryContent(lang === "bn" ? story.content_bn : story.content_en);
@@ -136,12 +205,16 @@ export default function StoryDetailPage() {
   // Construct Viral Bengali Share Text
   const storyTitle = story.title_bn || story.title_en;
   const viralShareText = `🌟 ${storyTitle}\n\nএই হৃদয়স্পর্শী ইসলামিক গল্পটি পড়ে আমার খুব ভালো লেগেছে। আপনিও পড়ুন এবং অন্যদের সাথে শেয়ার করে সদকা-এ-জারিয়ার সওয়াব হাসিল করুন। 🤲✨\n\nপড়ুন এখানে: ${url}`;
+  
+  const trailerUrl = `${url}?trailer=true`;
+  const trailerShareText = `🎬 ${storyTitle} (Audio Trailer)\n\nএই ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন। ভালো লাগলে সবার সাথে শেয়ার করুন। ✨\n\nশুনুন এখানে: ${trailerUrl}`;
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
     whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(viralShareText)}`,
     twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(viralShareText)}`,
     telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(viralShareText)}`,
+    trailerFacebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(trailerUrl)}`,
   };
 
   const copyToClipboard = () => {
@@ -209,7 +282,7 @@ export default function StoryDetailPage() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <Helmet>
-        <title>{story.seo.title}</title>
+        <title>{isTrailerMode ? `🎬 Trailer: ${storyTitle}` : story.seo.title}</title>
         <meta name="description" content={story.seo.meta_description} />
         {story.seo.keywords && (
           <meta
@@ -218,19 +291,22 @@ export default function StoryDetailPage() {
           />
         )}
         <link rel="canonical" href={story.seo.canonical_url || url} />
-        <meta property="og:type" content="article" />
+        <meta property="og:type" content={isTrailerMode ? "video.other" : "article"} />
         <meta property="og:site_name" content="NoorApp" />
         <meta property="og:locale" content="bn_BD" />
         <meta property="og:locale:alternate" content="en_US" />
-        <meta property="og:title" content={story.seo.open_graph?.title || story.seo.title} />
-        <meta property="og:description" content={story.seo.open_graph?.description || story.seo.meta_description} />
-        <meta property="og:url" content={url} />
+        <meta property="og:title" content={isTrailerMode ? `🎬 ${storyTitle} (Audio Trailer)` : (story.seo.open_graph?.title || story.seo.title)} />
+        <meta property="og:description" content={isTrailerMode ? "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" : (story.seo.open_graph?.description || story.seo.meta_description)} />
+        <meta property="og:url" content={isTrailerMode ? trailerUrl : url} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:secure_url" content={ogImage} />
         <meta property="og:image:type" content={/\.png(?:\?|$)/i.test(ogImage) ? "image/png" : /\.webp(?:\?|$)/i.test(ogImage) ? "image/webp" : "image/jpeg"} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={story.title_en} />
+        {isTrailerMode && story.audio_trailer_url && (
+          <meta property="og:video" content={story.audio_trailer_url} />
+        )}
         <meta property="article:section" content={categoryLabel(story.category)} />
         <meta property="article:author" content="NoorApp Editorial Team" />
         {Array.isArray(story.seo.keywords) &&
@@ -239,8 +315,8 @@ export default function StoryDetailPage() {
           ))}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@noorapp" />
-        <meta name="twitter:title" content={story.seo.open_graph?.title || story.seo.title} />
-        <meta name="twitter:description" content={story.seo.open_graph?.description || story.seo.meta_description} />
+        <meta name="twitter:title" content={isTrailerMode ? `🎬 ${storyTitle} (Trailer)` : (story.seo.open_graph?.title || story.seo.title)} />
+        <meta name="twitter:description" content={isTrailerMode ? "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" : (story.seo.open_graph?.description || story.seo.meta_description)} />
         <meta name="twitter:image" content={ogImage} />
         <meta name="twitter:image:alt" content={story.title_en} />
         <meta name="pinterest:description" content={story.seo.open_graph?.description || story.seo.meta_description} />
@@ -430,6 +506,24 @@ export default function StoryDetailPage() {
                   />
                 </div>
               </div>
+
+              {/* Share Trailer Button */}
+              {story.audio_trailer_url && (
+                <div className="mt-8 flex justify-center">
+                  <a 
+                    href={shareLinks.trailerFacebook} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group/share relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-blue-600 text-white font-bold shadow-xl transition-all hover:bg-blue-500 hover:scale-105 active:scale-95"
+                  >
+                    <Facebook className="h-5 w-5" />
+                    <span>Share Audio Trailer on Facebook</span>
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-[10px] px-2 py-0.5 rounded-full animate-bounce shadow-lg">
+                      30s Clip
+                    </div>
+                  </a>
+                </div>
+              )}
 
               {/* Metadata Badges from Mockup */}
               <div className="mt-8 flex flex-wrap justify-center gap-3">

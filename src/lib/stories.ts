@@ -45,6 +45,7 @@ export type Story = {
   is_featured?: boolean;
   og_image_url?: string;
   audio_embed_code?: string;
+  audio_trailer_url?: string;
 };
 
 export const STORY_CATEGORIES: Record<string, { label: string; description: string }> = {
@@ -110,6 +111,7 @@ function rowToStory(row: any, index: number): Story {
     is_featured: row.is_featured ?? meta.is_featured ?? undefined,
     og_image_url: row.image_url ?? row.og_image_url ?? undefined,
     audio_embed_code: row.audio_embed_code ?? undefined,
+    audio_trailer_url: row.audio_trailer_url ?? undefined,
     updated_at: row.updated_at ?? undefined,
   };
 }

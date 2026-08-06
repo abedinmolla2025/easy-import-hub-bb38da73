@@ -340,6 +340,7 @@ export default function AdminContent() {
     engagement_json: '',
     growth_json: '',
     audio_embed_code: '',
+    audio_trailer_url: '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
@@ -799,6 +800,7 @@ export default function AdminContent() {
     engagement_json: '',
     growth_json: '',
     audio_embed_code: '',
+    audio_trailer_url: '',
   });
 
       const resetEditForm = (item?: AdminContentRow | null) => {
@@ -875,6 +877,7 @@ export default function AdminContent() {
       engagement_json: jsonToStr(item.engagement ?? item.metadata?.engagement),
       growth_json: jsonToStr(item.growth ?? item.metadata?.growth),
       audio_embed_code: item.audio_embed_code ?? '',
+      audio_trailer_url: item.audio_trailer_url ?? '',
     });
     setSelectedId(item.id);
   };
@@ -1025,6 +1028,7 @@ export default function AdminContent() {
                   growth: parseJson('growth', editForm.growth_json),
                 },
                 audio_embed_code: editForm.audio_embed_code || null,
+                audio_trailer_url: editForm.audio_trailer_url || null,
               };
             })()
           : {}),
@@ -2152,6 +2156,21 @@ export default function AdminContent() {
                           value={editForm.audio_embed_code}
                           onChange={(v) => setEditForm((p) => ({ ...p, audio_embed_code: v }))}
                         />
+                      </div>
+                    )}
+
+                    {effectiveType === 'story' && (
+                      <div className="sm:col-span-2">
+                        <Label>Audio Trailer URL (30s MP3 for Social Sharing)</Label>
+                        <Input
+                          value={editForm.audio_trailer_url}
+                          onChange={(e) => setEditForm((p) => ({ ...p, audio_trailer_url: e.target.value }))}
+                          placeholder="https://example.com/trailer.mp3"
+                          className="mt-1"
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          এই লিঙ্কটি ব্যবহার করে ফেসবুকে অডিও ট্রেলার শেয়ার করা হবে।
+                        </p>
                       </div>
                     )}
                   </div>
