@@ -269,34 +269,59 @@ export default function StoryDetailPage() {
       <div className="container mx-auto px-4 py-8 grid lg:grid-cols-[1fr_320px] gap-8">
         {/* Main */}
         <article className="space-y-8">
-          {/* Story Image */}
-          <div className="rounded-xl overflow-hidden shadow-lg border border-border">
+          {/* Story Image & Audio Player Combined */}
+          <div className="relative group rounded-2xl overflow-hidden shadow-2xl border border-border bg-muted/30">
             <img 
               src={ogImage} 
               alt={story.title_en} 
-              className="w-full aspect-video object-cover"
+              className={`w-full aspect-video object-cover transition-all duration-700 ${story.audio_embed_code ? 'group-hover:scale-105 group-hover:brightness-[0.3] brightness-[0.8]' : ''}`}
             />
+            
+            {story.audio_embed_code && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
+                <div className="mb-4 text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-600/90 mb-4 animate-bounce">
+                    <BookOpen className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">এই গল্পটি শুনুন</h3>
+                  <p className="text-sm text-emerald-50/90 max-w-md">পেশাদার কণ্ঠশিল্পীর কণ্ঠে এই হৃদয়স্পর্শী গল্পটি উপভোগ করুন।</p>
+                </div>
+              </div>
+            )}
+            
+            {!story.audio_embed_code && (
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                <h3 className="text-xl font-bold text-white">{lang === "bn" ? story.title_bn : story.title_en}</h3>
+              </div>
+            )}
           </div>
 
-          {/* Audio Player */}
+          {/* Smooth Integrated Audio Player */}
           {story.audio_embed_code && (
-            <div className="rounded-2xl overflow-hidden shadow-2xl border border-emerald-200/50 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50/50 to-emerald-100/30 dark:from-emerald-950/20 dark:to-emerald-900/10 p-8 transition-all duration-300 hover:shadow-3xl hover:border-emerald-300/70 dark:hover:border-emerald-800/70">
-              <div className="mb-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-emerald-600 rounded-full blur-md opacity-50 animate-pulse"></div>
-                    <BookOpen className="h-6 w-6 text-emerald-600 relative z-10" />
+            <div className="relative -mt-12 mx-4 sm:mx-8 z-10">
+              <div className="rounded-2xl overflow-hidden shadow-2xl border border-emerald-200/50 dark:border-emerald-900/50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-4 sm:p-6 transition-all duration-300 hover:shadow-emerald-500/10">
+                <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden shadow-md flex-shrink-0 border-2 border-emerald-100 dark:border-emerald-800">
+                    <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover" />
                   </div>
-                  <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-700 to-emerald-600 dark:from-emerald-400 dark:to-emerald-300 bg-clip-text text-transparent">
-                    এই গল্পটি শুনুন
-                  </h3>
+                  <div className="flex-1 text-center sm:text-left">
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                      <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-400">Now Playing Audio</span>
+                    </div>
+                    <h4 className="font-bold text-slate-800 dark:text-slate-100 line-clamp-1">
+                      {lang === "bn" ? story.title_bn : story.title_en}
+                    </h4>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground/80 leading-relaxed pl-9">পেশাদার কণ্ঠশিল্পীর সুন্দর উপস্থাপনায় এই আকর্ষণীয় গল্পটি শুনুন এবং অনুপ্রাণিত হন।</p>
+                <div 
+                  className="w-full [&_iframe]:rounded-xl [&_iframe]:h-[166px] transition-all duration-300"
+                  dangerouslySetInnerHTML={{ __html: story.audio_embed_code }}
+                />
+                <p className="mt-3 text-[10px] text-center text-muted-foreground italic">
+                  * সাউন্ডক্লাউড প্লেয়ারটি লোড হতে কয়েক সেকেন্ড সময় নিতে পারে
+                </p>
               </div>
-              <div 
-                className="w-full [&_iframe]:rounded-xl [&_iframe]:shadow-md [&_iframe]:border [&_iframe]:border-emerald-200/30 dark:[&_iframe]:border-emerald-800/30 transition-all duration-300 hover:[&_iframe]:shadow-lg"
-                dangerouslySetInnerHTML={{ __html: story.audio_embed_code }}
-              />
             </div>
           )}
 
