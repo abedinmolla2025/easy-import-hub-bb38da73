@@ -11,23 +11,27 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
-// Read Supabase config from .env
-function loadEnv() {
-  const envPath = path.join(PROJECT_ROOT, '.env');
-  const content = fs.readFileSync(envPath, 'utf-8');
-  const env = {};
-  for (const line of content.split('\n')) {
-    const match = line.match(/^([A-Z_]+)="?(.+?)"?$/);
-    if (match) {
-      env[match[1]] = match[2];
+// Read Supabase config from process.env or .env file
+function getEnv(key) {
+  if (process.env[key]) return process.env[key];
+  
+  try {
+    const envPath = path.join(PROJECT_ROOT, '.env');
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf-8');
+      for (const line of content.split('\n')) {
+        const match = line.match(/^([A-Z_]+)="?(.+?)"?$/);
+        if (match && match[1] === key) return match[2];
+      }
     }
+  } catch (e) {
+    // Ignore errors reading .env
   }
-  return env;
+  return null;
 }
 
-const env = loadEnv();
-const SUPABASE_URL = env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_URL = getEnv('VITE_SUPABASE_URL');
+const SUPABASE_ANON_KEY = getEnv('VITE_SUPABASE_PUBLISHABLE_KEY');
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('Missing Supabase env vars');
