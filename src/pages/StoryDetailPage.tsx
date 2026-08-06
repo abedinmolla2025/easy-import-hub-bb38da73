@@ -298,29 +298,52 @@ export default function StoryDetailPage() {
 
           {/* Smooth Integrated Audio Player */}
           {story.audio_embed_code && (
-            <div className="relative -mt-12 mx-4 sm:mx-8 z-10">
-              <div className="rounded-2xl overflow-hidden shadow-2xl border border-emerald-200/50 dark:border-emerald-900/50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-4 sm:p-6 transition-all duration-300 hover:shadow-emerald-500/10">
-                <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-xl overflow-hidden shadow-md flex-shrink-0 border-2 border-emerald-100 dark:border-emerald-800">
-                    <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                      <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-400">Now Playing Audio</span>
+            <div className="relative -mt-20 mx-2 sm:mx-8 z-10">
+              <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 bg-black/40 backdrop-blur-xl transition-all duration-500 hover:shadow-emerald-500/20">
+                {/* Blurred Background Image */}
+                <div className="absolute inset-0 z-0">
+                  <img src={ogImage} alt="" className="w-full h-full object-cover blur-2xl opacity-40 scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                </div>
+
+                <div className="relative z-10 p-5 sm:p-8">
+                  <div className="flex flex-col items-center mb-6">
+                    <div className="relative mb-4 group">
+                      <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+                      <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      </div>
                     </div>
-                    <h4 className="font-bold text-slate-800 dark:text-slate-100 line-clamp-1">
-                      {lang === "bn" ? story.title_bn : story.title_en}
-                    </h4>
+                    
+                    <div className="text-center space-y-2">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span className="text-[10px] uppercase tracking-[0.2em] font-black">Audio Experience</span>
+                      </div>
+                      <h4 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
+                        {lang === "bn" ? story.title_bn : story.title_en}
+                      </h4>
+                    </div>
+                  </div>
+
+                  <div 
+                    className="w-full [&_iframe]:rounded-2xl [&_iframe]:shadow-2xl [&_iframe]:h-[300px] sm:[&_iframe]:h-[450px] transition-all duration-500"
+                    dangerouslySetInnerHTML={{ 
+                      __html: story.audio_embed_code
+                        .replace(/visual=false/g, 'visual=true')
+                        .replace(/height="166"/g, 'height="450"')
+                        .includes('visual=true') 
+                          ? story.audio_embed_code.replace(/height="166"/g, 'height="450"')
+                          : story.audio_embed_code.replace('?', '?visual=true&').replace(/height="166"/g, 'height="450"')
+                    }}
+                  />
+                  
+                  <div className="mt-6 flex items-center justify-center gap-4 text-white/40 text-[10px] font-medium tracking-widest uppercase">
+                    <div className="h-px w-8 bg-white/10"></div>
+                    <span>NoorApp Audio Player</span>
+                    <div className="h-px w-8 bg-white/10"></div>
                   </div>
                 </div>
-                <div 
-                  className="w-full [&_iframe]:rounded-xl [&_iframe]:h-[166px] transition-all duration-300"
-                  dangerouslySetInnerHTML={{ __html: story.audio_embed_code }}
-                />
-                <p className="mt-3 text-[10px] text-center text-muted-foreground italic">
-                  * সাউন্ডক্লাউড প্লেয়ারটি লোড হতে কয়েক সেকেন্ড সময় নিতে পারে
-                </p>
               </div>
             </div>
           )}
