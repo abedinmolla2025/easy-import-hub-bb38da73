@@ -168,9 +168,27 @@ export default function StoryDetailPage() {
       <div className="min-h-screen bg-[#0a1a1a] flex flex-col items-center justify-center p-4">
         <Helmet>
           <title>🎬 Trailer: {storyTitle}</title>
+          <meta name="description" content="এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" />
           <meta property="og:title" content={`🎬 ${storyTitle} (Audio Trailer)`} />
           <meta property="og:description" content="এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" />
           <meta property="og:image" content={ogImage} />
+          <meta property="og:image:secure_url" content={ogImage} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:type" content="video.other" />
+          <meta property="og:url" content={trailerUrl} />
+          {story.audio_trailer_url && (
+            <>
+              <meta property="og:audio" content={story.audio_trailer_url} />
+              <meta property="og:audio:type" content="audio/mpeg" />
+              <meta property="og:video" content={story.audio_trailer_url} />
+              <meta property="og:video:type" content="video/mp4" />
+            </>
+          )}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={`🎬 ${storyTitle} (Trailer)`} />
+          <meta name="twitter:description" content="এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" />
+          <meta name="twitter:image" content={ogImage} />
         </Helmet>
         
         <div className="w-full max-w-2xl space-y-8">
@@ -200,14 +218,16 @@ export default function StoryDetailPage() {
 
             {story.audio_trailer_url ? (
               <div className="space-y-6">
-                <audio 
-                  controls 
-                  autoPlay 
-                  className="w-full h-14 rounded-full bg-emerald-500"
-                  src={story.audio_trailer_url}
-                >
-                  Your browser does not support the audio element.
-                </audio>
+                <div className="relative group/trailer-player p-4 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <audio 
+                    controls 
+                    autoPlay 
+                    className="w-full h-12 rounded-full accent-emerald-500"
+                    src={story.audio_trailer_url}
+                  >
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
                 <p className="text-emerald-100/60 text-sm italic">
                   গল্পটির পূর্ণাঙ্গ অংশ শুনতে নিচের বাটনে ক্লিক করুন
                 </p>
