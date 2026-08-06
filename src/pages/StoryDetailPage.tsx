@@ -328,11 +328,11 @@ export default function StoryDetailPage() {
                 
                 <div className="relative z-10 p-6 sm:p-10">
                   <div className="flex flex-col lg:flex-row items-center gap-8">
-                    {/* Left: Thumbnail */}
+                    {/* Left: Thumbnail (Increased Size) */}
                     <div className="relative flex-shrink-0">
-                      <div className="absolute -inset-1 bg-emerald-500/30 rounded-3xl blur-md"></div>
-                      <div className="relative w-40 h-40 sm:w-56 sm:h-56 rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover" />
+                      <div className="absolute -inset-2 bg-emerald-500/30 rounded-[2rem] blur-xl"></div>
+                      <div className="relative w-56 h-56 sm:w-80 sm:h-80 rounded-[2rem] overflow-hidden border-2 border-white/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]">
+                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover transition-transform duration-1000 group-hover/player:scale-110" />
                       </div>
                     </div>
 
