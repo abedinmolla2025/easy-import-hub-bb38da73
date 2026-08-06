@@ -56,8 +56,7 @@ export default function StoriesPage() {
   }, [stories, activeCat, q]);
 
   const featured = stories[0];
-  const featuredSlugs = new Set(FEATURED_HERO_SLIDES.map((s) => s.slug));
-  const featuredGrid = stories.filter((s) => featuredSlugs.has(s.slug)).slice(0, 6);
+  const featuredGrid = stories.slice(0, 6);
   const latestStories = stories.slice(0, 6);
   const mostRead = [...stories]
     .sort((a, b) => (b.content_en?.length ?? 0) - (a.content_en?.length ?? 0))
