@@ -96,19 +96,37 @@ export default function StoryDetailPage() {
   const ogImagePath = story.og_image_url || STORY_OG_IMAGES[story.slug] || ogStoriesDefault;
   const ogImageBase = absoluteUrl(ogImagePath);
   const ogImage = story.updated_at ? cacheBustUrl(ogImageBase, story.updated_at) : ogImageBase;
-  const shareTitle = story.seo.open_graph?.title || story.seo.title;
-  const shareDesc = story.seo.open_graph?.description || story.seo.meta_description;
+  
+  // Construct Viral Bengali Share Text
+  const storyTitle = story.title_bn || story.title_en;
+  const viralShareText = `🌟 ${storyTitle}\n\nএই হৃদয়স্পর্শী ইসলামিক গল্পটি পড়ে আমার খুব ভালো লেগেছে। আপনিও পড়ুন এবং অন্যদের সাথে শেয়ার করে সদকা-এ-জারিয়ার সওয়াব হাসিল করুন। 🤲✨\n\nপড়ুন এখানে: ${url}`;
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareTitle}\n\n${url}`)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(url)}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareTitle)}`,
+    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(viralShareText)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(viralShareText)}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(viralShareText)}`,
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(url);
-    toast({ title: "Link copied", description: "Story URL copied to clipboard." });
+    toast({ title: "লিংক কপি হয়েছে", description: "গল্পের লিংকটি কপি করা হয়েছে।" });
+  };
+
+  const handleNativeShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: storyTitle,
+          text: viralShareText,
+          url: url,
+        });
+      } else {
+        copyToClipboard();
+      }
+    } catch (err) {
+      console.log("Share failed", err);
+    }
   };
 
   const breadcrumbs = [
@@ -168,8 +186,8 @@ export default function StoryDetailPage() {
         <meta property="og:site_name" content="NoorApp" />
         <meta property="og:locale" content="bn_BD" />
         <meta property="og:locale:alternate" content="en_US" />
-        <meta property="og:title" content={shareTitle} />
-        <meta property="og:description" content={shareDesc} />
+        <meta property="og:title" content={story.seo.open_graph?.title || story.seo.title} />
+        <meta property="og:description" content={story.seo.open_graph?.description || story.seo.meta_description} />
         <meta property="og:url" content={url} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:secure_url" content={ogImage} />
@@ -185,16 +203,16 @@ export default function StoryDetailPage() {
           ))}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@noorapp" />
-        <meta name="twitter:title" content={shareTitle} />
-        <meta name="twitter:description" content={shareDesc} />
+        <meta name="twitter:title" content={story.seo.open_graph?.title || story.seo.title} />
+        <meta name="twitter:description" content={story.seo.open_graph?.description || story.seo.meta_description} />
         <meta name="twitter:image" content={ogImage} />
         <meta name="twitter:image:alt" content={story.title_en} />
-        <meta name="pinterest:description" content={shareDesc} />
+        <meta name="pinterest:description" content={story.seo.open_graph?.description || story.seo.meta_description} />
         <meta name="pinterest:media" content={ogImage} />
         <meta name="thumbnail" content={ogImage} />
         <meta itemProp="image" content={ogImage} />
-        <meta itemProp="name" content={shareTitle} />
-        <meta itemProp="description" content={shareDesc} />
+        <meta itemProp="name" content={story.seo.open_graph?.title || story.seo.title} />
+        <meta itemProp="description" content={story.seo.open_graph?.description || story.seo.meta_description} />
         <link rel="alternate" hrefLang="en" href={url} />
         <link rel="alternate" hrefLang="bn" href={url} />
         <link rel="alternate" hrefLang="x-default" href={url} />
@@ -241,6 +259,9 @@ export default function StoryDetailPage() {
                 <Languages className="h-4 w-4 mr-1" /> {lang === "en" ? "বাংলায় পড়ুন" : "Read in English"}
               </Button>
             )}
+            <Button variant="secondary" size="sm" onClick={handleNativeShare}>
+              <Share2 className="h-4 w-4 mr-1" /> Share
+            </Button>
           </div>
         </div>
       </header>
@@ -408,9 +429,29 @@ export default function StoryDetailPage() {
                   <Badge variant="secondary" className="hover:bg-emerald-100">{categoryLabel(story.category)}</Badge>
                 </Link>
               </div>
-            </aside>
-          </div>
-        </div>
+            </CardContent>
+          </Card>
+
+          {/* Next Story Card */}
+          {next && (
+            <Card className="bg-emerald-900 text-white border-none overflow-hidden relative">
+              <div className="absolute top-0 right-0 p-3 opacity-20">
+                <Sparkles className="h-12 w-12" />
+              </div>
+              <CardHeader>
+                <CardDescription className="text-emerald-200">পরবর্তী গল্প</CardDescription>
+                <CardTitle className="text-lg leading-tight">
+                  {lang === "bn" ? next.title_bn : next.title_en}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="secondary" size="sm" className="w-full">
+                  <Link to={`/stories/${next.slug}`}>পড়তে থাকুন</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </aside>
       </div>
 
       <FooterSection platform="web" onNavigate={(path) => navigate(path)} />
