@@ -382,8 +382,8 @@ export default function StoryDetailPage() {
                         </div>
                       </div>
 
-                      {/* Right: Controls (Rewind, Play, Forward) */}
-                      <div className="flex-shrink-0 flex items-center gap-3 sm:gap-5">
+                      {/* Right: Controls (Rewind, Play, Forward) - Increased Gaps */}
+                      <div className="flex-shrink-0 flex items-center gap-6 sm:gap-10">
                         <button 
                           onClick={() => seek(-10)}
                           className="p-2 text-emerald-100/60 hover:text-emerald-400 transition-colors"
