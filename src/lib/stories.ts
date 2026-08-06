@@ -44,6 +44,7 @@ export type Story = {
   reading_time_minutes?: number;
   is_featured?: boolean;
   og_image_url?: string;
+  audio_embed_code?: string;
 };
 
 export const STORY_CATEGORIES: Record<string, { label: string; description: string }> = {
@@ -108,6 +109,7 @@ function rowToStory(row: any, index: number): Story {
     reading_time_minutes: row.reading_time_minutes ?? meta.reading_time_minutes ?? undefined,
     is_featured: row.is_featured ?? meta.is_featured ?? undefined,
     og_image_url: row.image_url ?? row.og_image_url ?? undefined,
+    audio_embed_code: row.audio_embed_code ?? undefined,
     updated_at: row.updated_at ?? undefined,
   };
 }
