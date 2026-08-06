@@ -525,24 +525,36 @@ export default function StoryDetailPage() {
                 </div>
               )}
 
-              {/* Metadata Badges from Mockup */}
+              {/* Metadata Badges from Mockup - Interactive Version */}
               <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
+                <Link 
+                  to={`/stories/category/${story.category}`}
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/30 hover:border-emerald-500/40 hover:scale-105 active:scale-95"
+                >
                   <BookOpen className="h-4 w-4 text-emerald-400" />
                   {categoryLabel(story.category)}
-                </div>
-                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
+                </Link>
+                
+                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10 cursor-default">
                   <Clock className="h-4 w-4 text-emerald-400" />
                   {readingMin} মিনিট
                 </div>
-                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
+                
+                <button 
+                  onClick={() => toast({ title: "Author Profile", description: `${story.author || "Abu Hasan"} এর সব গল্প শীঘ্রই আসছে!` })}
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/30 hover:border-emerald-500/40 hover:scale-105 active:scale-95"
+                >
                   <Sparkles className="h-4 w-4 text-emerald-400" />
-                  আবু হাসান
-                </div>
-                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
-                  <span className="text-emerald-400 font-black">★</span>
+                  {story.author || "আবু হাসান"}
+                </button>
+                
+                <button 
+                  onClick={() => toast({ title: "Rating", description: "আপনার মূল্যবান মতামত ও রেটিং আমাদের উৎসাহিত করে!" })}
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/30 hover:border-emerald-500/40 hover:scale-105 active:scale-95"
+                >
+                  <span className="text-emerald-400 font-black text-lg">★</span>
                   4.9
-                </div>
+                </button>
               </div>
             </div>
           )}
