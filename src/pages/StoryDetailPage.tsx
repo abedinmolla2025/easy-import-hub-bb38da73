@@ -71,6 +71,29 @@ export default function StoryDetailPage() {
   }, [slug]);
 
   const story = stories.find((s) => s.slug === slug);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    // Load SoundCloud Widget API
+    const script = document.createElement("script");
+    script.src = "https://w.soundcloud.com/player/api.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+  const togglePlay = () => {
+    const iframe = document.getElementById("sc-player") as HTMLIFrameElement;
+    if (!iframe) return;
+    const widget = (window as any).SC.Widget(iframe);
+    widget.toggle();
+    setIsPlaying(!isPlaying);
+  };
 
   if (!loading && !story) {
     return (
@@ -299,75 +322,101 @@ export default function StoryDetailPage() {
           {/* Premium Mockup Integrated Audio Player */}
           {story.audio_embed_code && (
             <div className="relative -mt-24 mx-2 sm:mx-8 z-20">
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] border border-emerald-500/30 bg-emerald-950/40 backdrop-blur-2xl transition-all duration-500 hover:border-emerald-400/50 group/player">
-                {/* Animated Glow Effect */}
-                <div className="absolute -inset-24 bg-emerald-500/10 blur-[100px] rounded-full opacity-0 group-hover/player:opacity-100 transition-opacity duration-1000"></div>
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] border border-emerald-500/30 bg-[#0a1a1a]/80 backdrop-blur-3xl transition-all duration-500 hover:border-emerald-400/50 group/player">
+                {/* Emerald Glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-[100px] rounded-full -mr-32 -mt-32"></div>
                 
                 <div className="relative z-10 p-6 sm:p-10">
-                  <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
-                    {/* Thumbnail with Glow */}
+                  <div className="flex flex-col lg:flex-row items-center gap-8">
+                    {/* Left: Thumbnail */}
                     <div className="relative flex-shrink-0">
-                      <div className="absolute -inset-1 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-3xl blur-md opacity-40 animate-pulse"></div>
-                      <div className="relative w-32 h-32 sm:w-44 sm:h-44 rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover transition-transform duration-700 group-hover/player:scale-110" />
+                      <div className="absolute -inset-1 bg-emerald-500/30 rounded-3xl blur-md"></div>
+                      <div className="relative w-40 h-40 sm:w-56 sm:h-56 rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                        <img src={ogImage} alt="Thumbnail" className="w-full h-full object-cover" />
                       </div>
                     </div>
 
-                    {/* Title and Info */}
-                    <div className="flex-1 text-center md:text-left space-y-4">
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300">
-                        <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                        <span className="text-[11px] uppercase tracking-[0.25em] font-black">Audio Experience</span>
-                      </div>
-                      <h4 className="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-2xl">
+                    {/* Middle: Title & Waveform */}
+                    <div className="flex-1 text-center lg:text-left space-y-6 w-full">
+                      <h4 className="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight">
                         {lang === "bn" ? story.title_bn : story.title_en}
                       </h4>
-                      {/* Waveform Visualization Mockup (Visual SoundCloud handles this) */}
-                      <div className="hidden md:block w-full h-8 opacity-40">
-                        <div className="flex items-end gap-1 h-full">
-                          {[...Array(20)].map((_, i) => (
-                            <div key={i} className="flex-1 bg-emerald-400 rounded-full animate-pulse" style={{ height: `${Math.random() * 100}%`, animationDelay: `${i * 0.1}s` }}></div>
-                          ))}
+                      
+                      {/* Waveform Visualization */}
+                      <div className="flex items-end justify-center lg:justify-start gap-1 h-12 w-full max-w-md mx-auto lg:mx-0">
+                        {[...Array(30)].map((_, i) => (
+                          <div 
+                            key={i} 
+                            className={`flex-1 bg-emerald-400/60 rounded-full transition-all duration-300 ${isPlaying ? 'animate-pulse' : ''}`} 
+                            style={{ 
+                              height: isPlaying ? `${20 + Math.random() * 80}%` : '20%',
+                              animationDelay: `${i * 0.05}s`,
+                              animationDuration: '0.5s'
+                            }}
+                          ></div>
+                        ))}
+                      </div>
+
+                      {/* Progress Bar Mockup */}
+                      <div className="space-y-2">
+                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                          <div className={`h-full bg-emerald-500 transition-all duration-1000 ${isPlaying ? 'w-1/3' : 'w-0'}`}></div>
+                        </div>
+                        <div className="flex justify-between text-[10px] font-bold text-emerald-400/60 tracking-widest uppercase">
+                          <span>05:18</span>
+                          <span>21:47</span>
                         </div>
                       </div>
                     </div>
+
+                    {/* Right: Play Button */}
+                    <div className="flex-shrink-0">
+                      <button 
+                        onClick={togglePlay}
+                        className="group/btn relative w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center rounded-full bg-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-110 hover:bg-emerald-400 active:scale-95"
+                      >
+                        <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-20"></div>
+                        {isPlaying ? (
+                          <div className="flex gap-2">
+                            <div className="w-2 h-8 sm:w-3 sm:h-10 bg-white rounded-full"></div>
+                            <div className="w-2 h-8 sm:w-3 sm:h-10 bg-white rounded-full"></div>
+                          </div>
+                        ) : (
+                          <div className="ml-2 w-0 h-0 border-t-[15px] border-t-transparent border-l-[25px] border-l-white border-b-[15px] border-b-transparent sm:border-t-[20px] sm:border-l-[35px] sm:border-b-[20px]"></div>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
-                  {/* SoundCloud Player in Visual Mode */}
+                  {/* Hidden SoundCloud Player (Controlled via API) */}
                   <div 
-                    className="w-full [&_iframe]:rounded-3xl [&_iframe]:shadow-inner [&_iframe]:h-[166px] sm:[&_iframe]:h-[200px] transition-all duration-500 hover:scale-[1.01]"
+                    className="opacity-0 absolute pointer-events-none"
                     dangerouslySetInnerHTML={{ 
                       __html: story.audio_embed_code
-                        .replace(/visual=true/g, 'visual=false') // Force classic mode for cleaner control inside our custom card
-                        .replace(/height="\d+"/g, 'height="166"')
-                        .replace(/color=%23[a-fA-F0-0]+/g, 'color=%2310b981') // Force emerald color
+                        .replace(/iframe/g, 'iframe id="sc-player"')
+                        .replace(/visual=true/g, 'visual=false')
+                        .replace(/auto_play=true/g, 'auto_play=false')
                     }}
                   />
-                  
-                  <div className="mt-8 flex items-center justify-between text-emerald-100/40 text-[10px] font-bold tracking-[0.3em] uppercase">
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-emerald-500/20"></div>
-                    <span className="px-6">NoorApp Premium Player</span>
-                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-emerald-500/20"></div>
-                  </div>
                 </div>
               </div>
 
               {/* Metadata Badges from Mockup */}
               <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
+                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
                   <BookOpen className="h-4 w-4 text-emerald-400" />
                   {categoryLabel(story.category)}
                 </div>
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
+                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
                   <Clock className="h-4 w-4 text-emerald-400" />
                   {readingMin} মিনিট
                 </div>
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
+                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
                   <Sparkles className="h-4 w-4 text-emerald-400" />
                   আবু হাসান
                 </div>
-                <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-medium transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40 cursor-default">
-                  <span className="text-emerald-400 font-bold">★</span>
+                <div className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a1a1a]/40 border border-emerald-500/20 backdrop-blur-md text-emerald-100/80 text-sm font-bold transition-all hover:bg-emerald-500/10">
+                  <span className="text-emerald-400 font-black">★</span>
                   4.9
                 </div>
               </div>
