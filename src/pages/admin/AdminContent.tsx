@@ -339,6 +339,7 @@ export default function AdminContent() {
     navigation_json: '',
     engagement_json: '',
     growth_json: '',
+    audio_embed_code: '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
@@ -797,6 +798,7 @@ export default function AdminContent() {
     navigation_json: '',
     engagement_json: '',
     growth_json: '',
+    audio_embed_code: '',
   });
 
       const resetEditForm = (item?: AdminContentRow | null) => {
@@ -872,6 +874,7 @@ export default function AdminContent() {
       navigation_json: jsonToStr(item.navigation ?? item.metadata?.navigation),
       engagement_json: jsonToStr(item.engagement ?? item.metadata?.engagement),
       growth_json: jsonToStr(item.growth ?? item.metadata?.growth),
+      audio_embed_code: item.audio_embed_code ?? '',
     });
     setSelectedId(item.id);
   };
@@ -1020,7 +1023,8 @@ export default function AdminContent() {
                   navigation: parseJson('navigation', editForm.navigation_json),
                   engagement: parseJson('engagement', editForm.engagement_json),
                   growth: parseJson('growth', editForm.growth_json),
-                }
+                },
+                audio_embed_code: editForm.audio_embed_code || null,
               };
             })()
           : {}),

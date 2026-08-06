@@ -18,7 +18,7 @@ export function StoryAudioEmbedInput({ value, onChange }: StoryAudioEmbedInputPr
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const isValidEmbedCode = value.includes("soundcloud.com") && value.includes("iframe");
+  const isValidEmbedCode = (value || "").includes("soundcloud.com") && (value || "").includes("iframe");
 
   return (
     <div className="space-y-2">
