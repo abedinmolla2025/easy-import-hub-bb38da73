@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { BookOpen, Search, Sparkles, ChevronRight, Flame, Clock, LayoutGrid } from "lucide-react";
+import { BookOpen, Search, Sparkles, ChevronRight, Flame, Clock, LayoutGrid, Play } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -314,7 +314,15 @@ function StoryListCard({ story }: { story: Story }) {
     <Card className="group h-full flex flex-col border-none bg-card hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden rounded-2xl ring-1 ring-border hover:ring-emerald-200 dark:hover:ring-emerald-800">
       <div className="relative aspect-[16/9] w-full overflow-hidden">
         <Link to={`/stories/${story.slug}`}>
-          <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors z-10" />
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors z-10" />
+          
+          {/* Play Button Overlay */}
+          <div className="absolute inset-0 flex items-center justify-center z-20 opacity-90 group-hover:opacity-100 transition-opacity">
+            <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 ring-4 ring-white/30 group-hover:scale-110 transition-transform duration-300">
+              <Play className="h-8 w-8 text-white fill-white" />
+            </div>
+          </div>
+
           <img 
             src={thumbnail} 
             alt={story.title_bn || story.title_en}
