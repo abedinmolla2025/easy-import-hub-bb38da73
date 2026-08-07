@@ -20,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QuickTemplatesPanel, type TemplateItem } from "@/components/admin/QuickTemplatesPanel";
+import StoryPickerPanel, { type StoryPickerItem } from "@/components/admin/StoryPickerPanel";
+import { BookOpen } from "lucide-react";
 
 type TargetPlatform = "all" | "android" | "ios" | "web";
 
@@ -144,6 +146,37 @@ const AdminNotifications = () => {
     if (template.image_url) setImageUrl(template.image_url);
   };
 
+  const handleStorySelect = (story: StoryPickerItem) => {
+    // Title: use Bangla title, fall back to English
+    const notificationTitle = story.title || story.title_en || "New Story on NOOR";
+
+    // Build an attractive message from the story's hook/subtitle/title_en
+    const parts = [story.hook, story.subtitle, story.title_en].filter(Boolean);
+    const notificationMessage =
+      parts.length > 0 ? parts.join(" • ").slice(0, 500) : (story.title_en || "Read this inspiring story on NOOR app.").slice(0, 500);
+
+    setTitle(notificationTitle);
+    setMessage(notificationMessage);
+
+    // Resolve thumbnail: prefer og image url, fall back to image_url
+    const ogUrl =
+      story.og_image_data?.url ||
+      story.og_image_data?.og_image ||
+      story.og_image_data?.og_image_url ||
+      story.image_url ||
+      null;
+    if (ogUrl && ogUrl.startsWith("http")) {
+      setImageUrl(ogUrl);
+    } else if (ogUrl) {
+      setImageUrl(`https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/og-images/story-og/${ogUrl}`);
+    }
+
+    // Deep link to the story page
+    setDeepLink(`/stories/${story.slug}`);
+
+    toast({ title: "Story selected", description: "Title, message, thumbnail and deep link filled." });
+  };
+
   const handleSend = () => {
     if (!title.trim() || !message.trim()) {
       toast({ title: "Please fill in both title and message", variant: "destructive" });
@@ -194,6 +227,9 @@ const AdminNotifications = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
+        {/* Story Picker */}
+        <StoryPickerPanel onSelect={handleStorySelect} />
+
         {/* Templates */}
         <QuickTemplatesPanel
           selectedTemplate={selectedTemplate}
@@ -386,9 +422,13 @@ const AdminNotifications = () => {
                 <p className="text-xs text-muted-foreground mb-2">Preview</p>
                 <div className="bg-background rounded-lg p-3 shadow-sm border">
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Moon className="h-5 w-5 text-primary" />
-                    </div>
+                    {imageUrl ? (
+                      <img src={imageUrl} alt="" className="h-10 w-10 rounded-lg object-cover shrink-0" />
+                    ) : (
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <Moon className="h-5 w-5 text-primary" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm truncate">{title || "Title"}</p>
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
