@@ -4,7 +4,13 @@ const SITE_ORIGIN = "https://noorapp.in";
 
 export default async function handler(req, res) {
   try {
-    const { path = "/" } = req.query;
+    // Get path from query or from the URL itself
+    let { path = "/" } = req.query;
+    
+    // Normalize path
+    if (path !== "/" && path.endsWith("/")) {
+      path = path.replace(/\/+$/, "");
+    }
     
     // SEO defaults
     let title = "Noor — Islamic App for Quran, Hadith, Prayer Times & Dua";
@@ -13,8 +19,10 @@ export default async function handler(req, res) {
     let ogType = "website";
     let extraTags = "";
 
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    // Vercel serverless functions use process.env
+    // We check for both VITE_ prefixed and standard names
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (supabaseUrl && supabaseKey) {
       const supabase = createClient(supabaseUrl, supabaseKey);
@@ -65,7 +73,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Build the HTML response
+    // Build the HTML response with absolute URLs
     const html = `<!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -91,6 +99,7 @@ export default async function handler(req, res) {
     <meta name="twitter:title" content="${title}">
     <meta name="twitter:description" content="${description}">
     <meta name="twitter:image" content="${ogImage}">
+    <meta name="twitter:url" content="${SITE_ORIGIN}${path}">
 </head>
 <body style="font-family: sans-serif; background: #0a1a1a; color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px;">
     <div>
@@ -108,7 +117,6 @@ export default async function handler(req, res) {
     return res.status(200).send(html);
   } catch (err) {
     console.error("Critical Prerender Error:", err);
-    // Absolute fallback to prevent "Bad Response Code"
     return res.status(200).send(`<!DOCTYPE html><html><head><title>Noor Islamic App</title><script>window.location.href = "/";</script></head><body>Loading...</body></html>`);
   }
 }

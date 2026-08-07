@@ -359,7 +359,6 @@ export function SeoHead() {
     ogImage = `${SITE_ORIGIN}/og-bukhari.png`;
   } else if (normalizedPath.startsWith("/dua/")) {
     // For specific dua pages, use DB-backed OG image
-    const slug = normalizedPath.split("/").pop();
     const dbOgUrl = pageSeo?.og_image_url;
     
     if (dbOgUrl && !dbOgUrl.includes("yourwebsite.com")) {
@@ -367,6 +366,14 @@ export function SeoHead() {
     } else {
       // Fallback to generic dua OG image
       ogImage = `${SITE_ORIGIN}/og-dua.png`;
+    }
+  } else if (normalizedPath.startsWith("/stories/")) {
+    // For specific story pages, use DB-backed OG image
+    const dbOgUrl = pageSeo?.og_image_url;
+    if (dbOgUrl && !dbOgUrl.includes("yourwebsite.com")) {
+      ogImage = dbOgUrl;
+    } else {
+      ogImage = `${SITE_ORIGIN}/og-stories-default.jpg`;
     }
   } else {
     ogImage = `${SITE_ORIGIN}/og-image.png`;

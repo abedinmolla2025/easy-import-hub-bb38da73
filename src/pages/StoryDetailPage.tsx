@@ -162,6 +162,14 @@ export default function StoryDetailPage() {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
   }
 
+  // Define variables here to avoid hoisting issues in Trailer Mode
+  const storyTitle = story.title_bn || story.title_en;
+  const url = `${SITE}/stories/${story.slug}`;
+  const trailerUrl = `${url}/trailer`;
+  const ogImagePath = story.og_image_url || STORY_OG_IMAGES[story.slug] || ogStoriesDefault;
+  const ogImageBase = absoluteUrl(ogImagePath);
+  const ogImage = story.updated_at ? cacheBustUrl(ogImageBase, story.updated_at) : ogImageBase;
+
   // Trailer Mode UI (Simplified for social sharing landing page)
   if (isTrailerMode) {
     return (
@@ -250,27 +258,21 @@ export default function StoryDetailPage() {
   }
 
   const readingMin = estimateReadingMinutes(story.content_en);
-  const url = `${SITE}/stories/${story.slug}`;
   const blocks = splitStoryContent(lang === "bn" ? story.content_bn : story.content_en);
   const related = relatedStories(stories, story);
   const next = nextStory(stories, story);
   const quranRefs = parseQuranReferences(story.reference);
   const morals = parseMorals(lang === "bn" ? story.moral_bn : story.moral_en);
-  const ogImagePath = story.og_image_url || STORY_OG_IMAGES[story.slug] || ogStoriesDefault;
-  const ogImageBase = absoluteUrl(ogImagePath);
-  const ogImage = story.updated_at ? cacheBustUrl(ogImageBase, story.updated_at) : ogImageBase;
   
-  // Construct Viral Bengali Share Text
-  const storyTitle = story.title_bn || story.title_en;
-  const viralShareText = `🌟 ${storyTitle}\n\nএই হৃদয়স্পর্শী ইসলামিক গল্পটি পড়ে আমার খুব ভালো লেগেছে। আপনিও পড়ুন এবং অন্যদের সাথে শেয়ার করে সদকা-এ-জারিয়ার সওয়াব হাসিল করুন। 🤲✨\n\nপড়ুন এখানে: ${url}`;
+  // Construct Viral Bengali Share Text (URL removed to avoid repetition in native share)
+  const viralShareText = `🌟 ${storyTitle}\n\nএই হৃদয়স্পর্শী ইসলামিক গল্পটি পড়ে আমার খুব ভালো লেগেছে। আপনিও পড়ুন এবং অন্যদের সাথে শেয়ার করে সদকা-এ-জারিয়ার সওয়াব হাসিল করুন। 🤲✨`;
   
-  const trailerUrl = `${url}/trailer`;
-  const trailerShareText = `🎬 ${storyTitle} (Audio Trailer)\n\nএই ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন। ভালো লাগলে সবার সাথে শেয়ার করুন। ✨\n\nশুনুন এখানে: ${trailerUrl}`;
+  const trailerShareText = `🎬 ${storyTitle} (Audio Trailer)\n\nএই ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন। ভালো লাগলে সবার সাথে শেয়ার করুন। ✨`;
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(viralShareText)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(viralShareText)}`,
+    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(viralShareText + "\n\nপড়ুন এখানে: " + url)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(viralShareText)}&url=${encodeURIComponent(url)}`,
     telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(viralShareText)}`,
     trailerFacebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(trailerUrl)}`,
   };
