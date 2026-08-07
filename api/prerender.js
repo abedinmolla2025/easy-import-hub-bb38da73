@@ -33,21 +33,54 @@ export default async function handler(req, res) {
 
       if (storyMatch) {
         const slug = storyMatch[1];
-        const { data: story, error } = await supabase
-          .from("admin_content")
-          .select("*")
-          .ilike("content_type", "story")
-          .eq("slug", slug)
-          .maybeSingle();
+        let story = null;
+        let error = null;
+        
+        // Try to fetch from database first
+        try {
+          const result = await supabase
+            .from("admin_content")
+            .select("*")
+            .ilike("content_type", "story")
+            .eq("slug", slug)
+            .maybeSingle();
+          story = result.data;
+          error = result.error;
+        } catch (err) {
+          console.error("Database fetch error:", err);
+        }
 
-        if (story && !error) {
-          const storyTitle = story.title_bn || story.title;
+        // Fallback to public/stories.json if database lookup fails
+        if (!story || error) {
+          try {
+            const response = await fetch(`${SITE_ORIGIN}/stories.json`);
+            const stories = await response.json();
+            story = stories.find(s => s.slug === slug);
+          } catch (err) {
+            console.error("Fallback stories.json fetch error:", err);
+          }
+        }
+
+        if (story) {
+          const storyTitle = story.title_bn || story.title || story.title_en;
           title = isTrailerMode ? `🎬 Trailer: ${storyTitle}` : storyTitle;
-          description = isTrailerMode 
-            ? "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" 
-            : (story.seo?.meta_description || `${storyTitle} — পড়ুন নূর ইসলামিক অ্যাপে।`);
           
-          const rawImg = story.image_url || story.og_image_url || story.seo?.og_image || story.og_image_data?.og_image;
+          // Get description from SEO or fallback
+          if (isTrailerMode) {
+            description = "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।";
+          } else {
+            description = story.seo?.meta_description 
+              || story.seo?.open_graph?.['og:description']
+              || `${storyTitle} — পড়ুন নূর ইসলামিক অ্যাপে।`;
+          }
+          
+          // Get image from multiple sources
+          const rawImg = story.image_url 
+            || story.og_image_url 
+            || story.seo?.og_image 
+            || story.seo?.open_graph?.['og:image']
+            || story.og_image_data?.og_image;
+          
           if (rawImg) {
             if (rawImg.startsWith("http")) {
               ogImage = rawImg;
