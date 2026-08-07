@@ -166,6 +166,15 @@ export async function loadStories(): Promise<Story[]> {
   return pending;
 }
 
+/**
+ * Clear the global stories cache. Useful for forcing a refresh of story data.
+ * Use with caution as it will cause all story hooks to re-fetch data.
+ */
+export function clearStoriesCache() {
+  cache = null;
+  pending = null;
+}
+
 export function useStories() {
   const [stories, setStories] = useState<Story[] | null>(cache);
   const [loading, setLoading] = useState(!cache);

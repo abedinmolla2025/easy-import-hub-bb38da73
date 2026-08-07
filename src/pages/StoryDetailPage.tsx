@@ -70,7 +70,7 @@ export default function StoryDetailPage() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [slug]);
+  }, [slug, story]);
 
   const story = stories.find((s) => s.slug === slug);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -160,6 +160,11 @@ export default function StoryDetailPage() {
 
   if (!story) {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
+  }
+
+  // Validate slug match to catch data inconsistencies
+  if (story.slug !== slug) {
+    console.error(`[StoryDetailPage] Slug mismatch: URL parameter is "${slug}" but story slug is "${story.slug}"`);
   }
 
   // Define variables here to avoid hoisting issues in Trailer Mode
@@ -357,7 +362,7 @@ export default function StoryDetailPage() {
         <meta property="og:locale:alternate" content="en_US" />
         <meta property="og:title" content={isTrailerMode ? `🎬 ${storyTitle} (Audio Trailer)` : (story.seo.open_graph?.title || story.seo.title)} />
         <meta property="og:description" content={isTrailerMode ? "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।" : (story.seo.open_graph?.description || story.seo.meta_description)} />
-        <meta property="og:url" content={isTrailerMode ? trailerUrl : url} />
+        <meta property="og:url" content={isTrailerMode ? trailerUrl : (story?.seo?.canonical_url || url)} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:secure_url" content={ogImage} />
         <meta property="og:image:type" content={/\.png(?:\?|$)/i.test(ogImage) ? "image/png" : /\.webp(?:\?|$)/i.test(ogImage) ? "image/webp" : "image/jpeg"} />
