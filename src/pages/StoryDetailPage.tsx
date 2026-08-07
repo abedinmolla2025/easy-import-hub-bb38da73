@@ -68,11 +68,11 @@ export default function StoryDetailPage() {
   const navigate = useNavigate();
   const [lang, setLang] = useState<"en" | "bn">("bn");
 
+  const story = stories.find((s) => s.slug === slug);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [slug, story]);
-
-  const story = stories.find((s) => s.slug === slug);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
