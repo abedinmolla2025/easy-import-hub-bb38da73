@@ -74,12 +74,13 @@ export default async function handler(req, res) {
               || `${storyTitle} — পড়ুন নূর ইসলামিক অ্যাপে।`;
           }
           
-          // Get image from multiple sources
-          const rawImg = story.image_url 
-            || story.og_image_url 
-            || story.seo?.og_image 
+          // Get image from multiple sources - check all possible field names
+          const rawImg = story.og_image_data?.url
+            || story.og_image_data?.og_image
             || story.seo?.open_graph?.['og:image']
-            || story.og_image_data?.og_image;
+            || story.seo?.og_image
+            || story.image_url
+            || story.og_image_url;
           
           if (rawImg && typeof rawImg === 'string') {
             const clean = rawImg.trim();
@@ -138,6 +139,8 @@ export default async function handler(req, res) {
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="${title}">
     <meta property="og:url" content="${SITE_ORIGIN}${path}">
+    <meta itemprop="image" content="${ogImage}">
+    <link rel="image_src" href="${ogImage}">
     <meta property="og:type" content="${ogType}">
     <meta property="og:site_name" content="Noor Islamic App">
     ${extraTags}

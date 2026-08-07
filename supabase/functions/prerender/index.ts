@@ -174,8 +174,20 @@ function resolvePublicOgUrl(value: unknown, supabaseUrl: string): string {
   if (clean.startsWith("assets/") || clean.startsWith("og-")) {
     return `${SITE_ORIGIN}/${clean}`;
   }
-  const storagePath = clean.startsWith("media/") ? clean.slice("media/".length) : clean;
-  return `${supabaseUrl}/storage/v1/object/public/media/${storagePath}`;
+
+  // Determine bucket and storage path
+  let bucket = "media";
+  let storagePath = clean;
+
+  if (clean.startsWith("og-images/")) {
+    bucket = "og-images";
+    storagePath = clean.slice("og-images/".length);
+  } else if (clean.startsWith("media/")) {
+    bucket = "media";
+    storagePath = clean.slice("media/".length);
+  }
+
+  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`;
 }
 
 function isLegacyMissingSlugImage(value: unknown): boolean {
@@ -397,7 +409,7 @@ Deno.serve(async (req) => {
             description: description,
           };
 
-          const ogImagePath = story.image_url || story.og_image_url || story.seo?.og_image || story.og_image_data?.og_image;
+          const ogImagePath = story.og_image_data?.url || story.og_image_data?.og_image || story.seo?.open_graph?.['og:image'] || story.seo?.og_image || story.image_url || story.og_image_url;
           if (ogImagePath) {
             customOgImage = resolvePublicOgUrl(ogImagePath, supabaseUrl);
           }
