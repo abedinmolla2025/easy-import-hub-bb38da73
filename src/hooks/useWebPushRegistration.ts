@@ -146,12 +146,13 @@ export function useWebPushRegistration() {
           data: { user },
         } = await supabase.auth.getUser();
 
-        // Delete old tokens for this device before inserting (handles key change cleanup)
-        await supabase
-          .from("device_push_tokens" as any)
-          .delete()
-          .eq("device_id", deviceId)
-          .eq("platform", "web");
+        // Delete old tokens for this device before inserting (handles key change cleanup).
+        // Uses a controlled RPC helper: RLS no longer permits broad client-side
+        // deletes on device_push_tokens, protecting tokens from accidental loss.
+        await (supabase.rpc as any)("delete_own_push_token", {
+          p_device_id: deviceId,
+          p_platform: "web",
+        });
 
         // Save subscription to database
         const { error } = await supabase
