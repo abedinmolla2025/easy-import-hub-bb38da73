@@ -81,13 +81,26 @@ export default async function handler(req, res) {
             || story.seo?.open_graph?.['og:image']
             || story.og_image_data?.og_image;
           
-          if (rawImg) {
-            if (rawImg.startsWith("http")) {
-              ogImage = rawImg;
+          if (rawImg && typeof rawImg === 'string') {
+            const clean = rawImg.trim();
+            if (clean.startsWith("http")) {
+              ogImage = clean;
             } else {
-              const clean = rawImg.replace(/^\/+/, "");
-              const storagePath = clean.startsWith("media/") ? clean.slice("media/".length) : clean;
-              ogImage = `${supabaseUrl}/storage/v1/object/public/media/${storagePath}`;
+              const path = clean.replace(/^\/+/, "");
+              if (path.startsWith("assets/") || path.startsWith("og-")) {
+                ogImage = `${SITE_ORIGIN}/${path}`;
+              } else {
+                let bucket = "media";
+                let storagePath = path;
+                if (path.startsWith("og-images/")) {
+                  bucket = "og-images";
+                  storagePath = path.slice("og-images/".length);
+                } else if (path.startsWith("media/")) {
+                  bucket = "media";
+                  storagePath = path.slice("media/".length);
+                }
+                ogImage = `${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`;
+              }
             }
           }
 
@@ -120,8 +133,10 @@ export default async function handler(req, res) {
     <meta property="og:description" content="${description}">
     <meta property="og:image" content="${ogImage}">
     <meta property="og:image:secure_url" content="${ogImage}">
+    <meta property="og:image:type" content="${ogImage.toLowerCase().includes('.webp') ? 'image/webp' : ogImage.toLowerCase().includes('.png') ? 'image/png' : 'image/jpeg'}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="${title}">
     <meta property="og:url" content="${SITE_ORIGIN}${path}">
     <meta property="og:type" content="${ogType}">
     <meta property="og:site_name" content="Noor Islamic App">
