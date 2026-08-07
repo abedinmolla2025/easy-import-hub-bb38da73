@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/contexts/AdminContext';
@@ -249,6 +249,7 @@ export default function AdminContent() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'edit' | 'workflow' | 'versions' | 'audit'>('edit');
+  const editorTabsRef = useRef<HTMLDivElement>(null);
   const [isNameImportOpen, setIsNameImportOpen] = useState(false);
   const [isDuaImportOpen, setIsDuaImportOpen] = useState(false);
   const [isStoryImportOpen, setIsStoryImportOpen] = useState(false);
@@ -506,12 +507,51 @@ export default function AdminContent() {
 
       if (!q) return true;
 
-      const hay = [item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur, item.slug, item.category]
-        .filter(Boolean)
+      // Build searchable haystack from all relevant fields
+      const searchableParts: string[] = [
+        item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur,
+        item.slug, item.category,
+        item.content, item.content_en, item.content_arabic,
+        item.subtitle, item.hook,
+        item.reference, item.source_type,
+        item.virtue, item.share_text,
+        // SEO fields
+        item.seo?.title, item.seo?.meta_description,
+        ...(Array.isArray(item.seo?.keywords) ? item.seo.keywords : []),
+        // Search aliases
+        ...(Array.isArray(item.search_aliases) ? item.search_aliases : []),
+        ...(item.search_aliases ? Object.values(item.search_aliases) : []),
+        // Social fields
+        item.social?.facebook, item.social?.whatsapp, item.social?.short,
+        // Og image data title
+        item.og_image_data?.title?.bn, item.og_image_data?.title?.en,
+        // Recommendation tags
+        ...(Array.isArray(item.recommendation_tags) ? item.recommendation_tags : []),
+        ...(Array.isArray(item.semantic_entities) ? item.semantic_entities : []),
+        ...(Array.isArray(item.user_intents) ? item.user_intents : []),
+      ];
+
+      const hay = searchableParts
+        .filter((s): s is string => typeof s === 'string' && s.length > 0)
         .join(' ')
         .toLowerCase();
 
-      return hay.includes(q);
+      // Also check individual array elements for partial matches
+      const arrayFields = [
+        ...(Array.isArray(item.emotion) ? item.emotion : []),
+        ...(Array.isArray(item.normalized_surah_names) ? item.normalized_surah_names : []),
+        ...(Array.isArray(item.recommended_moments) ? item.recommended_moments : []),
+        ...(Array.isArray(item.related_duas) ? item.related_duas : []),
+        ...(Array.isArray(item.hook_variants) ? item.hook_variants : []),
+        ...(Array.isArray(item.quran_meta?.surah_names) ? item.quran_meta.surah_names : []),
+      ];
+
+      const hayFromArray = arrayFields
+        .filter((s): s is string => typeof s === 'string' && s.length > 0)
+        .join(' ')
+        .toLowerCase();
+
+      return hay.includes(q) || hayFromArray.includes(q);
     });
   }, [
     content,
@@ -534,8 +574,17 @@ export default function AdminContent() {
         if ((g || 'unknown') !== nameGenderFilter) return false;
       }
       if (!q) return true;
-      const hay = [item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur, item.slug, item.category]
-        .filter(Boolean)
+      // Enhanced search for name alphabet bar
+      const searchableParts: string[] = [
+        item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur,
+        item.slug, item.category,
+        item.content, item.content_en,
+        item.seo?.title, item.seo?.meta_description,
+        ...(Array.isArray(item.search_aliases) ? item.search_aliases : []),
+        ...(item.search_aliases ? Object.values(item.search_aliases) : []),
+      ];
+      const hay = searchableParts
+        .filter((s): s is string => typeof s === 'string' && s.length > 0)
         .join(' ')
         .toLowerCase();
       return hay.includes(q);
@@ -1636,6 +1685,7 @@ export default function AdminContent() {
             )}
 
             {/* Editor/Workflow/Versions/Audit Tabs */}
+            <div ref={editorTabsRef}>
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="mt-4">
               <TabsList className="w-full justify-start overflow-x-auto">
                 <TabsTrigger value="edit" className="shrink-0">
@@ -2483,6 +2533,7 @@ export default function AdminContent() {
                 )}
               </TabsContent>
             </Tabs>
+            </div>
           </CardContent>
         </Card>
       ) : null}
@@ -2550,6 +2601,10 @@ export default function AdminContent() {
                             setSelectedId(item.id);
                             resetEditForm(item);
                             setActiveTab('edit');
+                            // Scroll to the editor tabs area so user can see it immediately
+                            setTimeout(() => {
+                              editorTabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }, 50);
                           }}
                         >
                           <div className="flex items-center gap-2">
@@ -2590,6 +2645,10 @@ export default function AdminContent() {
                                 setSelectedId(item.id);
                                 resetEditForm(item);
                                 setActiveTab('workflow');
+                                // Scroll to the workflow tab area
+                                setTimeout(() => {
+                                  editorTabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }, 50);
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
