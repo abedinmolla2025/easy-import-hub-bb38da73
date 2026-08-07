@@ -147,13 +147,21 @@ const AdminNotifications = () => {
   };
 
   const handleStorySelect = (story: StoryPickerItem) => {
-    // Title: use Bangla title, fall back to English
-    const notificationTitle = story.title || story.title_en || "New Story on NOOR";
+    const isDua = story.content_type === "dua";
 
-    // Build an attractive message from the story's hook/subtitle/title_en
+    // Title: use Bangla title, fall back to English
+    const notificationTitle =
+      story.title || story.title_en || (isDua ? "New Dua on NOOR" : "New Story on NOOR");
+
+    // Build an attractive message from the content's hook/subtitle/title_en
     const parts = [story.hook, story.subtitle, story.title_en].filter(Boolean);
+    const fallback = isDua
+      ? "পড়ে দোয়া করুন — NOOR app-এ নতুন দোয়া যোগ হয়েছে।"
+      : "Read this inspiring story on NOOR app.";
     const notificationMessage =
-      parts.length > 0 ? parts.join(" • ").slice(0, 500) : (story.title_en || "Read this inspiring story on NOOR app.").slice(0, 500);
+      parts.length > 0
+        ? parts.join(" • ").slice(0, 500)
+        : (story.title_en || fallback).slice(0, 500);
 
     setTitle(notificationTitle);
     setMessage(notificationMessage);
@@ -168,13 +176,17 @@ const AdminNotifications = () => {
     if (ogUrl && ogUrl.startsWith("http")) {
       setImageUrl(ogUrl);
     } else if (ogUrl) {
-      setImageUrl(`https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/og-images/story-og/${ogUrl}`);
+      const folder = isDua ? "dua-og" : "story-og";
+      setImageUrl(`https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/og-images/${folder}/${ogUrl}`);
     }
 
-    // Deep link to the story page
-    setDeepLink(`/stories/${story.slug}`);
+    // Deep link to the content page
+    setDeepLink(`/${isDua ? "dua" : "stories"}/${story.slug}`);
 
-    toast({ title: "Story selected", description: "Title, message, thumbnail and deep link filled." });
+    toast({
+      title: isDua ? "Dua selected" : "Story selected",
+      description: "Title, message, thumbnail and deep link filled.",
+    });
   };
 
   const handleSend = () => {
