@@ -2,6 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 
 const SITE_ORIGIN = "https://noorapp.in";
 
+// Supabase credentials for the public anon key (safe to expose in serverless functions)
+const SUPABASE_URL = "https://llicfiepatzgllmjhzbw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsaWNmaWVwYXR6Z2xsbWpoemJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODA4MDksImV4cCI6MjA4NDA1NjgwOX0.T7xnXRSM2jx92gVH8Of1dePj609C7WKKflv2I_VZpy0";
+
 export default async function handler(req, res) {
   try {
     // Get path from query or from the URL itself
@@ -18,107 +22,132 @@ export default async function handler(req, res) {
     let ogImage = `${SITE_ORIGIN}/og-image.png`;
     let ogType = "website";
     let extraTags = "";
+    let canonicalUrl = `${SITE_ORIGIN}${path}`;
 
-    // Vercel serverless functions use process.env
-    // We check for both VITE_ prefixed and standard names
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-    const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    // Always use hardcoded Supabase URL for reliability in serverless functions
+    // Vercel does NOT pass VITE_ prefixed env vars to serverless functions
+    const supabaseUrl = SUPABASE_URL;
+    const supabaseKey = SUPABASE_ANON_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (supabaseUrl && supabaseKey) {
-      const supabase = createClient(supabaseUrl, supabaseKey);
+    // Match story pages: /stories/slug or /stories/slug/trailer
+    const storyMatch = path.match(/^\/stories\/([a-zA-Z0-9-]+)(?:\/trailer)?$/);
+    const isTrailerMode = path.endsWith("/trailer") || (req.url && req.url.includes("trailer=true"));
 
-      // Match story pages: /stories/slug or /stories/slug/trailer
-      const storyMatch = path.match(/^\/stories\/([a-zA-Z0-9-]+)(?:\/trailer)?$/);
-      const isTrailerMode = path.endsWith("/trailer") || (req.url && req.url.includes("trailer=true"));
-
-      if (storyMatch) {
-        const slug = storyMatch[1];
-        let story = null;
-        let error = null;
-        
-        // Try to fetch from database first
-        try {
-          const result = await supabase
-            .from("admin_content")
-            .select("*")
-            .ilike("content_type", "story")
-            .eq("slug", slug)
-            .maybeSingle();
-          story = result.data;
-          error = result.error;
-        } catch (err) {
-          console.error("Database fetch error:", err);
+    if (storyMatch) {
+      const slug = storyMatch[1];
+      let story = null;
+      let dbError = null;
+      
+      // Try to fetch from database first
+      try {
+        const result = await supabase
+          .from("admin_content")
+          .select("slug, title, title_en, seo, og_image_data, image_url, og_image_url, audio_trailer_url")
+          .eq("content_type", "story")
+          .eq("slug", slug)
+          .maybeSingle();
+        story = result.data;
+        dbError = result.error;
+        if (dbError) {
+          console.error("Database fetch error:", dbError);
         }
+      } catch (err) {
+        console.error("Database fetch exception:", err);
+      }
 
-        // Fallback to public/stories.json if database lookup fails
-        if (!story || error) {
-          try {
-            const response = await fetch(`${SITE_ORIGIN}/stories.json`);
+      // Fallback to public/stories.json if database lookup fails
+      if (!story) {
+        try {
+          const response = await fetch(`${SITE_ORIGIN}/stories.json`, {
+            headers: { 'Accept': 'application/json' }
+          });
+          if (response.ok) {
             const stories = await response.json();
             story = stories.find(s => s.slug === slug);
-          } catch (err) {
-            console.error("Fallback stories.json fetch error:", err);
+          }
+        } catch (err) {
+          console.error("Fallback stories.json fetch error:", err);
+        }
+      }
+
+      if (story) {
+        const storyTitle = story.title_bn || story.title || story.title_en;
+        title = isTrailerMode ? `🎬 Trailer: ${storyTitle}` : storyTitle;
+        
+        // Get description from SEO or fallback
+        if (isTrailerMode) {
+          description = "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।";
+        } else {
+          description = story.seo?.meta_description 
+            || story.seo?.open_graph?.['og:description']
+            || `${storyTitle} — পড়ুন নূর ইসলামিক অ্যাপে।`;
+        }
+        
+        // Get image from multiple sources - check all possible field names
+        const rawImg = story.og_image_data?.url
+          || story.og_image_data?.og_image
+          || story.seo?.open_graph?.['og:image']
+          || story.seo?.og_image
+          || story.image_url
+          || story.og_image_url;
+        
+        if (rawImg && typeof rawImg === 'string' && rawImg.trim()) {
+          const clean = rawImg.trim();
+          if (clean.startsWith("http")) {
+            ogImage = clean;
+          } else {
+            const imgPath = clean.replace(/^\/+/, "");
+            if (imgPath.startsWith("assets/") || imgPath.startsWith("og-")) {
+              ogImage = `${SITE_ORIGIN}/${imgPath}`;
+            } else {
+              let bucket = "og-images";
+              let storagePath = imgPath;
+              if (imgPath.startsWith("og-images/")) {
+                bucket = "og-images";
+                storagePath = imgPath.slice("og-images/".length);
+              } else if (imgPath.startsWith("media/")) {
+                bucket = "media";
+                storagePath = imgPath.slice("media/".length);
+              }
+              ogImage = `${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`;
+            }
           }
         }
 
-        if (story) {
-          const storyTitle = story.title_bn || story.title || story.title_en;
-          title = isTrailerMode ? `🎬 Trailer: ${storyTitle}` : storyTitle;
-          
-          // Get description from SEO or fallback
-          if (isTrailerMode) {
-            description = "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।";
-          } else {
-            description = story.seo?.meta_description 
-              || story.seo?.open_graph?.['og:description']
-              || `${storyTitle} — পড়ুন নূর ইসলামিক অ্যাপে।`;
-          }
-          
-          // Get image from multiple sources - check all possible field names
-          const rawImg = story.og_image_data?.url
-            || story.og_image_data?.og_image
-            || story.seo?.open_graph?.['og:image']
-            || story.seo?.og_image
-            || story.image_url
-            || story.og_image_url;
-          
-          if (rawImg && typeof rawImg === 'string') {
-            const clean = rawImg.trim();
-            if (clean.startsWith("http")) {
-              ogImage = clean;
-            } else {
-              const path = clean.replace(/^\/+/, "");
-              if (path.startsWith("assets/") || path.startsWith("og-")) {
-                ogImage = `${SITE_ORIGIN}/${path}`;
-              } else {
-                let bucket = "media";
-                let storagePath = path;
-                if (path.startsWith("og-images/")) {
-                  bucket = "og-images";
-                  storagePath = path.slice("og-images/".length);
-                } else if (path.startsWith("media/")) {
-                  bucket = "media";
-                  storagePath = path.slice("media/".length);
-                }
-                ogImage = `${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`;
-              }
-            }
-          }
+        // Set canonical URL from story SEO data
+        const seoCanonical = story.seo?.canonical_url || story.seo?.open_graph?.['og:url'];
+        if (seoCanonical) {
+          canonicalUrl = seoCanonical;
+        }
 
-          if (isTrailerMode) {
-            ogType = "video.other";
-            if (story.audio_trailer_url) {
-              const audioUrl = story.audio_trailer_url.startsWith("http") ? story.audio_trailer_url : `${SITE_ORIGIN}${story.audio_trailer_url}`;
-              extraTags += `\n    <meta property="og:audio" content="${audioUrl}">`;
-              extraTags += `\n    <meta property="og:audio:type" content="audio/mpeg">`;
-              extraTags += `\n    <meta property="og:audio:secure_url" content="${audioUrl}">`;
-              extraTags += `\n    <meta property="og:video" content="${audioUrl}">`;
-              extraTags += `\n    <meta property="og:video:type" content="video/mp4">`;
-            }
+        if (isTrailerMode) {
+          ogType = "video.other";
+          if (story.audio_trailer_url) {
+            const audioUrl = story.audio_trailer_url.startsWith("http") ? story.audio_trailer_url : `${SITE_ORIGIN}${story.audio_trailer_url}`;
+            extraTags += `\n    <meta property="og:audio" content="${audioUrl}">`;
+            extraTags += `\n    <meta property="og:audio:type" content="audio/mpeg">`;
+            extraTags += `\n    <meta property="og:audio:secure_url" content="${audioUrl}">`;
+            extraTags += `\n    <meta property="og:video" content="${audioUrl}">`;
+            extraTags += `\n    <meta property="og:video:type" content="video/mp4">`;
           }
         }
       }
     }
+
+    // Escape HTML for safety
+    const esc = (s) => String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+    // Determine image MIME type
+    let imgType = "image/png";
+    if (ogImage.toLowerCase().includes(".webp")) imgType = "image/webp";
+    else if (ogImage.toLowerCase().includes(".jpg") || ogImage.toLowerCase().includes(".jpeg")) imgType = "image/jpeg";
+    else if (ogImage.toLowerCase().includes(".png")) imgType = "image/png";
 
     // Build the HTML response with absolute URLs
     const html = `<!DOCTYPE html>
@@ -126,45 +155,46 @@ export default async function handler(req, res) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-    <meta name="description" content="${description}">
+    <title>${esc(title)}</title>
+    <meta name="description" content="${esc(description)}">
+    <link rel="canonical" href="${esc(canonicalUrl)}">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${ogImage}">
-    <meta property="og:image:secure_url" content="${ogImage}">
-    <meta property="og:image:type" content="${ogImage.toLowerCase().includes('.webp') ? 'image/webp' : ogImage.toLowerCase().includes('.png') ? 'image/png' : 'image/jpeg'}">
+    <meta property="og:title" content="${esc(title)}">
+    <meta property="og:description" content="${esc(description)}">
+    <meta property="og:image" content="${esc(ogImage)}">
+    <meta property="og:image:secure_url" content="${esc(ogImage)}">
+    <meta property="og:image:type" content="${imgType}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="${title}">
-    <meta property="og:url" content="${SITE_ORIGIN}${path}">
-    <meta itemprop="image" content="${ogImage}">
-    <link rel="image_src" href="${ogImage}">
+    <meta property="og:image:alt" content="${esc(title)}">
+    <meta property="og:url" content="${esc(canonicalUrl)}">
+    <meta itemprop="image" content="${esc(ogImage)}">
+    <link rel="image_src" href="${esc(ogImage)}">
     <meta property="og:type" content="${ogType}">
     <meta property="og:site_name" content="Noor Islamic App">
     ${extraTags}
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="${ogImage}">
-    <meta name="twitter:url" content="${SITE_ORIGIN}${path}">
+    <meta name="twitter:title" content="${esc(title)}">
+    <meta name="twitter:description" content="${esc(description)}">
+    <meta name="twitter:image" content="${esc(ogImage)}">
+    <meta name="twitter:url" content="${esc(canonicalUrl)}">
 </head>
 <body style="font-family: sans-serif; background: #0a1a1a; color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px;">
     <div>
         <h1 style="color: #10b981;">NOOR</h1>
-        <h2>${title}</h2>
-        <p>${description}</p>
+        <h2>${esc(title)}</h2>
+        <p>${esc(description)}</p>
         <p>Loading the full experience...</p>
-        <script>window.location.href = "${path}";</script>
+        <script>window.location.href = "${esc(path)}";</script>
     </div>
 </body>
 </html>`;
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
     return res.status(200).send(html);
   } catch (err) {
     console.error("Critical Prerender Error:", err);
