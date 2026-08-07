@@ -33,7 +33,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload, MoreVertical, Search, Download, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload, MoreVertical, Search, Download, RefreshCw, ChevronDown } from 'lucide-react';
 import HadithImportPanel from '@/components/admin/HadithImportPanel';
 import HadithSeoGeneratorPanel from '@/components/admin/HadithSeoGeneratorPanel';
 import HadithExportImportPanel from '@/components/admin/HadithExportImportPanel';
@@ -250,6 +250,7 @@ export default function AdminContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'edit' | 'workflow' | 'versions' | 'audit'>('edit');
   const editorTabsRef = useRef<HTMLDivElement>(null);
+  const [isFormSectionExpanded, setIsFormSectionExpanded] = useState(false);
   const [isNameImportOpen, setIsNameImportOpen] = useState(false);
   const [isDuaImportOpen, setIsDuaImportOpen] = useState(false);
   const [isStoryImportOpen, setIsStoryImportOpen] = useState(false);
@@ -1435,6 +1436,7 @@ export default function AdminContent() {
                   setEditForm((prev) => ({ ...prev, content_type: contentTypeContext }));
                 }
                 setActiveTab('edit');
+                setIsFormSectionExpanded(true);
               }}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -1707,6 +1709,31 @@ export default function AdminContent() {
               </TabsList>
 
               <TabsContent value="edit" className="pt-4">
+                {/* Collapsible section for the entry/edit form */}
+                <button
+                  type="button"
+                  className="mb-3 flex w-full items-center justify-between rounded-lg border border-border/80 bg-muted/50 px-4 py-3 text-left transition-colors hover:bg-muted/80"
+                  onClick={() => setIsFormSectionExpanded(!isFormSectionExpanded)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Edit className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">
+                      {selectedContent ? `Edit: ${selectedContent.title}` : 'Create New Entry'}
+                    </span>
+                    {selectedContent ? null : (
+                      <span className="text-xs text-muted-foreground">
+                        (click to expand the form)
+                      </span>
+                    )}
+                  </div>
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground transition-transform ${
+                      isFormSectionExpanded ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {isFormSectionExpanded ? (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-3 sm:space-y-4">
                     <div>
@@ -2386,11 +2413,17 @@ export default function AdminContent() {
                       >
                         {isSaving ? 'Saving...' : 'Save'}
                       </Button>
-                    </div>
+                                        </div>
                   </div>
                 </div>
+                ) : (
+                  <p className="py-4 text-center text-sm text-muted-foreground">
+                    {selectedContent
+                      ? `Click above to edit "${selectedContent.title}"`
+                      : 'Click above to create a new entry'}
+                  </p>
+                )}
               </TabsContent>
-
               <TabsContent value="workflow" className="pt-4 space-y-4">
                 {selectedContent ? (
                   <div className="space-y-4">
@@ -2601,6 +2634,7 @@ export default function AdminContent() {
                             setSelectedId(item.id);
                             resetEditForm(item);
                             setActiveTab('edit');
+                            setIsFormSectionExpanded(true);
                             // Scroll to the editor tabs area so user can see it immediately
                             setTimeout(() => {
                               editorTabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
