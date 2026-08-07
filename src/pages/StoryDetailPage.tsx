@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Send,
   Link2,
+  Instagram,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -276,10 +277,68 @@ export default function StoryDetailPage() {
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(viralShareText + "\n\nপড়ুন এখানে: " + url)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(viralShareText)}&url=${encodeURIComponent(url)}`,
+    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(viralShareText + "\n\nপড়ুন এখানে: " + url)}`,
+    x: `https://x.com/intent/tweet?text=${encodeURIComponent(viralShareText)}&url=${encodeURIComponent(url)}`,
+    instagram: url,
     telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(viralShareText)}`,
     trailerFacebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(trailerUrl)}`,
+  };
+
+  const handleSocialShare = (platform: string) => {
+    const shareData = {
+      title: storyTitle,
+      text: viralShareText,
+      url: url,
+    };
+
+    if (navigator.share && ['instagram', 'facebook', 'whatsapp'].includes(platform)) {
+      navigator.share(shareData).catch(() => {
+        openSocialLink(platform);
+      });
+    } else {
+      openSocialLink(platform);
+    }
+  };
+
+  const openSocialLink = (platform: string) => {
+    let link = '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    switch (platform) {
+      case 'facebook':
+        link = shareLinks.facebook;
+        break;
+      case 'whatsapp':
+        if (isMobile) {
+          link = `https://wa.me/?text=${encodeURIComponent(viralShareText + "\n\nপড়ুন এখানে: " + url)}`;
+        } else {
+          link = shareLinks.whatsapp;
+        }
+        break;
+      case 'x':
+        link = shareLinks.x;
+        break;
+      case 'instagram':
+        if (navigator.share) {
+          navigator.share({
+            title: storyTitle,
+            text: viralShareText,
+            url: url,
+          }).catch(() => copyToClipboard());
+        } else {
+          copyToClipboard();
+        }
+        return;
+      case 'telegram':
+        link = shareLinks.telegram;
+        break;
+      default:
+        return;
+    }
+    
+    if (link) {
+      window.open(link, '_blank', 'width=600,height=400');
+    }
   };
 
   const copyToClipboard = () => {
@@ -653,26 +712,31 @@ export default function StoryDetailPage() {
               <Share2 className="h-4 w-4" /> এই গল্পটি শেয়ার করুন:
             </p>
             <div className="flex flex-wrap gap-2">
-              <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer">
+              <button onClick={() => handleSocialShare('facebook')} className="inline-flex">
                 <Button size="sm" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white gap-2">
                   <Facebook className="h-4 w-4" /> Facebook
                 </Button>
-              </a>
-              <a href={shareLinks.whatsapp} target="_blank" rel="noopener noreferrer">
+              </button>
+              <button onClick={() => handleSocialShare('whatsapp')} className="inline-flex">
                 <Button size="sm" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white gap-2">
                   <MessageCircle className="h-4 w-4" /> WhatsApp
                 </Button>
-              </a>
-              <a href={shareLinks.twitter} target="_blank" rel="noopener noreferrer">
-                <Button size="sm" className="bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white gap-2">
-                  <Twitter className="h-4 w-4" /> Twitter
+              </button>
+              <button onClick={() => handleSocialShare('x')} className="inline-flex">
+                <Button size="sm" className="bg-[#000000] hover:bg-[#000000]/90 text-white gap-2">
+                  <Twitter className="h-4 w-4" /> X
                 </Button>
-              </a>
-              <a href={shareLinks.telegram} target="_blank" rel="noopener noreferrer">
+              </button>
+              <button onClick={() => handleSocialShare('instagram')} className="inline-flex">
+                <Button size="sm" className="bg-gradient-to-r from-[#f09433] via-[#e6683c] to-[#dc2743] hover:opacity-90 text-white gap-2">
+                  <Instagram className="h-4 w-4" /> Instagram
+                </Button>
+              </button>
+              <button onClick={() => handleSocialShare('telegram')} className="inline-flex">
                 <Button size="sm" className="bg-[#0088cc] hover:bg-[#0088cc]/90 text-white gap-2">
                   <Send className="h-4 w-4" /> Telegram
                 </Button>
-              </a>
+              </button>
               <Button size="sm" variant="outline" onClick={copyToClipboard} className="gap-2">
                 <Link2 className="h-4 w-4" /> Copy Link
               </Button>
