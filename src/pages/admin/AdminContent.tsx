@@ -1734,6 +1734,7 @@ export default function AdminContent() {
                 </button>
 
                 {isFormSectionExpanded ? (
+                <>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-3 sm:space-y-4">
                     <div>
@@ -1904,13 +1905,11 @@ export default function AdminContent() {
                             onChange={(e) =>
                               setEditForm((prev) => ({ ...prev, meta_reference: e.target.value }))
                             }
-                            placeholder="লিংক/বইয়ের নাম/হাদিস নম্বর (optional)"
+                                                        placeholder="লিংক/বইয়ের নাম/হাদিস নম্বর (optional)"
                           />
                         </div>
                       </div>
                     )}
-                  </div>
-
                   <div className="space-y-3 sm:space-y-4">
                     {effectiveType === 'name' ? (
                       <>
@@ -2024,7 +2023,7 @@ export default function AdminContent() {
                     )}
                   </div>
                 </div>
-
+                </div>
                 {(effectiveType === 'dua' || effectiveType === 'story') && (
                   <Card className="mt-4">
                     <CardHeader className="pb-3">
@@ -2413,9 +2412,10 @@ export default function AdminContent() {
                       >
                         {isSaving ? 'Saving...' : 'Save'}
                       </Button>
-                                        </div>
+                    </div>
                   </div>
                 </div>
+                </>
                 ) : (
                   <p className="py-4 text-center text-sm text-muted-foreground">
                     {selectedContent
