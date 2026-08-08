@@ -1,6 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
-import variantsMap, { type StoryVariant } from "@/data/storyNotificationsVariants";
+import storyVariantsMap, { type StoryVariant } from "@/data/storyNotificationsVariants";
+import duaVariantsMap from "@/data/duaNotificationsVariants";
+
+export type SmartVariant = StoryVariant;
 
 /**
  * Smart Variants — pre-generated, constraint-verified Bengali notification
@@ -22,7 +25,11 @@ export default function SmartVariantsPanel({
   selectedVariant,
   onSelect,
 }: SmartVariantsPanelProps) {
-  const entry = slug ? (variantsMap as Record<string, any>)[slug] ?? null : null;
+  const entry = slug
+    ? ((storyVariantsMap as Record<string, any>)[slug] ??
+       (duaVariantsMap as Record<string, any>)[slug] ??
+       null)
+    : null;
   const variants: StoryVariant[] = entry?.variants ?? [];
   const label =
     entry?.tone ??
