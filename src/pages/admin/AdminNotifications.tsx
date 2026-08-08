@@ -21,6 +21,8 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QuickTemplatesPanel, type TemplateItem } from "@/components/admin/QuickTemplatesPanel";
 import StoryPickerPanel, { type StoryPickerItem } from "@/components/admin/StoryPickerPanel";
+import SmartVariantsPanel, { type StoryVariant } from "@/components/admin/SmartVariantsPanel";
+import storyVariantsMap from "@/data/storyNotificationsVariants";
 import { BookOpen } from "lucide-react";
 
 type TargetPlatform = "all" | "android" | "ios" | "web";
@@ -38,6 +40,9 @@ const AdminNotifications = () => {
   const [badgeUrl, setBadgeUrl] = useState("");
   const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("all");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedStorySlug, setSelectedStorySlug] = useState<string | null>(null);
+  const [selectedStoryTitle, setSelectedStoryTitle] = useState<string | null>(null);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
   const [uploadingBadge, setUploadingBadge] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -132,6 +137,9 @@ const AdminNotifications = () => {
       setIconUrl("");
       setBadgeUrl("");
       setSelectedTemplate(null);
+      setSelectedStorySlug(null);
+      setSelectedStoryTitle(null);
+      setSelectedVariantIndex(null);
     },
     onError: (error: Error) => {
       toast({ title: "Failed to send notification", description: error.message, variant: "destructive" });
@@ -142,12 +150,32 @@ const AdminNotifications = () => {
     setTitle(template.title);
     setMessage(template.body);
     setSelectedTemplate(template.id);
+    setSelectedStorySlug(null);
+    setSelectedStoryTitle(null);
+    setSelectedVariantIndex(null);
     if (template.deep_link) setDeepLink(template.deep_link);
     if (template.image_url) setImageUrl(template.image_url);
   };
 
+  const handleSmartVariantSelect = (variant: StoryVariant) => {
+    setTitle(variant.title);
+    setMessage(variant.body);
+    // Re-highlight the chosen suggestion in the variants panel.
+    if (!selectedStorySlug) return;
+    const entry = storyVariantsMap[selectedStorySlug];
+    if (entry) {
+      const idx = (entry.variants as StoryVariant[]).findIndex(
+        (v) => v.title === variant.title && v.body === variant.body,
+      );
+      setSelectedVariantIndex(idx >= 0 ? idx : null);
+    }
+  };
+
   const handleStorySelect = (story: StoryPickerItem) => {
     const isDua = story.content_type === "dua";
+    setSelectedStorySlug(story.slug);
+    setSelectedStoryTitle(story.title || story.title_en || null);
+    setSelectedVariantIndex(null);
 
     // Title: use Bangla title, fall back to English
     const notificationTitle =
@@ -255,6 +283,12 @@ const AdminNotifications = () => {
             <CardDescription>Create your custom notification</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <SmartVariantsPanel
+              slug={selectedStorySlug}
+              contentTitle={selectedStoryTitle}
+              selectedVariant={selectedVariantIndex}
+              onSelect={handleSmartVariantSelect}
+            />
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input
