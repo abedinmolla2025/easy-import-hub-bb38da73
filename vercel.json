@@ -1,79 +1,99 @@
 {
-  "trailingSlash": false,
-  "redirects": [
+ "trailingSlash": false,
+ "redirects": [
+  {
+   "source": "/(.*)",
+   "has": [
     {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.noorapp.in" }],
-      "destination": "https://noorapp.in/$1",
-      "statusCode": 301
-    },
-    {
-      "source": "/bukhari",
-      "destination": "/hadith/sahih-bukhari",
-      "statusCode": 301
-    },
-    {
-      "source": "/hadith/bukhari",
-      "destination": "/hadith/sahih-bukhari",
-      "statusCode": 301
-    },
-    {
-      "source": "/sahih-al-bukhari",
-      "destination": "/hadith/sahih-bukhari",
-      "statusCode": 301
-    },
-    {
-      "source": "/sahih-al-bukhari/:lang",
-      "destination": "/hadith/sahih-bukhari/:lang",
-      "statusCode": 301
-    },
-    {
-      "source": "/app/noorapp.apk",
-      "destination": "/download",
-      "statusCode": 301
-    },
-    {
-      "source": "/names",
-      "destination": "/baby-names",
-      "statusCode": 301
+     "type": "host",
+     "value": "www.noorapp.in"
     }
-  ],
-  "headers": [
+   ],
+   "destination": "https://noorapp.in/$1",
+   "statusCode": 301
+  },
+  {
+   "source": "/bukhari",
+   "destination": "/hadith/sahih-bukhari",
+   "statusCode": 301
+  },
+  {
+   "source": "/hadith/bukhari",
+   "destination": "/hadith/sahih-bukhari",
+   "statusCode": 301
+  },
+  {
+   "source": "/sahih-al-bukhari",
+   "destination": "/hadith/sahih-bukhari",
+   "statusCode": 301
+  },
+  {
+   "source": "/sahih-al-bukhari/:lang",
+   "destination": "/hadith/sahih-bukhari/:lang",
+   "statusCode": 301
+  },
+  {
+   "source": "/app/noorapp.apk",
+   "destination": "/download",
+   "statusCode": 301
+  },
+  {
+   "source": "/names",
+   "destination": "/baby-names",
+   "statusCode": 301
+  }
+ ],
+ "headers": [
+  {
+   "source": "/sitemap.xml",
+   "headers": [
     {
-      "source": "/sitemap.xml",
-      "headers": [
-        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=86400" }
-      ]
+     "key": "Content-Type",
+     "value": "application/xml; charset=utf-8"
+    },
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=3600, s-maxage=86400"
     }
-  ],
-  "rewrites": [
+   ]
+  }
+ ],
+ "rewrites": [
+  {
+   "source": "/sitemap-dynamic.xml",
+   "destination": "https://llicfiepatzgllmjhzbw.supabase.co/functions/v1/sitemap"
+  },
+  {
+   "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap\\.xml|sw\\.js|data|api/).*)",
+   "has": [
     {
-      "source": "/sitemap-dynamic.xml",
-      "destination": "https://llicfiepatzgllmjhzbw.supabase.co/functions/v1/sitemap"
-    },
+     "type": "header",
+     "key": "user-agent",
+     "value": ".*(Googlebot|facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|Pinterest|slackbot|Applebot).*"
+    }
+   ],
+   "destination": "/api/prerender?path=/$1"
+  },
+  {
+   "source": "/",
+   "has": [
     {
-      "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap\\.xml|sw\\.js|data|api/).*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(Googlebot|facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|Pinterest|slackbot|Applebot).*"
-        }
-      ],
-      "destination": "/api/prerender?path=/$1"
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(Googlebot|facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|Pinterest|slackbot|Applebot).*"
-        }
-      ],
-      "destination": "/api/prerender?path=/"
-    },
-    { "source": "/(.*)", "destination": "/" }
-  ]
+     "type": "header",
+     "key": "user-agent",
+     "value": ".*(Googlebot|facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|Pinterest|slackbot|Applebot).*"
+    }
+   ],
+   "destination": "/api/prerender?path=/"
+  },
+  {
+   "source": "/(.*)",
+   "destination": "/"
+  }
+ ],
+ "crons": [
+  {
+   "path": "/api/scheduler-tick",
+   "schedule": "* * * * *"
+  }
+ ]
 }
