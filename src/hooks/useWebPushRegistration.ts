@@ -7,6 +7,15 @@ const WEB_PUSH_REGISTERED_KEY = "noor_web_push_registered";
 const WEB_PUSH_VAPID_KEY_HASH = "noor_web_push_vapid_hash";
 const PUSH_OPT_IN_KEY = "noor_push_opt_in";
 
+// One-time automatic migration flag.
+// Subscriptions created under the old Lovable Cloud VAPID key are cryptographically
+// invalid now and can never receive pushes. Browsers that registered with the old
+// key (stored hash differs) — or under an older app version where the hash was
+// never stored — must re-subscribe WITHOUT the user clearing browser data.
+// Once a fresh subscription is saved, this flag persists so the migration only
+// ever runs once per browser.
+const PUSH_MIGRATION_V2_KEY = "noor_push_migration_v2";
+
 function getOrCreateDeviceId(): string {
   const existing = localStorage.getItem(DEVICE_ID_KEY);
   if (existing) return existing;
@@ -107,8 +116,14 @@ export function useWebPushRegistration() {
         if (!publicKey) throw new Error("Missing VAPID public key");
 
         // Check if VAPID key has changed — if so, force re-registration
+        // One-time automatic migration: browsers holding an old Lovable-era
+        // subscription (key hash differs) or registered before the key-hash
+        // storage was added (no hash stored) must re-subscribe under the
+        // current Supabase VAPID key. New browsers skip this entirely.
         const storedKeyHash = localStorage.getItem(WEB_PUSH_VAPID_KEY_HASH);
+        const migrated = localStorage.getItem(PUSH_MIGRATION_V2_KEY) === "true";
         const keyChanged = storedKeyHash !== null && storedKeyHash !== publicKey;
+        const needsMigration = !migrated && (keyChanged || storedKeyHash === null);
 
         if (keyChanged) {
           console.log("[webpush] VAPID key changed, clearing old registration");
@@ -173,7 +188,26 @@ export function useWebPushRegistration() {
         // Mark as registered and store current key hash
         localStorage.setItem(WEB_PUSH_REGISTERED_KEY, "true");
         localStorage.setItem(WEB_PUSH_VAPID_KEY_HASH, publicKey);
+
+        // Persist the one-time migration flag — the old Lovable subscription is
+        // now replaced by a fresh one under the current Supabase VAPID key.
+        localStorage.setItem(PUSH_MIGRATION_V2_KEY, "true");
         console.log("[webpush] Subscription registered successfully");
+
+        // If this visit performed the one-time migration, prune the stale
+        // server token row for this device immediately so the send pipeline
+        // never attempts to push to the dead endpoint again.
+        if (needsMigration) {
+          try {
+            await (supabase.rpc as any)("delete_own_push_token", {
+              p_device_id: deviceId,
+              p_platform: "web",
+            });
+            console.log("[webpush] Stale migration-era token pruned server-side");
+          } catch (e) {
+            console.warn("[webpush] Migration cleanup RPC failed", e);
+          }
+        }
       } catch (e) {
         console.warn("Web push setup failed", e);
       }
