@@ -194,8 +194,11 @@ const AdminNotifications = () => {
     setTitle(notificationTitle);
     setMessage(notificationMessage);
 
-    // Resolve thumbnail: prefer og image url, fall back to image_url
+    // Resolve thumbnail: prefer the stored public og_image_url, fall back to
+    // image_url / og file name. Note: dua og images live in media/{folder},
+    // story og images live in og-images/{folder}.
     const ogUrl =
+      story.og_image_data?.og_image_url ||
       story.og_image_data?.url ||
       story.og_image_data?.og_image ||
       story.og_image_data?.og_image_url ||
@@ -204,8 +207,9 @@ const AdminNotifications = () => {
     if (ogUrl && ogUrl.startsWith("http")) {
       setImageUrl(ogUrl);
     } else if (ogUrl) {
-      const folder = isDua ? "dua-og" : "story-og";
-      setImageUrl(`https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/og-images/${folder}/${ogUrl}`);
+      const bucket = isDua ? "media" : "og-images";
+      const folder = isDua ? "dua-og" : "stories";
+      setImageUrl(`https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/${bucket}/${folder}/${ogUrl}`);
     }
 
     // Deep link to the content page

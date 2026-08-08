@@ -73,8 +73,10 @@ export default function StoryPickerPanel({ onSelect }: StoryPickerPanelProps) {
       null;
     if (ogUrl && ogUrl.startsWith("http")) return ogUrl;
     if (ogUrl) {
-      const folder = item.content_type === "dua" ? "dua-og" : "story-og";
-      return `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/og-images/${folder}/${ogUrl}`;
+      // dua og images live in media/dua-og, story og images in og-images/stories
+      const bucket = item.content_type === "dua" ? "media" : "og-images";
+      const folder = item.content_type === "dua" ? "dua-og" : "stories";
+      return `https://llicfiepatzgllmjhzbw.supabase.co/storage/v1/object/public/${bucket}/${folder}/${ogUrl}`;
     }
     return null;
   };
