@@ -2,9 +2,9 @@
 node_modules/
 
 # Environment files with secrets
-.env.production
-.env.local
-.env.development.local
+.env
+.env.*
+!.env.example
 
 # Build output
 dist/

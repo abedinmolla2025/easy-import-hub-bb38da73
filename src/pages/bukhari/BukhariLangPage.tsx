@@ -233,7 +233,7 @@ function flattenBooks(json: Record<string, RawHadith[]>): RawHadith[] {
 }
 
 // ── Load from database (Bangla) ──────────────────────────────
-async function loadFromDb(dbField: string): Promise<Hadith[]> {
+async function loadFromDbUnbounded(dbField: string): Promise<Hadith[]> {
   const all: Hadith[] = [];
   const batchSize = 1000;
   let from = 0;
@@ -271,6 +271,13 @@ async function loadFromDb(dbField: string): Promise<Hadith[]> {
   }
 
   return all;
+}
+
+async function loadFromDb(dbField: string): Promise<Hadith[]> {
+  const timeout = new Promise<never>((_, reject) =>
+    window.setTimeout(() => reject(new Error("hadith database timeout")), 8000),
+  );
+  return Promise.race([loadFromDbUnbounded(dbField), timeout]);
 }
 
 // ── Pagination ───────────────────────────────────────────────

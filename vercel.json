@@ -56,12 +56,21 @@
      "value": "public, max-age=3600, s-maxage=86400"
     }
    ]
+  },
+  {
+   "source": "/(.*)",
+   "headers": [
+    {"key": "X-Content-Type-Options", "value": "nosniff"},
+    {"key": "X-Frame-Options", "value": "SAMEORIGIN"},
+    {"key": "Referrer-Policy", "value": "strict-origin-when-cross-origin"},
+    {"key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(self)"}
+   ]
   }
  ],
  "rewrites": [
   {
    "source": "/sitemap-dynamic.xml",
-   "destination": "https://llicfiepatzgllmjhzbw.supabase.co/functions/v1/sitemap"
+   "destination": "/api/sitemap-dynamic"
   },
   {
    "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap\\.xml|sw\\.js|data|api/).*)",

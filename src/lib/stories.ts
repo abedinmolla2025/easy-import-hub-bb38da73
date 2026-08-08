@@ -119,12 +119,16 @@ function rowToStory(row: any, index: number): Story {
 async function loadStoriesFromDb(): Promise<Story[] | null> {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { data, error } = await supabase
+    const request = supabase
       .from("admin_content")
       .select("*")
       .eq("content_type", "story")
       .eq("status", "published")
       .order("created_at", { ascending: true });
+    const timeout = new Promise<never>((_, reject) =>
+      window.setTimeout(() => reject(new Error("stories database timeout")), 4500),
+    );
+    const { data, error } = await Promise.race([request, timeout]);
     if (error || !data?.length) return null;
     return (data as any[]).filter((r) => r.slug).map(rowToStory);
   } catch {
@@ -181,11 +185,18 @@ export function useStories() {
   useEffect(() => {
     if (cache) return;
     let active = true;
-    loadStories().then((d) => {
-      if (!active) return;
-      setStories(d);
-      setLoading(false);
-    });
+    loadStories()
+      .then((d) => {
+        if (!active) return;
+        setStories(d);
+      })
+      .catch(() => {
+        if (!active) return;
+        setStories([]);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
     return () => {
       active = false;
     };
