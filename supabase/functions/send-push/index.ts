@@ -409,7 +409,17 @@ Deno.serve(async (req) => {
           } catch { /* ignore */ }
         }
 
-        if (errorCode === "http_404" || errorCode === "http_410") {
+        if (
+          errorCode === "http_404" ||
+          errorCode === "http_410" ||
+          errorCode === "http_401" ||
+          errorCode === "http_403"
+        ) {
+          // 404/410: subscription gone. 401/403: subscription invalid (e.g. it was
+          // created under a different VAPID key and can never be signed again).
+          // Disable so we stop retrying dead endpoints forever; the browser will
+          // re-register a fresh subscription under the current key on its next
+          // visit (the registration hook detects the VAPID key hash change).
           await disableToken(tokenIdStr);
         }
 
