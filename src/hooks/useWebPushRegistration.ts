@@ -164,10 +164,17 @@ export function useWebPushRegistration() {
         // Delete old tokens for this device before inserting (handles key change cleanup).
         // Uses a controlled RPC helper: RLS no longer permits broad client-side
         // deletes on device_push_tokens, protecting tokens from accidental loss.
-        await (supabase.rpc as any)("delete_own_push_token", {
-          p_device_id: deviceId,
-          p_platform: "web",
-        });
+        // Non-fatal: if the RPC hasn't been deployed yet, registration must still
+        // succeed — stale duplicate rows are harmless and the send-push edge
+        // function prunes them on delivery failures.
+        try {
+          await (supabase.rpc as any)("delete_own_push_token", {
+            p_device_id: deviceId,
+            p_platform: "web",
+          });
+        } catch (rpcErr) {
+          console.warn("[webpush] Pre-insert token cleanup skipped", rpcErr);
+        }
 
         // Save subscription to database
         const { error } = await supabase
