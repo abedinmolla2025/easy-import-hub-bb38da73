@@ -388,8 +388,7 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
           )}
 
           <p className="text-[11px] text-muted-foreground">
-            Security note: default passcode is <span className="font-medium">noor-admin-1234</span>. Change it
-            immediately in <span className="font-medium">/admin/security</span>.
+            Admin access requires a configured passcode. If you do not know it, use the secure reset flow or contact the site owner.
           </p>
         </div>
       </DialogContent>

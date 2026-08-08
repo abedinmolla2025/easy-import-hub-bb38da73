@@ -69,7 +69,6 @@ Deno.serve(async (req) => {
     const action = payload?.action;
 
     const DEFAULT_ADMIN_EMAIL = "admin@noor.app";
-    const DEFAULT_PASSCODE = "noor-admin-1234";
 
     const authHeader = req.headers.get("authorization") ?? "";
 
@@ -189,7 +188,10 @@ Deno.serve(async (req) => {
 
       const created = await supabase.auth.admin.createUser({
         email: adminEmail,
-        password: passwordForSync || "noor-admin-1234",
+        // Never create an account with a published/default password. When the
+        // passcode is not yet configured, use a random password and require the
+        // secure reset flow before the first unlock.
+        password: passwordForSync || `${randomDigits(12)}-${randomHex(16)}`,
         email_confirm: true,
       });
 
