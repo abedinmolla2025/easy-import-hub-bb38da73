@@ -193,21 +193,11 @@ export function useWebPushRegistration() {
         // now replaced by a fresh one under the current Supabase VAPID key.
         localStorage.setItem(PUSH_MIGRATION_V2_KEY, "true");
         console.log("[webpush] Subscription registered successfully");
-
-        // If this visit performed the one-time migration, prune the stale
-        // server token row for this device immediately so the send pipeline
-        // never attempts to push to the dead endpoint again.
-        if (needsMigration) {
-          try {
-            await (supabase.rpc as any)("delete_own_push_token", {
-              p_device_id: deviceId,
-              p_platform: "web",
-            });
-            console.log("[webpush] Stale migration-era token pruned server-side");
-          } catch (e) {
-            console.warn("[webpush] Migration cleanup RPC failed", e);
-          }
-        }
+        // NOTE: if this visit performed the one-time migration, the stale
+        // migration-era server row was already removed by the
+        // delete_own_push_token call above BEFORE the fresh subscription was
+        // inserted — the new row is intact, so no further cleanup is needed.
+        void needsMigration;
       } catch (e) {
         console.warn("Web push setup failed", e);
       }
