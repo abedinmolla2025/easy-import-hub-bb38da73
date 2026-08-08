@@ -53,6 +53,7 @@ import AdminQuiz from "./pages/admin/AdminQuiz";
 import AdminSplashScreens from "./pages/admin/AdminSplashScreens";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminFinance from "./pages/admin/AdminFinance";
+import AdminSchedulers from "./pages/admin/AdminSchedulers";
 
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
@@ -309,6 +310,14 @@ const AppRoutes = () => {
         element={
           <AdminLayout>
             <BackendStatusPage />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/scheduler"
+        element={
+          <AdminLayout>
+            <AdminSchedulers />
           </AdminLayout>
         }
       />

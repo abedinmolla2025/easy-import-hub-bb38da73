@@ -27,5 +27,8 @@ verify_jwt = false
 [functions.admin-security]
 verify_jwt = false
 
+[functions.scheduler-dispatch]
+verify_jwt = false
+
 [functions.generate-quiz-sfx]
 verify_jwt = false
