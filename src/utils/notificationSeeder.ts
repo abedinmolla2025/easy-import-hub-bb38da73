@@ -3,8 +3,7 @@ import { supabase } from "../integrations/supabase/client";
 /**
  * PRODUCTION NOTIFICATION SEEDER & ENGINE CONFIG
  * This script populates the database with the content required for the Smart Notification System.
- * Note: For 1200+ templates, we use a programmatic generation pattern for the bulk content
- * while manually defining high-value event templates.
+ * Target Project: llicfiepatzgllmjhzbw
  */
 
 const categories = {
