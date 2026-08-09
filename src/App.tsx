@@ -375,11 +375,11 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalConfigProvider>
-          <AdminProvider>
-            <AppSettingsProvider>
+          <AppSettingsProvider>
+            <AdminProvider>
               <AppInner />
-            </AppSettingsProvider>
-          </AdminProvider>
+            </AdminProvider>
+          </AppSettingsProvider>
         </GlobalConfigProvider>
       </TooltipProvider>
     </QueryClientProvider>
