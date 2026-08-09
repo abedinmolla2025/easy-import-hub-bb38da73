@@ -12,7 +12,7 @@ interface BeadProps {
 }
 
 const Bead = ({ position, isActive, isCounted, index }: BeadProps) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<Mesh>(null);
   
   useFrame((state) => {
     if (meshRef.current) {
