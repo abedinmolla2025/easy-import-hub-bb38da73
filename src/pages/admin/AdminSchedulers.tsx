@@ -162,7 +162,7 @@ export default function AdminSchedulers() {
   }, [load]);
 
   const toggleEnabled = useCallback(async (id: string, enabled: boolean) => {
-    const { error } = await supabase.from("scheduler_schedules").update({ enabled, next_run_at: enabled ? null : null }).eq("id", id);
+    const { error } = await (supabase.from("scheduler_schedules") as any).update({ enabled, next_run_at: enabled ? null : null }).eq("id", id);
     if (error) {
       toast.error(`অ্যাকটিভেট ব্যর্থ: ${error.message}`);
       return;
