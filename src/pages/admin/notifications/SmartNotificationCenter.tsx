@@ -184,8 +184,21 @@ const SmartNotificationCenter = () => {
               <CardTitle>Islamic Historical Events</CardTitle>
               <CardDescription>Verified events used for smart priority notifications</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground italic">History table viewer coming soon...</p>
+            <CardContent className="space-y-4">
+              <Button 
+                onClick={async () => {
+                  const { seedNotificationSystem } = await import("@/utils/notificationSeeder");
+                  await seedNotificationSystem();
+                  alert("Production data seeded successfully!");
+                }}
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Initialize Production Content (1200+ Templates)
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                This will populate 300+ Dua, 300+ Hadith, 300+ Stories, 150+ Quran reminders, and 100+ Friday templates.
+              </p>
             </CardContent>
           </Card>
         </TabsContent>
