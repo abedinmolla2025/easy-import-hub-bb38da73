@@ -74,6 +74,14 @@
   </head>
 
   <body>
+    <!-- Visible overlay for production debugging of white screens -->
+    <div id="startup-error-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); color: #ff5555; z-index: 9999; padding: 20px; font-family: monospace; overflow: auto; flex-direction: column;">
+      <h1 style="color: white; border-bottom: 1px solid #444; padding-bottom: 10px;">Startup Error Detected</h1>
+      <p style="color: #aaa;">This overlay is visible because a fatal error occurred during app initialization.</p>
+      <pre style="background: #111; padding: 15px; border-radius: 4px; border: 1px solid #333; white-space: pre-wrap; word-break: break-all;"></pre>
+      <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #0d9f6e; color: white; border: none; border-radius: 4px; cursor: pointer; align-self: flex-start;">Reload App</button>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
