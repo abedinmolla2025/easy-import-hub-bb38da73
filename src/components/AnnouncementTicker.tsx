@@ -78,7 +78,7 @@ export default function AnnouncementTicker() {
             const next = new Set(dismissed);
             next.add(latest.id);
             setDismissedSet(next);
-            navigate(0);
+            window.location.reload();
           }}
         >
           <X className="h-4 w-4" />
