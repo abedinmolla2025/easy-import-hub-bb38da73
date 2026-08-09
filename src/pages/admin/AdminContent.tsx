@@ -2619,7 +2619,7 @@ export default function AdminContent() {
                                 slug={item.slug}
                                 folder={item.content_type === 'story' ? 'story-og' : 'dua-og'}
                                 storageIndex={ogStorageIndex}
-                                onClick={(e) => {
+                                onClick={(e: any) => {
                                   e.stopPropagation();
                                   setOgManagerItem(item);
                                 }}
