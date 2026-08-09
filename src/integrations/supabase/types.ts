@@ -1018,6 +1018,45 @@ export type Database = {
         }
         Relationships: []
       }
+      islamic_events: {
+        Row: {
+          created_at: string | null
+          description_bn: string | null
+          event_name_bn: string
+          gregorian_day: number | null
+          gregorian_month: number | null
+          hijri_day: number | null
+          hijri_month: number | null
+          id: string
+          importance_level: number | null
+          is_recurring: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          description_bn?: string | null
+          event_name_bn: string
+          gregorian_day?: number | null
+          gregorian_month?: number | null
+          hijri_day?: number | null
+          hijri_month?: number | null
+          id?: string
+          importance_level?: number | null
+          is_recurring?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          description_bn?: string | null
+          event_name_bn?: string
+          gregorian_day?: number | null
+          gregorian_month?: number | null
+          hijri_day?: number | null
+          hijri_month?: number | null
+          id?: string
+          importance_level?: number | null
+          is_recurring?: boolean | null
+        }
+        Relationships: []
+      }
       notification_deliveries: {
         Row: {
           browser: string | null
@@ -1063,6 +1102,80 @@ export type Database = {
           status?: string
           subscription_endpoint?: string | null
           token_id?: string
+        }
+        Relationships: []
+      }
+      notification_logs: {
+        Row: {
+          id: string
+          metadata: Json | null
+          sent_at: string | null
+          status: string | null
+          template_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          template_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          template_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_templates: {
+        Row: {
+          body_bn: string
+          category: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          source_reference: string | null
+          target_slug: string | null
+          title_bn: string
+          updated_at: string | null
+        }
+        Insert: {
+          body_bn: string
+          category: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          source_reference?: string | null
+          target_slug?: string | null
+          title_bn: string
+          updated_at?: string | null
+        }
+        Update: {
+          body_bn?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          source_reference?: string | null
+          target_slug?: string | null
+          title_bn?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1496,6 +1609,7 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "admin" | "editor" | "user"
+      notification_channel: "push" | "in_app" | "email"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1624,6 +1738,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "admin", "editor", "user"],
+      notification_channel: ["push", "in_app", "email"],
     },
   },
 } as const

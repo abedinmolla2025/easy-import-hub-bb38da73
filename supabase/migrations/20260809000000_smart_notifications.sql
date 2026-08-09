@@ -1,8 +1,12 @@
 -- Create Enum for Notification Channels
-CREATE TYPE public.notification_channel AS ENUM ('push', 'in_app', 'email');
+DO $$ BEGIN
+    CREATE TYPE public.notification_channel AS ENUM ('push', 'in_app', 'email');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Create Table for Notification Content
-CREATE TABLE public.notification_templates (
+CREATE TABLE IF NOT EXISTS public.notification_templates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     category TEXT NOT NULL, -- 'dua', 'hadith', 'quran', 'story', 'history', 'event'
     title_bn TEXT NOT NULL,
@@ -16,7 +20,7 @@ CREATE TABLE public.notification_templates (
 );
 
 -- Create Table for Notification Logs/History (to track 60-day rotation)
-CREATE TABLE public.notification_logs (
+CREATE TABLE IF NOT EXISTS public.notification_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     template_id UUID REFERENCES public.notification_templates(id),
     sent_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
@@ -26,7 +30,7 @@ CREATE TABLE public.notification_logs (
 );
 
 -- Create Table for Islamic Historical Events
-CREATE TABLE public.islamic_events (
+CREATE TABLE IF NOT EXISTS public.islamic_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     hijri_day INTEGER,
     hijri_month INTEGER,
@@ -56,7 +60,14 @@ GRANT SELECT ON public.islamic_events TO anon;
 GRANT ALL ON public.islamic_events TO service_role;
 
 -- Policies
-CREATE POLICY "Public read templates" ON public.notification_templates FOR SELECT TO authenticated, anon USING (true);
-CREATE POLICY "Public read events" ON public.islamic_events FOR SELECT TO authenticated, anon USING (true);
-CREATE POLICY "Users can see their logs" ON public.notification_logs FOR SELECT TO authenticated USING (auth.uid() = user_id);
+DO $$ BEGIN
+    CREATE POLICY "Public read templates" ON public.notification_templates FOR SELECT TO authenticated, anon USING (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
+DO $$ BEGIN
+    CREATE POLICY "Public read events" ON public.islamic_events FOR SELECT TO authenticated, anon USING (true);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Users can see their logs" ON public.notification_logs FOR SELECT TO authenticated USING (auth.uid() = user_id);
+EXCEPTION WHEN duplicate_object THEN null; END $$;
