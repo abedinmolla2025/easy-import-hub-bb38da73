@@ -72,9 +72,9 @@ export default async function handler(req, res) {
     let ogType = "website";
     let extraTags = "";
     let canonicalUrl = `${SITE_ORIGIN}${path}`;
+    let bodyContent = "";
 
     // Always use hardcoded Supabase URL for reliability in serverless functions
-    // Vercel does NOT pass VITE_ prefixed env vars to serverless functions
     const supabaseUrl = SUPABASE_URL;
     const supabaseKey = SUPABASE_ANON_KEY;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -85,136 +85,97 @@ export default async function handler(req, res) {
       return res.status(404).send("<!DOCTYPE html><html lang=\"bn\"><head><meta charset=\"UTF-8\"><meta name=\"robots\" content=\"noindex,follow\"><title>Page not found | Noor</title></head><body><h1>Page not found</h1><p>The requested Noor page could not be found.</p></body></html>");
     }
 
-    // Dynamic category pages need useful crawler metadata too; otherwise they fall back to the generic app title.
+    // --- 1. Dua Category Pages ---
     const duaCategoryMatch = path.match(/^\/dua\/category\/([a-zA-Z0-9-]+)$/);
     if (duaCategoryMatch) {
       const categoryName = humanizeSlug(duaCategoryMatch[1]);
       title = `${categoryName} Duas in Bengali | Noor`;
       description = `Read Arabic duas with Bengali meaning, pronunciation and practical context for ${categoryName.toLowerCase()} on Noor.`;
       ogImage = `${SITE_ORIGIN}/og-dua.png`;
+      bodyContent = `<h2>${categoryName} Duas</h2><p>Explore authentic duas for ${categoryName.toLowerCase()} with Arabic text and Bengali translation.</p>`;
     }
 
+    // --- 2. Story Category Pages ---
     const storyCategoryMatch = path.match(/^\/stories\/category\/([a-zA-Z0-9_-]+)$/);
-    if (storyCategoryMatch && !VALID_STORY_CATEGORIES.has(storyCategoryMatch[1])) {
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.setHeader("X-Robots-Tag", "noindex, follow");
-      return res.status(404).send("<!DOCTYPE html><html lang=\"bn\"><head><meta charset=\"UTF-8\"><meta name=\"robots\" content=\"noindex,follow\"><title>Story category not found | Noor</title></head><body><h1>Story category not found</h1><p>The requested Noor story category could not be found.</p></body></html>");
-    }
     if (storyCategoryMatch) {
       const categoryName = humanizeSlug(storyCategoryMatch[1]);
       title = `${categoryName} Islamic Stories in Bengali | Noor`;
       description = `Read sourced Islamic stories in Bengali from the ${categoryName.toLowerCase()} collection, with lessons and references on Noor.`;
       ogImage = `${SITE_ORIGIN}/og-stories-default.png`;
+      bodyContent = `<h2>${categoryName} Stories</h2><p>Read inspiring Islamic stories from the ${categoryName.toLowerCase()} collection.</p>`;
     }
 
-    // Match story pages: /stories/slug or /stories/slug/trailer
+    // --- 3. Story Pages ---
     const storyMatch = path.match(/^\/stories\/([a-zA-Z0-9-]+)(?:\/trailer)?$/);
-    const isTrailerMode = path.endsWith("/trailer") || (req.url && req.url.includes("trailer=true"));
+    const isTrailerMode = path.endsWith("/trailer");
 
     if (storyMatch) {
       const slug = storyMatch[1];
-      let story = null;
-      let dbError = null;
-      
-      // Try to fetch from database first
-      try {
-        const result = await supabase
-          .from("admin_content")
-          .select("slug, title, title_en, seo, og_image_data, image_url, og_image_url, audio_trailer_url")
-          .eq("content_type", "story")
-          .eq("slug", slug)
-          .maybeSingle();
-        story = result.data;
-        dbError = result.error;
-        if (dbError) {
-          console.error("Database fetch error:", dbError);
-        }
-      } catch (err) {
-        console.error("Database fetch exception:", err);
-      }
-
-      // Fallback to public/stories.json if database lookup fails
-      if (!story) {
-        try {
-          const response = await fetch(`${SITE_ORIGIN}/stories.json`, {
-            headers: { 'Accept': 'application/json' }
-          });
-          if (response.ok) {
-            const stories = await response.json();
-            story = stories.find(s => s.slug === slug);
-          }
-        } catch (err) {
-          console.error("Fallback stories.json fetch error:", err);
-        }
-      }
-
-      if (!story) {
-        res.setHeader("Content-Type", "text/html; charset=utf-8");
-        res.setHeader("X-Robots-Tag", "noindex, follow");
-        return res.status(404).send("<!DOCTYPE html><html lang=\"bn\"><head><meta charset=\"UTF-8\"><meta name=\"robots\" content=\"noindex,follow\"><title>Story not found | Noor</title></head><body><h1>Story not found</h1><p>The requested story could not be found.</p></body></html>");
-      }
+      const { data: story } = await supabase
+        .from("admin_content")
+        .select("*")
+        .eq("content_type", "story")
+        .eq("slug", slug)
+        .maybeSingle();
 
       if (story) {
         const storyTitle = story.title_bn || story.title || story.title_en;
         title = isTrailerMode ? `🎬 Trailer: ${storyTitle}` : storyTitle;
-        
-        // Get description from SEO or fallback
-        if (isTrailerMode) {
-          description = "এই হৃদয়স্পর্শী ইসলামিক গল্পটির একটি চমৎকার অডিও ট্রেলার শুনুন।";
-        } else {
-          description = story.seo?.meta_description 
-            || story.seo?.open_graph?.['og:description']
-            || `${storyTitle} — পড়ুন নূর ইসলামিক অ্যাপে।`;
-        }
-        
-        // Get image from multiple sources - check all possible field names
-        const rawImg = story.og_image_data?.url
-          || story.og_image_data?.og_image
-          || story.seo?.open_graph?.['og:image']
-          || story.seo?.og_image
-          || story.image_url
-          || story.og_image_url;
-        
-        if (rawImg && typeof rawImg === 'string' && rawImg.trim()) {
-          const clean = rawImg.trim();
-          if (clean.startsWith("http")) {
-            ogImage = clean;
-          } else {
-            const imgPath = clean.replace(/^\/+/, "");
-            if (imgPath.startsWith("assets/") || imgPath.startsWith("og-")) {
-              ogImage = `${SITE_ORIGIN}/${imgPath}`;
-            } else {
-              let bucket = "og-images";
-              let storagePath = imgPath;
-              if (imgPath.startsWith("og-images/")) {
-                bucket = "og-images";
-                storagePath = imgPath.slice("og-images/".length);
-              } else if (imgPath.startsWith("media/")) {
-                bucket = "media";
-                storagePath = imgPath.slice("media/".length);
-              }
-              ogImage = `${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`;
-            }
-          }
-        }
+        description = story.seo?.meta_description || `${storyTitle} — Read this beautiful Islamic story on Noor App with lessons and references.`;
+        ogImage = story.og_image_url || story.image_url || `${SITE_ORIGIN}/og-stories-default.png`;
+        ogType = isTrailerMode ? "video.other" : "article";
+        bodyContent = `<h2>${storyTitle}</h2><p>${description}</p><p>Read the full story, explore key lessons, and check authentic references on Noor App.</p>`;
+      }
+    }
 
-        // Set canonical URL from story SEO data
-        const seoCanonical = story.seo?.canonical_url || story.seo?.open_graph?.['og:url'];
-        if (seoCanonical) {
-          canonicalUrl = seoCanonical;
-        }
+    // --- 4. Hadith Chapter Pages ---
+    const hadithChapterMatch = path.match(/^\/hadith\/sahih-bukhari\/(bangla|english|urdu)\/chapter-(\d+)$/);
+    if (hadithChapterMatch) {
+      const [, lang, chapterNum] = hadithChapterMatch;
+      const langLabel = lang.charAt(0).toUpperCase() + lang.slice(1);
+      title = `Sahih Bukhari ${langLabel} Chapter ${chapterNum} | Noor`;
+      description = `Read Sahih Bukhari Chapter ${chapterNum} hadiths in ${langLabel} with original Arabic text on Noor Islamic App.`;
+      ogImage = `${SITE_ORIGIN}/og-bukhari.png`;
+      bodyContent = `<h2>Sahih Bukhari - Chapter ${chapterNum} (${langLabel})</h2><p>Browse authentic hadiths from Sahih Bukhari, the most reliable hadith collection, with ${langLabel} translation and Arabic text.</p>`;
+    }
 
-        if (isTrailerMode) {
-          ogType = "video.other";
-          if (story.audio_trailer_url) {
-            const audioUrl = story.audio_trailer_url.startsWith("http") ? story.audio_trailer_url : `${SITE_ORIGIN}${story.audio_trailer_url}`;
-            extraTags += `\n    <meta property="og:audio" content="${audioUrl}">`;
-            extraTags += `\n    <meta property="og:audio:type" content="audio/mpeg">`;
-            extraTags += `\n    <meta property="og:audio:secure_url" content="${audioUrl}">`;
-            extraTags += `\n    <meta property="og:video" content="${audioUrl}">`;
-            extraTags += `\n    <meta property="og:video:type" content="video/mp4">`;
-          }
-        }
+    // --- 5. Hadith Detail Pages ---
+    const hadithDetailMatch = path.match(/^\/hadith\/h\/([a-zA-Z0-9-]+)$/);
+    if (hadithDetailMatch) {
+      const slug = hadithDetailMatch[1];
+      const { data: hadith } = await supabase
+        .from("admin_content")
+        .select("*")
+        .eq("content_type", "hadith")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if (hadith) {
+        title = hadith.title || `Hadith: ${slug} | Noor`;
+        description = hadith.seo?.meta_description || `Read this authentic hadith on Noor App with Arabic text, translation, and scholarly context.`;
+        ogImage = `${SITE_ORIGIN}/og-bukhari.png`;
+        ogType = "article";
+        bodyContent = `<h2>${hadith.title || 'Authentic Hadith'}</h2><p>${description}</p><p>Explore the full hadith text, its source, and educational explanations on Noor.</p>`;
+      }
+    }
+
+    // --- 6. Dua Detail Pages ---
+    const duaDetailMatch = path.match(/^\/dua\/([a-zA-Z0-9-]+)$/);
+    if (duaDetailMatch && !path.includes("category")) {
+      const slug = duaDetailMatch[1];
+      const { data: dua } = await supabase
+        .from("admin_content")
+        .select("*")
+        .eq("content_type", "dua")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if (dua) {
+        title = dua.title || `Dua: ${slug} | Noor`;
+        description = dua.seo?.meta_description || `Recite this authentic dua on Noor App with Arabic text, Bengali meaning, and benefits.`;
+        ogImage = dua.og_image_url || dua.image_url || `${SITE_ORIGIN}/og-dua.png`;
+        ogType = "article";
+        bodyContent = `<h2>${dua.title || 'Islamic Dua'}</h2><p>${description}</p><p>Read the Arabic text, pronunciation, meaning, and when to recite this dua on Noor.</p>`;
       }
     }
 
@@ -230,9 +191,8 @@ export default async function handler(req, res) {
     let imgType = "image/png";
     if (ogImage.toLowerCase().includes(".webp")) imgType = "image/webp";
     else if (ogImage.toLowerCase().includes(".jpg") || ogImage.toLowerCase().includes(".jpeg")) imgType = "image/jpeg";
-    else if (ogImage.toLowerCase().includes(".png")) imgType = "image/png";
 
-    // Build the HTML response with absolute URLs
+    // Build the HTML response
     const html = `<!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -250,10 +210,7 @@ export default async function handler(req, res) {
     <meta property="og:image:type" content="${imgType}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="${esc(title)}">
     <meta property="og:url" content="${esc(canonicalUrl)}">
-    <meta itemprop="image" content="${esc(ogImage)}">
-    <link rel="image_src" href="${esc(ogImage)}">
     <meta property="og:type" content="${ogType}">
     <meta property="og:site_name" content="Noor Islamic App">
     ${extraTags}
@@ -263,15 +220,13 @@ export default async function handler(req, res) {
     <meta name="twitter:title" content="${esc(title)}">
     <meta name="twitter:description" content="${esc(description)}">
     <meta name="twitter:image" content="${esc(ogImage)}">
-    <meta name="twitter:url" content="${esc(canonicalUrl)}">
 </head>
 <body style="font-family: sans-serif; background: #0a1a1a; color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px;">
-    <div>
+    <div style="max-width: 600px;">
         <h1 style="color: #10b981;">NOOR</h1>
-        <h2>${esc(title)}</h2>
-        <p>${esc(description)}</p>
-        <p>Loading the full experience...</p>
-        <script>window.location.href = "${esc(path)}";</script>
+        ${bodyContent || `<h2>${esc(title)}</h2><p>${esc(description)}</p>`}
+        <p style="margin-top: 20px; font-size: 0.9em; color: #888;">Loading the full experience... If not redirected, <a href="${esc(path)}" style="color: #10b981;">click here</a>.</p>
+        <script>setTimeout(function() { window.location.href = "${esc(path)}"; }, 500);</script>
     </div>
 </body>
 </html>`;

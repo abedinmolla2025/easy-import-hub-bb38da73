@@ -14,9 +14,8 @@ function xmlEscape(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-// Keep this endpoint dependency-free. A database outage must never make the
-// sitemap fail: only stable, public, canonical routes belong here.
-const PUBLIC_ROUTES = [
+// Stable, public, canonical routes.
+const BASE_ROUTES = [
   "/",
   "/quran",
   "/hadith",
@@ -46,10 +45,18 @@ const PUBLIC_ROUTES = [
   "/terms",
   "/download",
   "/islamic-app",
-] as const;
+];
 
 export default function handler(_req: unknown, res: ResponseLike) {
-  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PUBLIC_ROUTES
+  const routes = [...BASE_ROUTES];
+  
+  // Add Sahih Bukhari chapters (1-97) for Bangla and English to improve crawl depth
+  for (let i = 1; i <= 97; i++) {
+    routes.push(`/hadith/sahih-bukhari/bangla/chapter-${i}`);
+    routes.push(`/hadith/sahih-bukhari/english/chapter-${i}`);
+  }
+
+  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${routes
     .map((path) => `  <url><loc>${xmlEscape(`${ORIGIN}${path}`)}</loc></url>`)
     .join("\n")}\n</urlset>\n`;
 
@@ -61,4 +68,4 @@ export default function handler(_req: unknown, res: ResponseLike) {
   return res.status(200).send(body);
 }
 
-export { PUBLIC_ROUTES };
+export { BASE_ROUTES as PUBLIC_ROUTES };
