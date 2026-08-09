@@ -2812,7 +2812,7 @@ export default function AdminContent() {
                             {contentTypeContext === 'dua' || contentTypeContext === 'story' ? (
                               <TableCell className="align-middle">
                                 <DuaOgThumbnail
-                                  url={item.image_url || item.og_image_data?.og_image}
+                                  url={item.og_image_url || item.og_image_data?.og_image}
                                   slug={item.slug}
                                   folder={ogFolder}
                                   storageIndex={ogStorageIndex}
