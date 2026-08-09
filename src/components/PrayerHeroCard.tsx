@@ -28,8 +28,10 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
   const { branding, loading: configLoading } = useGlobalConfig();
   const { prayerTimes, location, hijriDate, isLoading } = prayerData || localPrayerData;
   
-  // Check if branding is actually loaded (has at least one real value)
-  const brandingLoaded = !configLoading && (branding.appName || branding.logoUrl);
+  // Render the hero branding even when app_settings is unavailable. The bundled
+  // logo is the safe fallback; hiding the whole branding row made the hero look
+  // empty whenever Supabase branding was delayed or denied by RLS.
+  const brandingLoaded = !configLoading;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -188,6 +190,13 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                           src={branding.logoUrl || noorLogo}
                           alt={branding.appName || "NOOR Logo"}
                           className="w-10 h-10 rounded-full object-cover"
+                          onError={(event) => {
+                            const image = event.currentTarget;
+                            if (image.src !== noorLogo) {
+                              image.onerror = null;
+                              image.src = noorLogo;
+                            }
+                          }}
                           style={{ boxShadow: "0 0 8px 2px rgba(255, 255, 255, 0.25)" }}
                         />
                       </button>

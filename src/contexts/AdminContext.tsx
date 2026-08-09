@@ -36,10 +36,15 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     loadSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+      // Keep protected routes in a loading state until the role query finishes.
+      // Without this, SIGNED_IN can render with stale roles=[] and redirect
+      // the freshly unlocked admin back to the homepage.
+      setLoading(true);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        fetchUserRoles(session.user.id);
+        setRoles([]);
+        void fetchUserRoles(session.user.id);
       } else {
         setRoles([]);
         setLoading(false);
