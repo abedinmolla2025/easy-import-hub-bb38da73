@@ -74,6 +74,7 @@ import StoryDetailPage from "./pages/StoryDetailPage";
 import StoryCategoryPage from "./pages/StoryCategoryPage";
 import DataSourcesPage from "./pages/DataSourcesPage";
 import CookieConsentBanner from "./components/CookieConsentBanner";
+import { SplashScreen } from "./components/SplashScreen";
 
 const queryClient = new QueryClient();
 
@@ -375,6 +376,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalConfigProvider>
+          <SplashScreen onComplete={() => console.log("Splash sequence complete")} />
           <AppSettingsProvider>
             <AdminProvider>
               <AppInner />
