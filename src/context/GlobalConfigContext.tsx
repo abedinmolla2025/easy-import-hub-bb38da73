@@ -297,15 +297,15 @@ export const GlobalConfigProvider = ({
 
         if (error) {
           console.error("GlobalConfigProvider: Error loading app_settings", error);
-          if (isMounted) {
-            setState((prev) => ({ ...prev, loading: false }));
-          }
-          return;
+          // Don't return, allow it to continue with defaultState + loading: false
         }
         
         console.log("GlobalConfigProvider: Settings loaded successfully, rows:", data?.length);
 
-        const nextState: GlobalConfigState = { ...defaultState, loading: false };
+        const nextState: GlobalConfigState = { 
+          ...defaultState, 
+          loading: false 
+        };
 
         if (data && data.length > 0) {
           for (const row of data) {
@@ -321,7 +321,7 @@ export const GlobalConfigProvider = ({
             }
           }
         } else {
-          console.warn("GlobalConfigProvider: No settings rows returned from database.");
+          console.warn("GlobalConfigProvider: No settings rows returned from database. Using defaults.");
         }
 
         if (isMounted) {
@@ -332,6 +332,7 @@ export const GlobalConfigProvider = ({
         }
       } catch (err: any) {
         console.error("GlobalConfigProvider: Fatal error in loadSettings", err);
+      } finally {
         if (isMounted) {
           setState((prev) => ({ ...prev, loading: false }));
         }
