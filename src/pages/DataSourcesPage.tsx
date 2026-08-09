@@ -9,6 +9,7 @@ import BottomNavigation from "@/components/BottomNavigation";
  */
 const DataSourcesPage = () => {
   const navigate = useNavigate();
+  const editorialReviewDate = "2026-08-09";
 
   const faqLd = {
     "@context": "https://schema.org",
@@ -85,6 +86,10 @@ const DataSourcesPage = () => {
             This page lists every classical source Noor draws from, the scholars
             behind them, and our editorial process.
           </p>
+          <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
+            <p><span className="font-semibold text-foreground">Editorial review:</span> {editorialReviewDate}</p>
+            <p className="mt-2">Individual hadith, dua and story entries should identify the collection or Qur&apos;an reference, book/chapter or verse where available, translation/edition information, and the date of the latest editorial review. If a source or translation edition is not yet available in the record, it is marked for editorial follow-up rather than presented as independently verified.</p>
+          </div>
         </section>
 
         <section>
@@ -99,8 +104,8 @@ const DataSourcesPage = () => {
           </p>
           <ul className="mt-3 list-disc list-inside space-y-1 text-muted-foreground">
             <li>Arabic text: Uthmani Mus-haf (Madinah script), consonantal text agreed by consensus.</li>
-            <li>Bengali translation: mainstream rendition used by Bangladeshi Islamic publishers.</li>
-            <li>English translation: Sahih International and Yusuf Ali (public domain).</li>
+            <li>Bengali translation: the edition configured for Noor&apos;s public dataset; edition and licensing details are recorded in the editorial source record where available.</li>
+            <li>English translation: Sahih International and Yusuf Ali (public domain); the displayed edition is identified in the relevant content record.</li>
             <li>Verse numbering follows the standard Kufan system.</li>
           </ul>
         </section>

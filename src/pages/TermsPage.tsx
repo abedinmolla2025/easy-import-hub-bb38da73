@@ -11,7 +11,7 @@ const TermsPage = () => {
   const devNameBn = legal.developerNameBn || "আবিদিন মোল্লা";
   const country = legal.country || "India";
   const countryBn = legal.countryBn || "ভারত";
-  const lastUpdated = legal.termsLastUpdated || "";
+  const lastUpdated = legal.termsLastUpdated || "2026-08-09";
   const version = legal.legalVersionNumber || "";
 
   return (
@@ -32,12 +32,14 @@ const TermsPage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
-        {(lastUpdated || version) && (
-          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-            {lastUpdated && <span>Last updated: {lastUpdated}</span>}
-            {version && <span>Version: {version}</span>}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <span>Effective / last updated: {lastUpdated}</span>
+          {version && <span>Version: {version}</span>}
+        </div>
+
+        <section className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-xs text-muted-foreground">
+          These terms describe acceptable use, service availability limits, content disclaimers, intellectual-property expectations, updates, and how to contact the developer about a dispute or correction.
+        </section>
 
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-1">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Developer</p>

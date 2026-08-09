@@ -7,7 +7,7 @@ const PrivacyPolicyPage = () => {
   const { legal, branding } = useGlobalConfig();
 
   const appName = branding.appName || "NOOR";
-  const lastUpdated = legal.privacyPolicyLastUpdated || "";
+  const lastUpdated = legal.privacyPolicyLastUpdated || "2026-08-09";
   const version = legal.legalVersionNumber || "";
   const regionNote = legal.regionComplianceNote || "";
 
@@ -29,12 +29,14 @@ const PrivacyPolicyPage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
-        {(lastUpdated || version) && (
-          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-            {lastUpdated && <span>Last updated: {lastUpdated}</span>}
-            {version && <span>Version: {version}</span>}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <span>Effective / last updated: {lastUpdated}</span>
+          {version && <span>Version: {version}</span>}
+        </div>
+
+        <section className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-xs text-muted-foreground">
+          This policy explains local storage, analytics, advertising cookies, third-party processors, data retention, children’s privacy, and how to request deletion or contact us about privacy.
+        </section>
 
         {regionNote && (
           <section className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-xs text-muted-foreground">
