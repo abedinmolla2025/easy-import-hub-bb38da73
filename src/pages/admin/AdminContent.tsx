@@ -689,7 +689,7 @@ export default function AdminContent() {
         };
       }
 
-      const { error } = await supabase.from('admin_content').update(payload).in('id', ids);
+      const { error } = await supabase.from('admin_content').update(payload as any).in('id', ids);
       if (error) throw error;
 
       await queryClient.invalidateQueries({ queryKey: ['admin-content'] });
