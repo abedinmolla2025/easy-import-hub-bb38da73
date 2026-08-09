@@ -6,6 +6,26 @@ const SITE_ORIGIN = "https://noorapp.in";
 const SUPABASE_URL = "https://llicfiepatzgllmjhzbw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsaWNmaWVwYXR6Z2xsbWpoemJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODA4MDksImV4cCI6MjA4NDA1NjgwOX0.T7xnXRSM2jx92gVH8Of1dePj609C7WKKflv2I_VZpy0";
 
+const SEO_BY_PATH = {
+  "/": { title: "Noor — Quran, Hadith, Dua & Prayer Times", description: "Read Quran, Hadith, Dua, prayer times, Qibla and Islamic resources in Bengali with Noor." },
+  "/stories": { title: "Islamic Stories in Bengali | Noor", description: "Read meaningful Islamic and Quranic stories in Bengali with sources and lessons on Noor." },
+  "/hadith": { title: "Authentic Hadith in Bengali | Noor", description: "Explore authentic Hadith collections and Sahih Bukhari resources in Bengali on Noor." },
+  "/dua": { title: "Daily Dua in Bengali | Noor", description: "Read daily duas with Bengali meaning, Arabic text and practical guidance on Noor." },
+  "/99-names": { title: "99 Names of Allah in Bengali | Noor", description: "Learn the 99 beautiful names of Allah with Bengali meanings and reflection on Noor." },
+  "/qibla": { title: "Qibla Finder | Noor", description: "Find the Qibla direction and use Noor Islamic tools from anywhere." },
+  "/calendar": { title: "Islamic Calendar | Noor", description: "Check the Islamic calendar and important Hijri dates with Noor." },
+  "/prayer-times": { title: "Prayer Times | Noor", description: "Check accurate daily prayer times and Islamic guidance with Noor." },
+  "/baby-names": { title: "Muslim Baby Names | Noor", description: "Explore meaningful Muslim baby names with Bengali meanings on Noor." },
+};
+
+const VALID_STATIC_PATHS = new Set([
+  "/", "/quran", "/hadith", "/dua", "/prayer-times", "/prayer-guide", "/qibla", "/tasbih", "/99-names", "/baby-names", "/calendar", "/quiz", "/stories", "/about", "/contact", "/sources", "/privacy-policy", "/terms", "/download", "/islamic-app",
+]);
+
+function isKnownPublicPath(path) {
+  return VALID_STATIC_PATHS.has(path) || /^\/stories\/[a-zA-Z0-9-]+(?:\/trailer)?$/.test(path) || /^\/hadith\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path) || /^\/dua\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path) || /^\/quran\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path);
+}
+
 export default async function handler(req, res) {
   try {
     // Get path from query or from the URL itself
@@ -17,8 +37,10 @@ export default async function handler(req, res) {
     }
     
     // SEO defaults
-    let title = "Noor — Islamic App for Quran, Hadith, Prayer Times & Dua";
-    let description = "Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz.";
+    const routeSeo = SEO_BY_PATH[path];
+    const knownPath = isKnownPublicPath(path);
+    let title = routeSeo?.title || "Noor — Islamic App for Quran, Hadith, Prayer Times & Dua";
+    let description = routeSeo?.description || "Noor is a free Islamic app for Muslims in India & Bangladesh. Read Quran with Bengali translation, Hadith, daily duas, prayer times, Qibla & Islamic quiz.";
     let ogImage = `${SITE_ORIGIN}/og-image.png`;
     let ogType = "website";
     let extraTags = "";
@@ -29,6 +51,12 @@ export default async function handler(req, res) {
     const supabaseUrl = SUPABASE_URL;
     const supabaseKey = SUPABASE_ANON_KEY;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    if (!knownPath) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("X-Robots-Tag", "noindex, follow");
+      return res.status(404).send("<!DOCTYPE html><html lang=\"bn\"><head><meta charset=\"UTF-8\"><meta name=\"robots\" content=\"noindex,follow\"><title>Page not found | Noor</title></head><body><h1>Page not found</h1><p>The requested Noor page could not be found.</p></body></html>");
+    }
 
     // Match story pages: /stories/slug or /stories/slug/trailer
     const storyMatch = path.match(/^\/stories\/([a-zA-Z0-9-]+)(?:\/trailer)?$/);
@@ -69,6 +97,12 @@ export default async function handler(req, res) {
         } catch (err) {
           console.error("Fallback stories.json fetch error:", err);
         }
+      }
+
+      if (!story) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.setHeader("X-Robots-Tag", "noindex, follow");
+        return res.status(404).send("<!DOCTYPE html><html lang=\"bn\"><head><meta charset=\"UTF-8\"><meta name=\"robots\" content=\"noindex,follow\"><title>Story not found | Noor</title></head><body><h1>Story not found</h1><p>The requested story could not be found.</p></body></html>");
       }
 
       if (story) {
@@ -195,6 +229,7 @@ export default async function handler(req, res) {
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+    res.setHeader('X-Robots-Tag', 'index, follow');
     return res.status(200).send(html);
   } catch (err) {
     console.error("Critical Prerender Error:", err);
