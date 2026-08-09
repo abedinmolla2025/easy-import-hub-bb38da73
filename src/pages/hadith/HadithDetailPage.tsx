@@ -412,6 +412,16 @@ const HadithDetailPage = () => {
           </section>
         )}
 
+        {/* Record-specific reading context: derived only from this hadith's indexed metadata. */}
+        <section className="rounded-2xl p-5 bg-primary/5 border border-primary/20">
+          <h2 className="text-base font-semibold text-foreground mb-2">এই বর্ণনাটি কীভাবে পড়বেন</h2>
+          <p className="text-foreground/80 leading-relaxed">
+            এটি {bookLabel}-এর অধ্যায় {hadith.chapter_id}-এর হাদিস নং {hadith.hadith_number}।
+            অনুবাদ ও ব্যাখ্যা বোঝার সময় আরবি মূলপাঠের সঙ্গে নিচের গ্রন্থ-রেফারেন্স মিলিয়ে পড়ুন;
+            ব্যাখ্যার অংশটি এই নির্দিষ্ট রেকর্ডের বিষয়{hadith.topic_bn ? ` “${hadith.topic_bn}”` : ""}-কে কেন্দ্র করে সাজানো।
+          </p>
+        </section>
+
         {/* Reference */}
         <section className="rounded-2xl p-5 bg-muted/40 border">
           <h2 className="text-xs font-medium text-primary uppercase tracking-wide mb-2">
@@ -492,6 +502,15 @@ const HadithDetailPage = () => {
             </div>
           </section>
         )}
+
+        <section className="rounded-2xl p-5 bg-primary/5 border border-primary/20">
+          <h2 className="text-base font-semibold text-foreground mb-3">আরও শেখার পথ</h2>
+          <div className="grid sm:grid-cols-3 gap-2 text-sm">
+            <Link to={`/hadith/sahih-${hadith.book_key}/bn`} className="rounded-xl bg-card border p-3 hover:border-primary/40">এই গ্রন্থের আরও হাদিস</Link>
+            <Link to="/dua" className="rounded-xl bg-card border p-3 hover:border-primary/40">সম্পর্কিত দোয়া দেখুন</Link>
+            <Link to="/stories" className="rounded-xl bg-card border p-3 hover:border-primary/40">ইসলামিক গল্প পড়ুন</Link>
+          </div>
+        </section>
 
         <div className="pt-4 text-center">
           <Link

@@ -769,6 +769,21 @@ export default function StoryDetailPage() {
             )}
           </div>
 
+          {/* Editorial source note: no claim is added beyond the record's supplied source fields. */}
+          {(story.source_name || story.source_detail || story.reference) && (
+            <Card className="border-amber-200 bg-amber-50/40 dark:bg-amber-950/10">
+              <CardHeader>
+                <CardTitle className="text-base">উৎস ও সম্পাদনা নোট</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm leading-relaxed">
+                {story.source_name && <p><span className="font-semibold">উৎস:</span> {story.source_name}</p>}
+                {story.source_detail && <p><span className="font-semibold">উৎসের বিবরণ:</span> {story.source_detail}</p>}
+                {story.reference && <p><span className="font-semibold">রেফারেন্স:</span> {story.reference}</p>}
+                <p className="text-muted-foreground">পাঠকরা মূল উৎসের রেফারেন্সের সঙ্গে বর্ণনাটি মিলিয়ে পড়তে পারেন। গল্পের শিক্ষা অংশটি আলাদা করে চিহ্নিত করা হয়েছে, যাতে বর্ণনা ও সম্পাদকীয় প্রতিফলন গুলিয়ে না যায়।</p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Social Share Buttons - Bottom */}
           <Card className="border-emerald-100 bg-emerald-50/30 dark:bg-emerald-950/10">
             <CardContent className="py-6 text-center">
@@ -808,6 +823,16 @@ export default function StoryDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Cross-content navigation keeps story pages connected without inventing a story-specific claim. */}
+          <section className="pt-6">
+            <h2 className="text-xl font-bold mb-4">আরও পড়ুন</h2>
+            <div className="grid gap-3 sm:grid-cols-3 text-sm">
+              <Link to={`/stories/category/${story.category}`} className="rounded-xl border p-4 hover:border-emerald-500">এই বিভাগের আরও গল্প</Link>
+              <Link to="/hadith" className="rounded-xl border p-4 hover:border-emerald-500">সম্পর্কিত হাদিস খুঁজুন</Link>
+              <Link to="/dua" className="rounded-xl border p-4 hover:border-emerald-500">সম্পর্কিত দোয়া খুঁজুন</Link>
+            </div>
+          </section>
 
           {/* Related Stories */}
           {related.length > 0 && (

@@ -42,6 +42,15 @@ interface DuaRow {
   when_to_recite_ur: string | null;
   source_type: string | null;
   reference: string | null;
+  authenticity: string | null;
+  virtue: string | null;
+  virtue_reference: string | null;
+  subtitle: string | null;
+  quran_meta: unknown;
+  faq: unknown;
+  related_duas: string[] | null;
+  recommendation_tags: string[] | null;
+  recommended_moments: string[] | null;
   image_url: string | null;
   og_image_data: any | null;
   seo: any | null;
@@ -174,6 +183,23 @@ const getDuaRich = (dua: DuaRow, language: DuaLang) => {
 
 const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
+const asTextList = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  if (typeof value === "string" && value.trim()) return [value.trim()];
+  return [];
+};
+
+const asFaqList = (value: unknown): Array<{ question: string; answer: string }> => {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const record = item as Record<string, unknown>;
+    const question = String(record.question ?? record.q ?? "").trim();
+    const answer = String(record.answer ?? record.a ?? "").trim();
+    return question && answer ? [{ question, answer }] : [];
+  });
+};
+
 const slugifyCategory = (s: string) =>
   s
     .toLowerCase()
@@ -214,7 +240,7 @@ const DuaDetailPage = () => {
       const { data, error } = await supabase
         .from("admin_content")
         .select(
-          "id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, image_url, og_image_data, seo"
+          "id, slug, title, title_en, title_hi, title_ur, category, subtitle, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, authenticity, virtue, virtue_reference, quran_meta, faq, related_duas, recommendation_tags, recommended_moments, image_url, og_image_data, seo"
         )
         .eq("slug", slug)
         .eq("status", "published")
@@ -234,7 +260,7 @@ const DuaDetailPage = () => {
       if (cat) {
         const { data: rel } = await supabase
           .from("admin_content")
-          .select("id, slug, title, title_en, title_hi, title_ur, category, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, og_image_data, seo")
+          .select("id, slug, title, title_en, title_hi, title_ur, category, subtitle, content_arabic, content_pronunciation, content_pronunciation_en, content_pronunciation_hi, content_pronunciation_ur, content, content_en, content_hi, content_ur, explanation_bn, explanation_en, explanation_hi, explanation_ur, benefits_bn, benefits_en, benefits_hi, benefits_ur, when_to_recite_bn, when_to_recite_en, when_to_recite_hi, when_to_recite_ur, hadith_reference, source_type, reference, authenticity, virtue, virtue_reference, quran_meta, faq, related_duas, recommendation_tags, recommended_moments, og_image_data, seo")
           .eq("category", cat)
           .eq("status", "published")
           .in("content_type", ["dua", "Dua"])
@@ -387,6 +413,10 @@ const DuaDetailPage = () => {
 
   const text = getDuaText(dua, language);
   const rich = getDuaRich(dua, language);
+  const faqItems = asFaqList(dua.faq);
+  const quranItems = asTextList(dua.quran_meta);
+  const momentItems = asTextList(dua.recommended_moments);
+  const recommendationItems = asTextList(dua.recommendation_tags);
 
   return (
     <div className="min-h-screen bg-[hsl(158,64%,18%)]">
@@ -609,6 +639,53 @@ const DuaDetailPage = () => {
 	          </section>
 	        )}
 
+        {/* Editorial trust and context: render only fields supplied with the record. */}
+        {(dua.authenticity || dua.virtue || dua.virtue_reference || dua.subtitle) && (
+          <section className="bg-[hsl(158,55%,25%)]/70 rounded-2xl p-5 border border-[hsl(45,93%,58%)]/20 space-y-4">
+            {dua.subtitle && <p className="text-white/90 text-base leading-relaxed">{dua.subtitle}</p>}
+            {dua.authenticity && (
+              <div>
+                <h2 className="text-xs font-semibold text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">বিশুদ্ধতা ও সম্পাদনা নোট</h2>
+                <p className="text-white/85 leading-relaxed">{dua.authenticity}</p>
+              </div>
+            )}
+            {dua.virtue && (
+              <div>
+                <h2 className="text-xs font-semibold text-[hsl(45,93%,58%)] uppercase tracking-wide mb-2">ফজিলত ও প্রাসঙ্গিকতা</h2>
+                <p className="text-white/85 leading-relaxed">{dua.virtue}</p>
+                {dua.virtue_reference && <p className="text-white/60 text-sm mt-2">রেফারেন্স: {dua.virtue_reference}</p>}
+              </div>
+            )}
+          </section>
+        )}
+
+        {quranItems.length > 0 && (
+          <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
+            <h2 className="text-base font-semibold text-white mb-3">সম্পর্কিত কুরআন প্রসঙ্গ</h2>
+            <ul className="space-y-2 text-white/85">{quranItems.map((item, i) => <li key={`${item}-${i}`} className="leading-relaxed">{item}</li>)}</ul>
+          </section>
+        )}
+
+        {momentItems.length > 0 && (
+          <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
+            <h2 className="text-base font-semibold text-white mb-3">কখন বা কোন প্রয়োজনে পড়া যায়</h2>
+            <ul className="space-y-2 text-white/85">{momentItems.map((item, i) => <li key={`${item}-${i}`} className="leading-relaxed">{item}</li>)}</ul>
+          </section>
+        )}
+
+        {recommendationItems.length > 0 && (
+          <div className="flex flex-wrap gap-2" aria-label="বিষয়ভিত্তিক ট্যাগ">
+            {recommendationItems.map((item) => <span key={item} className="px-3 py-1 rounded-full bg-white/10 text-white/70 text-xs">{item}</span>)}
+          </div>
+        )}
+
+        {faqItems.length > 0 && (
+          <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
+            <h2 className="text-base font-semibold text-white mb-3">প্রশ্ন ও উত্তর</h2>
+            <div className="space-y-4">{faqItems.map((item) => <div key={item.question}><h3 className="text-white font-medium">{item.question}</h3><p className="text-white/80 leading-relaxed mt-1">{item.answer}</p></div>)}</div>
+          </section>
+        )}
+
         {/* Related Duas */}
         {related.length > 0 && (
           <section>
@@ -630,6 +707,15 @@ const DuaDetailPage = () => {
             </div>
           </section>
         )}
+
+        <section className="bg-white/5 rounded-2xl p-5 border border-white/10">
+          <h2 className="text-base font-semibold text-white mb-3">আরও পড়ুন</h2>
+          <div className="grid sm:grid-cols-3 gap-2 text-sm">
+            {dua.category ? <Link to={`/dua/category/${slugifyCategory(dua.category)}`} className="rounded-xl bg-white/5 border border-white/10 p-3 text-white/85 hover:border-[hsl(45,93%,58%)]/40">এই বিভাগের আরও দোয়া</Link> : <Link to="/dua" className="rounded-xl bg-white/5 border border-white/10 p-3 text-white/85 hover:border-[hsl(45,93%,58%)]/40">সব দোয়া</Link>}
+            <Link to="/hadith" className="rounded-xl bg-white/5 border border-white/10 p-3 text-white/85 hover:border-[hsl(45,93%,58%)]/40">সম্পর্কিত হাদিস খুঁজুন</Link>
+            <Link to="/stories" className="rounded-xl bg-white/5 border border-white/10 p-3 text-white/85 hover:border-[hsl(45,93%,58%)]/40">সম্পর্কিত গল্প পড়ুন</Link>
+          </div>
+        </section>
 
         {/* Prev / Next nav */}
         {(prevDua || nextDua) && (
