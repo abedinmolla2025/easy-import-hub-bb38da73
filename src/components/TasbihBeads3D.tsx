@@ -11,7 +11,7 @@ interface BeadProps {
 }
 
 const Bead = ({ position, isActive, isCounted, index }: BeadProps) => {
-  const meshRef = useRef<Mesh>(null);
+  const meshRef = useRef<any>(null);
   
   useFrame((state) => {
     if (meshRef.current) {
