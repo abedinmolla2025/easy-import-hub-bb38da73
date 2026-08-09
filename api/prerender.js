@@ -29,7 +29,19 @@ const VALID_STATIC_PATHS = new Set([
 ]);
 
 function isKnownPublicPath(path) {
-  return VALID_STATIC_PATHS.has(path) || /^\/stories\/[a-zA-Z0-9-]+(?:\/trailer)?$/.test(path) || /^\/hadith\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path) || /^\/dua\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path) || /^\/quran\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path);
+  return VALID_STATIC_PATHS.has(path)
+    || /^\/stories\/(?:category\/[a-zA-Z0-9-]+|[a-zA-Z0-9-]+(?:\/trailer)?)$/.test(path)
+    || /^\/hadith\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path)
+    || /^\/dua\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path)
+    || /^\/quran\/[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)?$/.test(path);
+}
+
+function humanizeSlug(slug) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 export default async function handler(req, res) {
@@ -62,6 +74,23 @@ export default async function handler(req, res) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.setHeader("X-Robots-Tag", "noindex, follow");
       return res.status(404).send("<!DOCTYPE html><html lang=\"bn\"><head><meta charset=\"UTF-8\"><meta name=\"robots\" content=\"noindex,follow\"><title>Page not found | Noor</title></head><body><h1>Page not found</h1><p>The requested Noor page could not be found.</p></body></html>");
+    }
+
+    // Dynamic category pages need useful crawler metadata too; otherwise they fall back to the generic app title.
+    const duaCategoryMatch = path.match(/^\/dua\/category\/([a-zA-Z0-9-]+)$/);
+    if (duaCategoryMatch) {
+      const categoryName = humanizeSlug(duaCategoryMatch[1]);
+      title = `${categoryName} Duas in Bengali | Noor`;
+      description = `Read Arabic duas with Bengali meaning, pronunciation and practical context for ${categoryName.toLowerCase()} on Noor.`;
+      ogImage = `${SITE_ORIGIN}/og-dua.png`;
+    }
+
+    const storyCategoryMatch = path.match(/^\/stories\/category\/([a-zA-Z0-9-]+)$/);
+    if (storyCategoryMatch) {
+      const categoryName = humanizeSlug(storyCategoryMatch[1]);
+      title = `${categoryName} Islamic Stories in Bengali | Noor`;
+      description = `Read sourced Islamic stories in Bengali from the ${categoryName.toLowerCase()} collection, with lessons and references on Noor.`;
+      ogImage = `${SITE_ORIGIN}/og-stories-default.png`;
     }
 
     // Match story pages: /stories/slug or /stories/slug/trailer
