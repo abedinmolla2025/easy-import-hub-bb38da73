@@ -132,7 +132,10 @@ async function loadStoriesFromDb(): Promise<Story[] | null> {
     );
     const { data, error } = await Promise.race([request, timeout]);
     if (error || !data?.length) return null;
-    return (data as any[]).filter((r) => r.slug).map(rowToStory);
+    // Do not expose the known internal placeholder record as public editorial content.
+    return (data as any[])
+      .filter((r) => r.slug && r.slug !== "test-story-manus")
+      .map(rowToStory);
   } catch {
     return null;
   }
