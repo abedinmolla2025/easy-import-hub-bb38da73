@@ -137,9 +137,9 @@ export default function AdminSchedulers() {
     };
     let res;
     if (data.id) {
-      res = await supabase.from("scheduler_schedules").update(payload).eq("id", data.id).select().single();
+      res = await (supabase.from("scheduler_schedules") as any).update(payload).eq("id", data.id).select().single();
     } else {
-      res = await supabase.from("scheduler_schedules").insert(payload).select().single();
+      res = await (supabase.from("scheduler_schedules") as any).insert(payload).select().single();
     }
     if (res.error) {
       toast.error(`সেভ ব্যর্থ: ${res.error.message}`);
