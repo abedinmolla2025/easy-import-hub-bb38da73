@@ -4,45 +4,55 @@ import App from "./App.tsx";
 import "./index.css";
 
 // Global error handler for startup errors
-window.addEventListener('error', (event) => {
+const showError = (message: string, stack?: string) => {
   const errorDisplay = document.getElementById('startup-error-overlay');
   if (errorDisplay) {
     errorDisplay.style.display = 'flex';
     const pre = errorDisplay.querySelector('pre');
     if (pre) {
-      pre.textContent += `\nError: ${event.message}\nAt: ${event.filename}:${event.lineno}:${event.colno}\n${event.error?.stack || ''}`;
+      pre.textContent += `\n[${new Date().toISOString()}] ${message}\n${stack || ''}\n`;
     }
   }
-  console.error("Startup error caught:", event.error);
+  console.error("Critical Startup Error:", message, stack);
+};
+
+window.addEventListener('error', (event) => {
+  showError(`Runtime Error: ${event.message}`, event.error?.stack);
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-  const errorDisplay = document.getElementById('startup-error-overlay');
-  if (errorDisplay) {
-    errorDisplay.style.display = 'flex';
-    const pre = errorDisplay.querySelector('pre');
-    if (pre) {
-      pre.textContent += `\nUnhandled Rejection: ${event.reason?.message || event.reason}\n${event.reason?.stack || ''}`;
-    }
-  }
-  console.error("Unhandled promise rejection:", event.reason);
+  showError(`Promise Rejection: ${event.reason?.message || event.reason}`, event.reason?.stack);
 });
 
 const mountApp = () => {
+  console.log("Checking for root element...");
   const rootElement = document.getElementById("root");
+  
   if (!rootElement) {
-    throw new Error("Failed to find the root element");
+    const msg = "FAILED: #root element not found in DOM.";
+    showError(msg);
+    throw new Error(msg);
   }
 
   try {
-    createRoot(rootElement).render(
+    console.log("Starting React render...");
+    const root = createRoot(rootElement);
+    root.render(
       <HelmetProvider>
         <App />
       </HelmetProvider>,
     );
-    console.log("React app mount initiated successfully");
-  } catch (error) {
-    console.error("Error during React mounting:", error);
+    console.log("React render call completed.");
+    
+    // Safety check: if after 5 seconds #root is still empty, something is wrong with the provider tree
+    setTimeout(() => {
+      if (rootElement.innerHTML === "" || rootElement.innerHTML === "<!-- react-empty -->") {
+        showError("App mounted but #root remains empty after 5s. Possible deadlock in Provider tree.");
+      }
+    }, 5000);
+
+  } catch (error: any) {
+    showError(`Mount Error: ${error.message}`, error.stack);
     throw error;
   }
 };

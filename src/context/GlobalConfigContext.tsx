@@ -285,19 +285,24 @@ export const GlobalConfigProvider = ({
 
   useEffect(() => {
     let isMounted = true;
+    console.log("GlobalConfigProvider: Initializing settings load...");
 
     const loadSettings = async () => {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("setting_key, setting_value")
-        .in("setting_key", ["branding", "theme", "seo", "system", "modules", "legal"]);
+      try {
+        const { data, error } = await supabase
+          .from("app_settings")
+          .select("setting_key, setting_value")
+          .in("setting_key", ["branding", "theme", "seo", "system", "modules", "legal"]);
 
-      if (error) {
-        console.error("Error loading app_settings", error);
-        if (!isMounted) return;
-        setState((prev) => ({ ...prev, loading: false }));
-        return;
-      }
+        if (error) {
+          console.error("GlobalConfigProvider: Error loading app_settings", error);
+          if (!isMounted) return;
+          setState((prev) => ({ ...prev, loading: false }));
+          return;
+        }
+        
+        console.log("GlobalConfigProvider: Settings loaded successfully, rows:", data?.length);
+
 
       const nextState: GlobalConfigState = { ...defaultState, loading: false };
 
@@ -330,9 +335,14 @@ export const GlobalConfigProvider = ({
       setState(nextState);
       applyDocumentBranding(nextState.branding, nextState.seo);
       applyThemeSettings(nextState.theme);
-    };
+      console.log("GlobalConfigProvider: State updated and applied.");
+    } catch (err: any) {
+      console.error("GlobalConfigProvider: Fatal error in loadSettings", err);
+      if (isMounted) setState((prev) => ({ ...prev, loading: false }));
+    }
+  };
 
-    loadSettings();
+  loadSettings();
 
     const channel = supabase
       .channel("app_settings_changes")
@@ -388,7 +398,15 @@ export const GlobalConfigProvider = ({
 
   return (
     <GlobalConfigContext.Provider value={value}>
-      {children}
+      {state.loading ? (
+        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a1a14', color: '#0d9f6e', fontFamily: 'sans-serif' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ width: '40px', height: '40px', border: '3px solid rgba(13,159,110,0.3)', borderTopColor: '#0d9f6e', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}></div>
+            <p>Loading Application Settings...</p>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        </div>
+      ) : children}
     </GlobalConfigContext.Provider>
   );
 };

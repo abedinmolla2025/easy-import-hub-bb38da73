@@ -370,6 +370,7 @@ const AppInner = () => {
 };
 
 const App = () => {
+  console.log("Rendering App root provider tree");
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
