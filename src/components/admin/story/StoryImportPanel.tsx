@@ -12,17 +12,17 @@ import { estimateReadingMinutes, type Story } from '@/lib/stories';
 export type StoryImportResult = { insertedIds: string[]; updatedIds: string[] };
 
 export function storyRowFromJson(story: Story, publish: boolean) {
-  const bn = story.content_bn ?? story.content ?? '';
-  const en = story.content_en ?? '';
+  const bn = (story as any).content_bn ?? (story as any).content ?? '';
+  const en = (story as any).content_en ?? '';
   
   // Extract OG Image info from various possible fields
-  const ogImageUrl = story.og_image_url || story.og_image_data?.og_image || story.og_image_data?.og_image_url;
+  const ogImageUrl = story.og_image_url || (story.og_image_data as any)?.og_image || (story.og_image_data as any)?.og_image_url || (story as any).og_image;
   const ogImageData = story.og_image_data || (ogImageUrl ? { og_image: ogImageUrl } : null);
 
   return {
     content_type: 'story',
     slug: story.slug,
-    title: story.title_bn || story.title || story.title_en || story.slug,
+    title: story.title_bn || (story as any).title || story.title_en || story.slug,
     title_en: story.title_en ?? null,
     title_ur: story.title_ur ?? null,
     content: bn || null,
@@ -319,7 +319,7 @@ export function StoryImportPanel({
         </div>
 
         <div className="flex justify-end">
-          <Button size="xs" variant="ghost" className="text-[10px] h-6" onClick={refresh} disabled={busy}>
+          <Button size="sm" variant="ghost" className="text-[10px] h-6" onClick={refresh} disabled={busy}>
             <RefreshCw className={`mr-1 h-3 w-3 ${busy ? 'animate-spin' : ''}`} />
             Refresh Count
           </Button>

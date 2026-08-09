@@ -115,8 +115,8 @@ export default function AdminSchedulers() {
 
   const load = useCallback(async () => {
     const [sRes, rRes] = await Promise.all([
-      supabase.from("scheduler_schedules").select("*").order("created_at", { ascending: false }),
-      supabase.from("scheduler_notification_runs").select("*").order("run_at", { ascending: false }).limit(200),
+      (supabase.from("scheduler_schedules" as any) as any).select("*").order("created_at", { ascending: false }),
+      (supabase.from("scheduler_notification_runs" as any) as any).select("*").order("run_at", { ascending: false }).limit(200),
     ]);
     if (!sRes.error) setSchedules((sRes.data ?? []) as Schedule[]);
     if (!rRes.error) setRuns((rRes.data ?? []) as RunRow[]);
@@ -137,9 +137,9 @@ export default function AdminSchedulers() {
     };
     let res;
     if (data.id) {
-      res = await supabase.from("scheduler_schedules").update(payload).eq("id", data.id).select().single();
+      res = await (supabase.from("scheduler_schedules" as any) as any).update(payload).eq("id", data.id).select().single();
     } else {
-      res = await supabase.from("scheduler_schedules").insert(payload).select().single();
+      res = await (supabase.from("scheduler_schedules" as any) as any).insert(payload).select().single();
     }
     if (res.error) {
       toast.error(`সেভ ব্যর্থ: ${res.error.message}`);
@@ -147,12 +147,12 @@ export default function AdminSchedulers() {
     }
     // compute next_run_at via the db helper (client can't run PL/pgSQL)
     if (payload.enabled) {
-      const next = await supabase.rpc("scheduler_compute_next_run", {
+      const next = await (supabase as any).rpc("scheduler_compute_next_run", {
         s: { ...payload, id: data.id ?? (res.data as any)?.id ?? "" },
         from_tz: payload.tz,
-      } as never);
+      });
       if (!next.error && next.data) {
-        await supabase.from("scheduler_schedules").update({ next_run_at: next.data as string }).eq("id", data.id ?? (res.data as any)?.id);
+        await (supabase.from("scheduler_schedules" as any) as any).update({ next_run_at: next.data as string }).eq("id", data.id ?? (res.data as any)?.id);
       }
     }
     toast.success(data.id ? "সাচুল আপডেট হয়েছে" : "নতুন সাচুল তৈরি হয়েছে");
@@ -162,17 +162,17 @@ export default function AdminSchedulers() {
   }, [load]);
 
   const toggleEnabled = useCallback(async (id: string, enabled: boolean) => {
-    const { error } = await supabase.from("scheduler_schedules").update({ enabled, next_run_at: enabled ? null : null }).eq("id", id);
+    const { error } = await (supabase.from("scheduler_schedules" as any) as any).update({ enabled, next_run_at: enabled ? null : null }).eq("id", id);
     if (error) {
       toast.error(`অ্যাকটিভেট ব্যর্থ: ${error.message}`);
       return;
     }
     if (enabled) {
-      const { data: s } = await supabase.from("scheduler_schedules").select("*").eq("id", id).maybeSingle();
+      const { data: s } = await (supabase.from("scheduler_schedules" as any) as any).select("*").eq("id", id).maybeSingle();
       if (s) {
-        const next = await supabase.rpc("scheduler_compute_next_run", { s: s as never, from_tz: (s as Schedule).tz } as never);
+        const next = await (supabase as any).rpc("scheduler_compute_next_run", { s: s as any, from_tz: (s as Schedule).tz });
         if (!next.error && next.data) {
-          await supabase.from("scheduler_schedules").update({ next_run_at: next.data as string }).eq("id", id);
+          await (supabase.from("scheduler_schedules" as any) as any).update({ next_run_at: next.data as string }).eq("id", id);
         }
       }
     }
@@ -182,8 +182,8 @@ export default function AdminSchedulers() {
 
   const remove = useCallback(async (id: string) => {
     if (!confirm("এই সাচুলটি মুছে ফেলতে চান?")) return;
-    const { error } = await supabase.from("scheduler_schedules").delete().eq("id", id);
-    if (error) toast.error(`মুছা ব্যর্থ: ${error.error ?? error.message}`);
+    const { error } = await (supabase.from("scheduler_schedules" as any) as any).delete().eq("id", id);
+    if (error) toast.error(`মুছা ব্যর্থ: ${(error as any).error ?? error.message}`);
     else {
       toast.success("সাচুল মুছে ফেলা হয়েছে");
       load();

@@ -11,7 +11,7 @@ interface BeadProps {
 }
 
 const Bead = ({ position, isActive, isCounted, index }: BeadProps) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<any>(null);
   
   useFrame((state) => {
     if (meshRef.current) {
@@ -75,7 +75,7 @@ interface TasbihMalaProps {
 }
 
 const TasbihMala = ({ count, totalBeads }: TasbihMalaProps) => {
-  const groupRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<any>(null);
   const targetRotation = useRef(0);
   const currentRotation = useRef(0);
   const lastCount = useRef(0);

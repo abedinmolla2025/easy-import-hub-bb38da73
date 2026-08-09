@@ -20,8 +20,9 @@ import { Badge } from "@/components/ui/badge";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QuickTemplatesPanel, type TemplateItem } from "@/components/admin/QuickTemplatesPanel";
-import StoryPickerPanel, { type StoryPickerItem } from "@/components/admin/StoryPickerPanel";
-import SmartVariantsPanel, { type StoryVariant } from "@/components/admin/SmartVariantsPanel";
+import StoryPickerPanel, { type ContentPickerItem as StoryPickerItem } from "@/components/admin/StoryPickerPanel";
+import SmartVariantsPanel from "@/components/admin/SmartVariantsPanel";
+import { type StoryVariant } from "@/data/storyNotificationsVariants";
 import storyVariantsMap from "@/data/storyNotificationsVariants";
 import { BookOpen } from "lucide-react";
 

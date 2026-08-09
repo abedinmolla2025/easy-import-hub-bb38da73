@@ -2,9 +2,9 @@ import { createClient } from '@supabase/supabase-js';
 
 const SITE_ORIGIN = "https://noorapp.in";
 
-// Use environment variables instead of hardcoded strings
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "https://llicfiepatzgllmjhzbw.supabase.co";
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsaWNmaWVwYXR6Z2xsbWpoemJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODA4MDksImV4cCI6MjA4NDA1NjgwOX0.T7xnXRSM2jx92gVH8Of1dePj609C7WKKflv2I_VZpy0";
+// Supabase credentials for the public anon key (safe to expose in serverless functions)
+const SUPABASE_URL = "https://llicfiepatzgllmjhzbw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsaWNmaWVwYXR6Z2xsbWpoemJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODA4MDksImV4cCI6MjA4NDA1NjgwOX0.T7xnXRSM2jx92gVH8Of1dePj609C7WKKflv2I_VZpy0";
 
 const VALID_STORY_CATEGORIES = new Set([
   "prophets",
@@ -74,11 +74,10 @@ export default async function handler(req, res) {
     let canonicalUrl = `${SITE_ORIGIN}${path}`;
     let bodyContent = "";
 
-    // Initialize Supabase
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.error("Missing Supabase credentials in environment");
-    }
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Always use hardcoded Supabase URL for reliability in serverless functions
+    const supabaseUrl = SUPABASE_URL;
+    const supabaseKey = SUPABASE_ANON_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     if (!knownPath) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -141,23 +140,22 @@ export default async function handler(req, res) {
     }
 
     // --- 5. Hadith Detail Pages ---
-    // FIXED: Querying from 'hadiths' table instead of 'admin_content'
     const hadithDetailMatch = path.match(/^\/hadith\/h\/([a-zA-Z0-9-]+)$/);
     if (hadithDetailMatch) {
       const slug = hadithDetailMatch[1];
       const { data: hadith } = await supabase
-        .from("hadiths")
+        .from("admin_content")
         .select("*")
+        .eq("content_type", "hadith")
         .eq("slug", slug)
         .maybeSingle();
 
       if (hadith) {
-        const hadithTitle = hadith.topic_bn || `Sahih Bukhari Hadith ${hadith.hadith_number}`;
-        title = `${hadithTitle} | Noor`;
-        description = hadith.bengali?.slice(0, 160) || `Read Sahih Bukhari Hadith ${hadith.hadith_number} on Noor App with Arabic text, translation, and scholarly context.`;
+        title = hadith.title || `Hadith: ${slug} | Noor`;
+        description = hadith.seo?.meta_description || `Read this authentic hadith on Noor App with Arabic text, translation, and scholarly context.`;
         ogImage = `${SITE_ORIGIN}/og-bukhari.png`;
         ogType = "article";
-        bodyContent = `<h2>${hadithTitle}</h2><p>${description}</p><p>Explore the full hadith text, its source, and educational explanations on Noor.</p>`;
+        bodyContent = `<h2>${hadith.title || 'Authentic Hadith'}</h2><p>${description}</p><p>Explore the full hadith text, its source, and educational explanations on Noor.</p>`;
       }
     }
 
