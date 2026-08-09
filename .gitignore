@@ -36,3 +36,5 @@ run_migrations2.py
 
 # Local state
 .lovable/
+.vercel
+.env*

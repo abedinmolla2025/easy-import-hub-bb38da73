@@ -160,6 +160,50 @@ interface AdminContentDuaRow {
 }
 
 
+async function loadPublicDuaFallback(): Promise<Dua[]> {
+  try {
+    const response = await fetch("/data/duas.json", { cache: "force-cache" });
+    if (!response.ok) throw new Error(`duas fallback HTTP ${response.status}`);
+    const rows = (await response.json()) as Array<Record<string, any>>;
+    return rows
+      .filter((row) => row && (row.arabic || row.title_bn || row.title_en))
+      .map((row, index) => ({
+        id: String(row.slug ?? row.id ?? `public-dua-${index + 1}`),
+        slug: row.slug ?? null,
+        arabic: row.arabic ?? "",
+        bengaliTransliteration: row.pronunciation ?? undefined,
+        pronunciationEn: row.pronunciation ?? undefined,
+        pronunciationHi: row.pronunciation ?? undefined,
+        pronunciationUr: row.pronunciation ?? undefined,
+        translations: {
+          bengali: {
+            title: row.title_bn ?? row.title_en ?? "দোয়া",
+            category: row.category ?? "দোয়া",
+            translation: row.translation_bn ?? row.translation_en ?? "",
+          },
+          english: {
+            title: row.title_en ?? row.title_bn ?? "Dua",
+            category: row.category ?? "Dua",
+            translation: row.translation_en ?? row.translation_bn ?? "",
+          },
+          hindi: {
+            title: row.title_hi ?? row.title_en ?? row.title_bn ?? "दुआ",
+            category: row.category ?? "दुआ",
+            translation: row.translation_en ?? row.translation_bn ?? "",
+          },
+          urdu: {
+            title: row.title_ur ?? row.title_en ?? row.title_bn ?? "دعا",
+            category: row.category ?? "دعا",
+            translation: row.translation_en ?? row.translation_bn ?? "",
+          },
+        },
+      }));
+  } catch (fallbackError) {
+    console.error("Public dua fallback failed", fallbackError);
+    return [];
+  }
+}
+
 const DuaPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -353,8 +397,9 @@ const DuaPage = () => {
 
         if (error) {
           console.error("Error loading duas", error);
-          // Use fallback instead of showing error — ensures content is always visible
-          setDuas(FALLBACK_DUAS);
+          // Use the complete public dataset instead of the small emergency sample.
+          const fallback = await loadPublicDuaFallback();
+          setDuas(fallback.length ? fallback : FALLBACK_DUAS);
           setLoading(false);
           return;
         }
@@ -391,16 +436,18 @@ const DuaPage = () => {
           },
         }));
 
-        // If API returns empty data, use fallback
+        // If API returns empty data, use the complete public dataset.
         if (!mapped || mapped.length === 0) {
-          setDuas(FALLBACK_DUAS);
+          const fallback = await loadPublicDuaFallback();
+          setDuas(fallback.length ? fallback : FALLBACK_DUAS);
         } else {
           setDuas(mapped);
         }
         setLoading(false);
       } catch (err) {
         console.error("Dua fetch failed", err);
-        setDuas(FALLBACK_DUAS);
+        const fallback = await loadPublicDuaFallback();
+        setDuas(fallback.length ? fallback : FALLBACK_DUAS);
         setLoading(false);
       }
     };

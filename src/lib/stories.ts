@@ -43,7 +43,9 @@ export type Story = {
   author?: string;
   reading_time_minutes?: number;
   is_featured?: boolean;
+  image_url?: string;
   og_image_url?: string;
+  og_image_data?: { url?: string; image_url?: string };
   audio_embed_code?: string;
   audio_trailer_url?: string;
 };
@@ -109,7 +111,7 @@ function rowToStory(row: any, index: number): Story {
     author: row.author ?? meta.author ?? undefined,
     reading_time_minutes: row.reading_time_minutes ?? meta.reading_time_minutes ?? undefined,
     is_featured: row.is_featured ?? meta.is_featured ?? undefined,
-    og_image_url: row.image_url ?? row.og_image_url ?? undefined,
+    og_image_url: row.image_url ?? row.og_image_url ?? meta.og_image_url ?? meta.og_image_data?.url ?? meta.og_image_data?.image_url ?? row.seo?.open_graph?.["og:image"] ?? undefined,
     audio_embed_code: row.audio_embed_code ?? undefined,
     audio_trailer_url: row.audio_trailer_url ?? undefined,
     updated_at: row.updated_at ?? undefined,
@@ -155,16 +157,34 @@ export async function loadStories(): Promise<Story[]> {
       const res = await fetch("/stories.json", { cache: "force-cache" });
       const data = (await res.json()) as Story[];
       if (Array.isArray(data) && data.length) {
-        cache = data;
+        const normalized = data.map((story) => ({
+          ...story,
+          og_image_url:
+            story.og_image_url ??
+            story.og_image_data?.url ??
+            story.og_image_data?.image_url ??
+            story.image_url ??
+            story.seo?.open_graph?.["og:image"],
+        }));
+        cache = normalized;
         pending = null;
-        return data;
+        return normalized;
       }
       throw new Error("empty stories.json");
     } catch {
       const mod = await import("@/data/stories.json");
-      cache = mod.default as unknown as Story[];
+      const normalized = (mod.default as unknown as Story[]).map((story) => ({
+        ...story,
+        og_image_url:
+          story.og_image_url ??
+          story.og_image_data?.url ??
+          story.og_image_data?.image_url ??
+          story.image_url ??
+          story.seo?.open_graph?.["og:image"],
+      }));
+      cache = normalized;
       pending = null;
-      return cache;
+      return normalized;
     }
   })();
   return pending;
