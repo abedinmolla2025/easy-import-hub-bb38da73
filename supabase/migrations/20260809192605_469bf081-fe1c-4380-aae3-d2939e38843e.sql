@@ -1,0 +1,1 @@
+SELECT * FROM public.get_next_smart_notification();
