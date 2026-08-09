@@ -162,17 +162,17 @@ export default function AdminSchedulers() {
   }, [load]);
 
   const toggleEnabled = useCallback(async (id: string, enabled: boolean) => {
-    const { error } = await (supabase.from("scheduler_schedules") as any).update({ enabled, next_run_at: enabled ? null : null }).eq("id", id);
+    const { error } = await (supabase.from("scheduler_schedules" as any) as any).update({ enabled, next_run_at: enabled ? null : null }).eq("id", id);
     if (error) {
       toast.error(`অ্যাকটিভেট ব্যর্থ: ${error.message}`);
       return;
     }
     if (enabled) {
-      const { data: s } = await (supabase.from("scheduler_schedules") as any).select("*").eq("id", id).maybeSingle();
+      const { data: s } = await (supabase.from("scheduler_schedules" as any) as any).select("*").eq("id", id).maybeSingle();
       if (s) {
         const next = await (supabase as any).rpc("scheduler_compute_next_run", { s: s as any, from_tz: (s as Schedule).tz });
         if (!next.error && next.data) {
-          await (supabase.from("scheduler_schedules") as any).update({ next_run_at: next.data as string }).eq("id", id);
+          await (supabase.from("scheduler_schedules" as any) as any).update({ next_run_at: next.data as string }).eq("id", id);
         }
       }
     }
@@ -182,7 +182,7 @@ export default function AdminSchedulers() {
 
   const remove = useCallback(async (id: string) => {
     if (!confirm("এই সাচুলটি মুছে ফেলতে চান?")) return;
-    const { error } = await (supabase.from("scheduler_schedules") as any).delete().eq("id", id);
+    const { error } = await (supabase.from("scheduler_schedules" as any) as any).delete().eq("id", id);
     if (error) toast.error(`মুছা ব্যর্থ: ${(error as any).error ?? error.message}`);
     else {
       toast.success("সাচুল মুছে ফেলা হয়েছে");
