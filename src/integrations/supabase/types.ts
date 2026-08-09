@@ -1580,6 +1580,15 @@ export type Database = {
           unique_visitors: number
         }[]
       }
+      get_next_smart_notification: {
+        Args: never
+        Returns: {
+          body: string
+          category: string
+          template_id: string
+          title: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
