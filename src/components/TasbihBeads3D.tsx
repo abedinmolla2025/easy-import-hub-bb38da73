@@ -1,5 +1,4 @@
 import { useRef, useMemo, useEffect } from "react";
-import type { Mesh, Group, Line } from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, Float } from "@react-three/drei";
 import * as THREE from "three";
