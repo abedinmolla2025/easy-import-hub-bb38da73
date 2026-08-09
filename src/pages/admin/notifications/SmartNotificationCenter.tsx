@@ -25,9 +25,9 @@ const SmartNotificationCenter = () => {
   const { data: stats } = useQuery({
     queryKey: ["notification-stats"],
     queryFn: async () => {
-      const { data, count } = await supabase
-        .from("notification_logs")
-        .select("*", { count: "exact", head: true });
+      const { data, count } = await (supabase
+        .from("notification_logs" as any)
+        .select("*", { count: "exact", head: true }) as any);
       return { totalSent: count || 0 };
     }
   });
