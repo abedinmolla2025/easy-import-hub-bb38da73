@@ -1198,7 +1198,7 @@ export default function AdminContent() {
     try {
       const { error } = await supabase
         .from('admin_content')
-        .update(payload)
+        .update(payload as any)
         .eq('id', selectedContent.id);
 
       if (error) throw error;
