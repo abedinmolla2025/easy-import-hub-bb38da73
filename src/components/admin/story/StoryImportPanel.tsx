@@ -16,7 +16,7 @@ export function storyRowFromJson(story: Story, publish: boolean) {
   const en = (story as any).content_en ?? '';
   
   // Extract OG Image info from various possible fields
-  const ogImageUrl = story.og_image_url || story.og_image_data?.og_image || story.og_image_data?.og_image_url;
+  const ogImageUrl = story.og_image_url || (story.og_image_data as any)?.og_image || (story.og_image_data as any)?.og_image_url || (story as any).og_image;
   const ogImageData = story.og_image_data || (ogImageUrl ? { og_image: ogImageUrl } : null);
 
   return {
