@@ -325,9 +325,9 @@ export const GlobalConfigProvider = ({
         }
 
         if (isMounted) {
-          setState(nextState);
           applyDocumentBranding(nextState.branding, nextState.seo);
           applyThemeSettings(nextState.theme);
+          setState(nextState); // Set state AFTER applying side effects
           console.log("GlobalConfigProvider: State updated and applied.");
         }
       } catch (err: any) {
