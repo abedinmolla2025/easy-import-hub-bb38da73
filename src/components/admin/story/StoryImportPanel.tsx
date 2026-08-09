@@ -12,8 +12,8 @@ import { estimateReadingMinutes, type Story } from '@/lib/stories';
 export type StoryImportResult = { insertedIds: string[]; updatedIds: string[] };
 
 export function storyRowFromJson(story: Story, publish: boolean) {
-  const bn = story.content_bn ?? story.content ?? '';
-  const en = story.content_en ?? '';
+  const bn = (story as any).content_bn ?? (story as any).content ?? '';
+  const en = (story as any).content_en ?? '';
   
   // Extract OG Image info from various possible fields
   const ogImageUrl = story.og_image_url || story.og_image_data?.og_image || story.og_image_data?.og_image_url;
