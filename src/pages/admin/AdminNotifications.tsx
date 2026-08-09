@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QuickTemplatesPanel, type TemplateItem } from "@/components/admin/QuickTemplatesPanel";
-import StoryPickerPanel, { type StoryPickerItem } from "@/components/admin/StoryPickerPanel";
+import StoryPickerPanel, { type ContentPickerItem as StoryPickerItem } from "@/components/admin/StoryPickerPanel";
 import SmartVariantsPanel, { type StoryVariant } from "@/components/admin/SmartVariantsPanel";
 import storyVariantsMap from "@/data/storyNotificationsVariants";
 import { BookOpen } from "lucide-react";
