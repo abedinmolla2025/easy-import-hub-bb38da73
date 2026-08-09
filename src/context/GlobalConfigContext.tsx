@@ -395,15 +395,7 @@ export const GlobalConfigProvider = ({
 
   return (
     <GlobalConfigContext.Provider value={value}>
-      {state.loading ? (
-        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a1a14', color: '#0d9f6e', fontFamily: 'sans-serif' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ width: '40px', height: '40px', border: '3px solid rgba(13,159,110,0.3)', borderTopColor: '#0d9f6e', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}></div>
-            <p>Loading Application Settings...</p>
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          </div>
-        </div>
-      ) : children}
+      {children}
     </GlobalConfigContext.Provider>
   );
 };

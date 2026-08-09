@@ -288,7 +288,7 @@ export function SplashScreen(props: {
               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-wider">{appName}</h1>
               <p className="mt-2 text-sm sm:text-base text-emerald-200/70">'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
                                             
-                                            সমাধান হয়নি</p>
+                                            এই সমস্যা কেন হচ্চে শুরুতে</p>
             </motion.div>
 
             {/* Seasonal Message - Beautiful Typography */}
