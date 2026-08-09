@@ -115,8 +115,8 @@ export default function AdminSchedulers() {
 
   const load = useCallback(async () => {
     const [sRes, rRes] = await Promise.all([
-      supabase.from("scheduler_schedules").select("*").order("created_at", { ascending: false }),
-      supabase.from("scheduler_notification_runs").select("*").order("run_at", { ascending: false }).limit(200),
+      (supabase.from("scheduler_schedules") as any).select("*").order("created_at", { ascending: false }),
+      (supabase.from("scheduler_notification_runs") as any).select("*").order("run_at", { ascending: false }).limit(200),
     ]);
     if (!sRes.error) setSchedules((sRes.data ?? []) as Schedule[]);
     if (!rRes.error) setRuns((rRes.data ?? []) as RunRow[]);
