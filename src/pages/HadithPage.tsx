@@ -123,6 +123,21 @@ export default function HadithPage() {
         </motion.p>
       </div>
 
+      {/* Editorial context: explains what the collections contain and how to use them. */}
+      <section className="mx-auto max-w-lg px-4 -mt-3 mb-8">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+          <h2 className="text-sm font-bold text-emerald-200">হাদিস পড়ার পদ্ধতি ও উৎস</h2>
+          <p className="mt-2 text-xs leading-relaxed text-white/75">
+            হাদিস হলো নবী মুহাম্মদ ﷺ-এর কথা, কাজ ও অনুমোদনের বর্ণনা। নিচের সংকলনগুলো মূল গ্রন্থের নাম, অধ্যায় এবং হাদিস নম্বর ধরে সাজানো হয়েছে—তাই কোনো বর্ণনা উদ্ধৃত করার সময় গ্রন্থ ও নম্বর মিলিয়ে দেখা জরুরি। বাংলা অর্থ বোঝার সহায়ক; গুরুত্বপূর্ণ আমল বা আকীদার বিষয়ে যোগ্য আলেমের ব্যাখ্যাও গ্রহণ করুন।
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+            <Link to="/data-sources" className="rounded-full bg-emerald-400/15 px-3 py-1.5 font-semibold text-emerald-200 hover:bg-emerald-400/25">উৎস ও সম্পাদনা পদ্ধতি</Link>
+            <Link to="/prayer-guide" className="rounded-full bg-white/10 px-3 py-1.5 font-semibold text-white/80 hover:bg-white/15">নামাজের নির্দেশিকা</Link>
+            <Link to="/dua" className="rounded-full bg-white/10 px-3 py-1.5 font-semibold text-white/80 hover:bg-white/15">দোয়া সংকলন</Link>
+          </div>
+        </div>
+      </section>
+
       {/* Book cards */}
       <div className="mx-auto max-w-lg px-4 flex flex-col gap-[14px]">
         {hadithBooks.map((book, i) => (

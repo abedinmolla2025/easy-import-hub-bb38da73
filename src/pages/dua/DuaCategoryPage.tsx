@@ -254,6 +254,20 @@ const DuaCategoryPage = () => {
           </p>
         </header>
 
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <h2 className="text-sm font-bold text-[hsl(45,93%,58%)]">
+            এই দোয়াগুলো কীভাবে ব্যবহার করবেন
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-white/75">
+            {categoryName} বিষয়ের দোয়াগুলো আরবি পাঠ, উচ্চারণ ও অর্থসহ পড়ুন। দোয়া মুখস্থ করার আগে অর্থ বোঝা, নির্ভরযোগ্য উৎস মিলিয়ে দেখা এবং যে আমলের জন্য দোয়াটি পড়া হয় তার প্রেক্ষাপট জানা উপকারী। Noor-এর অনুবাদ বোঝার সহায়ক; ফিকহি বা বিশেষ ধর্মীয় সিদ্ধান্তের জন্য যোগ্য আলেমের পরামর্শ নিন।
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+            <Link to="/data-sources" className="rounded-full bg-[hsl(45,93%,58%)]/15 px-3 py-1.5 font-semibold text-[hsl(45,93%,65%)] hover:bg-[hsl(45,93%,58%)]/25">উৎস ও সম্পাদনা পদ্ধতি</Link>
+            <Link to="/dua" className="rounded-full bg-white/10 px-3 py-1.5 font-semibold text-white/80 hover:bg-white/15">সব দোয়া</Link>
+            <Link to="/hadith" className="rounded-full bg-white/10 px-3 py-1.5 font-semibold text-white/80 hover:bg-white/15">হাদিস সংকলন</Link>
+          </div>
+        </section>
+
         <AdSlot placement="web_dua_middle" />
 
         {loading ? (

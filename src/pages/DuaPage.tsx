@@ -677,6 +677,20 @@ const DuaPage = () => {
             exit={{ opacity: 0 }}
             className="p-4 space-y-4"
           >
+            <section className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <h2 className="text-sm font-bold text-[hsl(45,93%,58%)]">
+                দোয়া পড়ার অর্থ ও প্রেক্ষাপট
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-white/75">
+                Noor-এর দোয়া সংকলনে দৈনন্দিন জীবন, ইবাদত ও বিভিন্ন প্রয়োজনের জন্য আরবি পাঠ, উচ্চারণ এবং অনুবাদ একসঙ্গে দেওয়া হয়েছে। দোয়া শুধু মুখস্থ করার বিষয় নয়—অর্থ বোঝা, কখন পড়তে হয় তা জানা এবং বর্ণনার উৎস যাচাই করাও গুরুত্বপূর্ণ। অনুবাদ সহায়ক হিসেবে ব্যবহার করুন এবং বিশেষ ধর্মীয় সিদ্ধান্তে যোগ্য আলেমের পরামর্শ নিন।
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+                <Link to="/data-sources" className="rounded-full bg-[hsl(45,93%,58%)]/15 px-3 py-1.5 font-semibold text-[hsl(45,93%,65%)] hover:bg-[hsl(45,93%,58%)]/25">উৎস ও সম্পাদনা পদ্ধতি</Link>
+                <Link to="/hadith" className="rounded-full bg-white/10 px-3 py-1.5 font-semibold text-white/80 hover:bg-white/15">হাদিস সংকলন</Link>
+                <Link to="/prayer-guide" className="rounded-full bg-white/10 px-3 py-1.5 font-semibold text-white/80 hover:bg-white/15">নামাজের নির্দেশিকা</Link>
+              </div>
+            </section>
+
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
