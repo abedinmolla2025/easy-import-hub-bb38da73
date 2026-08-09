@@ -373,13 +373,13 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <GlobalConfigProvider>
-          <AdminProvider>
+        <AdminProvider>
+          <GlobalConfigProvider>
             <AppSettingsProvider>
               <AppInner />
             </AppSettingsProvider>
-          </AdminProvider>
-        </GlobalConfigProvider>
+          </GlobalConfigProvider>
+        </AdminProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
