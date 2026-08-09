@@ -168,11 +168,11 @@ export default function AdminSchedulers() {
       return;
     }
     if (enabled) {
-      const { data: s } = await supabase.from("scheduler_schedules").select("*").eq("id", id).maybeSingle();
+      const { data: s } = await (supabase.from("scheduler_schedules") as any).select("*").eq("id", id).maybeSingle();
       if (s) {
-        const next = await supabase.rpc("scheduler_compute_next_run", { s: s as never, from_tz: (s as Schedule).tz } as never);
+        const next = await (supabase as any).rpc("scheduler_compute_next_run", { s: s as any, from_tz: (s as Schedule).tz });
         if (!next.error && next.data) {
-          await supabase.from("scheduler_schedules").update({ next_run_at: next.data as string }).eq("id", id);
+          await (supabase.from("scheduler_schedules") as any).update({ next_run_at: next.data as string }).eq("id", id);
         }
       }
     }
