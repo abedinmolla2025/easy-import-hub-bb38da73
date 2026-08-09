@@ -16,6 +16,11 @@ const SEO_BY_PATH = {
   "/calendar": { title: "Islamic Calendar | Noor", description: "Check the Islamic calendar and important Hijri dates with Noor." },
   "/prayer-times": { title: "Prayer Times | Noor", description: "Check accurate daily prayer times and Islamic guidance with Noor." },
   "/baby-names": { title: "Muslim Baby Names | Noor", description: "Explore meaningful Muslim baby names with Bengali meanings on Noor." },
+  "/sources": { title: "Authentic Islamic Sources | Noor", description: "Learn which Qur'an, Hadith, tafsir and scholarly sources Noor uses, and how Islamic content is reviewed." },
+  "/privacy-policy": { title: "Privacy Policy | Noor", description: "Read Noor's privacy policy covering local storage, analytics, advertising cookies, third-party services and data requests." },
+  "/terms": { title: "Terms & Conditions | Noor", description: "Read the terms, acceptable-use guidelines and content limitations for using Noor Islamic app." },
+  "/about": { title: "About Noor Islamic App | Noor", description: "Learn about Noor, its developer, mission and free Islamic learning tools." },
+  "/contact": { title: "Contact Noor | Noor", description: "Contact Noor about support, privacy requests, source corrections or Islamic content feedback." },
 };
 
 const VALID_STATIC_PATHS = new Set([
