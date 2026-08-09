@@ -152,7 +152,7 @@ export default function AdminSchedulers() {
         from_tz: payload.tz,
       });
       if (!next.error && next.data) {
-        await (supabase.from("scheduler_schedules") as any).update({ next_run_at: next.data as string }).eq("id", data.id ?? (res.data as any)?.id);
+        await (supabase.from("scheduler_schedules" as any) as any).update({ next_run_at: next.data as string }).eq("id", data.id ?? (res.data as any)?.id);
       }
     }
     toast.success(data.id ? "সাচুল আপডেট হয়েছে" : "নতুন সাচুল তৈরি হয়েছে");
