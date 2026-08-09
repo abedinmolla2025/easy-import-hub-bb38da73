@@ -2620,7 +2620,7 @@ export default function AdminContent() {
                                 folder={item.content_type === 'story' ? 'story-og' : 'dua-og'}
                                 storageIndex={ogStorageIndex}
                                 onClick={() => {
-                                  e.stopPropagation();
+                                  // Removed e.stopPropagation() as it was causing type errors and we're using a div instead of a button anyway
                                   setOgManagerItem(item);
                                 }}
                               />
