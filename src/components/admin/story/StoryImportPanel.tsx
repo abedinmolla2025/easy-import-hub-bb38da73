@@ -319,7 +319,7 @@ export function StoryImportPanel({
         </div>
 
         <div className="flex justify-end">
-          <Button size="xs" variant="ghost" className="text-[10px] h-6" onClick={refresh} disabled={busy}>
+          <Button size="sm" variant="ghost" className="text-[10px] h-6" onClick={refresh} disabled={busy}>
             <RefreshCw className={`mr-1 h-3 w-3 ${busy ? 'animate-spin' : ''}`} />
             Refresh Count
           </Button>
