@@ -22,7 +22,7 @@ export function storyRowFromJson(story: Story, publish: boolean) {
   return {
     content_type: 'story',
     slug: story.slug,
-    title: story.title_bn || story.title || story.title_en || story.slug,
+    title: story.title_bn || (story as any).title || story.title_en || story.slug,
     title_en: story.title_en ?? null,
     title_ur: story.title_ur ?? null,
     content: bn || null,
