@@ -485,7 +485,7 @@ export function DuaBulkImportDialog({
               ...it.extras,
             },
           }));
-          const { data, error } = await supabase.from("admin_content").insert(rows).select("id");
+          const { data, error } = await supabase.from("admin_content").insert(rows as any[]).select("id");
           if (error) throw error;
           inserted += rows.length;
           if (data) insertedIds.push(...data.map((r) => r.id));
