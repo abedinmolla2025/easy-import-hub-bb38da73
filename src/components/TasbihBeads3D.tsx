@@ -75,7 +75,7 @@ interface TasbihMalaProps {
 }
 
 const TasbihMala = ({ count, totalBeads }: TasbihMalaProps) => {
-  const groupRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<any>(null);
   const targetRotation = useRef(0);
   const currentRotation = useRef(0);
   const lastCount = useRef(0);
