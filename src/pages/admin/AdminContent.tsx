@@ -2889,7 +2889,7 @@ export default function AdminContent() {
           title={ogManagerItem.title}
           contentId={ogManagerItem.id}
           slug={ogManagerItem.slug}
-          url={ogManagerItem.image_url || ogManagerItem.og_image_data?.og_image}
+          url={ogManagerItem.og_image_url || ogManagerItem.og_image_data?.og_image}
           folder={ogManagerItem.content_type === 'story' ? 'story-og' : 'dua-og'}
           onChanged={async () => {
             queryClient.invalidateQueries({ queryKey: ['og-storage-index'] });
