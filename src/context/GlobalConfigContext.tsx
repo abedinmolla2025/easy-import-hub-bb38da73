@@ -289,6 +289,7 @@ export const GlobalConfigProvider = ({
 
     const loadSettings = async () => {
       try {
+        console.log("GlobalConfigProvider: Executing Supabase query...");
         const { data, error } = await supabase
           .from("app_settings")
           .select("setting_key, setting_value")
@@ -296,53 +297,48 @@ export const GlobalConfigProvider = ({
 
         if (error) {
           console.error("GlobalConfigProvider: Error loading app_settings", error);
-          if (!isMounted) return;
-          setState((prev) => ({ ...prev, loading: false }));
+          if (isMounted) {
+            setState((prev) => ({ ...prev, loading: false }));
+          }
           return;
         }
         
         console.log("GlobalConfigProvider: Settings loaded successfully, rows:", data?.length);
 
+        const nextState: GlobalConfigState = { ...defaultState, loading: false };
 
-      const nextState: GlobalConfigState = { ...defaultState, loading: false };
+        if (data && data.length > 0) {
+          for (const row of data) {
+            const key = row.setting_key as AppSettingKey;
+            const value = (row.setting_value || {}) as any;
+            switch (key) {
+              case "branding": nextState.branding = value; break;
+              case "theme": nextState.theme = value; break;
+              case "seo": nextState.seo = value; break;
+              case "system": nextState.system = value; break;
+              case "modules": nextState.modules = { ...nextState.modules, ...value }; break;
+              case "legal": nextState.legal = value; break;
+            }
+          }
+        } else {
+          console.warn("GlobalConfigProvider: No settings rows returned from database.");
+        }
 
-      for (const row of data || []) {
-        const key = row.setting_key as AppSettingKey;
-        const value = (row.setting_value || {}) as any;
-        switch (key) {
-          case "branding":
-            nextState.branding = value;
-            break;
-          case "theme":
-            nextState.theme = value;
-            break;
-          case "seo":
-            nextState.seo = value;
-            break;
-          case "system":
-            nextState.system = value;
-            break;
-          case "modules":
-            nextState.modules = { ...nextState.modules, ...value };
-            break;
-          case "legal":
-            nextState.legal = value;
-            break;
+        if (isMounted) {
+          setState(nextState);
+          applyDocumentBranding(nextState.branding, nextState.seo);
+          applyThemeSettings(nextState.theme);
+          console.log("GlobalConfigProvider: State updated and applied.");
+        }
+      } catch (err: any) {
+        console.error("GlobalConfigProvider: Fatal error in loadSettings", err);
+        if (isMounted) {
+          setState((prev) => ({ ...prev, loading: false }));
         }
       }
+    };
 
-      if (!isMounted) return;
-      setState(nextState);
-      applyDocumentBranding(nextState.branding, nextState.seo);
-      applyThemeSettings(nextState.theme);
-      console.log("GlobalConfigProvider: State updated and applied.");
-    } catch (err: any) {
-      console.error("GlobalConfigProvider: Fatal error in loadSettings", err);
-      if (isMounted) setState((prev) => ({ ...prev, loading: false }));
-    }
-  };
-
-  loadSettings();
+    loadSettings();
 
     const channel = supabase
       .channel("app_settings_changes")
