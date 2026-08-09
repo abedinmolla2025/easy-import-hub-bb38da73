@@ -73,6 +73,17 @@
    "destination": "/api/sitemap-dynamic"
   },
   {
+   "source": "/data-sources",
+   "has": [
+    {
+     "type": "header",
+     "key": "user-agent",
+     "value": ".*(Googlebot|facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|Discordbot|LinkedInBot|Pinterest|slackbot|Applebot).*"
+    }
+   ],
+   "destination": "/api/prerender?path=/data-sources"
+  },
+  {
    "source": "/((?!assets|favicon|og-|pwa-|manifest|robots|sitemap\\.xml|sw\\.js|data|api/).*)",
    "has": [
     {

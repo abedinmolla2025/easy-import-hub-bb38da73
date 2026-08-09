@@ -8,6 +8,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const SEO_BY_PATH = {
   "/": { title: "Noor — Quran, Hadith, Dua & Prayer Times", description: "Read Quran, Hadith, Dua, prayer times, Qibla and Islamic resources in Bengali with Noor." },
+  "/data-sources": { title: "Islamic Data Sources | Noor", description: "Review the Quran, Hadith, prayer times and Islamic content sources used by Noor." },
   "/stories": { title: "Islamic Stories in Bengali | Noor", description: "Read meaningful Islamic and Quranic stories in Bengali with sources and lessons on Noor." },
   "/hadith": { title: "Authentic Hadith in Bengali | Noor", description: "Explore authentic Hadith collections and Sahih Bukhari resources in Bengali on Noor." },
   "/dua": { title: "Daily Dua in Bengali | Noor", description: "Read daily duas with Bengali meaning, Arabic text and practical guidance on Noor." },
@@ -24,7 +25,7 @@ const SEO_BY_PATH = {
 };
 
 const VALID_STATIC_PATHS = new Set([
-  "/", "/quran", "/hadith", "/dua", "/prayer-times", "/prayer-guide", "/qibla", "/tasbih", "/99-names", "/baby-names", "/calendar", "/quiz", "/stories", "/about", "/contact", "/sources", "/privacy-policy", "/terms", "/download", "/islamic-app",
+  "/", "/quran", "/hadith", "/dua",   "/prayer-times", "/prayer-guide", "/qibla", "/tasbih", "/99-names", "/baby-names", "/calendar", "/quiz", "/stories", "/about", "/contact", "/sources", "/data-sources", "/privacy-policy", "/terms", "/download", "/islamic-app",
 ]);
 
 function isKnownPublicPath(path) {
