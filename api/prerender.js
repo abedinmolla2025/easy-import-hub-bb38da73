@@ -6,6 +6,15 @@ const SITE_ORIGIN = "https://noorapp.in";
 const SUPABASE_URL = "https://llicfiepatzgllmjhzbw.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsaWNmaWVwYXR6Z2xsbWpoemJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODA4MDksImV4cCI6MjA4NDA1NjgwOX0.T7xnXRSM2jx92gVH8Of1dePj609C7WKKflv2I_VZpy0";
 
+const VALID_STORY_CATEGORIES = new Set([
+  "prophets",
+  "sahaba",
+  "islamic-history",
+  "islamic_historical_events",
+  "inspirational",
+  "kids_friendly",
+]);
+
 const SEO_BY_PATH = {
   "/": { title: "Noor — Quran, Hadith, Dua & Prayer Times", description: "Read Quran, Hadith, Dua, prayer times, Qibla and Islamic resources in Bengali with Noor." },
   "/data-sources": { title: "Islamic Data Sources | Noor", description: "Review the Quran, Hadith, prayer times and Islamic content sources used by Noor." },
@@ -85,7 +94,12 @@ export default async function handler(req, res) {
       ogImage = `${SITE_ORIGIN}/og-dua.png`;
     }
 
-    const storyCategoryMatch = path.match(/^\/stories\/category\/([a-zA-Z0-9-]+)$/);
+    const storyCategoryMatch = path.match(/^\/stories\/category\/([a-zA-Z0-9_-]+)$/);
+    if (storyCategoryMatch && !VALID_STORY_CATEGORIES.has(storyCategoryMatch[1])) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("X-Robots-Tag", "noindex, follow");
+      return res.status(404).send("<!DOCTYPE html><html lang=\"bn\"><head><meta charset=\"UTF-8\"><meta name=\"robots\" content=\"noindex,follow\"><title>Story category not found | Noor</title></head><body><h1>Story category not found</h1><p>The requested Noor story category could not be found.</p></body></html>");
+    }
     if (storyCategoryMatch) {
       const categoryName = humanizeSlug(storyCategoryMatch[1]);
       title = `${categoryName} Islamic Stories in Bengali | Noor`;
