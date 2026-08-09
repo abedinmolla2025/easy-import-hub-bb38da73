@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { SplashGate } from "@/components/SplashGate";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -372,19 +371,17 @@ const AppInner = () => {
 
 const App = () => {
   return (
-    <SplashGate>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <AdminProvider>
-            <GlobalConfigProvider>
-              <AppSettingsProvider>
-                <AppInner />
-              </AppSettingsProvider>
-            </GlobalConfigProvider>
-          </AdminProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </SplashGate>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AdminProvider>
+          <GlobalConfigProvider>
+            <AppSettingsProvider>
+              <AppInner />
+            </AppSettingsProvider>
+          </GlobalConfigProvider>
+        </AdminProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 
