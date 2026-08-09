@@ -1116,7 +1116,7 @@ export default function AdminContent() {
       } else {
         const { error } = await supabase
           .from('admin_content')
-          .update(basePayload)
+          .update(basePayload as any)
           .eq('id', contentId);
         if (error) throw error;
         await logAudit('content.update', contentId, { title: basePayload.title });
