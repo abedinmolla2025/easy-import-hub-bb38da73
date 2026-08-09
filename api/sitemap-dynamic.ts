@@ -9,6 +9,7 @@ function xmlEscape(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
+// Production sitemap endpoint: deterministic XML with a dependency-free fallback.
 export default function handler(_req: unknown, res: ResponseLike) {
   // Keep this endpoint deterministic and dependency-free. Dynamic content is added only
   // when it is present in the deployed public JSON asset; an unavailable database must
