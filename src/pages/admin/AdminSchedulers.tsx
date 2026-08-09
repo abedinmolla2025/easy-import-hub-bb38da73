@@ -182,8 +182,8 @@ export default function AdminSchedulers() {
 
   const remove = useCallback(async (id: string) => {
     if (!confirm("এই সাচুলটি মুছে ফেলতে চান?")) return;
-    const { error } = await supabase.from("scheduler_schedules").delete().eq("id", id);
-    if (error) toast.error(`মুছা ব্যর্থ: ${error.error ?? error.message}`);
+    const { error } = await (supabase.from("scheduler_schedules") as any).delete().eq("id", id);
+    if (error) toast.error(`মুছা ব্যর্থ: ${(error as any).error ?? error.message}`);
     else {
       toast.success("সাচুল মুছে ফেলা হয়েছে");
       load();
