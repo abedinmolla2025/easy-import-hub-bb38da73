@@ -2034,7 +2034,7 @@ export default function AdminContent() {
                         <DuaOgImageControls
                           contentId={selectedContent.id}
                           slug={selectedContent.slug ?? editForm.slug}
-                          url={selectedContent.image_url || selectedContent.og_image_data?.og_image}
+                          url={selectedContent.og_image_url || selectedContent.og_image_data?.og_image}
                           folder={effectiveType === 'story' ? 'story-og' : 'dua-og'}
                           onChanged={() => {
                             queryClient.invalidateQueries({ queryKey: ['admin-content'] });
