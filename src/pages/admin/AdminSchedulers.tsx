@@ -147,12 +147,12 @@ export default function AdminSchedulers() {
     }
     // compute next_run_at via the db helper (client can't run PL/pgSQL)
     if (payload.enabled) {
-      const next = await supabase.rpc("scheduler_compute_next_run", {
+      const next = await (supabase as any).rpc("scheduler_compute_next_run", {
         s: { ...payload, id: data.id ?? (res.data as any)?.id ?? "" },
         from_tz: payload.tz,
-      } as never);
+      });
       if (!next.error && next.data) {
-        await supabase.from("scheduler_schedules").update({ next_run_at: next.data as string }).eq("id", data.id ?? (res.data as any)?.id);
+        await (supabase.from("scheduler_schedules") as any).update({ next_run_at: next.data as string }).eq("id", data.id ?? (res.data as any)?.id);
       }
     }
     toast.success(data.id ? "সাচুল আপডেট হয়েছে" : "নতুন সাচুল তৈরি হয়েছে");
