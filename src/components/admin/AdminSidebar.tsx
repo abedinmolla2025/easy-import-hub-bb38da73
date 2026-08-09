@@ -71,7 +71,8 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
         { to: '/admin/quiz', icon: BookOpen, label: 'Quiz Questions' },
         { to: '/admin/occasions', icon: CalendarDays, label: 'Occasions' },
         { to: '/admin/splash-screens', icon: Sparkles, label: 'Splash Screens' },
-        { to: '/admin/notifications', icon: Bell, label: 'Send Notification' },
+        { to: '/admin/notifications', icon: Zap, label: 'Smart Notifications' },
+        { to: '/admin/notifications/legacy', icon: Bell, label: 'Custom Push' },
         { to: '/admin/notifications/history', icon: HistoryIcon, label: 'Notification History' },
         { to: '/admin/notifications/diagnostics', icon: Zap, label: 'Notification Diagnostics' },
         

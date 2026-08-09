@@ -37,6 +37,7 @@ import AdminContentWorkflowPage from "./pages/admin/AdminContentWorkflow";
 import AdminAuditPage from "./pages/admin/AdminAudit";
 import AdminMonetization from "./pages/admin/AdminMonetization";
 import AdminNotifications from "./pages/admin/AdminNotifications";
+import SmartNotificationCenter from "./pages/admin/notifications/SmartNotificationCenter";
 import AdminNotificationsHistory from "./pages/admin/AdminNotificationsHistory";
 import AdminNotificationsDiagnostics from "./pages/admin/AdminNotificationsDiagnostics";
 import AdminOccasions from "./pages/admin/AdminOccasions";
@@ -219,6 +220,14 @@ const AppRoutes = () => {
       />
       <Route
         path="/admin/notifications"
+        element={
+          <AdminLayout>
+            <SmartNotificationCenter />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/notifications/legacy"
         element={
           <AdminLayout>
             <AdminNotifications />
