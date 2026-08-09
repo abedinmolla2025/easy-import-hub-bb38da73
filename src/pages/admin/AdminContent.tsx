@@ -1106,7 +1106,7 @@ export default function AdminContent() {
             ...basePayload,
             status: 'draft',
             is_published: false,
-          })
+          } as any)
           .select()
           .single();
 
