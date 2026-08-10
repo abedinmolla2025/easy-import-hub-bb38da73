@@ -287,7 +287,7 @@ export function SplashScreen(props: {
             >
               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-wider">{appName}</h1>
               <p className="mt-2 text-[8px] sm:text-[10px] text-emerald-200/70 whitespace-pre-wrap text-center max-w-xs overflow-auto max-h-[150px]">
-                {`'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                            \n                                            Who are u`}
+                {`'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n                                            \n                                            হাদীস ডেটা আসছে না`}
               </p>
             </motion.div>
 
